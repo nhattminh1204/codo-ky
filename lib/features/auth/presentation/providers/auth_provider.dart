@@ -1,15 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:codoky/core/logging/app_logger.dart';
 import 'package:codoky/features/auth/data/models/user_model.dart';
 
 class AuthState {
   final bool isAuthenticated;
   final bool isLoading;
+  final bool isNewUser;
   final UserModel? user;
   final String? error;
 
   const AuthState({
     this.isAuthenticated = false,
     this.isLoading = false,
+    this.isNewUser = false,
     this.user,
     this.error,
   });
@@ -17,12 +24,14 @@ class AuthState {
   AuthState copyWith({
     bool? isAuthenticated,
     bool? isLoading,
+    bool? isNewUser,
     UserModel? user,
     String? error,
   }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isLoading: isLoading ?? this.isLoading,
+      isNewUser: isNewUser ?? this.isNewUser,
       user: user ?? this.user,
       error: error ?? this.error,
     );
@@ -30,72 +39,349 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier() : super(const AuthState());
+  AuthNotifier() : super(const AuthState()) {
+    _initAuthListener();
+  }
 
-  Future<void> login(String email, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
-
+  void _initAuthListener() {
     try {
-      // TODO: Call API
-      await Future.delayed(const Duration(seconds: 1));
-
-      final user = UserModel(
-        id: '1',
-        name: 'Demo User',
-        email: email,
-        phone: '0123456789',
-        avatarUrl: null,
-        createdAt: DateTime.now(),
-      );
-
-      state = state.copyWith(
-        isAuthenticated: true,
-        isLoading: false,
-        user: user,
-      );
+      FirebaseAuth.instance.authStateChanges().listen((User? fbUser) async {
+        if (fbUser != null) {
+          final userModel = await _fetchOrSyncUser(fbUser);
+          state = state.copyWith(
+            isAuthenticated: true,
+            user: userModel,
+          );
+        } else {
+          state = const AuthState();
+        }
+      }, onError: (e) {
+        AppLogger.w('FirebaseAuth listener warning: $e');
+      });
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
+      AppLogger.w('Firebase Auth listener fallback: $e');
+    }
+  }
+
+  Future<UserModel> _fetchOrSyncUser(User fbUser, [String? fallbackName, String? fallbackPhone]) async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(fbUser.uid).get();
+      if (doc.exists && doc.data() != null) {
+        return UserModel.fromJson({...doc.data()!, 'id': fbUser.uid});
+      } else {
+        final newUser = UserModel(
+          id: fbUser.uid,
+          name: fbUser.displayName ?? fallbackName ?? 'Người dùng CodoKy',
+          email: fbUser.email ?? '',
+          phone: fbUser.phoneNumber ?? fallbackPhone ?? '',
+          avatarUrl: fbUser.photoURL,
+          preferences: const [],
+          createdAt: DateTime.now(),
+        );
+        try {
+          await FirebaseFirestore.instance.collection('users').doc(fbUser.uid).set(newUser.toJson());
+        } catch (e) {
+          AppLogger.w('Firestore set new user failed: $e');
+        }
+        return newUser;
+      }
+    } catch (e) {
+      AppLogger.w('Firestore sync fallback: $e');
+      return UserModel(
+        id: fbUser.uid,
+        name: fbUser.displayName ?? fallbackName ?? 'Người dùng CodoKy',
+        email: fbUser.email ?? '',
+        phone: fbUser.phoneNumber ?? fallbackPhone ?? '',
+        avatarUrl: fbUser.photoURL,
+        preferences: const [],
+        createdAt: DateTime.now(),
       );
     }
   }
 
-  Future<void> register(String name, String email, String phone, String password) async {
+  Future<bool> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
-
     try {
-      // TODO: Call API
-      await Future.delayed(const Duration(seconds: 1));
-
-      final user = UserModel(
-        id: '1',
-        name: name,
-        email: email,
-        phone: phone,
-        avatarUrl: null,
-        createdAt: DateTime.now(),
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
       );
-
-      state = state.copyWith(
-        isAuthenticated: true,
-        isLoading: false,
-        user: user,
-      );
+      final fbUser = credential.user;
+      if (fbUser != null) {
+        final userModel = await _fetchOrSyncUser(fbUser);
+        state = state.copyWith(
+          isAuthenticated: true,
+          isLoading: false,
+          isNewUser: false,
+          user: userModel,
+        );
+        AppLogger.i('Đăng nhập thành công: ${fbUser.email}');
+        return true;
+      }
+      throw Exception('Không lấy được thông tin tài khoản');
+    } on FirebaseAuthException catch (e) {
+      final msg = _mapFirebaseAuthError(e);
+      AppLogger.e('Lỗi đăng nhập Firebase: ${e.code}', e);
+      state = state.copyWith(isLoading: false, error: msg);
+      return false;
     } catch (e) {
+      AppLogger.e('Lỗi đăng nhập không xác định', e);
+      state = state.copyWith(isLoading: false, error: 'Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.');
+      return false;
+    }
+  }
+
+  Future<bool> register(String name, String email, String phone, String password) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      final fbUser = credential.user;
+      if (fbUser != null) {
+        try {
+          await fbUser.updateDisplayName(name);
+        } catch (_) {}
+
+        final newUser = UserModel(
+          id: fbUser.uid,
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          avatarUrl: fbUser.photoURL,
+          preferences: const [],
+          createdAt: DateTime.now(),
+        );
+
+        try {
+          await FirebaseFirestore.instance.collection('users').doc(fbUser.uid).set(newUser.toJson());
+        } catch (e) {
+          AppLogger.w('Firestore set user failed: $e');
+        }
+
+        state = state.copyWith(
+          isAuthenticated: true,
+          isLoading: false,
+          isNewUser: true,
+          user: newUser,
+        );
+        AppLogger.i('Đăng ký tài khoản thành công: ${fbUser.email}');
+        return true;
+      }
+      throw Exception('Không thể tạo tài khoản');
+    } on FirebaseAuthException catch (e) {
+      final msg = _mapFirebaseAuthError(e);
+      AppLogger.e('Lỗi đăng ký Firebase: ${e.code}', e);
+      state = state.copyWith(isLoading: false, error: msg);
+      return false;
+    } catch (e) {
+      AppLogger.e('Lỗi đăng ký không xác định', e);
+      state = state.copyWith(isLoading: false, error: 'Đăng ký thất bại. Vui lòng thử lại sau.');
+      return false;
+    }
+  }
+
+  Future<bool> forgotPassword(String email) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
+      state = state.copyWith(isLoading: false);
+      AppLogger.i('Đã gửi email đặt lại mật khẩu tới: $email');
+      return true;
+    } on FirebaseAuthException catch (e) {
+      final msg = _mapFirebaseAuthError(e);
+      AppLogger.e('Lỗi quên mật khẩu Firebase: ${e.code}', e);
+      state = state.copyWith(isLoading: false, error: msg);
+      return false;
+    } catch (e) {
+      AppLogger.e('Lỗi quên mật khẩu', e);
+      state = state.copyWith(isLoading: false, error: 'Không thể gửi email đặt lại mật khẩu.');
+      return false;
+    }
+  }
+
+  Future<bool> loginWithGoogle() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final googleSignIn = GoogleSignIn.instance;
+      final googleUser = await googleSignIn.authenticate();
+      final googleAuth = googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+      final authResult = await FirebaseAuth.instance.signInWithCredential(credential);
+      final fbUser = authResult.user;
+      if (fbUser != null) {
+        final userModel = await _fetchOrSyncUser(fbUser, googleUser.displayName);
+        state = state.copyWith(
+          isAuthenticated: true,
+          isLoading: false,
+          isNewUser: authResult.additionalUserInfo?.isNewUser ?? false,
+          user: userModel,
+        );
+        AppLogger.i('Đăng nhập Google thành công: ${fbUser.email}');
+        return true;
+      }
+      state = state.copyWith(isLoading: false);
+      return false;
+    } on FirebaseAuthException catch (e) {
+      final msg = _mapFirebaseAuthError(e);
+      AppLogger.e('Lỗi Google Auth: ${e.code}', e);
+      state = state.copyWith(isLoading: false, error: msg);
+      return false;
+    } catch (e) {
+      AppLogger.e('Lỗi Google Sign In', e);
+      state = state.copyWith(isLoading: false, error: 'Đăng nhập bằng Google không thành công.');
+      return false;
+    }
+  }
+
+  Future<bool> loginWithApple() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      final authResult = await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+      final fbUser = authResult.user;
+      if (fbUser != null) {
+        final userModel = await _fetchOrSyncUser(fbUser);
+        state = state.copyWith(
+          isAuthenticated: true,
+          isLoading: false,
+          user: userModel,
+        );
+        AppLogger.i('Đăng nhập Apple thành công: ${fbUser.email}');
+        return true;
+      }
+      state = state.copyWith(isLoading: false);
+      return false;
+    } on FirebaseAuthException catch (e) {
+      final msg = _mapFirebaseAuthError(e);
+      AppLogger.e('Lỗi Apple Auth: ${e.code}', e);
+      state = state.copyWith(isLoading: false, error: msg);
+      return false;
+    } catch (e) {
+      AppLogger.e('Lỗi Apple Sign In', e);
+      state = state.copyWith(isLoading: false, error: 'Đăng nhập bằng Apple không thành công.');
+      return false;
+    }
+  }
+
+  Future<bool> savePreferences(List<String> preferences) async {
+    final user = state.user;
+    if (user == null) return false;
+
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final updatedUser = user.copyWith(preferences: preferences);
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(user.id).update({
+          'preferences': preferences,
+        });
+      } catch (e) {
+        AppLogger.w('Firestore update preferences warning: $e');
+      }
+
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        user: updatedUser,
       );
+      AppLogger.i('Đã lưu sở thích người dùng: $preferences');
+      return true;
+    } catch (e) {
+      AppLogger.e('Lỗi lưu sở thích', e);
+      state = state.copyWith(isLoading: false, error: 'Không thể lưu sở thích.');
+      return false;
+    }
+  }
+
+  Future<bool> updateProfile({String? name, String? phone, String? avatarUrl}) async {
+    final currentUser = state.user;
+    if (currentUser == null) return false;
+
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final updatedUser = currentUser.copyWith(
+        name: name ?? currentUser.name,
+        phone: phone ?? currentUser.phone,
+        avatarUrl: avatarUrl ?? currentUser.avatarUrl,
+      );
+
+      try {
+        final fbUser = FirebaseAuth.instance.currentUser;
+        if (fbUser != null && name != null) {
+          await fbUser.updateDisplayName(name);
+        }
+        final Map<String, dynamic> updateData = {};
+        if (name != null) updateData['name'] = name;
+        if (phone != null) updateData['phone'] = phone;
+        if (avatarUrl != null) updateData['avatar_url'] = avatarUrl;
+
+        await FirebaseFirestore.instance.collection('users').doc(currentUser.id).update(updateData);
+      } catch (e) {
+        AppLogger.w('Firestore update profile warning: $e');
+      }
+
+      state = state.copyWith(
+        isLoading: false,
+        user: updatedUser,
+      );
+      AppLogger.i('Cập nhật thông tin hồ sơ thành công');
+      return true;
+    } catch (e) {
+      AppLogger.e('Lỗi cập nhật hồ sơ', e);
+      state = state.copyWith(isLoading: false, error: 'Cập nhật hồ sơ thất bại.');
+      return false;
     }
   }
 
   Future<void> logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      AppLogger.w('FirebaseAuth signOut warning: $e');
+    }
     state = const AuthState();
+    AppLogger.i('Đã đăng xuất tài khoản');
   }
 
   void clearError() {
     state = state.copyWith(error: null);
+  }
+
+  String _mapFirebaseAuthError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'Tài khoản email này chưa được đăng ký.';
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Mật khẩu hoặc thông tin đăng nhập không chính xác.';
+      case 'email-already-in-use':
+        return 'Địa chỉ email này đã được đăng ký tài khoản khác.';
+      case 'invalid-email':
+        return 'Địa chỉ email không đúng định dạng.';
+      case 'weak-password':
+        return 'Mật khẩu quá yếu (tối thiểu 8 ký tự).';
+      case 'user-disabled':
+        return 'Tài khoản này đã bị tạm khóa.';
+      case 'too-many-requests':
+        return 'Thử quá nhiều lần thất bại. Vui lòng thử lại sau ít phút.';
+      case 'network-request-failed':
+        return 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối Internet.';
+      default:
+        return e.message ?? 'Thao tác thất bại. Vui lòng thử lại.';
+    }
   }
 }
 

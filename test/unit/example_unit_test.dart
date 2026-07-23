@@ -108,8 +108,8 @@ void main() {
       });
 
       test('password validator', () {
-        expect(Validators.password('123'), isNotNull);
-        expect(Validators.password('123456'), isNull);
+        expect(Validators.password('12345'), isNotNull);
+        expect(Validators.password('12345678'), isNull);
         expect(Validators.password(''), isNotNull);
       });
 

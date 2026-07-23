@@ -4,6 +4,7 @@ class UserModel {
   final String email;
   final String phone;
   final String? avatarUrl;
+  final List<String> preferences;
   final DateTime createdAt;
 
   UserModel({
@@ -12,16 +13,18 @@ class UserModel {
     required this.email,
     required this.phone,
     this.avatarUrl,
+    this.preferences = const [],
     required this.createdAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id']?.toString() ?? '',
-      name: json['name'] ?? '',
+      id: json['id']?.toString() ?? json['uid']?.toString() ?? '',
+      name: json['name'] ?? json['displayName'] ?? 'Người dùng CodoKy',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
-      avatarUrl: json['avatar_url'],
+      avatarUrl: json['avatar_url'] ?? json['photoURL'],
+      preferences: List<String>.from(json['preferences'] ?? []),
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),
@@ -35,6 +38,7 @@ class UserModel {
       'email': email,
       'phone': phone,
       'avatar_url': avatarUrl,
+      'preferences': preferences,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -45,6 +49,7 @@ class UserModel {
     String? email,
     String? phone,
     String? avatarUrl,
+    List<String>? preferences,
     DateTime? createdAt,
   }) {
     return UserModel(
@@ -53,6 +58,7 @@ class UserModel {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      preferences: preferences ?? this.preferences,
       createdAt: createdAt ?? this.createdAt,
     );
   }

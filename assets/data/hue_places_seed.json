@@ -1,47 +1,11 @@
 [
   {
-    "id": "668605353",
-    "name": "Hue Backpackers",
-    "category": "attraction",
-    "latitude": 16.469621,
-    "longitude": 107.5941586,
-    "address": "Phạm Ngũ Lão",
-    "rating": 4.5
-  },
-  {
-    "id": "668713429",
-    "name": "Hong Thien 2 hotel",
-    "category": "attraction",
-    "latitude": 16.4691326,
-    "longitude": 107.5960838,
-    "address": "Chu Văn An",
-    "rating": 4.5
-  },
-  {
-    "id": "668713430",
-    "name": "Tran Ly",
-    "category": "attraction",
-    "latitude": 16.4704922,
-    "longitude": 107.5945042,
-    "address": "Lê Lợi",
-    "rating": 4.5
-  },
-  {
     "id": "669249193",
     "name": "Lăng Tự Đức",
-    "category": "attraction",
+    "category": "tomb",
     "latitude": 16.4331813,
     "longitude": 107.5645857,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "697249882",
-    "name": "Pilgrimage Village",
-    "category": "attraction",
-    "latitude": 16.4250786,
-    "longitude": 107.5794609,
-    "address": "Đường Đại Nam",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -50,16 +14,7 @@
     "category": "restaurant",
     "latitude": 16.4839438,
     "longitude": 107.603723,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "1025708545",
-    "name": "Thái Sơn",
-    "category": "attraction",
-    "latitude": 16.4616919,
-    "longitude": 107.600457,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -72,21 +27,12 @@
     "rating": 4.5
   },
   {
-    "id": "1187440736",
-    "name": "Gold 2 Hotel",
-    "category": "attraction",
-    "latitude": 16.4647734,
-    "longitude": 107.593624,
-    "address": "Hung Vuong St.",
-    "rating": 4.5
-  },
-  {
     "id": "1333018015",
     "name": "Quan So 1",
     "category": "restaurant",
     "latitude": 16.4580449,
     "longitude": 107.5808365,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -95,7 +41,7 @@
     "category": "restaurant",
     "latitude": 16.4690321,
     "longitude": 107.5954277,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -104,15 +50,6 @@
     "category": "restaurant",
     "latitude": 16.4655821,
     "longitude": 107.5947465,
-    "address": "Bến Nghé",
-    "rating": 4.5
-  },
-  {
-    "id": "1333045198",
-    "name": "Camellia",
-    "category": "attraction",
-    "latitude": 16.4652432,
-    "longitude": 107.5949681,
     "address": "Bến Nghé",
     "rating": 4.5
   },
@@ -126,12 +63,309 @@
     "rating": 4.5
   },
   {
+    "id": "1335374726",
+    "name": "chùa Sơn Bằng",
+    "category": "temple",
+    "latitude": 16.3842136,
+    "longitude": 107.5819005,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374733",
+    "name": "chùa Kinhđài",
+    "category": "temple",
+    "latitude": 16.398114,
+    "longitude": 107.5979898,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374743",
+    "name": "đình làng Bằnglăng",
+    "category": "tomb",
+    "latitude": 16.3865063,
+    "longitude": 107.5791927,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374747",
+    "name": "miếu Diện Phái",
+    "category": "attraction",
+    "latitude": 16.3744277,
+    "longitude": 107.5629811,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374748",
+    "name": "miếu Bình Điền",
+    "category": "attraction",
+    "latitude": 16.3836884,
+    "longitude": 107.5688649,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374751",
+    "name": "miếu Ngài Khai",
+    "category": "attraction",
+    "latitude": 16.401296,
+    "longitude": 107.571852,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374754",
+    "name": "đình làng Kim Ngọc",
+    "category": "attraction",
+    "latitude": 16.3762526,
+    "longitude": 107.5897469,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374755",
+    "name": "chùa Khải Ân",
+    "category": "temple",
+    "latitude": 16.398389,
+    "longitude": 107.5777188,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374763",
+    "name": "miếu Bà",
+    "category": "attraction",
+    "latitude": 16.3787094,
+    "longitude": 107.5940809,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374766",
+    "name": "đình Châu Chữ",
+    "category": "attraction",
+    "latitude": 16.3974172,
+    "longitude": 107.5969099,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374767",
+    "name": "đình Kim Ngọc",
+    "category": "attraction",
+    "latitude": 16.3775999,
+    "longitude": 107.5967007,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374770",
+    "name": "đình làng La Khê Trẹm",
+    "category": "attraction",
+    "latitude": 16.3814507,
+    "longitude": 107.5820398,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374775",
+    "name": "đình làng Vĩ Dạ",
+    "category": "attraction",
+    "latitude": 16.3597546,
+    "longitude": 107.6079173,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374783",
+    "name": "miếu tổ 4 thôn Tân Lập",
+    "category": "attraction",
+    "latitude": 16.3618878,
+    "longitude": 107.6706662,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374786",
+    "name": "miếu An Bằng",
+    "category": "attraction",
+    "latitude": 16.3783921,
+    "longitude": 107.563999,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374799",
+    "name": "chùa Bằng Cư",
+    "category": "temple",
+    "latitude": 16.3908505,
+    "longitude": 107.5780899,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374806",
+    "name": "miếu Dạ Khê",
+    "category": "attraction",
+    "latitude": 16.3754186,
+    "longitude": 107.6026317,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374808",
+    "name": "đình làng Võ Xá",
+    "category": "attraction",
+    "latitude": 16.3700069,
+    "longitude": 107.6078254,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374823",
+    "name": "chùa Từ Hàn",
+    "category": "temple",
+    "latitude": 16.3827287,
+    "longitude": 107.5797992,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374834",
+    "name": "đình làng Hòa Thành",
+    "category": "attraction",
+    "latitude": 16.353359,
+    "longitude": 107.5362435,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374835",
+    "name": "đình La Khêbãi",
+    "category": "attraction",
+    "latitude": 16.3936296,
+    "longitude": 107.575199,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374843",
+    "name": "miếu Âm Đồn",
+    "category": "attraction",
+    "latitude": 16.3922473,
+    "longitude": 107.5733508,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374860",
+    "name": "chùa am Lâu",
+    "category": "temple",
+    "latitude": 16.3791611,
+    "longitude": 107.594713,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374870",
+    "name": "đình niệm phật đường Định Môn",
+    "category": "attraction",
+    "latitude": 16.372483,
+    "longitude": 107.6007208,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374878",
+    "name": "đình làng Định Môn",
+    "category": "attraction",
+    "latitude": 16.3730761,
+    "longitude": 107.6002299,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374879",
+    "name": "đình Kim Sơn",
+    "category": "temple",
+    "latitude": 16.3961351,
+    "longitude": 107.5860075,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374880",
+    "name": "miếu tổ 3 thôn Tân Lập",
+    "category": "attraction",
+    "latitude": 16.3679354,
+    "longitude": 107.6742203,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374885",
+    "name": "đình làng La Khê",
+    "category": "attraction",
+    "latitude": 16.3989524,
+    "longitude": 107.5767246,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374886",
+    "name": "đình Dương Phẩm",
+    "category": "attraction",
+    "latitude": 16.3784733,
+    "longitude": 107.5921206,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374887",
+    "name": "đình Dạ Khê",
+    "category": "attraction",
+    "latitude": 16.3758457,
+    "longitude": 107.6028919,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374890",
+    "name": "miếu Hân Nữ",
+    "category": "attraction",
+    "latitude": 16.3791657,
+    "longitude": 107.5959068,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374899",
+    "name": "đình Sơn Chúa",
+    "category": "attraction",
+    "latitude": 16.3949811,
+    "longitude": 107.5731058,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1335374902",
+    "name": "đình Hải Cát 2",
+    "category": "attraction",
+    "latitude": 16.4038631,
+    "longitude": 107.5693533,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
     "id": "1497215449",
     "name": "Xuan Trang",
     "category": "restaurant",
     "latitude": 16.46924,
     "longitude": 107.5956043,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -140,34 +374,7 @@
     "category": "restaurant",
     "latitude": 16.4690959,
     "longitude": 107.5960864,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "1716363897",
-    "name": "Nguyen Hue",
-    "category": "attraction",
-    "latitude": 16.4579973,
-    "longitude": 107.5910025,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "1870602465",
-    "name": "Hue Amazing Homestay",
-    "category": "attraction",
-    "latitude": 16.4715881,
-    "longitude": 107.609913,
-    "address": "Nguyễn Lộ Trạch",
-    "rating": 4.5
-  },
-  {
-    "id": "1964312206",
-    "name": "Huenino Hotel",
-    "category": "attraction",
-    "latitude": 16.4710693,
-    "longitude": 107.5955971,
-    "address": "Nguyễn Công Trứ",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -176,16 +383,7 @@
     "category": "restaurant",
     "latitude": 16.4361777,
     "longitude": 107.5645786,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "2264793591",
-    "name": "Century Riverside Hotel",
-    "category": "attraction",
-    "latitude": 16.4705358,
-    "longitude": 107.593545,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -194,7 +392,7 @@
     "category": "restaurant",
     "latitude": 16.465498,
     "longitude": 107.5917125,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -203,7 +401,7 @@
     "category": "restaurant",
     "latitude": 16.4675631,
     "longitude": 107.5745925,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -221,16 +419,7 @@
     "category": "restaurant",
     "latitude": 16.4646216,
     "longitude": 107.592422,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "2264793637",
-    "name": "Imperial",
-    "category": "attraction",
-    "latitude": 16.4660129,
-    "longitude": 107.5917583,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -243,30 +432,12 @@
     "rating": 4.5
   },
   {
-    "id": "2264793642",
-    "name": "Thang Long",
-    "category": "attraction",
-    "latitude": 16.4647719,
-    "longitude": 107.5931446,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "2264793645",
-    "name": "Gem",
-    "category": "attraction",
-    "latitude": 16.4650355,
-    "longitude": 107.5933243,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "2278073298",
     "name": "Audiophile cafe",
     "category": "restaurant",
     "latitude": 16.4799797,
     "longitude": 107.5814616,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -275,7 +446,7 @@
     "category": "restaurant",
     "latitude": 16.4097798,
     "longitude": 107.5883558,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -293,7 +464,7 @@
     "category": "restaurant",
     "latitude": 16.4681684,
     "longitude": 107.5943569,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -302,7 +473,7 @@
     "category": "restaurant",
     "latitude": 16.4721817,
     "longitude": 107.5806949,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -311,16 +482,7 @@
     "category": "restaurant",
     "latitude": 16.4723341,
     "longitude": 107.5809207,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "2835672457",
-    "name": "Hanh Dat",
-    "category": "attraction",
-    "latitude": 16.4727268,
-    "longitude": 107.6004428,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -329,25 +491,7 @@
     "category": "attraction",
     "latitude": 16.4694914,
     "longitude": 107.577755,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "2984199038",
-    "name": "Binh Duong 1",
-    "category": "attraction",
-    "latitude": 16.464486,
-    "longitude": 107.592743,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "2985405233",
-    "name": "Festival",
-    "category": "attraction",
-    "latitude": 16.460492,
-    "longitude": 107.591433,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -356,7 +500,7 @@
     "category": "restaurant",
     "latitude": 16.4724198,
     "longitude": 107.5957571,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -369,48 +513,12 @@
     "rating": 4.5
   },
   {
-    "id": "2985542433",
-    "name": "Phu An",
-    "category": "attraction",
-    "latitude": 16.4651701,
-    "longitude": 107.5932199,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "2985542434",
-    "name": "Duy Tan",
-    "category": "attraction",
-    "latitude": 16.465141,
-    "longitude": 107.592072,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "2990958977",
-    "name": "Canary Boutique Hotel",
-    "category": "attraction",
-    "latitude": 16.4715538,
-    "longitude": 107.5974083,
-    "address": "Nguyễn Công Trứ",
-    "rating": 4.5
-  },
-  {
     "id": "3062639748",
     "name": "Mr Ken Coffee",
     "category": "restaurant",
     "latitude": 16.4779022,
     "longitude": 107.5779778,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "3062718015",
-    "name": "Holiday Diamond Hotel",
-    "category": "attraction",
-    "latitude": 16.4714494,
-    "longitude": 107.5954258,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -441,24 +549,6 @@
     "rating": 4.5
   },
   {
-    "id": "3561439983",
-    "name": "Vina Hotel Hue",
-    "category": "attraction",
-    "latitude": 16.4714312,
-    "longitude": 107.5973016,
-    "address": "Nguyễn Công Trứ",
-    "rating": 4.5
-  },
-  {
-    "id": "3681631725",
-    "name": "Thanh An",
-    "category": "attraction",
-    "latitude": 16.463126,
-    "longitude": 107.589712,
-    "address": "Ngô Quyền",
-    "rating": 4.5
-  },
-  {
     "id": "3712349278",
     "name": "Zone 7 Coffee & Restaurant",
     "category": "restaurant",
@@ -468,21 +558,12 @@
     "rating": 4.5
   },
   {
-    "id": "3733225092",
-    "name": "Hong Thien 1 Hotel",
-    "category": "attraction",
-    "latitude": 16.4692111,
-    "longitude": 107.5963379,
-    "address": "Chu Văn An",
-    "rating": 4.5
-  },
-  {
     "id": "3758450148",
     "name": "Cà phê Cảnh Viên",
     "category": "restaurant",
     "latitude": 16.4906992,
     "longitude": 107.5738025,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -504,39 +585,12 @@
     "rating": 4.5
   },
   {
-    "id": "4148396689",
-    "name": "Cherish Hotel",
-    "category": "attraction",
-    "latitude": 16.4644442,
-    "longitude": 107.5948295,
-    "address": "Bến Nghé",
-    "rating": 4.5
-  },
-  {
-    "id": "4155356589",
-    "name": "Khe Sanh Homestay",
-    "category": "attraction",
-    "latitude": 16.4712388,
-    "longitude": 107.5976493,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4156824589",
-    "name": "Jade Hotel",
-    "category": "attraction",
-    "latitude": 16.4646678,
-    "longitude": 107.593736,
-    "address": "Hung Vuong",
-    "rating": 4.5
-  },
-  {
     "id": "4157403490",
     "name": "Bigben",
     "category": "restaurant",
     "latitude": 16.4648343,
     "longitude": 107.5925886,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -545,52 +599,7 @@
     "category": "restaurant",
     "latitude": 16.4663959,
     "longitude": 107.5927042,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4159017391",
-    "name": "Guesthouse B&B",
-    "category": "attraction",
-    "latitude": 16.464793,
-    "longitude": 107.5932735,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4168522789",
-    "name": "Lucky Homestay",
-    "category": "attraction",
-    "latitude": 16.4668146,
-    "longitude": 107.5931679,
-    "address": "Trần Cao Vân",
-    "rating": 4.5
-  },
-  {
-    "id": "4186879595",
-    "name": "hue serene palace hotel",
-    "category": "attraction",
-    "latitude": 16.4703151,
-    "longitude": 107.5972846,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4196392989",
-    "name": "Thai Binh 2",
-    "category": "attraction",
-    "latitude": 16.4656206,
-    "longitude": 107.5907885,
-    "address": "Lương Thế Vinh",
-    "rating": 4.5
-  },
-  {
-    "id": "4196910690",
-    "name": "Nhat Le Hotel",
-    "category": "attraction",
-    "latitude": 16.4648397,
-    "longitude": 107.5911108,
-    "address": "Nguyễn Tri Phương",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -603,48 +612,12 @@
     "rating": 4.5
   },
   {
-    "id": "4228100593",
-    "name": "Cozy Hue Hotel",
-    "category": "attraction",
-    "latitude": 16.469913,
-    "longitude": 107.5968544,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4228230889",
-    "name": "Oasis hostel",
-    "category": "attraction",
-    "latitude": 16.4694657,
-    "longitude": 107.5937308,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4233774189",
-    "name": "Jade Hotel",
-    "category": "attraction",
-    "latitude": 16.4645423,
-    "longitude": 107.5935062,
-    "address": "Hùng Vương",
-    "rating": 4.5
-  },
-  {
     "id": "4246751228",
     "name": "Time cafe",
     "category": "restaurant",
     "latitude": 16.4642663,
     "longitude": 107.5873415,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4247558393",
-    "name": "Vọng cảnh",
-    "category": "attraction",
-    "latitude": 16.4645471,
-    "longitude": 107.5940084,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -653,7 +626,7 @@
     "category": "restaurant",
     "latitude": 16.4614108,
     "longitude": 107.5914474,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -671,25 +644,7 @@
     "category": "restaurant",
     "latitude": 16.4660251,
     "longitude": 107.5918083,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4273118340",
-    "name": "Charming Hotel",
-    "category": "attraction",
-    "latitude": 16.4679947,
-    "longitude": 107.5954077,
-    "address": "Nguyễn Thái Học",
-    "rating": 4.5
-  },
-  {
-    "id": "4273144690",
-    "name": "Charming Hotel",
-    "category": "attraction",
-    "latitude": 16.4684097,
-    "longitude": 107.5967146,
-    "address": "Nguyễn Thái Học",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -711,15 +666,6 @@
     "rating": 4.5
   },
   {
-    "id": "4311099491",
-    "name": "Bien Khoi",
-    "category": "attraction",
-    "latitude": 16.4608688,
-    "longitude": 107.5880247,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "4325199800",
     "name": "Sline cafe",
     "category": "restaurant",
@@ -729,30 +675,12 @@
     "rating": 4.5
   },
   {
-    "id": "4327577793",
-    "name": "Freedom hostel",
-    "category": "attraction",
-    "latitude": 16.4688654,
-    "longitude": 107.5967059,
-    "address": "Kiệt 1 Nguyễn Công Trứ",
-    "rating": 4.5
-  },
-  {
     "id": "4333483692",
     "name": "YoYo - Beer And Party",
     "category": "restaurant",
     "latitude": 16.45912,
     "longitude": 107.58907,
     "address": "Hai Bà Trưng",
-    "rating": 4.5
-  },
-  {
-    "id": "4338298822",
-    "name": "Moonlight Hotel",
-    "category": "attraction",
-    "latitude": 16.4695597,
-    "longitude": 107.5940231,
-    "address": "Thua Thien Hue",
     "rating": 4.5
   },
   {
@@ -770,16 +698,7 @@
     "category": "restaurant",
     "latitude": 16.4703621,
     "longitude": 107.5797343,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4345407089",
-    "name": "Amy Hostel Hue",
-    "category": "attraction",
-    "latitude": 16.4715829,
-    "longitude": 107.595608,
-    "address": "Nguyễn Công Trứ",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -788,7 +707,7 @@
     "category": "restaurant",
     "latitude": 16.476891,
     "longitude": 107.6025013,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -797,7 +716,7 @@
     "category": "restaurant",
     "latitude": 16.4782688,
     "longitude": 107.5749285,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -806,7 +725,7 @@
     "category": "restaurant",
     "latitude": 16.473036,
     "longitude": 107.5834042,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -828,33 +747,6 @@
     "rating": 4.5
   },
   {
-    "id": "4352151042",
-    "name": "Hong Thien Backpackers Hotel",
-    "category": "attraction",
-    "latitude": 16.469176,
-    "longitude": 107.5960492,
-    "address": "Chu Văn An",
-    "rating": 4.5
-  },
-  {
-    "id": "4354994289",
-    "name": "Hotel La Perle",
-    "category": "attraction",
-    "latitude": 16.4706787,
-    "longitude": 107.5972255,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4358988290",
-    "name": "Jasmine",
-    "category": "attraction",
-    "latitude": 16.4702404,
-    "longitude": 107.5947806,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "4385807592",
     "name": "Vườn Phố Restaurant",
     "category": "restaurant",
@@ -869,7 +761,7 @@
     "category": "restaurant",
     "latitude": 16.4583734,
     "longitude": 107.5611142,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -882,21 +774,12 @@
     "rating": 4.5
   },
   {
-    "id": "4397071693",
-    "name": "Serene Shining Hotel",
-    "category": "attraction",
-    "latitude": 16.4717426,
-    "longitude": 107.5980074,
-    "address": "Nguyễn Công Trứ",
-    "rating": 4.5
-  },
-  {
     "id": "4398618192",
     "name": "Ancient Town Restaurant",
     "category": "restaurant",
     "latitude": 16.465907,
     "longitude": 107.5879838,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -918,30 +801,12 @@
     "rating": 4.5
   },
   {
-    "id": "4401172306",
-    "name": "Huong Giang Hotel Resort & Spa",
-    "category": "attraction",
-    "latitude": 16.471645,
-    "longitude": 107.5942339,
-    "address": "Lê Lợi",
-    "rating": 4.5
-  },
-  {
     "id": "4401294793",
     "name": "Nam Chau Hoi Quan",
     "category": "restaurant",
     "latitude": 16.461302,
     "longitude": 107.56779,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4402445689",
-    "name": "Nhu Phu Hotel",
-    "category": "attraction",
-    "latitude": 16.469815,
-    "longitude": 107.5950299,
-    "address": "Chu Văn An",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -959,7 +824,7 @@
     "category": "restaurant",
     "latitude": 16.468965,
     "longitude": 107.5955754,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -968,7 +833,7 @@
     "category": "restaurant",
     "latitude": 16.472504,
     "longitude": 107.595949,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -977,7 +842,7 @@
     "category": "attraction",
     "latitude": 16.3920792,
     "longitude": 107.5841879,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -986,7 +851,7 @@
     "category": "restaurant",
     "latitude": 16.4707919,
     "longitude": 107.5944076,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -995,16 +860,7 @@
     "category": "restaurant",
     "latitude": 16.4725451,
     "longitude": 107.597135,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4465683489",
-    "name": "Volga Hotel",
-    "category": "attraction",
-    "latitude": 16.4641908,
-    "longitude": 107.5948233,
-    "address": "Trần Quang Khải",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1013,7 +869,7 @@
     "category": "restaurant",
     "latitude": 16.4608181,
     "longitude": 107.5594911,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1022,43 +878,7 @@
     "category": "restaurant",
     "latitude": 16.4581678,
     "longitude": 107.5809316,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4490204089",
-    "name": "Sunny B Hotel",
-    "category": "attraction",
-    "latitude": 16.4645542,
-    "longitude": 107.5926544,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4510879990",
-    "name": "Tre Xanh **",
-    "category": "attraction",
-    "latitude": 16.4638576,
-    "longitude": 107.5943077,
-    "address": "Hùng Vương",
-    "rating": 4.5
-  },
-  {
-    "id": "4511359692",
-    "name": "Khách sạn Nhà hàng tiệc cưới Trúc Xanh",
-    "category": "attraction",
-    "latitude": 16.4569977,
-    "longitude": 107.5578614,
-    "address": "Nguyen Phuc Nguyen",
-    "rating": 4.5
-  },
-  {
-    "id": "4514602389",
-    "name": "Vu homestay",
-    "category": "attraction",
-    "latitude": 16.4198275,
-    "longitude": 107.5696438,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1067,16 +887,7 @@
     "category": "restaurant",
     "latitude": 16.4806932,
     "longitude": 107.5809137,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4516490037",
-    "name": "Tigon Hostel",
-    "category": "attraction",
-    "latitude": 16.4712237,
-    "longitude": 107.595768,
-    "address": "Võ Thị Sáu",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1103,16 +914,7 @@
     "category": "restaurant",
     "latitude": 16.472372,
     "longitude": 107.5821353,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4535222389",
-    "name": "Nhà Nghỉ Glenda",
-    "category": "attraction",
-    "latitude": 16.4683593,
-    "longitude": 107.5970671,
-    "address": "Nguyễn Thái Học",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1121,7 +923,7 @@
     "category": "restaurant",
     "latitude": 16.4661458,
     "longitude": 107.5997535,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1139,7 +941,7 @@
     "category": "attraction",
     "latitude": 16.4578346,
     "longitude": 107.5842155,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1148,7 +950,7 @@
     "category": "attraction",
     "latitude": 16.46715,
     "longitude": 107.5898061,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1166,25 +968,7 @@
     "category": "restaurant",
     "latitude": 16.4688191,
     "longitude": 107.595239,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4634514389",
-    "name": "Quán Chay Thanh Liễu",
-    "category": "restaurant",
-    "latitude": 16.4709827,
-    "longitude": 107.5977764,
-    "address": "Nguyễn Công Trứ",
-    "rating": 4.5
-  },
-  {
-    "id": "4646235189",
-    "name": "nhà Na",
-    "category": "attraction",
-    "latitude": 16.5070861,
-    "longitude": 107.6015127,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1206,21 +990,12 @@
     "rating": 4.5
   },
   {
-    "id": "4666728590",
-    "name": "Nhat Le Hotel",
-    "category": "attraction",
-    "latitude": 16.4641867,
-    "longitude": 107.5926369,
-    "address": "Nguyễn Tri Phương",
-    "rating": 4.5
-  },
-  {
     "id": "4680945995",
     "name": "Elegant Restaurant",
     "category": "restaurant",
     "latitude": 16.4690675,
     "longitude": 107.5954577,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1238,7 +1013,7 @@
     "category": "restaurant",
     "latitude": 16.4680808,
     "longitude": 107.596375,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1265,7 +1040,7 @@
     "category": "restaurant",
     "latitude": 16.4695158,
     "longitude": 107.5942002,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1274,16 +1049,7 @@
     "category": "restaurant",
     "latitude": 16.4687159,
     "longitude": 107.5777393,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4709966189",
-    "name": "The Times Hotel",
-    "category": "attraction",
-    "latitude": 16.4690384,
-    "longitude": 107.5968038,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1292,16 +1058,16 @@
     "category": "attraction",
     "latitude": 16.4678206,
     "longitude": 107.5912729,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
-    "id": "4729215416",
-    "name": "Vina Center Hotel",
+    "id": "4736269224",
+    "name": "Nhà Thò Ho Lê",
     "category": "attraction",
-    "latitude": 16.4720038,
-    "longitude": 107.5957532,
-    "address": "Nguyễn Công Trứ",
+    "latitude": 16.4395382,
+    "longitude": 107.6237935,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1310,7 +1076,7 @@
     "category": "restaurant",
     "latitude": 16.4691602,
     "longitude": 107.5965135,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1323,21 +1089,12 @@
     "rating": 4.5
   },
   {
-    "id": "4771406927",
-    "name": "Duc Tai Guesthouse",
-    "category": "attraction",
-    "latitude": 16.4617863,
-    "longitude": 107.5885643,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4774095028",
-    "name": "Sharedorm",
-    "category": "attraction",
-    "latitude": 16.4709976,
-    "longitude": 107.5982005,
-    "address": "Kiệt 2 Nguyễn Công Trứ",
+    "id": "4786074721",
+    "name": "Duong No",
+    "category": "temple",
+    "latitude": 16.5123705,
+    "longitude": 107.6003266,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1346,7 +1103,7 @@
     "category": "restaurant",
     "latitude": 16.4696502,
     "longitude": 107.5940227,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1355,7 +1112,7 @@
     "category": "restaurant",
     "latitude": 16.3943768,
     "longitude": 107.5776022,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1364,16 +1121,16 @@
     "category": "attraction",
     "latitude": 16.3962863,
     "longitude": 107.5887,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
-    "id": "4791836724",
-    "name": "My family",
-    "category": "attraction",
-    "latitude": 16.4498807,
-    "longitude": 107.5877128,
-    "address": "Thua Thien Hue",
+    "id": "4791640521",
+    "name": "Chua Tu Van",
+    "category": "temple",
+    "latitude": 16.4496955,
+    "longitude": 107.5830232,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1382,7 +1139,7 @@
     "category": "restaurant",
     "latitude": 16.4655791,
     "longitude": 107.5915362,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1391,7 +1148,7 @@
     "category": "restaurant",
     "latitude": 16.4720968,
     "longitude": 107.5949111,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1400,16 +1157,7 @@
     "category": "restaurant",
     "latitude": 16.4523059,
     "longitude": 107.5869134,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4829990622",
-    "name": "Shark Homestay",
-    "category": "attraction",
-    "latitude": 16.4705277,
-    "longitude": 107.5964501,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1427,16 +1175,7 @@
     "category": "restaurant",
     "latitude": 16.4704851,
     "longitude": 107.5961272,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4865957121",
-    "name": "Bonjour Hostel",
-    "category": "attraction",
-    "latitude": 16.4707164,
-    "longitude": 107.5957357,
-    "address": "Võ Thị Sáu",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1445,16 +1184,7 @@
     "category": "restaurant",
     "latitude": 16.4647214,
     "longitude": 107.589308,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4874131122",
-    "name": "Tam Tinh Vien homestay",
-    "category": "attraction",
-    "latitude": 16.451293,
-    "longitude": 107.5290069,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1481,34 +1211,7 @@
     "category": "restaurant",
     "latitude": 16.45762,
     "longitude": 107.5592502,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4973805223",
-    "name": "Nhà Tôn Thất Quyền (Bạn Cấp 3)",
-    "category": "attraction",
-    "latitude": 16.4745331,
-    "longitude": 107.599111,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4973805224",
-    "name": "Nhà C Trần Hoài Nhi",
-    "category": "attraction",
-    "latitude": 16.479319,
-    "longitude": 107.5771025,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "4973805427",
-    "name": "Nhà Gia Huân (Bạn Cấp 3)",
-    "category": "attraction",
-    "latitude": 16.476894,
-    "longitude": 107.5958028,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1521,21 +1224,12 @@
     "rating": 4.5
   },
   {
-    "id": "5022417023",
-    "name": "Phong Lan Guesthouse",
-    "category": "attraction",
-    "latitude": 16.4701157,
-    "longitude": 107.5942259,
-    "address": "Lê Lợi",
-    "rating": 4.5
-  },
-  {
     "id": "5026315321",
     "name": "La Pines",
     "category": "restaurant",
     "latitude": 16.4300878,
     "longitude": 107.5793025,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1553,7 +1247,7 @@
     "category": "restaurant",
     "latitude": 16.4664372,
     "longitude": 107.5892082,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1562,7 +1256,7 @@
     "category": "restaurant",
     "latitude": 16.470121,
     "longitude": 107.5960412,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1571,7 +1265,7 @@
     "category": "restaurant",
     "latitude": 16.4727764,
     "longitude": 107.5839219,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1580,25 +1274,7 @@
     "category": "restaurant",
     "latitude": 16.4753644,
     "longitude": 107.5797315,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5061569321",
-    "name": "Kinh Do",
-    "category": "attraction",
-    "latitude": 16.4686966,
-    "longitude": 107.5953464,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5063048921",
-    "name": "Kinh Do",
-    "category": "attraction",
-    "latitude": 16.4682934,
-    "longitude": 107.5951323,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1607,7 +1283,7 @@
     "category": "restaurant",
     "latitude": 16.4551962,
     "longitude": 107.6005608,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1620,12 +1296,21 @@
     "rating": 4.5
   },
   {
+    "id": "5152915021",
+    "name": "chùa Tuệ Đức Mậu Tài",
+    "category": "temple",
+    "latitude": 16.5140865,
+    "longitude": 107.5831267,
+    "address": "13",
+    "rating": 4.5
+  },
+  {
     "id": "5166815324",
     "name": "sương sa dừa",
     "category": "restaurant",
     "latitude": 16.4746487,
     "longitude": 107.5788191,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1635,33 +1320,6 @@
     "latitude": 16.4716533,
     "longitude": 107.5962789,
     "address": "Nguyễn Công Trứ",
-    "rating": 4.5
-  },
-  {
-    "id": "5175808704",
-    "name": "NewLife Homestay",
-    "category": "attraction",
-    "latitude": 16.4693394,
-    "longitude": 107.5963623,
-    "address": "Chu Văn An",
-    "rating": 4.5
-  },
-  {
-    "id": "5175813321",
-    "name": "Cuoc Song Moi Homestay",
-    "category": "attraction",
-    "latitude": 16.4704096,
-    "longitude": 107.5967794,
-    "address": "Chu Văn An",
-    "rating": 4.5
-  },
-  {
-    "id": "5181434525",
-    "name": "ngoc binh",
-    "category": "attraction",
-    "latitude": 16.4643603,
-    "longitude": 107.5927428,
-    "address": "Thua Thien Hue",
     "rating": 4.5
   },
   {
@@ -1679,7 +1337,7 @@
     "category": "restaurant",
     "latitude": 16.4771898,
     "longitude": 107.5837373,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1688,16 +1346,7 @@
     "category": "restaurant",
     "latitude": 16.4717973,
     "longitude": 107.5964714,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5235986722",
-    "name": "Romanhotel",
-    "category": "attraction",
-    "latitude": 16.4753855,
-    "longitude": 107.5952599,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1716,15 +1365,6 @@
     "latitude": 16.4698038,
     "longitude": 107.5957839,
     "address": "Võ Thị Sáu",
-    "rating": 4.5
-  },
-  {
-    "id": "5243749623",
-    "name": "Everhome",
-    "category": "attraction",
-    "latitude": 16.4627039,
-    "longitude": 107.5994786,
-    "address": "Thua Thien Hue",
     "rating": 4.5
   },
   {
@@ -1751,7 +1391,7 @@
     "category": "attraction",
     "latitude": 16.4719956,
     "longitude": 107.5758125,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1760,7 +1400,7 @@
     "category": "restaurant",
     "latitude": 16.4680888,
     "longitude": 107.5970272,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1769,7 +1409,7 @@
     "category": "attraction",
     "latitude": 16.4342482,
     "longitude": 107.5666428,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1787,7 +1427,7 @@
     "category": "attraction",
     "latitude": 16.4609446,
     "longitude": 107.5825343,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1805,7 +1445,7 @@
     "category": "attraction",
     "latitude": 16.4714657,
     "longitude": 107.5997497,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1814,7 +1454,7 @@
     "category": "attraction",
     "latitude": 16.4725391,
     "longitude": 107.6419051,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1823,7 +1463,7 @@
     "category": "attraction",
     "latitude": 16.4824922,
     "longitude": 107.6040878,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1832,7 +1472,7 @@
     "category": "attraction",
     "latitude": 16.4741464,
     "longitude": 107.6078971,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1841,25 +1481,7 @@
     "category": "attraction",
     "latitude": 16.4183309,
     "longitude": 107.6536678,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5327180521",
-    "name": "Ibiza Guest House",
-    "category": "attraction",
-    "latitude": 16.4687891,
-    "longitude": 107.5967069,
-    "address": "Nguyễn Công Trứ",
-    "rating": 4.5
-  },
-  {
-    "id": "5340631223",
-    "name": "FA Backpacker Hostel",
-    "category": "attraction",
-    "latitude": 16.4683796,
-    "longitude": 107.596834,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1868,7 +1490,7 @@
     "category": "restaurant",
     "latitude": 16.4705802,
     "longitude": 107.5947967,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1877,7 +1499,7 @@
     "category": "restaurant",
     "latitude": 16.4712804,
     "longitude": 107.5717899,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1886,16 +1508,7 @@
     "category": "restaurant",
     "latitude": 16.4694479,
     "longitude": 107.5731893,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5380958122",
-    "name": "Home Hotel",
-    "category": "attraction",
-    "latitude": 16.472055,
-    "longitude": 107.5952904,
-    "address": "Nguyễn Công Trứ",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1922,52 +1535,16 @@
     "category": "restaurant",
     "latitude": 16.4649601,
     "longitude": 107.5925679,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
-    "id": "5419179821",
-    "name": "Queen homestay",
+    "id": "5425989522",
+    "name": "Thanh lam",
     "category": "attraction",
-    "latitude": 16.4645238,
-    "longitude": 107.5945138,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5422190826",
-    "name": "Villa Louise",
-    "category": "attraction",
-    "latitude": 16.5454505,
-    "longitude": 107.6771465,
-    "address": "Beach Road",
-    "rating": 4.5
-  },
-  {
-    "id": "5426403422",
-    "name": "Thanh An 2 Guesthouse",
-    "category": "attraction",
-    "latitude": 16.4615161,
-    "longitude": 107.5888263,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5451218421",
-    "name": "Nhà Nghí Ánh Xuân",
-    "category": "attraction",
-    "latitude": 16.4610798,
-    "longitude": 107.5882636,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5458682523",
-    "name": "Ninh Tam",
-    "category": "attraction",
-    "latitude": 16.4703259,
-    "longitude": 107.5952483,
-    "address": "Thua Thien Hue",
+    "latitude": 16.4248801,
+    "longitude": 107.6469586,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1985,7 +1562,16 @@
     "category": "restaurant",
     "latitude": 16.4729622,
     "longitude": 107.5888344,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "5472384939",
+    "name": "Huyền Trân",
+    "category": "attraction",
+    "latitude": 16.4179317,
+    "longitude": 107.6086763,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -1994,7 +1580,7 @@
     "category": "restaurant",
     "latitude": 16.5181502,
     "longitude": 107.6444581,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2003,7 +1589,7 @@
     "category": "restaurant",
     "latitude": 16.4638869,
     "longitude": 107.5895163,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2012,16 +1598,7 @@
     "category": "restaurant",
     "latitude": 16.4572029,
     "longitude": 107.5806975,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5476715223",
-    "name": "EcoLodge",
-    "category": "attraction",
-    "latitude": 16.438267,
-    "longitude": 107.5341492,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2034,39 +1611,12 @@
     "rating": 4.5
   },
   {
-    "id": "5479538721",
-    "name": "Lúm Đồng Tiền",
-    "category": "attraction",
-    "latitude": 16.4610555,
-    "longitude": 107.5881174,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "5480405722",
     "name": "Quán Dê Phú Quý",
     "category": "restaurant",
     "latitude": 16.4359774,
     "longitude": 107.5773766,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5483805522",
-    "name": "Amy 2 Hostel",
-    "category": "attraction",
-    "latitude": 16.4702131,
-    "longitude": 107.5965827,
-    "address": "26 Võ Thị Sáu",
-    "rating": 4.5
-  },
-  {
-    "id": "5483839926",
-    "name": "Nhà Nghỉ Thiên Thuỷ Motel",
-    "category": "attraction",
-    "latitude": 16.4085226,
-    "longitude": 107.6771219,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2075,7 +1625,7 @@
     "category": "restaurant",
     "latitude": 16.4701028,
     "longitude": 107.5998524,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2084,7 +1634,7 @@
     "category": "restaurant",
     "latitude": 16.4745681,
     "longitude": 107.5793465,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2093,7 +1643,7 @@
     "category": "restaurant",
     "latitude": 16.4741841,
     "longitude": 107.5729446,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2102,7 +1652,7 @@
     "category": "restaurant",
     "latitude": 16.4680325,
     "longitude": 107.5986418,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2111,7 +1661,16 @@
     "category": "restaurant",
     "latitude": 16.4680683,
     "longitude": 107.5965751,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "5614454822",
+    "name": "Huyen Khong Son Thuong Pagoda",
+    "category": "temple",
+    "latitude": 16.4508253,
+    "longitude": 107.4938092,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2129,16 +1688,7 @@
     "category": "restaurant",
     "latitude": 16.4645632,
     "longitude": 107.594753,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5643681732",
-    "name": "Than Thien - Friendly Hotel",
-    "category": "attraction",
-    "latitude": 16.4720275,
-    "longitude": 107.5953917,
-    "address": "Nguyễn Công Trứ",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2156,7 +1706,7 @@
     "category": "restaurant",
     "latitude": 16.4755598,
     "longitude": 107.5812549,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2165,7 +1715,7 @@
     "category": "restaurant",
     "latitude": 16.4588464,
     "longitude": 107.6249155,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2174,7 +1724,7 @@
     "category": "restaurant",
     "latitude": 16.4523103,
     "longitude": 107.5993992,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2183,7 +1733,7 @@
     "category": "restaurant",
     "latitude": 16.4660102,
     "longitude": 107.5945304,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2192,7 +1742,7 @@
     "category": "restaurant",
     "latitude": 16.4654627,
     "longitude": 107.5944655,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2205,21 +1755,21 @@
     "rating": 4.5
   },
   {
-    "id": "5779366253",
-    "name": "Royal Crest Hotel",
-    "category": "attraction",
-    "latitude": 16.4756542,
-    "longitude": 107.5959418,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "5809806153",
     "name": "Shinosushi",
     "category": "restaurant",
     "latitude": 16.4772377,
     "longitude": 107.5954826,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "5811652238",
+    "name": "Nguyen Chi Thanh Satue",
+    "category": "attraction",
+    "latitude": 16.5740947,
+    "longitude": 107.5094706,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2228,34 +1778,7 @@
     "category": "attraction",
     "latitude": 16.4691166,
     "longitude": 107.5780681,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5841558900",
-    "name": "Vạc đồng",
-    "category": "attraction",
-    "latitude": 16.4690844,
-    "longitude": 107.5779533,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5841558901",
-    "name": "Vạc đồng",
-    "category": "attraction",
-    "latitude": 16.469204,
-    "longitude": 107.5781398,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "5903915885",
-    "name": "Huế Amazing Easy Rider and Homestay",
-    "category": "attraction",
-    "latitude": 16.4717424,
-    "longitude": 107.609813,
-    "address": "Nguyễn Lộ Trạch",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2264,7 +1787,7 @@
     "category": "restaurant",
     "latitude": 16.4563755,
     "longitude": 107.5805162,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2273,7 +1796,7 @@
     "category": "restaurant",
     "latitude": 16.4684034,
     "longitude": 107.5949654,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2282,16 +1805,16 @@
     "category": "restaurant",
     "latitude": 16.4759739,
     "longitude": 107.5912019,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
-    "id": "6009060586",
-    "name": "Villa Hue Hotel",
+    "id": "5966494888",
+    "name": "Đàn Tế",
     "category": "attraction",
-    "latitude": 16.4675278,
-    "longitude": 107.5955267,
-    "address": "Trần Quang Khải",
+    "latitude": 16.4421011,
+    "longitude": 107.5902643,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2300,7 +1823,7 @@
     "category": "restaurant",
     "latitude": 16.4702538,
     "longitude": 107.5960726,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2313,21 +1836,12 @@
     "rating": 4.5
   },
   {
-    "id": "6080971325",
-    "name": "Beaulieu Boutique Hotel",
-    "category": "attraction",
-    "latitude": 16.4693459,
-    "longitude": 107.5947639,
-    "address": "Pham Ngu Lao",
-    "rating": 4.5
-  },
-  {
     "id": "6099306388",
     "name": "Tượng đài vua Quang Trung",
     "category": "attraction",
     "latitude": 16.4420037,
     "longitude": 107.5914458,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2363,16 +1877,7 @@
     "category": "restaurant",
     "latitude": 16.4431899,
     "longitude": 107.5227557,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6146619485",
-    "name": "Bon Ami hostel",
-    "category": "attraction",
-    "latitude": 16.4696294,
-    "longitude": 107.5964047,
-    "address": "Võ Thị Sáu",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2417,7 +1922,7 @@
     "category": "restaurant",
     "latitude": 16.4712705,
     "longitude": 107.5975941,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2444,7 +1949,7 @@
     "category": "restaurant",
     "latitude": 16.4686656,
     "longitude": 107.5969034,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2466,21 +1971,12 @@
     "rating": 4.5
   },
   {
-    "id": "6208001390",
-    "name": "Buncha House",
-    "category": "attraction",
-    "latitude": 16.4658936,
-    "longitude": 107.5946574,
-    "address": "Ben Nghe Street",
-    "rating": 4.5
-  },
-  {
     "id": "6210788185",
     "name": "Cocosnack",
     "category": "restaurant",
     "latitude": 16.4688537,
     "longitude": 107.5952918,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2489,25 +1985,7 @@
     "category": "restaurant",
     "latitude": 16.4701774,
     "longitude": 107.5987705,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6260139487",
-    "name": "MaiLy Hostel",
-    "category": "attraction",
-    "latitude": 16.4696845,
-    "longitude": 107.5961721,
-    "address": "Võ Thị Sáu",
-    "rating": 4.5
-  },
-  {
-    "id": "6290569385",
-    "name": "Kim’s Homestay new address",
-    "category": "attraction",
-    "latitude": 16.4546879,
-    "longitude": 107.5691639,
-    "address": "Bùi Thị Xuân",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2534,16 +2012,7 @@
     "category": "restaurant",
     "latitude": 16.4699783,
     "longitude": 107.5924795,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6315935944",
-    "name": "Hong Thien Ruby Hotel",
-    "category": "attraction",
-    "latitude": 16.469426,
-    "longitude": 107.596362,
-    "address": "Chu Văn An",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2561,7 +2030,7 @@
     "category": "restaurant",
     "latitude": 16.4682071,
     "longitude": 107.6100545,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2570,25 +2039,7 @@
     "category": "restaurant",
     "latitude": 16.4669584,
     "longitude": 107.5890543,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6348001309",
-    "name": "Hoa Cuc Xanh Mini Hotel",
-    "category": "attraction",
-    "latitude": 16.4607128,
-    "longitude": 107.5877886,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6351319487",
-    "name": "Candy Inn Hue",
-    "category": "attraction",
-    "latitude": 16.4687027,
-    "longitude": 107.5975706,
-    "address": "56 Nguyễn Công Trứ",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2597,7 +2048,7 @@
     "category": "restaurant",
     "latitude": 16.4547788,
     "longitude": 107.5535325,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2610,30 +2061,12 @@
     "rating": 4.5
   },
   {
-    "id": "6405459385",
-    "name": "cây cảnh Thảo Nguyên",
-    "category": "attraction",
-    "latitude": 16.4649735,
-    "longitude": 107.6064089,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "6447156588",
     "name": "Quán Ăn Sài Gòn",
     "category": "restaurant",
     "latitude": 16.4508831,
     "longitude": 107.5887742,
     "address": "Trần Phú",
-    "rating": 4.5
-  },
-  {
-    "id": "6447214986",
-    "name": "Con",
-    "category": "attraction",
-    "latitude": 16.4336091,
-    "longitude": 107.5616219,
-    "address": "Thua Thien Hue",
     "rating": 4.5
   },
   {
@@ -2651,16 +2084,7 @@
     "category": "restaurant",
     "latitude": 16.4763662,
     "longitude": 107.5845276,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6487814185",
-    "name": "The Scarlett Boutique Hotel",
-    "category": "attraction",
-    "latitude": 16.4668921,
-    "longitude": 107.5950413,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2673,57 +2097,12 @@
     "rating": 4.5
   },
   {
-    "id": "6533792057",
-    "name": "Du urn",
-    "category": "attraction",
-    "latitude": 16.4669006,
-    "longitude": 107.5771292,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6533792058",
-    "name": "Thuan urn",
-    "category": "attraction",
-    "latitude": 16.4668768,
-    "longitude": 107.5770944,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6533792064",
-    "name": "Cao đỉnh",
-    "category": "attraction",
-    "latitude": 16.4668321,
-    "longitude": 107.5769794,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "6533792207",
     "name": "Đàn Xã Tắc",
     "category": "attraction",
     "latitude": 16.4650415,
     "longitude": 107.5712089,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6535082724",
-    "name": "Lầu Kiến Trung",
-    "category": "attraction",
-    "latitude": 16.4710694,
-    "longitude": 107.5765646,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6535217815",
-    "name": "Trích Thuý Sơn",
-    "category": "attraction",
-    "latitude": 16.4708817,
-    "longitude": 107.5781599,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2732,16 +2111,7 @@
     "category": "attraction",
     "latitude": 16.471778,
     "longitude": 107.5782705,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6535217833",
-    "name": "Tiểu Hữu Thiên",
-    "category": "attraction",
-    "latitude": 16.470202,
-    "longitude": 107.5782242,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2750,7 +2120,7 @@
     "category": "restaurant",
     "latitude": 16.4699085,
     "longitude": 107.5953689,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2777,7 +2147,7 @@
     "category": "restaurant",
     "latitude": 16.4252379,
     "longitude": 107.5798571,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2786,16 +2156,7 @@
     "category": "restaurant",
     "latitude": 16.4680301,
     "longitude": 107.6010694,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "6713718285",
-    "name": "Hue Melody Hotel (real location)",
-    "category": "attraction",
-    "latitude": 16.4690766,
-    "longitude": 107.5959213,
-    "address": "Chu Văn An",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2804,7 +2165,7 @@
     "category": "restaurant",
     "latitude": 16.4709249,
     "longitude": 107.5812416,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2840,7 +2201,7 @@
     "category": "restaurant",
     "latitude": 16.4688695,
     "longitude": 107.5953159,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2849,7 +2210,7 @@
     "category": "restaurant",
     "latitude": 16.4802402,
     "longitude": 107.5831313,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2867,7 +2228,7 @@
     "category": "restaurant",
     "latitude": 16.464212,
     "longitude": 107.5728466,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2885,7 +2246,7 @@
     "category": "restaurant",
     "latitude": 16.4751939,
     "longitude": 107.5803888,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2894,7 +2255,7 @@
     "category": "restaurant",
     "latitude": 16.4736086,
     "longitude": 107.5813683,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2912,7 +2273,7 @@
     "category": "restaurant",
     "latitude": 16.4748013,
     "longitude": 107.5952683,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2921,7 +2282,7 @@
     "category": "restaurant",
     "latitude": 16.4749484,
     "longitude": 107.5954466,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2930,7 +2291,7 @@
     "category": "restaurant",
     "latitude": 16.4782078,
     "longitude": 107.5847303,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2939,7 +2300,7 @@
     "category": "restaurant",
     "latitude": 16.4720712,
     "longitude": 107.5846611,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2961,6 +2322,15 @@
     "rating": 4.5
   },
   {
+    "id": "7062211369",
+    "name": "HHT-NET3",
+    "category": "attraction",
+    "latitude": 16.4643989,
+    "longitude": 107.590142,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
     "id": "7065512085",
     "name": "Café Vivu",
     "category": "restaurant",
@@ -2975,7 +2345,7 @@
     "category": "restaurant",
     "latitude": 16.4602791,
     "longitude": 107.5808369,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -2984,7 +2354,7 @@
     "category": "restaurant",
     "latitude": 16.4758475,
     "longitude": 107.5795237,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3002,7 +2372,7 @@
     "category": "restaurant",
     "latitude": 16.4505499,
     "longitude": 107.6047746,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3011,7 +2381,7 @@
     "category": "restaurant",
     "latitude": 16.4760253,
     "longitude": 107.5660641,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3020,16 +2390,7 @@
     "category": "restaurant",
     "latitude": 16.4544226,
     "longitude": 107.5835872,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "7127376564",
-    "name": "DMZ Hostel",
-    "category": "attraction",
-    "latitude": 16.4700343,
-    "longitude": 107.594106,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3038,7 +2399,7 @@
     "category": "restaurant",
     "latitude": 16.4699044,
     "longitude": 107.5939029,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3056,16 +2417,7 @@
     "category": "restaurant",
     "latitude": 16.4471597,
     "longitude": 107.5815812,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "7151907385",
-    "name": "Chez Mme. Loan",
-    "category": "attraction",
-    "latitude": 16.4375687,
-    "longitude": 107.5373636,
-    "address": "Luong Quan TP Hué",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3074,25 +2426,7 @@
     "category": "restaurant",
     "latitude": 16.4644634,
     "longitude": 107.5894958,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "7158215105",
-    "name": "Flora Hotel",
-    "category": "attraction",
-    "latitude": 16.471368,
-    "longitude": 107.5962367,
-    "address": "Võ Thị Sáu",
-    "rating": 4.5
-  },
-  {
-    "id": "7158856075",
-    "name": "Ben Homestay",
-    "category": "attraction",
-    "latitude": 16.469707,
-    "longitude": 107.5962842,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3101,7 +2435,7 @@
     "category": "restaurant",
     "latitude": 16.4701105,
     "longitude": 107.5958575,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3110,7 +2444,7 @@
     "category": "restaurant",
     "latitude": 16.4706317,
     "longitude": 107.5942511,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3119,7 +2453,7 @@
     "category": "restaurant",
     "latitude": 16.4710491,
     "longitude": 107.5945609,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3128,7 +2462,7 @@
     "category": "restaurant",
     "latitude": 16.4699107,
     "longitude": 107.5959916,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3146,7 +2480,7 @@
     "category": "restaurant",
     "latitude": 16.4681846,
     "longitude": 107.570505,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3155,7 +2489,7 @@
     "category": "restaurant",
     "latitude": 16.4701462,
     "longitude": 107.5705165,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3164,7 +2498,7 @@
     "category": "restaurant",
     "latitude": 16.4569972,
     "longitude": 107.581119,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3173,7 +2507,7 @@
     "category": "restaurant",
     "latitude": 16.469712,
     "longitude": 107.5708493,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3182,7 +2516,7 @@
     "category": "restaurant",
     "latitude": 16.4667853,
     "longitude": 107.5687906,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3191,7 +2525,7 @@
     "category": "restaurant",
     "latitude": 16.4719734,
     "longitude": 107.5723962,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3200,7 +2534,7 @@
     "category": "restaurant",
     "latitude": 16.4732378,
     "longitude": 107.5743086,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3209,7 +2543,7 @@
     "category": "restaurant",
     "latitude": 16.4392436,
     "longitude": 107.5819603,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3218,7 +2552,7 @@
     "category": "restaurant",
     "latitude": 16.4704297,
     "longitude": 107.5705662,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3227,7 +2561,7 @@
     "category": "restaurant",
     "latitude": 16.4728281,
     "longitude": 107.5750891,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3236,7 +2570,7 @@
     "category": "restaurant",
     "latitude": 16.4721892,
     "longitude": 107.5728711,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3245,7 +2579,7 @@
     "category": "restaurant",
     "latitude": 16.4659461,
     "longitude": 107.5918959,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3254,7 +2588,7 @@
     "category": "restaurant",
     "latitude": 16.4570598,
     "longitude": 107.5810498,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3272,16 +2606,7 @@
     "category": "restaurant",
     "latitude": 16.4666301,
     "longitude": 107.5930131,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "7168980685",
-    "name": "nhà mẫn",
-    "category": "attraction",
-    "latitude": 16.5437789,
-    "longitude": 107.4669214,
-    "address": "Sông Bồ",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3299,16 +2624,7 @@
     "category": "restaurant",
     "latitude": 16.4663007,
     "longitude": 107.5919514,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "7195067501",
-    "name": "Midtown Hotel",
-    "category": "attraction",
-    "latitude": 16.4683507,
-    "longitude": 107.5954601,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3317,16 +2633,7 @@
     "category": "restaurant",
     "latitude": 16.4738081,
     "longitude": 107.5883543,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "7199615565",
-    "name": "Eldora",
-    "category": "attraction",
-    "latitude": 16.4648595,
-    "longitude": 107.5945502,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3335,7 +2642,7 @@
     "category": "restaurant",
     "latitude": 16.4649817,
     "longitude": 107.5935785,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3344,7 +2651,7 @@
     "category": "restaurant",
     "latitude": 16.4706601,
     "longitude": 107.5960167,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3362,7 +2669,7 @@
     "category": "restaurant",
     "latitude": 16.47732,
     "longitude": 107.5836513,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3371,7 +2678,7 @@
     "category": "restaurant",
     "latitude": 16.468197,
     "longitude": 107.5976403,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3380,7 +2687,7 @@
     "category": "restaurant",
     "latitude": 16.4647651,
     "longitude": 107.589336,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3398,16 +2705,7 @@
     "category": "restaurant",
     "latitude": 16.47932,
     "longitude": 107.5935644,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "7235135785",
-    "name": "Idéal hôtel",
-    "category": "attraction",
-    "latitude": 16.4686664,
-    "longitude": 107.5946832,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3420,12 +2718,12 @@
     "rating": 4.5
   },
   {
-    "id": "7290123885",
-    "name": "Nhât lê hotel",
-    "category": "attraction",
-    "latitude": 16.4645123,
-    "longitude": 107.5927908,
-    "address": "Nguyễn Tri Phương",
+    "id": "7412896131",
+    "name": "Sơn Lai Coffee",
+    "category": "restaurant",
+    "latitude": 16.5571612,
+    "longitude": 107.4955992,
+    "address": "Cổng làng Lai Trung",
     "rating": 4.5
   },
   {
@@ -3434,7 +2732,7 @@
     "category": "restaurant",
     "latitude": 16.4637498,
     "longitude": 107.5938963,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3443,7 +2741,7 @@
     "category": "restaurant",
     "latitude": 16.4699623,
     "longitude": 107.5990548,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3452,7 +2750,7 @@
     "category": "restaurant",
     "latitude": 16.4804349,
     "longitude": 107.596392,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3461,7 +2759,7 @@
     "category": "restaurant",
     "latitude": 16.4630332,
     "longitude": 107.588922,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3470,7 +2768,7 @@
     "category": "attraction",
     "latitude": 16.3515757,
     "longitude": 107.5882024,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3519,30 +2817,12 @@
     "rating": 4.5
   },
   {
-    "id": "9518711737",
-    "name": "Boi Tran Garden",
-    "category": "attraction",
-    "latitude": 16.4074433,
-    "longitude": 107.5846393,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "9850587987",
     "name": "Dì Gái Bún Bò Huế",
     "category": "restaurant",
     "latitude": 16.469715,
     "longitude": 107.595502,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "9852013804",
-    "name": "5.T Hostel",
-    "category": "attraction",
-    "latitude": 16.4696647,
-    "longitude": 107.5962313,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3560,7 +2840,7 @@
     "category": "restaurant",
     "latitude": 16.4711576,
     "longitude": 107.5962809,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3569,16 +2849,7 @@
     "category": "restaurant",
     "latitude": 16.4698919,
     "longitude": 107.5933257,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "9921297898",
-    "name": "Jade Scene Hotel",
-    "category": "attraction",
-    "latitude": 16.4695305,
-    "longitude": 107.5968967,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3587,7 +2858,7 @@
     "category": "restaurant",
     "latitude": 16.4701038,
     "longitude": 107.5936751,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3596,7 +2867,7 @@
     "category": "restaurant",
     "latitude": 16.3983412,
     "longitude": 107.590404,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3605,7 +2876,7 @@
     "category": "restaurant",
     "latitude": 16.4615434,
     "longitude": 107.5914227,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3614,7 +2885,7 @@
     "category": "restaurant",
     "latitude": 16.4554113,
     "longitude": 107.5974954,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3623,7 +2894,7 @@
     "category": "attraction",
     "latitude": 16.5394551,
     "longitude": 107.4709349,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3632,7 +2903,7 @@
     "category": "attraction",
     "latitude": 16.4532498,
     "longitude": 107.5632941,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3641,7 +2912,25 @@
     "category": "attraction",
     "latitude": 16.5217578,
     "longitude": 107.5774757,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "9960092018",
+    "name": "Làng rèn Hiền Lương",
+    "category": "attraction",
+    "latitude": 16.5582703,
+    "longitude": 107.4691259,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "9960101917",
+    "name": "cầu ngói",
+    "category": "attraction",
+    "latitude": 16.5556894,
+    "longitude": 107.468554,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3650,7 +2939,7 @@
     "category": "attraction",
     "latitude": 16.5073733,
     "longitude": 107.6357846,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3669,15 +2958,6 @@
     "latitude": 16.4686759,
     "longitude": 107.595245,
     "address": "Võ Thị Sáu",
-    "rating": 4.5
-  },
-  {
-    "id": "10304450226",
-    "name": "Guest House Maika",
-    "category": "attraction",
-    "latitude": 16.4701059,
-    "longitude": 107.5952181,
-    "address": "Chu Văn An",
     "rating": 4.5
   },
   {
@@ -3726,12 +3006,12 @@
     "rating": 4.5
   },
   {
-    "id": "10666274706",
-    "name": "Rosaleen",
-    "category": "attraction",
-    "latitude": 16.469347,
-    "longitude": 107.5954442,
-    "address": "Chu Văn An",
+    "id": "10654049395",
+    "name": "Tân An",
+    "category": "restaurant",
+    "latitude": 16.5524761,
+    "longitude": 107.6664041,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3749,7 +3029,7 @@
     "category": "restaurant",
     "latitude": 16.466099,
     "longitude": 107.5912291,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3776,7 +3056,7 @@
     "category": "restaurant",
     "latitude": 16.4767351,
     "longitude": 107.5831304,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3785,25 +3065,7 @@
     "category": "restaurant",
     "latitude": 16.4711748,
     "longitude": 107.5961867,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "10897887242",
-    "name": "Jesus Christ",
-    "category": "attraction",
-    "latitude": 16.4580759,
-    "longitude": 107.5964004,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "11078378105",
-    "name": "Hue Happy homestay",
-    "category": "attraction",
-    "latitude": 16.4699039,
-    "longitude": 107.5965573,
-    "address": "26 Võ Thị Sáu",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3821,7 +3083,7 @@
     "category": "restaurant",
     "latitude": 16.4699163,
     "longitude": 107.5932697,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3839,7 +3101,7 @@
     "category": "restaurant",
     "latitude": 16.4670757,
     "longitude": 107.582595,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3848,16 +3110,7 @@
     "category": "restaurant",
     "latitude": 16.413144,
     "longitude": 107.5758618,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "11132386176",
-    "name": "NANO Eco-hostel",
-    "category": "attraction",
-    "latitude": 16.4131993,
-    "longitude": 107.575959,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3893,7 +3146,7 @@
     "category": "restaurant",
     "latitude": 16.4682925,
     "longitude": 107.5974315,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3915,21 +3168,12 @@
     "rating": 4.5
   },
   {
-    "id": "11171467430",
-    "name": "Khai Dinh",
-    "category": "tomb",
-    "latitude": 16.3992686,
-    "longitude": 107.5905785,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "11171564836",
     "name": "Thích Quảng Đức xe",
     "category": "attraction",
     "latitude": 16.4532504,
     "longitude": 107.544583,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3938,7 +3182,7 @@
     "category": "attraction",
     "latitude": 16.4621728,
     "longitude": 107.5707363,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -3956,15 +3200,6 @@
     "category": "restaurant",
     "latitude": 16.4612059,
     "longitude": 107.5883883,
-    "address": "Ngô Quyền",
-    "rating": 4.5
-  },
-  {
-    "id": "11306988469",
-    "name": "3S House",
-    "category": "attraction",
-    "latitude": 16.4611757,
-    "longitude": 107.588413,
     "address": "Ngô Quyền",
     "rating": 4.5
   },
@@ -4029,15 +3264,6 @@
     "latitude": 16.4661884,
     "longitude": 107.6046906,
     "address": "Lý Tự Trọng",
-    "rating": 4.5
-  },
-  {
-    "id": "11409097934",
-    "name": "Sahi Homestay Retreat",
-    "category": "attraction",
-    "latitude": 16.4523125,
-    "longitude": 107.5648117,
-    "address": "Bùi Thị Xuân",
     "rating": 4.5
   },
   {
@@ -4155,15 +3381,6 @@
     "latitude": 16.4533119,
     "longitude": 107.588562,
     "address": "Hàm Nghi",
-    "rating": 4.5
-  },
-  {
-    "id": "11491185593",
-    "name": "Chốt Cafe",
-    "category": "restaurant",
-    "latitude": 16.4554367,
-    "longitude": 107.5975647,
-    "address": "Phan Chu Trinh",
     "rating": 4.5
   },
   {
@@ -4307,7 +3524,7 @@
     "category": "restaurant",
     "latitude": 16.4311648,
     "longitude": 107.5662956,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4326,15 +3543,6 @@
     "latitude": 16.4410629,
     "longitude": 107.5821838,
     "address": "Điện Biên Phủ",
-    "rating": 4.5
-  },
-  {
-    "id": "11630323944",
-    "name": "Golden Star Villa",
-    "category": "attraction",
-    "latitude": 16.4608974,
-    "longitude": 107.5561037,
-    "address": "Nguyễn Hoàng",
     "rating": 4.5
   },
   {
@@ -4383,15 +3591,6 @@
     "rating": 4.5
   },
   {
-    "id": "11661046369",
-    "name": "Hải Phương Hotel",
-    "category": "attraction",
-    "latitude": 16.4617751,
-    "longitude": 107.5890598,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "11661746101",
     "name": "Cafe TÀU",
     "category": "restaurant",
@@ -4407,15 +3606,6 @@
     "latitude": 16.4351883,
     "longitude": 107.5741882,
     "address": "Lê Ng. Cát",
-    "rating": 4.5
-  },
-  {
-    "id": "11671468735",
-    "name": "Thanh Lich Royal Boutique",
-    "category": "attraction",
-    "latitude": 16.4603865,
-    "longitude": 107.5893773,
-    "address": "Hai Bà Trưng",
     "rating": 4.5
   },
   {
@@ -4464,15 +3654,6 @@
     "rating": 4.5
   },
   {
-    "id": "11743201969",
-    "name": "Spring Garden Villa",
-    "category": "attraction",
-    "latitude": 16.4342502,
-    "longitude": 107.5808525,
-    "address": "Minh Mang",
-    "rating": 4.5
-  },
-  {
     "id": "11743366860",
     "name": "Hoiana Coffee",
     "category": "restaurant",
@@ -4497,15 +3678,6 @@
     "latitude": 16.4259377,
     "longitude": 107.5759354,
     "address": "Kiệt 106 Minh Mạng",
-    "rating": 4.5
-  },
-  {
-    "id": "11779409369",
-    "name": "Codo Garden Homestay",
-    "category": "attraction",
-    "latitude": 16.4679184,
-    "longitude": 107.6016126,
-    "address": "Nguyễn Bính",
     "rating": 4.5
   },
   {
@@ -4536,57 +3708,12 @@
     "rating": 4.5
   },
   {
-    "id": "11885493160",
-    "name": "Eva Homestay",
-    "category": "attraction",
-    "latitude": 16.4666164,
-    "longitude": 107.5943002,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "11885493161",
-    "name": "Maya Homestay",
-    "category": "attraction",
-    "latitude": 16.4667328,
-    "longitude": 107.5942848,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "11885493166",
-    "name": "Lavande Homestay",
-    "category": "attraction",
-    "latitude": 16.4663348,
-    "longitude": 107.5944769,
-    "address": "Bến Nghé",
-    "rating": 4.5
-  },
-  {
     "id": "11887873215",
     "name": "Tiệm cơm Cố Đô 1986 - Trọn vị cơm nhà",
     "category": "restaurant",
     "latitude": 16.4508133,
     "longitude": 107.5890656,
     "address": "Trần Phú",
-    "rating": 4.5
-  },
-  {
-    "id": "11888150027",
-    "name": "Eva Homestay 2",
-    "category": "attraction",
-    "latitude": 16.4665218,
-    "longitude": 107.5943583,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "11892658669",
-    "name": "a-mâze house",
-    "category": "attraction",
-    "latitude": 16.4783396,
-    "longitude": 107.5799955,
-    "address": "Lê Thánh Tôn",
     "rating": 4.5
   },
   {
@@ -4632,24 +3759,6 @@
     "latitude": 16.4601879,
     "longitude": 107.5919342,
     "address": "Đống Đa",
-    "rating": 4.5
-  },
-  {
-    "id": "12090563169",
-    "name": "Amy Hotel Hue",
-    "category": "attraction",
-    "latitude": 16.4690485,
-    "longitude": 107.5969668,
-    "address": "Kiệt 42 Nguyễn Công Trứ",
-    "rating": 4.5
-  },
-  {
-    "id": "12099715356",
-    "name": "Moon Garden Riverside",
-    "category": "attraction",
-    "latitude": 16.4480629,
-    "longitude": 107.5343094,
-    "address": "Bùi Thị Xuân",
     "rating": 4.5
   },
   {
@@ -4748,16 +3857,7 @@
     "category": "restaurant",
     "latitude": 16.4169795,
     "longitude": 107.5829234,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "12314700938",
-    "name": "Soleil Boutique",
-    "category": "attraction",
-    "latitude": 16.4675856,
-    "longitude": 107.5832878,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4766,7 +3866,7 @@
     "category": "attraction",
     "latitude": 16.4331868,
     "longitude": 107.5653998,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4776,24 +3876,6 @@
     "latitude": 16.4701617,
     "longitude": 107.5951557,
     "address": "Chu Văn An",
-    "rating": 4.5
-  },
-  {
-    "id": "12329713540",
-    "name": "Trang Nguyen Hotel",
-    "category": "attraction",
-    "latitude": 16.4691869,
-    "longitude": 107.5944752,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "12386160201",
-    "name": "Hajime Homestay Hue",
-    "category": "attraction",
-    "latitude": 16.4388401,
-    "longitude": 107.5782853,
-    "address": "Lê Ngô Cát",
     "rating": 4.5
   },
   {
@@ -4811,7 +3893,7 @@
     "category": "attraction",
     "latitude": 16.3616686,
     "longitude": 107.5975047,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4820,7 +3902,7 @@
     "category": "tomb",
     "latitude": 16.4510937,
     "longitude": 107.5931525,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4829,7 +3911,7 @@
     "category": "restaurant",
     "latitude": 16.4688686,
     "longitude": 107.5954907,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4842,30 +3924,12 @@
     "rating": 4.5
   },
   {
-    "id": "12412617101",
-    "name": "Sen Hotel",
-    "category": "attraction",
-    "latitude": 16.4607867,
-    "longitude": 107.5898656,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "12412620301",
     "name": "Nhi's Crepe & Pizza",
     "category": "restaurant",
     "latitude": 16.4607613,
     "longitude": 107.5900726,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "12414408401",
-    "name": "Nice Hue Hotel",
-    "category": "attraction",
-    "latitude": 16.4607112,
-    "longitude": 107.5892633,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4874,7 +3938,7 @@
     "category": "restaurant",
     "latitude": 16.4628689,
     "longitude": 107.5932321,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4887,21 +3951,12 @@
     "rating": 4.5
   },
   {
-    "id": "12458392994",
-    "name": "Meliá Vinpearl Hue",
-    "category": "attraction",
-    "latitude": 16.463231,
-    "longitude": 107.5941414,
-    "address": "Hùng Vương",
-    "rating": 4.5
-  },
-  {
     "id": "12458493963",
     "name": "Tang  tho lao",
     "category": "attraction",
     "latitude": 16.4809553,
     "longitude": 107.5766048,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4910,7 +3965,7 @@
     "category": "restaurant",
     "latitude": 16.4688896,
     "longitude": 107.5954783,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4920,15 +3975,6 @@
     "latitude": 16.4736826,
     "longitude": 107.5830307,
     "address": "Hàn Thuyên",
-    "rating": 4.5
-  },
-  {
-    "id": "12572846101",
-    "name": "Melody Riverside",
-    "category": "attraction",
-    "latitude": 16.456403,
-    "longitude": 107.601529,
-    "address": "Đường Hải Triều",
     "rating": 4.5
   },
   {
@@ -4950,15 +3996,6 @@
     "rating": 4.5
   },
   {
-    "id": "12618556412",
-    "name": "Q' Homestay Garden Villa",
-    "category": "attraction",
-    "latitude": 16.4680021,
-    "longitude": 107.6015852,
-    "address": "Nguyễn Bính",
-    "rating": 4.5
-  },
-  {
     "id": "12620728401",
     "name": "Ca Phe Che Nong “5km/h” (sesame desserts and coffee)",
     "category": "restaurant",
@@ -4973,7 +4010,7 @@
     "category": "restaurant",
     "latitude": 16.4692099,
     "longitude": 107.5909041,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -4982,7 +4019,7 @@
     "category": "attraction",
     "latitude": 16.4565984,
     "longitude": 107.5981417,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5000,7 +4037,7 @@
     "category": "restaurant",
     "latitude": 16.4744497,
     "longitude": 107.5997999,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5009,7 +4046,7 @@
     "category": "restaurant",
     "latitude": 16.47866,
     "longitude": 107.5993478,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5018,7 +4055,7 @@
     "category": "restaurant",
     "latitude": 16.4764913,
     "longitude": 107.581178,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5027,7 +4064,7 @@
     "category": "restaurant",
     "latitude": 16.4733065,
     "longitude": 107.5983852,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5045,7 +4082,7 @@
     "category": "restaurant",
     "latitude": 16.482947,
     "longitude": 107.5959689,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5054,7 +4091,7 @@
     "category": "restaurant",
     "latitude": 16.4746333,
     "longitude": 107.5953934,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5081,7 +4118,7 @@
     "category": "restaurant",
     "latitude": 16.439723,
     "longitude": 107.527066,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5090,7 +4127,7 @@
     "category": "restaurant",
     "latitude": 16.4812161,
     "longitude": 107.6106392,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5099,7 +4136,7 @@
     "category": "restaurant",
     "latitude": 16.4575038,
     "longitude": 107.5967461,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5108,7 +4145,7 @@
     "category": "restaurant",
     "latitude": 16.4765385,
     "longitude": 107.5643217,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5126,7 +4163,7 @@
     "category": "restaurant",
     "latitude": 16.465164,
     "longitude": 107.6434495,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5171,7 +4208,7 @@
     "category": "restaurant",
     "latitude": 16.4748117,
     "longitude": 107.5954102,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5198,7 +4235,7 @@
     "category": "restaurant",
     "latitude": 16.464638,
     "longitude": 107.6001946,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5234,7 +4271,7 @@
     "category": "restaurant",
     "latitude": 16.4677756,
     "longitude": 107.6080154,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5243,7 +4280,7 @@
     "category": "restaurant",
     "latitude": 16.4641488,
     "longitude": 107.6054125,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5252,16 +4289,7 @@
     "category": "restaurant",
     "latitude": 16.4676144,
     "longitude": 107.6038447,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "12662219137",
-    "name": "Hue Sweethouse 1 Homestay",
-    "category": "attraction",
-    "latitude": 16.4640246,
-    "longitude": 107.5935688,
-    "address": "Hà Nội",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5270,7 +4298,7 @@
     "category": "restaurant",
     "latitude": 16.4702907,
     "longitude": 107.5949093,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5279,7 +4307,7 @@
     "category": "restaurant",
     "latitude": 16.4703605,
     "longitude": 107.5949899,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5288,25 +4316,7 @@
     "category": "restaurant",
     "latitude": 16.4645645,
     "longitude": 107.5904026,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "12672619701",
-    "name": "Sunny A Hotel",
-    "category": "attraction",
-    "latitude": 16.4644332,
-    "longitude": 107.5929502,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "12733000901",
-    "name": "White Lotus",
-    "category": "attraction",
-    "latitude": 16.4653175,
-    "longitude": 107.5906483,
-    "address": "Hoàng Hoa Thám",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5315,7 +4325,7 @@
     "category": "restaurant",
     "latitude": 16.4660378,
     "longitude": 107.5947277,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5324,7 +4334,7 @@
     "category": "restaurant",
     "latitude": 16.3881149,
     "longitude": 107.5705693,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5342,7 +4352,7 @@
     "category": "restaurant",
     "latitude": 16.4935804,
     "longitude": 107.5994532,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5360,7 +4370,7 @@
     "category": "restaurant",
     "latitude": 16.4246565,
     "longitude": 107.5811927,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5369,7 +4379,7 @@
     "category": "restaurant",
     "latitude": 16.469733,
     "longitude": 107.597434,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5382,21 +4392,12 @@
     "rating": 4.5
   },
   {
-    "id": "13059024694",
-    "name": "Le Robinet",
-    "category": "attraction",
-    "latitude": 16.4664491,
-    "longitude": 107.5740471,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "13059243845",
     "name": "Hi. Haven",
     "category": "restaurant",
     "latitude": 16.467131,
     "longitude": 107.570051,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5427,15 +4428,6 @@
     "rating": 4.5
   },
   {
-    "id": "13143782201",
-    "name": "Nana Homestay & Villa",
-    "category": "attraction",
-    "latitude": 16.4568777,
-    "longitude": 107.5960969,
-    "address": "Phan Đình Phùng",
-    "rating": 4.5
-  },
-  {
     "id": "13147675601",
     "name": "Namto House Coffee Hue",
     "category": "restaurant",
@@ -5459,7 +4451,7 @@
     "category": "restaurant",
     "latitude": 16.4602495,
     "longitude": 107.5807488,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5468,25 +4460,7 @@
     "category": "restaurant",
     "latitude": 16.460279,
     "longitude": 107.5804302,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13296620876",
-    "name": "Nhà Nghỉ Hoàng",
-    "category": "attraction",
-    "latitude": 16.4568879,
-    "longitude": 107.5777129,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13296689049",
-    "name": "Moonlight Cruises",
-    "category": "attraction",
-    "latitude": 16.460389,
-    "longitude": 107.5806454,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5495,7 +4469,7 @@
     "category": "restaurant",
     "latitude": 16.4668968,
     "longitude": 107.5752459,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5522,7 +4496,7 @@
     "category": "restaurant",
     "latitude": 16.4605408,
     "longitude": 107.5636804,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5535,21 +4509,12 @@
     "rating": 4.5
   },
   {
-    "id": "13408004501",
-    "name": "Le Ba Dang Art Foundation",
-    "category": "attraction",
-    "latitude": 16.4653726,
-    "longitude": 107.5879553,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
     "id": "13408518801",
     "name": "Binh Luc",
     "category": "restaurant",
     "latitude": 16.4698919,
     "longitude": 107.6026819,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5558,7 +4523,7 @@
     "category": "restaurant",
     "latitude": 16.4614519,
     "longitude": 107.6044481,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5567,7 +4532,7 @@
     "category": "restaurant",
     "latitude": 16.4618097,
     "longitude": 107.6047399,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5576,7 +4541,7 @@
     "category": "restaurant",
     "latitude": 16.4607933,
     "longitude": 107.6041147,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5585,7 +4550,7 @@
     "category": "restaurant",
     "latitude": 16.4602973,
     "longitude": 107.5992686,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5594,16 +4559,7 @@
     "category": "restaurant",
     "latitude": 16.4757496,
     "longitude": 107.6021132,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13408849301",
-    "name": "Thảo An 2",
-    "category": "attraction",
-    "latitude": 16.4756935,
-    "longitude": 107.6024292,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5630,7 +4586,7 @@
     "category": "restaurant",
     "latitude": 16.4744596,
     "longitude": 107.6022045,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5648,7 +4604,7 @@
     "category": "restaurant",
     "latitude": 16.4738693,
     "longitude": 107.5971056,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5657,7 +4613,7 @@
     "category": "restaurant",
     "latitude": 16.460159,
     "longitude": 107.5814613,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5666,25 +4622,7 @@
     "category": "restaurant",
     "latitude": 16.4653042,
     "longitude": 107.589373,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13426058555",
-    "name": "Grand Royal Riverside",
-    "category": "attraction",
-    "latitude": 16.4663836,
-    "longitude": 107.5911357,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13426068402",
-    "name": "Duong Tranh Garden",
-    "category": "attraction",
-    "latitude": 16.3678303,
-    "longitude": 107.6005772,
-    "address": "Định Môn",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5693,16 +4631,7 @@
     "category": "restaurant",
     "latitude": 16.4684859,
     "longitude": 107.5948834,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13427871267",
-    "name": "Healing homestay",
-    "category": "attraction",
-    "latitude": 16.4707391,
-    "longitude": 107.5960155,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5711,7 +4640,7 @@
     "category": "restaurant",
     "latitude": 16.4670921,
     "longitude": 107.5906155,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5720,7 +4649,7 @@
     "category": "restaurant",
     "latitude": 16.4731233,
     "longitude": 107.5803467,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5729,7 +4658,7 @@
     "category": "restaurant",
     "latitude": 16.4666599,
     "longitude": 107.5899324,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5747,7 +4676,7 @@
     "category": "restaurant",
     "latitude": 16.4169782,
     "longitude": 107.5833062,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5756,7 +4685,7 @@
     "category": "attraction",
     "latitude": 16.4667729,
     "longitude": 107.6427024,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5765,7 +4694,7 @@
     "category": "tomb",
     "latitude": 16.3640956,
     "longitude": 107.5955915,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5774,43 +4703,16 @@
     "category": "restaurant",
     "latitude": 16.469449,
     "longitude": 107.5969621,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
-    "id": "13516216795",
-    "name": "Phaolô Tông Viét Búòng",
-    "category": "attraction",
-    "latitude": 16.4532593,
-    "longitude": 107.587466,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13516216798",
-    "name": "Eugène Marie Joseph Allys",
-    "category": "attraction",
-    "latitude": 16.4533112,
-    "longitude": 107.5876136,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13516238185",
-    "name": "NGUYỄN TÁT THÁNH",
-    "category": "attraction",
-    "latitude": 16.4598374,
-    "longitude": 107.583523,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13516424798",
-    "name": "1979 Homestay 2",
-    "category": "attraction",
-    "latitude": 16.476504,
-    "longitude": 107.577598,
-    "address": "Thua Thien Hue",
+    "id": "13516518011",
+    "name": "Than noi tu",
+    "category": "temple",
+    "latitude": 16.4706163,
+    "longitude": 107.5845893,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5819,16 +4721,7 @@
     "category": "restaurant",
     "latitude": 16.476673,
     "longitude": 107.5824043,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13519036401",
-    "name": "Hue Sweethouse 2 Homestay",
-    "category": "attraction",
-    "latitude": 16.4724312,
-    "longitude": 107.5972556,
-    "address": "Nguyễn Công Trứ",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5837,7 +4730,7 @@
     "category": "restaurant",
     "latitude": 16.4637275,
     "longitude": 107.5742836,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5846,7 +4739,7 @@
     "category": "restaurant",
     "latitude": 16.4789538,
     "longitude": 107.5771522,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5855,7 +4748,7 @@
     "category": "restaurant",
     "latitude": 16.4767524,
     "longitude": 107.5767001,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5864,25 +4757,16 @@
     "category": "attraction",
     "latitude": 16.470602,
     "longitude": 107.57292,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
-    "id": "13653730217",
-    "name": "Hue imperial hostel",
-    "category": "attraction",
-    "latitude": 16.4696489,
-    "longitude": 107.5946788,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13657451680",
-    "name": "Nineties homestay",
-    "category": "attraction",
-    "latitude": 16.470334,
-    "longitude": 107.5965754,
-    "address": "Thua Thien Hue",
+    "id": "13647158742",
+    "name": "TỊNH XÃ NGỌC KINH",
+    "category": "temple",
+    "latitude": 16.4819472,
+    "longitude": 107.575616,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5891,34 +4775,16 @@
     "category": "restaurant",
     "latitude": 16.4704229,
     "longitude": 107.5968671,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
-    "id": "13660373345",
-    "name": "Pao",
-    "category": "attraction",
-    "latitude": 16.4695686,
-    "longitude": 107.5963952,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13662716032",
-    "name": "Lacasa hostel",
-    "category": "attraction",
-    "latitude": 16.4555585,
-    "longitude": 107.592587,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13666637283",
-    "name": "Friendly House",
-    "category": "attraction",
-    "latitude": 16.4644603,
-    "longitude": 107.6004699,
-    "address": "Thua Thien Hue",
+    "id": "13663930534",
+    "name": "CHÙA KIM QUANG",
+    "category": "temple",
+    "latitude": 16.4520636,
+    "longitude": 107.5954476,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5927,7 +4793,16 @@
     "category": "restaurant",
     "latitude": 16.464166,
     "longitude": 107.5987597,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "13668928114",
+    "name": "A Di Da phat",
+    "category": "temple",
+    "latitude": 16.4585279,
+    "longitude": 107.6008587,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5936,16 +4811,7 @@
     "category": "restaurant",
     "latitude": 16.4927687,
     "longitude": 107.6025505,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13690428301",
-    "name": "Leranda Homestay",
-    "category": "attraction",
-    "latitude": 16.471194,
-    "longitude": 107.5959533,
-    "address": "Võ Thị Sáu",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5954,16 +4820,7 @@
     "category": "restaurant",
     "latitude": 16.4638259,
     "longitude": 107.5857079,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13706048892",
-    "name": "Amber Homestay Huế",
-    "category": "attraction",
-    "latitude": 16.4539125,
-    "longitude": 107.561803,
-    "address": "Kiệt 254 Bùi Thị Xuân",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5981,7 +4838,7 @@
     "category": "restaurant",
     "latitude": 16.4640572,
     "longitude": 107.5935403,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -5991,15 +4848,6 @@
     "latitude": 16.4601091,
     "longitude": 107.6024056,
     "address": "Nguyễn Hữu Thọ",
-    "rating": 4.5
-  },
-  {
-    "id": "13912396403",
-    "name": "Little italy",
-    "category": "restaurant",
-    "latitude": 16.4680251,
-    "longitude": 107.5955804,
-    "address": "Nguyễn Thái Học",
     "rating": 4.5
   },
   {
@@ -6017,16 +4865,7 @@
     "category": "attraction",
     "latitude": 16.408396,
     "longitude": 107.5792128,
-    "address": "Thua Thien Hue",
-    "rating": 4.5
-  },
-  {
-    "id": "13953214401",
-    "name": "Hachi homestay",
-    "category": "attraction",
-    "latitude": 16.4460413,
-    "longitude": 107.535754,
-    "address": "Thua Thien Hue",
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   },
   {
@@ -6036,6 +4875,1050 @@
     "latitude": 16.4662838,
     "longitude": 107.5954754,
     "address": "Trần Quang Khải",
+    "rating": 4.5
+  },
+  {
+    "id": "39411515",
+    "name": "Điện Biên Phủ",
+    "category": "attraction",
+    "latitude": 16.4566552,
+    "longitude": 107.5809463,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "39414469",
+    "name": "Cầu Ga",
+    "category": "attraction",
+    "latitude": 16.4572126,
+    "longitude": 107.5788716,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "118540998",
+    "name": "Trung tâm Nghệ thuật Điềm Phùng Thị",
+    "category": "attraction",
+    "latitude": 16.4669715,
+    "longitude": 107.5895601,
+    "address": "Lê Lợi",
+    "rating": 4.5
+  },
+  {
+    "id": "118541971",
+    "name": "Trung tâm Thanh thiếu nhi Huế",
+    "category": "attraction",
+    "latitude": 16.4592467,
+    "longitude": 107.5822457,
+    "address": "Lê Lợi",
+    "rating": 4.5
+  },
+  {
+    "id": "118542218",
+    "name": "Chùa Liên Hoa",
+    "category": "temple",
+    "latitude": 16.4375956,
+    "longitude": 107.5775081,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "118542399",
+    "name": "Ni xá Diệu Trạm",
+    "category": "temple",
+    "latitude": 16.4376169,
+    "longitude": 107.5725744,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "118542850",
+    "name": "Chùa Từ An",
+    "category": "temple",
+    "latitude": 16.4372676,
+    "longitude": 107.5781061,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "161714451",
+    "name": "Chợ Đông Ba",
+    "category": "attraction",
+    "latitude": 16.4725333,
+    "longitude": 107.5886564,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172657562",
+    "name": "Ngọ Môn",
+    "category": "attraction",
+    "latitude": 16.4676824,
+    "longitude": 107.5791834,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172657563",
+    "name": "Duyệt Thị Đường",
+    "category": "attraction",
+    "latitude": 16.4703036,
+    "longitude": 107.5784839,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172657565",
+    "name": "Hưng Tổ Miếu",
+    "category": "temple",
+    "latitude": 16.4675459,
+    "longitude": 107.5764287,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172657566",
+    "name": "Thái Miếu",
+    "category": "temple",
+    "latitude": 16.4699025,
+    "longitude": 107.5803251,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172657567",
+    "name": "Thế Tổ Miếu",
+    "category": "temple",
+    "latitude": 16.4671614,
+    "longitude": 107.5767398,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172657570",
+    "name": "Triệu Miếu",
+    "category": "temple",
+    "latitude": 16.4701991,
+    "longitude": 107.5800933,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172763419",
+    "name": "Phủ Nội Vụ",
+    "category": "attraction",
+    "latitude": 16.4706162,
+    "longitude": 107.5797647,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172763420",
+    "name": "Cung Diên Thọ",
+    "category": "attraction",
+    "latitude": 16.4688916,
+    "longitude": 107.5754008,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172763427",
+    "name": "Cung Trường Sanh",
+    "category": "attraction",
+    "latitude": 16.4697182,
+    "longitude": 107.5746783,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "172802373",
+    "name": "Lầu Tứ Vương Vô Sự",
+    "category": "attraction",
+    "latitude": 16.4719306,
+    "longitude": 107.5758891,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "173151284",
+    "name": "Tàng Thư Lâu",
+    "category": "attraction",
+    "latitude": 16.4809177,
+    "longitude": 107.576631,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "173609941",
+    "name": "Cửa Quảng Đức",
+    "category": "attraction",
+    "latitude": 16.4656755,
+    "longitude": 107.5786405,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "173614468",
+    "name": "Cửa Thượng Tứ",
+    "category": "attraction",
+    "latitude": 16.4698073,
+    "longitude": 107.5841938,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "175035807",
+    "name": "Lăng Khải Định",
+    "category": "tomb",
+    "latitude": 16.3990173,
+    "longitude": 107.5903392,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "205794912",
+    "name": "Chùa Thiên Mụ",
+    "category": "temple",
+    "latitude": 16.4536003,
+    "longitude": 107.5446622,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "205795043",
+    "name": "Thap Phuoc Duyen",
+    "category": "temple",
+    "latitude": 16.4523929,
+    "longitude": 107.5450292,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "205805236",
+    "name": "Chí Khiêm Đường",
+    "category": "temple",
+    "latitude": 16.4318389,
+    "longitude": 107.5663573,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "205805238",
+    "name": "Chấp Khiêm Điện",
+    "category": "temple",
+    "latitude": 16.4341466,
+    "longitude": 107.5663199,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "205805246",
+    "name": "Điện Lương Khiêm",
+    "category": "temple",
+    "latitude": 16.4324701,
+    "longitude": 107.5655543,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "205805254",
+    "name": "Điện Hòa Khiêm",
+    "category": "temple",
+    "latitude": 16.432497,
+    "longitude": 107.5658995,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "206627350",
+    "name": "Bửu Thành",
+    "category": "tomb",
+    "latitude": 16.387926,
+    "longitude": 107.5668023,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "239568223",
+    "name": "Thương Bạc",
+    "category": "attraction",
+    "latitude": 16.4680333,
+    "longitude": 107.5855685,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "239568224",
+    "name": "Nghênh Lương Đình",
+    "category": "attraction",
+    "latitude": 16.464798,
+    "longitude": 107.5813983,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "240266284",
+    "name": "Bảo tàng Hồ Chí Minh",
+    "category": "attraction",
+    "latitude": 16.4596249,
+    "longitude": 107.5811082,
+    "address": "Lê Lợi",
+    "rating": 4.5
+  },
+  {
+    "id": "264099611",
+    "name": "Cửa Hiển Nhơn",
+    "category": "attraction",
+    "latitude": 16.4707615,
+    "longitude": 107.580558,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "264285103",
+    "name": "Lăng Thiệu Trị",
+    "category": "tomb",
+    "latitude": 16.4162746,
+    "longitude": 107.572829,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "285990343",
+    "name": "Điện Cần Chánh",
+    "category": "attraction",
+    "latitude": 16.4694768,
+    "longitude": 107.5777963,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "285990344",
+    "name": "Điện Càn Thành",
+    "category": "attraction",
+    "latitude": 16.4700295,
+    "longitude": 107.5773597,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "285990345",
+    "name": "Viện Thuận Huy",
+    "category": "attraction",
+    "latitude": 16.4700459,
+    "longitude": 107.5768062,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "285990346",
+    "name": "Điện Dưỡng Tâm",
+    "category": "attraction",
+    "latitude": 16.4705416,
+    "longitude": 107.5774746,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "285990348",
+    "name": "Điện Kiến Trung",
+    "category": "attraction",
+    "latitude": 16.4710952,
+    "longitude": 107.5765216,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "285990349",
+    "name": "Điện Phụng Tiên",
+    "category": "attraction",
+    "latitude": 16.4681271,
+    "longitude": 107.5759753,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "367959059",
+    "name": "Trường Tiểu học Phú Bình - CSII",
+    "category": "attraction",
+    "latitude": 16.4899706,
+    "longitude": 107.5734438,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "367959063",
+    "name": "Cửa Hậu",
+    "category": "attraction",
+    "latitude": 16.4868075,
+    "longitude": 107.570959,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "367959065",
+    "name": "Cửa An Hòa",
+    "category": "attraction",
+    "latitude": 16.4807732,
+    "longitude": 107.5624367,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "367959066",
+    "name": "Cửa Chánh Tây",
+    "category": "attraction",
+    "latitude": 16.4746206,
+    "longitude": 107.5614906,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "367959068",
+    "name": "Cửa Hữu",
+    "category": "attraction",
+    "latitude": 16.4662433,
+    "longitude": 107.5679206,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "367959083",
+    "name": "Trấn Bình Môn",
+    "category": "attraction",
+    "latitude": 16.4886093,
+    "longitude": 107.5751978,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "369017963",
+    "name": "Nha Trung Bay Nong Cu",
+    "category": "attraction",
+    "latitude": 16.4667817,
+    "longitude": 107.6421227,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "438256347",
+    "name": "Điện Gia Thành",
+    "category": "attraction",
+    "latitude": 16.3651809,
+    "longitude": 107.5945547,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "446409033",
+    "name": "Lăng Thánh Cung",
+    "category": "tomb",
+    "latitude": 16.427583,
+    "longitude": 107.5692437,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "486744936",
+    "name": "Lăng Gia Long",
+    "category": "tomb",
+    "latitude": 16.3631567,
+    "longitude": 107.5964877,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "493382034",
+    "name": "Chùa Quang Minh",
+    "category": "temple",
+    "latitude": 16.4187273,
+    "longitude": 107.585482,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "519775822",
+    "name": "Chùa Từ Hiếu",
+    "category": "temple",
+    "latitude": 16.4389102,
+    "longitude": 107.5719893,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "531016858",
+    "name": "Chương Đức",
+    "category": "attraction",
+    "latitude": 16.4673213,
+    "longitude": 107.5757407,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "531031513",
+    "name": "Đông Khuyết Đài",
+    "category": "attraction",
+    "latitude": 16.471596,
+    "longitude": 107.5800406,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "531031518",
+    "name": "Quốc Tử Giám",
+    "category": "attraction",
+    "latitude": 16.4705977,
+    "longitude": 107.5824866,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "531031520",
+    "name": "Phu Văn Lâu",
+    "category": "attraction",
+    "latitude": 16.4655029,
+    "longitude": 107.5808925,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "531031548",
+    "name": "Điện Văn Minh",
+    "category": "attraction",
+    "latitude": 16.4697923,
+    "longitude": 107.5781777,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "531031566",
+    "name": "Điện Thái Hòa",
+    "category": "attraction",
+    "latitude": 16.4687434,
+    "longitude": 107.5783867,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "617437880",
+    "name": "Tây Khuyết Đài",
+    "category": "attraction",
+    "latitude": 16.468038,
+    "longitude": 107.5750678,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "617748935",
+    "name": "Cửa Nhà Đồ",
+    "category": "attraction",
+    "latitude": 16.4640523,
+    "longitude": 107.5754744,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "617944737",
+    "name": "Điện Quang Minh",
+    "category": "attraction",
+    "latitude": 16.4700196,
+    "longitude": 107.5779562,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "617944738",
+    "name": "Hữu Trường Lang",
+    "category": "attraction",
+    "latitude": 16.4695801,
+    "longitude": 107.5764888,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "617944748",
+    "name": "Holy Cannons of the Citadel of Hue",
+    "category": "attraction",
+    "latitude": 16.4679182,
+    "longitude": 107.5812384,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "617991227",
+    "name": "Miếu Long Thuyền",
+    "category": "attraction",
+    "latitude": 16.4650956,
+    "longitude": 107.5799657,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "617991266",
+    "name": "Điện Võ Hiển",
+    "category": "attraction",
+    "latitude": 16.4692315,
+    "longitude": 107.5774452,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "618267901",
+    "name": "Trường An Môn",
+    "category": "attraction",
+    "latitude": 16.470085,
+    "longitude": 107.5752197,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "619851621",
+    "name": "Đông Thành Thủy Quan",
+    "category": "attraction",
+    "latitude": 16.4817618,
+    "longitude": 107.5802601,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "619851622",
+    "name": "Cửa Ngăn",
+    "category": "attraction",
+    "latitude": 16.4675903,
+    "longitude": 107.5813763,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "631871434",
+    "name": "Chùa Quốc Ân",
+    "category": "temple",
+    "latitude": 16.4429374,
+    "longitude": 107.5877254,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "631871486",
+    "name": "Chùa Hiếu Quang",
+    "category": "temple",
+    "latitude": 16.4500285,
+    "longitude": 107.5829761,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "631871490",
+    "name": "Chùa Linh Quang",
+    "category": "temple",
+    "latitude": 16.4513832,
+    "longitude": 107.5839749,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "631871502",
+    "name": "Ch\\ùa Từ Đàm",
+    "category": "attraction",
+    "latitude": 16.4516443,
+    "longitude": 107.5817679,
+    "address": "Sư Liễu Quán",
+    "rating": 4.5
+  },
+  {
+    "id": "632173201",
+    "name": "Chùa Huyền Không Sơn Hạ",
+    "category": "temple",
+    "latitude": 16.4647756,
+    "longitude": 107.5972649,
+    "address": "Lê Quý Đôn",
+    "rating": 4.5
+  },
+  {
+    "id": "674765719",
+    "name": "Điện Long Ân",
+    "category": "attraction",
+    "latitude": 16.4522238,
+    "longitude": 107.5931494,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "683524977",
+    "name": "Cầu ngói Thanh Toàn",
+    "category": "attraction",
+    "latitude": 16.4667921,
+    "longitude": 107.6426953,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "690841004",
+    "name": "Canh Y Điện",
+    "category": "attraction",
+    "latitude": 16.4674224,
+    "longitude": 107.5771366,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695810694",
+    "name": "Cửa Đông Ba",
+    "category": "attraction",
+    "latitude": 16.4774977,
+    "longitude": 107.5837462,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695810695",
+    "name": "Di tích Nhà Lưu niệm Chủ tịch Hồ Chí Minh",
+    "category": "attraction",
+    "latitude": 16.4756171,
+    "longitude": 107.5806219,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695810696",
+    "name": "Miếu Âm Hồn",
+    "category": "temple",
+    "latitude": 16.4759923,
+    "longitude": 107.5814939,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695810698",
+    "name": "Viện Cơ Mật - Tam Toà",
+    "category": "attraction",
+    "latitude": 16.4719593,
+    "longitude": 107.583647,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695810710",
+    "name": "Bảo tàng Cổ vật Cung đình Huế",
+    "category": "attraction",
+    "latitude": 16.4713073,
+    "longitude": 107.5819424,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695810733",
+    "name": "Không gian Văn hóa Lục Bộ",
+    "category": "attraction",
+    "latitude": 16.4729593,
+    "longitude": 107.5807931,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695810763",
+    "name": "Sở Thượng Thiện",
+    "category": "attraction",
+    "latitude": 16.4705913,
+    "longitude": 107.5787475,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695810891",
+    "name": "Chùa Cát Tường",
+    "category": "temple",
+    "latitude": 16.4687712,
+    "longitude": 107.5709011,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695949048",
+    "name": "Điện Khôn Thái",
+    "category": "attraction",
+    "latitude": 16.4706059,
+    "longitude": 107.576903,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695949057",
+    "name": "Thuý Quang Tự",
+    "category": "attraction",
+    "latitude": 16.4717604,
+    "longitude": 107.5778967,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "695949060",
+    "name": "Ngự Y",
+    "category": "attraction",
+    "latitude": 16.4704727,
+    "longitude": 107.5788398,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "770840666",
+    "name": "Phu Hoi Pagoda",
+    "category": "temple",
+    "latitude": 16.4714041,
+    "longitude": 107.5964719,
+    "address": "Nguyễn Công Trứ",
+    "rating": 4.5
+  },
+  {
+    "id": "771244228",
+    "name": "Quoc Tu Dieu De",
+    "category": "temple",
+    "latitude": 16.4778556,
+    "longitude": 107.5874206,
+    "address": "Bạch Đằng",
+    "rating": 4.5
+  },
+  {
+    "id": "771244236",
+    "name": "Holy Cannons of the Citadel of Hue",
+    "category": "attraction",
+    "latitude": 16.4659179,
+    "longitude": 107.5783783,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "816359263",
+    "name": "Chùa Hoà Quang",
+    "category": "temple",
+    "latitude": 16.4364832,
+    "longitude": 107.5639482,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "816359266",
+    "name": "Chùa Thiên Hy",
+    "category": "temple",
+    "latitude": 16.4379105,
+    "longitude": 107.5756563,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "816359268",
+    "name": "Chùa Thọ Đức",
+    "category": "temple",
+    "latitude": 16.4375205,
+    "longitude": 107.5758281,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "816359269",
+    "name": "Chùa Thiền Lâm",
+    "category": "temple",
+    "latitude": 16.4382169,
+    "longitude": 107.5752759,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "816359271",
+    "name": "Chùa Châu Lâm",
+    "category": "temple",
+    "latitude": 16.4369821,
+    "longitude": 107.5763161,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "896415500",
+    "name": "Miếu Long Châu",
+    "category": "temple",
+    "latitude": 16.4482091,
+    "longitude": 107.5526431,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1075014568",
+    "name": "Điện Hòn Chén",
+    "category": "temple",
+    "latitude": 16.4219646,
+    "longitude": 107.5629208,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1167513732",
+    "name": "Ironwood Foot Bridge",
+    "category": "attraction",
+    "latitude": 16.4640341,
+    "longitude": 107.5857605,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1170979640",
+    "name": "Chùa Báo Quốc",
+    "category": "temple",
+    "latitude": 16.4542377,
+    "longitude": 107.5796821,
+    "address": "Bảo Quốc",
+    "rating": 4.5
+  },
+  {
+    "id": "1172894104",
+    "name": "Cung An Định",
+    "category": "attraction",
+    "latitude": 16.4574668,
+    "longitude": 107.5979417,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1172897446",
+    "name": "Cung An Định",
+    "category": "attraction",
+    "latitude": 16.4566343,
+    "longitude": 107.5983094,
+    "address": "Phan Đình Phùng",
+    "rating": 4.5
+  },
+  {
+    "id": "1173102908",
+    "name": "Phủ Tùng Thiện Vương",
+    "category": "attraction",
+    "latitude": 16.4566626,
+    "longitude": 107.5901684,
+    "address": "Phan Đình Phùng",
+    "rating": 4.5
+  },
+  {
+    "id": "1174245466",
+    "name": "Chùa Tây Thiên",
+    "category": "temple",
+    "latitude": 16.4322416,
+    "longitude": 107.5836811,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1340509708",
+    "name": "Điện Thoại Thánh",
+    "category": "attraction",
+    "latitude": 16.3689893,
+    "longitude": 107.5982804,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1429860519",
+    "name": "46 Phú Mộng",
+    "category": "attraction",
+    "latitude": 16.4628638,
+    "longitude": 107.5639329,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1443636347",
+    "name": "Phuoc Duyen Pagoda (Chua Phuoc Duyen)",
+    "category": "temple",
+    "latitude": 16.4598175,
+    "longitude": 107.54048,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1453749845",
+    "name": "Ho Thuy Tien",
+    "category": "attraction",
+    "latitude": 16.4099498,
+    "longitude": 107.576389,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1473253685",
+    "name": "NGUYÊN PHỨC TỘC",
+    "category": "tomb",
+    "latitude": 16.4278651,
+    "longitude": 107.5694497,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1473275556",
+    "name": "Làng hương Thủy Xuân",
+    "category": "attraction",
+    "latitude": 16.4339995,
+    "longitude": 107.5626893,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1509320731",
+    "name": "Kinh thành Huế",
+    "category": "attraction",
+    "latitude": 16.4767654,
+    "longitude": 107.5726546,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "1527235543",
+    "name": "Ho Thuy Tien Waterpark Space Simulator",
+    "category": "attraction",
+    "latitude": 16.4113031,
+    "longitude": 107.5738942,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "8541343",
+    "name": "Vòng Thành",
+    "category": "attraction",
+    "latitude": 16.475972,
+    "longitude": 107.5726931,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "17953191",
+    "name": "Lăng Đồng Khánh",
+    "category": "tomb",
+    "latitude": 16.4300647,
+    "longitude": 107.5691683,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "18005954",
+    "name": "Lăng Tự Đức",
+    "category": "tomb",
+    "latitude": 16.4329409,
+    "longitude": 107.5655529,
+    "address": "Thừa Thiên Huế",
+    "rating": 4.5
+  },
+  {
+    "id": "18005955",
+    "name": "Lăng Minh Mạng",
+    "category": "tomb",
+    "latitude": 16.3877909,
+    "longitude": 107.5678268,
+    "address": "Minh Mang",
+    "rating": 4.5
+  },
+  {
+    "id": "19381147",
+    "name": "Hổ Quyền",
+    "category": "attraction",
+    "latitude": 16.4485461,
+    "longitude": 107.5545593,
+    "address": "Thừa Thiên Huế",
     "rating": 4.5
   }
 ]

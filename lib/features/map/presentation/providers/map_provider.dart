@@ -9,6 +9,7 @@ class MapState {
   final dynamic selectedPlace;
   final LatLng? currentLocation;
   final String? selectedCategory;
+  final String searchQuery;
   final bool isLoading;
 
   const MapState({
@@ -17,6 +18,7 @@ class MapState {
     this.selectedPlace,
     this.currentLocation,
     this.selectedCategory,
+    this.searchQuery = '',
     this.isLoading = false,
   });
 
@@ -26,6 +28,7 @@ class MapState {
     dynamic selectedPlace,
     LatLng? currentLocation,
     String? selectedCategory,
+    String? searchQuery,
     bool? isLoading,
   }) {
     return MapState(
@@ -34,6 +37,7 @@ class MapState {
       selectedPlace: selectedPlace ?? this.selectedPlace,
       currentLocation: currentLocation ?? this.currentLocation,
       selectedCategory: selectedCategory ?? this.selectedCategory,
+      searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -55,6 +59,7 @@ class MapNotifier extends StateNotifier<MapState> {
         isLoading: false,
         currentLocation: const LatLng(16.4637, 107.5909),
       );
+      _applyFilters();
     } catch (e) {
       // Fallback default list if asset fails
       final fallback = [
@@ -65,7 +70,6 @@ class MapNotifier extends StateNotifier<MapState> {
           'latitude': 16.4637,
           'longitude': 107.5909,
           'address': 'Thuận Thành, Huế',
-          'rating': 4.8,
         },
         {
           'id': '2',
@@ -74,7 +78,6 @@ class MapNotifier extends StateNotifier<MapState> {
           'latitude': 16.4439,
           'longitude': 107.5833,
           'address': 'Hương Long, Huế',
-          'rating': 4.7,
         },
       ];
 
@@ -96,22 +99,34 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void filterByCategory(String? category) {
-    if (category == null || category == 'all') {
-      state = state.copyWith(
-        selectedCategory: null,
-        places: state.allPlaces,
-      );
-    } else {
-      final filtered = state.allPlaces.where((p) {
-        final cat = (p['category'] as String?)?.toLowerCase() ?? '';
-        return cat == category.toLowerCase();
-      }).toList();
+    final cat = (category == null || category == 'all') ? null : category;
+    state = state.copyWith(selectedCategory: cat);
+    _applyFilters();
+  }
 
-      state = state.copyWith(
-        selectedCategory: category,
-        places: filtered,
-      );
-    }
+  void setSearchQuery(String query) {
+    state = state.copyWith(searchQuery: query);
+    _applyFilters();
+  }
+
+  void _applyFilters() {
+    final category = state.selectedCategory;
+    final query = state.searchQuery.trim().toLowerCase();
+
+    final filtered = state.allPlaces.where((p) {
+      final catMatch = category == null ||
+          ((p['category'] as String?)?.toLowerCase() == category.toLowerCase());
+
+      final name = (p['name'] as String?)?.toLowerCase() ?? '';
+      final address = (p['address'] as String?)?.toLowerCase() ?? '';
+      final queryMatch = query.isEmpty ||
+          name.contains(query) ||
+          address.contains(query);
+
+      return catMatch && queryMatch;
+    }).toList();
+
+    state = state.copyWith(places: filtered);
   }
 
   void setCurrentLocation(LatLng location) {

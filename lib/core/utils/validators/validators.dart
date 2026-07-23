@@ -2,75 +2,75 @@ import 'package:codoky/core/utils/extensions/extensions.dart';
 
 class Validators {
   static String? email(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Email is required';
+    if (value == null || value.trim().isEmpty) {
+      return 'Vui lòng nhập địa chỉ email';
     }
-    if (!value.isValidEmail()) {
-      return 'Invalid email format';
+    if (!value.trim().isValidEmail()) {
+      return 'Email không đúng định dạng';
     }
     return null;
   }
 
-  static String? password(String? value) {
+  static String? password(String? value, {int minLength = 8}) {
     if (value == null || value.isEmpty) {
-      return 'Password is required';
+      return 'Vui lòng nhập mật khẩu';
     }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+    if (value.length < minLength) {
+      return 'Mật khẩu phải có tối thiểu $minLength ký tự';
     }
     return null;
   }
 
   static String? confirmPassword(String? value, String? password) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
+      return 'Vui lòng xác nhận lại mật khẩu';
     }
     if (value != password) {
-      return 'Passwords do not match';
+      return 'Mật khẩu xác nhận không khớp';
     }
     return null;
   }
 
-  static String? required(String? value, {String fieldName = 'This field'}) {
-    if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+  static String? required(String? value, {String fieldName = 'Trường này'}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName không được để trống';
     }
     return null;
   }
 
   static String? phone(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Phone number is required';
+    if (value == null || value.trim().isEmpty) {
+      return 'Vui lòng nhập số điện thoại';
     }
-    if (!value.isValidPhoneNumber()) {
-      return 'Invalid phone number format';
+    if (!value.trim().isValidPhoneNumber()) {
+      return 'Số điện thoại không hợp lệ (VD: 0912345678)';
     }
     return null;
   }
 
-  static String? minLength(String? value, int minLength, {String fieldName = 'This field'}) {
+  static String? minLength(String? value, int minLength, {String fieldName = 'Trường này'}) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName không được để trống';
     }
     if (value.length < minLength) {
-      return '$fieldName must be at least $minLength characters';
+      return '$fieldName phải có ít nhất $minLength ký tự';
     }
     return null;
   }
 
-  static String? maxLength(String? value, int maxLength, {String fieldName = 'This field'}) {
+  static String? maxLength(String? value, int maxLength, {String fieldName = 'Trường này'}) {
     if (value != null && value.length > maxLength) {
-      return '$fieldName must not exceed $maxLength characters';
+      return '$fieldName không được vượt quá $maxLength ký tự';
     }
     return null;
   }
 
   static String? rating(double? value) {
     if (value == null) {
-      return 'Rating is required';
+      return 'Vui lòng chọn số sao đánh giá';
     }
     if (value < 1 || value > 5) {
-      return 'Rating must be between 1 and 5';
+      return 'Đánh giá phải từ 1 đến 5 sao';
     }
     return null;
   }

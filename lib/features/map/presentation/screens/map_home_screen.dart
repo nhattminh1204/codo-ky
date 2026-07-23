@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
+import 'package:codoky/core/logging/app_logger.dart';
+import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
@@ -17,6 +22,7 @@ class MapHomeScreen extends ConsumerStatefulWidget {
 
 class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
   final MapController _mapController = MapController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -27,13 +33,19 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final state = ref.watch(mapProvider);
 
     return Scaffold(
       body: Stack(
         children: [
-          // 1. OpenStreetMap Layer (No Google Maps API Key required)
+          // 1. OpenStreetMap Layer with Marker Clustering
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -49,8 +61,39 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.codoky.app',
               ),
-              MarkerLayer(
-                markers: _buildMarkers(state.places, state.selectedPlace),
+              MarkerClusterLayerWidget(
+                options: MarkerClusterLayerOptions(
+                  maxClusterRadius: 45,
+                  size: const Size(40, 40),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(50),
+                  markers: _buildMarkers(state.places, state.selectedPlace),
+                  builder: (context, markers) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: const Color(0xFF9B1B30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF9B1B30).withValues(alpha: 0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          markers.length.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
               const SimpleAttributionWidget(
                 source: Text('© OpenStreetMap contributors'),
@@ -71,7 +114,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
               ),
             ),
 
-          // 3. Floating Glassmorphic Search & Filter Bar Header
+          // 3. Floating Glassmorphic Search Header & Category Bar
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             left: 16,
@@ -84,61 +127,95 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
                   opacity: 0.88,
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF9B1B30),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF9B1B30).withValues(alpha: 0.35),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                      Row(
+                        children: [
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF9B1B30),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF9B1B30).withValues(alpha: 0.35),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: const Icon(Icons.location_on_rounded, color: Colors.white, size: 24),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              'CodoKy Map',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF9B1B30),
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${state.places.length} địa điểm đang hiển thị',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[700],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (state.isLoading)
-                        const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: Color(0xFF9B1B30),
+                            child: const Icon(Icons.location_on_rounded, color: Colors.white, size: 22),
                           ),
-                        ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: (value) {
+                                ref.read(mapProvider.notifier).setSearchQuery(value);
+                              },
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                              decoration: InputDecoration(
+                                hintText: 'Tìm địa điểm ở Huế (lăng tẩm, chùa...)...',
+                                hintStyle: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                                suffixIcon: _searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear, size: 18),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          ref.read(mapProvider.notifier).setSearchQuery('');
+                                        },
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ),
+                          if (state.isLoading)
+                            const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.0,
+                                color: Color(0xFF9B1B30),
+                              ),
+                            )
+                          else
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF9B1B30).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '${state.places.length}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF9B1B30),
+                                ),
+                              ),
+                            ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => context.push('/profile'),
+                            child: CircleAvatar(
+                              radius: 17,
+                              backgroundColor: const Color(0xFF9B1B30),
+                              backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
+                                  ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
+                                  : null,
+                              child: ref.watch(authProvider).user?.avatarUrl == null
+                                  ? const Icon(Icons.person, size: 20, color: Colors.white)
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -149,13 +226,13 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
                     children: [
                       _buildFilterChip('all', 'Tất cả', state),
                       const SizedBox(width: 8),
+                      _buildFilterChip('restaurant', 'Quán ăn', state),
+                      const SizedBox(width: 8),
                       _buildFilterChip('attraction', 'Địa điểm', state),
                       const SizedBox(width: 8),
                       _buildFilterChip('tomb', 'Lăng tẩm', state),
                       const SizedBox(width: 8),
                       _buildFilterChip('temple', 'Chùa', state),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('restaurant', 'Quán ăn', state),
                     ],
                   ),
                 ),
@@ -207,22 +284,20 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
       final lat = place['latitude'] as double? ?? (place.latitude as double?);
       final lng = place['longitude'] as double? ?? (place.longitude as double?);
       final category = place['category'] as String? ?? (place.category as String? ?? 'attraction');
-      final rating = (place['rating'] as num?)?.toDouble() ?? 0.0;
       final isSelected = selectedPlace != null && (place['id'] == selectedPlace['id']);
 
       if (lat != null && lng != null) {
         markers.add(
           Marker(
             point: LatLng(lat, lng),
-            width: 48,
-            height: 48,
+            width: 44,
+            height: 44,
             child: GestureDetector(
               onTap: () {
                 ref.read(mapProvider.notifier).selectPlace(place);
               },
               child: PlaceMarker(
                 category: category,
-                rating: rating,
                 isSelected: isSelected,
               ),
             ),
@@ -233,7 +308,86 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
     return markers;
   }
 
-  void _goToCurrentLocation() {
+  Future<void> _goToCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Dịch vụ GPS chưa bật. Đang dùng vị trí mặc định Huế.'),
+          ),
+        );
+      }
+      _fallbackToDefaultLocation();
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Quyền vị trí bị từ chối. Đang dùng vị trí mặc định Huế.'),
+            ),
+          );
+        }
+        _fallbackToDefaultLocation();
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Quyền vị trí bị từ chối vĩnh viễn. Vui lòng mở Cài đặt ứng dụng để cấp quyền.'),
+          ),
+        );
+      }
+      _fallbackToDefaultLocation();
+      return;
+    }
+
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+
+      final realLocation = LatLng(position.latitude, position.longitude);
+      AppLogger.i('GPS thực tế: lat=${position.latitude}, lng=${position.longitude}');
+      ref.read(mapProvider.notifier).setCurrentLocation(realLocation);
+      _mapController.move(realLocation, 15.0);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Định vị vị trí GPS thật: (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Khởi tạo GPS thất bại ($e). Đang dùng vị trí mặc định.'),
+          ),
+        );
+      }
+      _fallbackToDefaultLocation();
+    }
+  }
+
+  void _fallbackToDefaultLocation() {
     _mapController.move(
       LatLng(
         AppConstants.defaultMapLatitude,
