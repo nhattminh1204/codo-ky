@@ -6,7 +6,7 @@ class ReviewModel {
   final String placeId;
   final String placeName;
   final double rating;
-  final String title;
+  final String? title;
   final String content;
   final List<String> images;
   final int likeCount;
@@ -23,7 +23,7 @@ class ReviewModel {
     required this.placeId,
     required this.placeName,
     required this.rating,
-    required this.title,
+    this.title,
     required this.content,
     this.images = const [],
     this.likeCount = 0,
@@ -42,7 +42,7 @@ class ReviewModel {
       placeId: json['place_id']?.toString() ?? '',
       placeName: json['place_name'] ?? '',
       rating: (json['rating'] ?? 0).toDouble(),
-      title: json['title'] ?? '',
+      title: json['title'],
       content: json['content'] ?? '',
       images: List<String>.from(json['images'] ?? []),
       likeCount: json['like_count'] ?? 0,

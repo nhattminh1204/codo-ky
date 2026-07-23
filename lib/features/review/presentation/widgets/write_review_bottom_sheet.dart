@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/utils/validators/validators.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
 import 'package:codoky/core/widgets/inputs/text_input.dart';
-import 'package:codoky/features/review/presentation/providers/review_provider.dart';
 
 class WriteReviewBottomSheet extends ConsumerStatefulWidget {
   const WriteReviewBottomSheet({super.key});
@@ -17,7 +16,6 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   double _rating = 0;
-  String? _selectedPlaceId;
 
   @override
   void dispose() {

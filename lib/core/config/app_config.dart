@@ -1,11 +1,14 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:codoky/core/logging/app_logger.dart';
 
 /// Application configuration loaded from environment variables
 /// 
 /// Usage: Call [AppConfig.initialize()] in main() before runApp()
 class AppConfig {
   static bool _isInitialized = false;
+  static String _activeEnvironment = 'dev';
   
+  static String get environment => _getString('ENVIRONMENT', _activeEnvironment);
   static String get apiBaseUrl => _getString('API_BASE_URL');
   static String get googleMapsApiKey => _getString('GOOGLE_MAPS_API_KEY');
   static String get geminiApiKey => _getString('GEMINI_API_KEY');
@@ -27,7 +30,8 @@ class AppConfig {
       try {
         await dotenv.load(fileName: fileName);
         _isInitialized = true;
-        print('✅ Loaded configuration from $fileName');
+        _activeEnvironment = env;
+        AppLogger.i('Loaded configuration from $fileName');
         return;
       } catch (_) {
         // Try next file
@@ -35,7 +39,7 @@ class AppConfig {
     }
     
     _isInitialized = true;
-    print('⚠️ Using default configuration values');
+    AppLogger.w('Using default configuration values');
   }
   
   static String _getString(String key, [String defaultValue = '']) {
@@ -47,27 +51,15 @@ class AppConfig {
     return int.tryParse(value ?? '') ?? defaultValue;
   }
   
-  static double _getDouble(String key, double defaultValue) {
-    final value = dotenv.env[key];
-    return double.tryParse(value ?? '') ?? defaultValue;
-  }
-  
-  static bool _getBool(String key, bool defaultValue) {
-    final value = dotenv.env[key]?.toLowerCase();
-    if (value == 'true' || value == '1') return true;
-    if (value == 'false' || value == '0') return false;
-    return defaultValue;
-  }
-  
   /// Debug: print all loaded config (without sensitive values)
   static void debugPrintConfig() {
-    print('=== AppConfig ===');
-    print('Environment: ${const String.fromEnvironment('ENV', defaultValue: 'production')}');
-    print('API Base URL: $apiBaseUrl');
-    print('Google Maps API Key: ${googleMapsApiKey.isNotEmpty ? '***SET***' : 'NOT SET'}');
-    print('Gemini API Key: ${geminiApiKey.isNotEmpty ? '***SET***' : 'NOT SET'}');
-    print('API Timeout: ${apiTimeoutSeconds}s');
-    print('Default Page Size: $defaultPageSize');
-    print('==================');
+    AppLogger.i('=== AppConfig ===');
+    AppLogger.i('Environment: $environment');
+    AppLogger.i('API Base URL: $apiBaseUrl');
+    AppLogger.i('Google Maps API Key: ${googleMapsApiKey.isNotEmpty ? '***SET***' : 'NOT SET'}');
+    AppLogger.i('Gemini API Key: ${geminiApiKey.isNotEmpty ? '***SET***' : 'NOT SET'}');
+    AppLogger.i('API Timeout: ${apiTimeoutSeconds}s');
+    AppLogger.i('Default Page Size: $defaultPageSize');
+    AppLogger.i('==================');
   }
 }

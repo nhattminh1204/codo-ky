@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/config/app_config.dart';
+import 'package:codoky/core/logging/app_logger.dart';
 
 import 'app.dart';
 
@@ -23,7 +24,7 @@ void main() async {
     await AppConfig.initialize();
     AppConfig.debugPrintConfig();
   } catch (e) {
-    print('⚠️ Error initializing AppConfig: $e');
+    AppLogger.e('Error initializing AppConfig: $e');
   }
   
   runApp(const ProviderScope(child: CodoKyApp()));

@@ -42,7 +42,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
                 AppConstants.defaultMapLongitude,
               ),
               initialZoom: AppConstants.defaultMapZoom.toDouble(),
-              onTap: (_, __) => ref.read(mapProvider.notifier).clearSelection(),
+              onTap: (_, _) => ref.read(mapProvider.notifier).clearSelection(),
             ),
             children: [
               TileLayer(
@@ -51,6 +51,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
               ),
               MarkerLayer(
                 markers: _buildMarkers(state.places, state.selectedPlace),
+              ),
+              const SimpleAttributionWidget(
+                source: Text('© OpenStreetMap contributors'),
               ),
             ],
           ),

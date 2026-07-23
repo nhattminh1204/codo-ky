@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/core/utils/helpers/helpers.dart';
-import 'package:codoky/core/utils/extensions/extensions.dart';
 
 class ItineraryCard extends StatelessWidget {
   final ItineraryModel itinerary;
@@ -34,7 +33,7 @@ class ItineraryCard extends StatelessWidget {
                       ? Image.network(
                           itinerary.thumbnailUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholder(context),
+                          errorBuilder: (_, _, _) => _buildPlaceholder(context),
                         )
                       : _buildPlaceholder(context),
                 ),

@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
-import 'package:codoky/core/network/network_exceptions.dart';
 
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(

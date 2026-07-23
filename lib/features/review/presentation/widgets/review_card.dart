@@ -120,30 +120,30 @@ Text(
                   ),
                 ),
               ],
-              if (review.content != null && review.content!.isNotEmpty) ...[
+              if (review.content.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
-                  review.content!,
+                  review.content,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
-              if (review.images != null && review.images!.isNotEmpty) ...[
+              if (review.images.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 SizedBox(
                   height: 80,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
-                    itemCount: review.images!.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemCount: review.images.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 8),
                     itemBuilder: (context, index) {
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          review.images![index],
+                          review.images[index],
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorBuilder: (_, _, _) => Container(
                             width: 80,
                             height: 80,
                             color: Theme.of(context).colorScheme.surfaceContainerHighest,
