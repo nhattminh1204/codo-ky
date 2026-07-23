@@ -6,15 +6,16 @@ import 'package:codoky/core/config/constants/app_constants.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
+import 'package:codoky/shared/widgets/glass_container.dart';
 
-class MapPage extends ConsumerStatefulWidget {
-  const MapPage({super.key});
+class MapHomeScreen extends ConsumerStatefulWidget {
+  const MapHomeScreen({super.key});
 
   @override
-  ConsumerState<MapPage> createState() => _MapPageState();
+  ConsumerState<MapHomeScreen> createState() => _MapHomeScreenState();
 }
 
-class _MapPageState extends ConsumerState<MapPage> {
+class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
   final MapController _mapController = MapController();
 
   @override
@@ -32,6 +33,7 @@ class _MapPageState extends ConsumerState<MapPage> {
     return Scaffold(
       body: Stack(
         children: [
+          // 1. OpenStreetMap Layer (No Google Maps API Key required)
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -52,19 +54,21 @@ class _MapPageState extends ConsumerState<MapPage> {
               ),
             ],
           ),
+
+          // 2. Selected Place Bottom Sheet
           if (state.selectedPlace != null)
             Positioned(
-              bottom: 0,
+              bottom: 80,
               left: 0,
               right: 0,
               child: MapBottomSheet(
                 place: state.selectedPlace!,
                 onClose: () => ref.read(mapProvider.notifier).clearSelection(),
-                onNavigate: () {
-                  // TODO: Open navigation
-                },
+                onNavigate: () {},
               ),
             ),
+
+          // 3. Floating Glassmorphic Search & Filter Bar Header
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             left: 16,
@@ -72,48 +76,70 @@ class _MapPageState extends ConsumerState<MapPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Card(
-                  elevation: 6,
-                  shadowColor: Colors.black26,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.location_on, color: Color(0xFF9B1B30), size: 28),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'CodoKy - Khám phá Huế',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF9B1B30),
-                                    ),
+                GlassContainer(
+                  blur: 16,
+                  opacity: 0.88,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF9B1B30),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF9B1B30).withValues(alpha: 0.35),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.location_on_rounded, color: Colors.white, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'CodoKy Map',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF9B1B30),
+                                letterSpacing: 0.3,
                               ),
-                              Text(
-                                '${state.places.length} địa điểm đang hiển thị',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[700],
-                                    ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${state.places.length} địa điểm đang hiển thị',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w500,
                               ),
-                            ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (state.isLoading)
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Color(0xFF9B1B30),
                           ),
                         ),
-                        if (state.isLoading)
-                          const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2.5),
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -126,7 +152,7 @@ class _MapPageState extends ConsumerState<MapPage> {
                       const SizedBox(width: 8),
                       _buildFilterChip('temple', 'Chùa', state),
                       const SizedBox(width: 8),
-                      _buildFilterChip('restaurant', 'Quán ăn / Nhà hàng', state),
+                      _buildFilterChip('restaurant', 'Quán ăn', state),
                     ],
                   ),
                 ),
@@ -136,13 +162,15 @@ class _MapPageState extends ConsumerState<MapPage> {
         ],
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 90),
         child: FloatingActionButton(
           heroTag: 'locate',
           onPressed: _goToCurrentLocation,
           backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF9B1B30),
-          child: const Icon(Icons.my_location),
+          elevation: 6,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: const Icon(Icons.my_location_rounded),
         ),
       ),
     );
@@ -156,7 +184,7 @@ class _MapPageState extends ConsumerState<MapPage> {
       label: Text(label),
       selected: isSelected,
       selectedColor: const Color(0xFF9B1B30),
-      backgroundColor: Colors.white.withValues(alpha: 0.95),
+      backgroundColor: Colors.white.withValues(alpha: 0.92),
       elevation: isSelected ? 4 : 2,
       shadowColor: Colors.black26,
       labelStyle: TextStyle(
@@ -210,9 +238,5 @@ class _MapPageState extends ConsumerState<MapPage> {
       ),
       AppConstants.defaultMapZoom.toDouble(),
     );
-  }
-
-  void _showFilterDialog() {
-    // TODO: Show filter dialog
   }
 }
