@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
 import 'package:codoky/core/logging/app_logger.dart';
+import 'package:codoky/core/services/location/location_service.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
@@ -20,22 +20,74 @@ class MapHomeScreen extends ConsumerStatefulWidget {
   ConsumerState<MapHomeScreen> createState() => _MapHomeScreenState();
 }
 
-class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
+class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
+  late final AnimationController _pulseController;
+  final LocationService _locationService = LocationService();
 
   @override
   void initState() {
     super.initState();
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 1600),
+      vsync: this,
+    )..repeat();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(mapProvider.notifier).loadPlaces();
+      _initLiveLocationTracking();
     });
+  }
+
+  void _initLiveLocationTracking() {
+    _locationService.startLiveTracking(
+      onLocationUpdate: (pos, accuracy) {
+        if (mounted) {
+          ref.read(mapProvider.notifier).setCurrentLocation(pos);
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
+    _locationService.stopLiveTracking();
     _searchController.dispose();
+    _pulseController.dispose();
     super.dispose();
+  }
+
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
+    final camera = _mapController.camera;
+    final latTween = Tween<double>(begin: camera.center.latitude, end: destLocation.latitude);
+    final lngTween = Tween<double>(begin: camera.center.longitude, end: destLocation.longitude);
+    final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
+
+    final controller = AnimationController(
+      duration: const Duration(milliseconds: 950),
+      vsync: this,
+    );
+
+    final Animation<double> animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.fastOutSlowIn,
+    );
+
+    controller.addListener(() {
+      _mapController.move(
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
   }
 
   @override
@@ -95,6 +147,13 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
                   },
                 ),
               ),
+              // Render redesigned pulsing user location marker
+              if (state.currentLocation != null)
+                MarkerLayer(
+                  markers: [
+                    _buildUserLocationMarker(state.currentLocation!),
+                  ],
+                ),
               const SimpleAttributionWidget(
                 source: Text('© OpenStreetMap contributors'),
               ),
@@ -278,6 +337,81 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
     );
   }
 
+  Marker _buildUserLocationMarker(LatLng position) {
+    return Marker(
+      point: position,
+      width: 60,
+      height: 60,
+      child: AnimatedBuilder(
+        animation: _pulseController,
+        builder: (context, child) {
+          final scale = 1.0 + (_pulseController.value * 0.45);
+          final opacity = (1.0 - _pulseController.value).clamp(0.0, 1.0);
+
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Outer expanding pulse wave
+              Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF1E88E5).withValues(alpha: opacity * 0.35),
+                  ),
+                ),
+              ),
+              // Glowing aura ring
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF1E88E5).withValues(alpha: 0.2),
+                  border: Border.all(
+                    color: const Color(0xFF1E88E5).withValues(alpha: 0.6),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              // Inner glossy white disc with soft shadow
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+              ),
+              // Blue gradient core point
+              Container(
+                width: 13,
+                height: 13,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF42A5F5), Color(0xFF1565C0)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   List<Marker> _buildMarkers(List<dynamic> places, dynamic selectedPlace) {
     final markers = <Marker>[];
     for (final place in places) {
@@ -309,91 +443,51 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> {
   }
 
   Future<void> _goToCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+    // 1. Instantly get current active location
+    final activePos = ref.read(mapProvider).currentLocation ??
+        LatLng(AppConstants.defaultMapLatitude, AppConstants.defaultMapLongitude);
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Dịch vụ GPS chưa bật. Đang dùng vị trí mặc định Huế.'),
-          ),
-        );
-      }
-      _fallbackToDefaultLocation();
-      return;
-    }
+    // 2. Guarantee immediate smooth animated zoom to 17.0 level
+    _animatedMapMove(activePos, 17.0);
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
+    // 3. Acquire fresh high-accuracy GPS fix in background
+    final result = await _locationService.getAccuratePosition(
+      onFastFix: (fastResult) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Quyền vị trí bị từ chối. Đang dùng vị trí mặc định Huế.'),
-            ),
-          );
+          ref.read(mapProvider.notifier).setCurrentLocation(fastResult.position);
+          _animatedMapMove(fastResult.position, 17.0);
         }
-        _fallbackToDefaultLocation();
-        return;
-      }
-    }
+      },
+    );
 
-    if (permission == LocationPermission.deniedForever) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Quyền vị trí bị từ chối vĩnh viễn. Vui lòng mở Cài đặt ứng dụng để cấp quyền.'),
+    if (result != null && mounted) {
+      ref.read(mapProvider.notifier).setCurrentLocation(result.position);
+      _animatedMapMove(result.position, 17.0);
+      AppLogger.i('GPS thực tế: lat=${result.position.latitude}, lng=${result.position.longitude} (Độ chính xác: ${result.accuracy.toStringAsFixed(1)}m)');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Đã phóng to vị trí GPS: (${result.position.latitude.toStringAsFixed(4)}, ${result.position.longitude.toStringAsFixed(4)}) [±${result.accuracy.toStringAsFixed(0)}m]',
           ),
-        );
-      }
-      _fallbackToDefaultLocation();
-      return;
-    }
-
-    try {
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 10),
+          duration: const Duration(seconds: 2),
         ),
       );
-
-      final realLocation = LatLng(position.latitude, position.longitude);
-      AppLogger.i('GPS thực tế: lat=${position.latitude}, lng=${position.longitude}');
-      ref.read(mapProvider.notifier).setCurrentLocation(realLocation);
-      _mapController.move(realLocation, 15.0);
-
-      if (mounted) {
+    } else if (mounted) {
+      final hasPermission = await _locationService.checkPermission();
+      if (!hasPermission && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Định vị vị trí GPS thật: (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})',
+            content: const Text('Đã phóng to vị trí hiện tại. Vui lòng bật GPS để định vị vệ tinh chính xác.'),
+            action: SnackBarAction(
+              label: 'Cài đặt',
+              onPressed: () {
+                _locationService.openAppSettings();
+              },
             ),
           ),
         );
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Khởi tạo GPS thất bại ($e). Đang dùng vị trí mặc định.'),
-          ),
-        );
-      }
-      _fallbackToDefaultLocation();
     }
-  }
-
-  void _fallbackToDefaultLocation() {
-    _mapController.move(
-      LatLng(
-        AppConstants.defaultMapLatitude,
-        AppConstants.defaultMapLongitude,
-      ),
-      AppConstants.defaultMapZoom.toDouble(),
-    );
   }
 }

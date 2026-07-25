@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/utils/validators/validators.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
+import 'package:codoky/core/widgets/cards/app_card.dart';
 import 'package:codoky/core/widgets/inputs/text_input.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 
@@ -36,7 +38,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư của bạn!'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.success,
         ),
       );
       context.pop();
@@ -44,7 +46,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authState.error!),
-          backgroundColor: Colors.red.shade700,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -55,54 +57,68 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.bgLight,
       appBar: AppBar(
         title: const Text('Quên mật khẩu'),
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 12),
-                Text(
-                  'Đặt lại mật khẩu',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF9B1B30),
+            child: AppCard(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
                       ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Nhập email đã đăng ký tài khoản CodoKy của bạn để nhận liên kết khôi phục mật khẩu.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
-                ),
-                const SizedBox(height: 28),
+                      child: const Icon(Icons.lock_reset_rounded, size: 48, color: AppColors.primary),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    'Đặt lại mật khẩu',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  const Text(
+                    'Nhập email đã đăng ký tài khoản CodoKy của bạn để nhận liên kết khôi phục mật khẩu.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
 
-                TextInput(
-                  controller: _emailController,
-                  label: 'Email đăng ký',
-                  hint: 'Nhập địa chỉ email của bạn',
-                  keyboardType: TextInputType.emailAddress,
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  validator: Validators.email,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _handleResetPassword(),
-                ),
-                const SizedBox(height: 24),
+                  TextInput(
+                    controller: _emailController,
+                    label: 'Email đăng ký',
+                    hint: 'Nhập địa chỉ email của bạn',
+                    keyboardType: TextInputType.emailAddress,
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    validator: Validators.email,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _handleResetPassword(),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
 
-                PrimaryButton(
-                  text: 'Gửi yêu cầu khôi phục',
-                  isLoading: authState.isLoading,
-                  onPressed: _handleResetPassword,
-                  backgroundColor: const Color(0xFF9B1B30),
-                ),
-              ],
+                  PrimaryButton(
+                    text: 'Gửi yêu cầu khôi phục',
+                    useGradient: true,
+                    isLoading: authState.isLoading,
+                    onPressed: _handleResetPassword,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

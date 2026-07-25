@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 import 'curved_nav_clipper.dart';
 
 class MainShellLayout extends StatefulWidget {
@@ -19,21 +20,27 @@ class _MainShellLayoutState extends State<MainShellLayout> {
   final List<_NavItemData> _items = const [
     _NavItemData(icon: Icons.map_outlined, selectedIcon: Icons.map_rounded, label: 'Bản đồ', route: '/map'),
     _NavItemData(icon: Icons.explore_outlined, selectedIcon: Icons.explore_rounded, label: 'Khám phá', route: '/explore'),
-    _NavItemData(icon: Icons.auto_awesome_outlined, selectedIcon: Icons.auto_awesome_rounded, label: 'Lịch trình', route: '/itinerary'),
-    _NavItemData(icon: Icons.rate_review_outlined, selectedIcon: Icons.rate_review_rounded, label: 'Đánh giá', route: '/reviews'),
+    _NavItemData(icon: Icons.add, selectedIcon: Icons.add, label: '', route: '/itinerary/setup', isCenterAction: true),
+    _NavItemData(icon: Icons.calendar_today_outlined, selectedIcon: Icons.calendar_today_rounded, label: 'Lịch trình', route: '/itinerary'),
+    _NavItemData(icon: Icons.person_outline, selectedIcon: Icons.person_rounded, label: 'Hồ sơ', route: '/profile'),
   ];
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/explore')) return 1;
-    if (location.startsWith('/itinerary')) return 2;
-    if (location.startsWith('/reviews')) return 3;
+    if (location.startsWith('/itinerary')) return 3;
+    if (location.startsWith('/profile')) return 4;
     return 0;
   }
 
   void _onItemTapped(int index, BuildContext context) {
     HapticFeedback.lightImpact();
-    context.go(_items[index].route);
+    final item = _items[index];
+    if (item.isCenterAction) {
+      context.push(item.route);
+    } else {
+      context.go(item.route);
+    }
   }
 
   @override
@@ -41,14 +48,10 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     final selectedIndex = _calculateSelectedIndex(context);
     final mediaQuery = MediaQuery.of(context);
     
-    // Exact Width inside margin (padding horizontal 16 x 2 = 32)
-    final horizontalMargin = 16.0;
+    const horizontalMargin = 16.0;
     final navWidth = mediaQuery.size.width - (horizontalMargin * 2);
     final itemWidth = navWidth / _items.length;
-    
-    // Active Center X relative to nav bar container
     final activeX = itemWidth * selectedIndex + itemWidth / 2;
-
     const double circleSize = 52.0;
 
     return Scaffold(
@@ -57,7 +60,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
       bottomNavigationBar: SafeArea(
         bottom: true,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(horizontalMargin, 0, horizontalMargin, 10),
+          padding: const EdgeInsets.fromLTRB(horizontalMargin, 0, horizontalMargin, 10),
           child: SizedBox(
             height: 68,
             child: Stack(
@@ -78,22 +81,16 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                       child: Container(
                         height: 68,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF18171C), // Deep Sleek Dark
+                          color: const Color(0xFF18171C),
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
+                          boxShadow: AppShadows.floating,
                         ),
                       ),
                     );
                   },
                 ),
 
-                // 2. Floating Active Circle Button (Floating smoothly above the notch)
+                // 2. Floating Active Circle Button
                 TweenAnimationBuilder<double>(
                   tween: Tween<double>(begin: activeX, end: activeX),
                   duration: const Duration(milliseconds: 300),
@@ -101,25 +98,21 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                   builder: (context, currentX, child) {
                     return Positioned(
                       left: currentX - (circleSize / 2),
-                      top: -12, // Floating slightly above the bar edge
+                      top: -12,
                       child: Container(
                         width: circleSize,
                         height: circleSize,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFFB81D35),
-                              Color(0xFF9B1B30),
-                              Color(0xFF7B0020),
-                            ],
+                            colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF9B1B30).withValues(alpha: 0.5),
-                              blurRadius: 12,
+                              color: const Color(0xFFFF5E62).withValues(alpha: 0.4),
+                              blurRadius: 14,
                               offset: const Offset(0, 4),
                             ),
                           ],
@@ -143,6 +136,22 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                       final isSelected = index == selectedIndex;
                       final item = _items[index];
 
+                      if (item.isCenterAction) {
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () => _onItemTapped(index, context),
+                            behavior: HitTestBehavior.opaque,
+                            child: const Center(
+                              child: Icon(
+                                Icons.add_circle_rounded,
+                                color: Colors.transparent,
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
                       return Expanded(
                         child: GestureDetector(
                           onTap: () => _onItemTapped(index, context),
@@ -150,7 +159,6 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              // Icon shown only when unselected
                               if (!isSelected)
                                 Icon(
                                   item.icon,
@@ -162,16 +170,32 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                               
                               const SizedBox(height: 4),
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Text(
-                                  item.label,
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? const Color(0xFFFFD700) // Royal Gold Highlight
-                                        : Colors.white.withValues(alpha: 0.5),
-                                    fontSize: isSelected ? 12 : 11,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  ),
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      item.label,
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? const Color(0xFFFF7A00)
+                                            : Colors.white.withValues(alpha: 0.5),
+                                        fontSize: isSelected ? 12 : 11,
+                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                      ),
+                                    ),
+                                    if (isSelected) ...[
+                                      const SizedBox(height: 2),
+                                      Container(
+                                        width: 4,
+                                        height: 4,
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFFFF7A00),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ),
                             ],
@@ -195,11 +219,13 @@ class _NavItemData {
   final IconData selectedIcon;
   final String label;
   final String route;
+  final bool isCenterAction;
 
   const _NavItemData({
     required this.icon,
     required this.selectedIcon,
     required this.label,
     required this.route,
+    this.isCenterAction = false,
   });
 }

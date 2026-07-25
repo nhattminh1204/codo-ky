@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Brand Primary: Imperial Crimson & Sunset Orange Accent
+  // Brand Primary & Accents - Vibrant Modern Hue Heritage
   static const Color primary = Color(0xFF9B1B30); // Imperial Crimson Huế
   static const Color primaryDark = Color(0xFF7B0020);
   static const Color primaryLight = Color(0xFFC4384E);
 
-  static const Color secondary = Color(0xFFFF8C38); // Sunset Orange
-  static const Color accent = Color(0xFFFFD700); // Royal Gold
+  static const Color secondary = Color(0xFFFF7A00); // Sunset Orange
+  static const Color accent = Color(0xFFFFB800); // Royal Gold
+
+  // Supporting Functional Colors
+  static const Color success = Color(0xFF00B87C);
+  static const Color warning = Color(0xFFFF9F43);
+  static const Color error = Color(0xFFEA5455);
+  static const Color info = Color(0xFF00CFE8);
 
   // Background & Surfaces
   static const Color bgLight = Color(0xFFF9F6F0); // Warm Heritage Cream
@@ -18,7 +24,12 @@ class AppColors {
   static const Color bgDark = Color(0xFF141316);
   static const Color surfaceDark = Color(0xFF1E1C22);
 
-  // Soft Shadows
+  // Text Colors
+  static const Color textPrimary = Color(0xFF1E1E1E);
+  static const Color textSecondary = Color(0xFF6E6E6E);
+  static const Color textLight = Color(0xFF9E9E9E);
+
+  // Soft Shadows (Backward Compatible)
   static List<BoxShadow> softShadow = [
     BoxShadow(
       color: const Color(0xFF9B1B30).withValues(alpha: 0.08),
@@ -36,13 +47,79 @@ class AppColors {
   ];
 }
 
+class AppGradients {
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFF9B1B30), Color(0xFFC4384E)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient sunsetGradient = LinearGradient(
+    colors: [Color(0xFF9B1B30), Color(0xFFFF7A00)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient heroGradient = LinearGradient(
+    colors: [Color(0xFF7B0020), Color(0xFF9B1B30), Color(0xFFFF7A00)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient glassGradient = LinearGradient(
+    colors: [Colors.white70, Colors.white30],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+}
+
+class AppShadows {
+  static List<BoxShadow> soft = [
+    BoxShadow(
+      color: const Color(0xFF9B1B30).withValues(alpha: 0.06),
+      blurRadius: 20,
+      spreadRadius: 0,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  static List<BoxShadow> card = [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.04),
+      blurRadius: 16,
+      spreadRadius: 0,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
+  static List<BoxShadow> floating = [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.12),
+      blurRadius: 24,
+      spreadRadius: 2,
+      offset: const Offset(0, 10),
+    ),
+  ];
+}
+
+class AppSpacing {
+  static const double xs = 4.0;
+  static const double sm = 8.0;
+  static const double md = 16.0;
+  static const double lg = 24.0;
+  static const double xl = 32.0;
+  static const double xxl = 48.0;
+}
+
 class AppRadius {
   static const double sm = 12.0;
   static const double md = 16.0;
   static const double lg = 20.0;
   static const double xl = 28.0;
+
   static final BorderRadius card = BorderRadius.circular(20.0);
   static final BorderRadius button = BorderRadius.circular(16.0);
+  static final BorderRadius chip = BorderRadius.circular(30.0);
 }
 
 class AppTheme {
@@ -62,17 +139,17 @@ class AppTheme {
       textTheme: baseTextTheme.copyWith(
         titleLarge: baseTextTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.bold,
-          color: const Color(0xFF1E1E1E),
+          color: AppColors.textPrimary,
         ),
         titleMedium: baseTextTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF1E1E1E),
+          color: AppColors.textPrimary,
         ),
         bodyLarge: baseTextTheme.bodyLarge?.copyWith(
-          color: const Color(0xFF2C2C2C),
+          color: AppColors.textPrimary,
         ),
         bodyMedium: baseTextTheme.bodyMedium?.copyWith(
-          color: const Color(0xFF4A4A4A),
+          color: AppColors.textSecondary,
         ),
       ),
       appBarTheme: AppBarTheme(

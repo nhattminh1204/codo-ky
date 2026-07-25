@@ -1,0 +1,32 @@
+mutation SeedData @transaction {
+  user_insertMany(data: [
+    {id: "00000000-0000-0000-0000-000000000001", uid: "user_001", displayName: "Alice Smith", email: "alice@example.com"},
+    {id: "00000000-0000-0000-0000-000000000002", uid: "user_002", displayName: "Bob Jones", email: "bob@example.com"},
+    {id: "00000000-0000-0000-0000-000000000003", uid: "user_003", displayName: "Charlie Brown", email: "charlie@example.com"}
+  ])
+  location_insertMany(data: [
+    {id: "10000000-0000-0000-0000-000000000001", name: "Central Park", category: "Park", latitude: 40.785091, longitude: -73.968285, description: "Iconic city park."},
+    {id: "10000000-0000-0000-0000-000000000002", name: "The Louvre", category: "Museum", latitude: 48.860611, longitude: 2.337644, description: "World's largest museum."},
+    {id: "10000000-0000-0000-0000-000000000003", name: "Tokyo Tower", category: "Landmark", latitude: 35.658581, longitude: 139.745433, description: "Communication and observation tower."}
+  ])
+  recommendation_insertMany(data: [
+    {userId: "00000000-0000-0000-0000-000000000001", locationId: "10000000-0000-0000-0000-000000000001", score: 9.5, reasonForRecommendation: "Beautiful scenery"},
+    {userId: "00000000-0000-0000-0000-000000000002", locationId: "10000000-0000-0000-0000-000000000002", score: 9.2, reasonForRecommendation: "Great art collection"},
+    {userId: "00000000-0000-0000-0000-000000000003", locationId: "10000000-0000-0000-0000-000000000003", score: 8.8, reasonForRecommendation: "Amazing view"}
+  ])
+  review_insertMany(data: [
+    {userId: "00000000-0000-0000-0000-000000000001", locationId: "10000000-0000-0000-0000-000000000001", comment: "Lovely day out", rating: 5},
+    {userId: "00000000-0000-0000-0000-000000000002", locationId: "10000000-0000-0000-0000-000000000002", comment: "Crowded but worth it", rating: 4},
+    {userId: "00000000-0000-0000-0000-000000000003", locationId: "10000000-0000-0000-0000-000000000003", comment: "Fantastic city skyline", rating: 5}
+  ])
+  event_insertMany(data: [
+    {title: "Yoga in the Park", startTime: "2023-12-01T08:00:00Z", locationId: "10000000-0000-0000-0000-000000000001", description: "Morning yoga session."},
+    {title: "Art History Lecture", startTime: "2023-12-05T14:00:00Z", locationId: "10000000-0000-0000-0000-000000000002", description: "Learn about the masters."},
+    {title: "Night Illumination", startTime: "2023-12-10T19:00:00Z", locationId: "10000000-0000-0000-0000-000000000003", description: "The tower lit up at night."}
+  ])
+  bucketList_insertMany(data: [
+    {userId: "00000000-0000-0000-0000-000000000001", locationId: "10000000-0000-0000-0000-000000000001"},
+    {userId: "00000000-0000-0000-0000-000000000002", locationId: "10000000-0000-0000-0000-000000000002"},
+    {userId: "00000000-0000-0000-0000-000000000003", locationId: "10000000-0000-0000-0000-000000000003"}
+  ])
+}

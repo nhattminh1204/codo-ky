@@ -1,0 +1,47 @@
+type User @table {
+  uid: String!
+  displayName: String!
+  email: String!
+  preferredLanguage: String
+  interests: [String]
+}
+
+type Location @table {
+  name: String!
+  category: String!
+  latitude: Float!
+  longitude: Float!
+  description: String!
+  imageUrl: String
+  openingHours: String
+  averageRating: Float
+}
+
+type BucketList @table(key: ["user", "location"]) {
+  user: User!
+  location: Location!
+}
+
+type Recommendation @table {
+  user: User!
+  location: Location!
+  score: Float!
+  reasonForRecommendation: String
+}
+
+type Review @table {
+  user: User!
+  location: Location!
+  comment: String!
+  rating: Int!
+  photoUrl: String
+}
+
+type Event @table {
+  title: String!
+  startTime: Timestamp!
+  location: Location!
+  description: String!
+  imageUrl: String
+  isRecurring: Boolean
+}

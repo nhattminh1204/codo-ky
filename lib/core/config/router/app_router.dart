@@ -12,6 +12,7 @@ import 'package:codoky/shared/screens/offline_screen.dart';
 import 'package:codoky/shared/screens/search_screen.dart';
 
 // Auth Feature
+import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/auth/presentation/screens/login_screen.dart';
 import 'package:codoky/features/auth/presentation/screens/register_screen.dart';
 import 'package:codoky/features/auth/presentation/screens/forgot_password_screen.dart';
@@ -63,8 +64,28 @@ CustomTransitionPage<T> buildPageWithTransition<T>({
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authProvider);
+
   return GoRouter(
-    initialLocation: '/map',
+    initialLocation: '/login',
+    redirect: (context, state) {
+      final isAuth = authState.isAuthenticated;
+      final loc = state.matchedLocation;
+      final isAuthRoute = loc == '/login' ||
+          loc == '/register' ||
+          loc == '/forgot-password' ||
+          loc == '/splash' ||
+          loc == '/onboarding';
+
+      if (loc == '/' || (!isAuth && !isAuthRoute)) {
+        return '/login';
+      }
+
+      if (isAuth && (loc == '/login' || loc == '/register')) {
+        return '/map';
+      }
+      return null;
+    },
     routes: [
       // 0. Global Screens
       GoRoute(

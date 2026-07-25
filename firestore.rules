@@ -1,9 +1,15 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Chỉ người dùng đã xác thực mới có quyền đọc & ghi thông tin tài khoản của chính mình
+    // Mỗi người dùng chỉ có quyền đọc/ghi trên Document UID của chính mình
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Các collection dùng chung (địa điểm, đánh giá, lịch trình công khai)
+    match /{document=**} {
+      allow read: if request.auth != null;
     }
   }
 }

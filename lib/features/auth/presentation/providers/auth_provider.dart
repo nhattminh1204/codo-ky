@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,13 +28,14 @@ class AuthState {
     bool? isNewUser,
     UserModel? user,
     String? error,
+    bool clearError = false,
   }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isLoading: isLoading ?? this.isLoading,
       isNewUser: isNewUser ?? this.isNewUser,
       user: user ?? this.user,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }
@@ -202,37 +204,66 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<bool> loginWithGoogle() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final googleSignIn = GoogleSignIn.instance;
-      final googleUser = await googleSignIn.authenticate();
-      final googleAuth = googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
-      final authResult = await FirebaseAuth.instance.signInWithCredential(credential);
+      UserCredential authResult;
+      String? displayName;
+
+      if (kIsWeb) {
+        final googleProvider = GoogleAuthProvider();
+        authResult = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        displayName = authResult.user?.displayName;
+      } else {
+        final googleSignIn = GoogleSignIn.instance;
+        final googleUser = await googleSignIn.authenticate();
+        displayName = googleUser.displayName;
+        final googleAuth = googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+        );
+        authResult = await FirebaseAuth.instance.signInWithCredential(credential);
+      }
+
       final fbUser = authResult.user;
       if (fbUser != null) {
-        final userModel = await _fetchOrSyncUser(fbUser, googleUser.displayName);
+        final userModel = await _fetchOrSyncUser(fbUser, displayName);
         state = state.copyWith(
           isAuthenticated: true,
           isLoading: false,
           isNewUser: authResult.additionalUserInfo?.isNewUser ?? false,
           user: userModel,
+          clearError: true,
         );
         AppLogger.i('Đăng nhập Google thành công: ${fbUser.email}');
         return true;
       }
       state = state.copyWith(isLoading: false);
       return false;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, stack) {
       final msg = _mapFirebaseAuthError(e);
-      AppLogger.e('Lỗi Google Auth: ${e.code}', e);
+      AppLogger.e('=== [EXACT GOOGLE AUTH ERROR] ===\nFirebaseAuthException code: ${e.code}\nFirebaseAuthException message: ${e.message}\nStack trace:\n$stack\n=================================', e, stack);
       state = state.copyWith(isLoading: false, error: msg);
       return false;
-    } catch (e) {
-      AppLogger.e('Lỗi Google Sign In', e);
-      state = state.copyWith(isLoading: false, error: 'Đăng nhập bằng Google không thành công.');
+    } catch (e, stack) {
+      final errString = e.toString().trim().toLowerCase();
+      if (errString == 'error' ||
+          errString.contains('canceled') ||
+          errString.contains('cancelled') ||
+          errString.contains('popup_closed') ||
+          errString.contains('user_canceled') ||
+          errString.contains('closed_by_user') ||
+          errString.contains('aborted') ||
+          errString.contains('nosuchmethoderror')) {
+        AppLogger.i('Người dùng đã hủy hoặc đóng popup đăng nhập Google.');
+        state = state.copyWith(isLoading: false, clearError: true);
+        return false;
+      }
+      AppLogger.e('=== [EXACT GOOGLE SIGN-IN ERROR] ===\nRuntimeType: ${e.runtimeType}\nError string: $e\nStack trace:\n$stack\n====================================', e, stack);
+      final rawError = e.toString().trim();
+      final displayError = (rawError == 'Error' || rawError.isEmpty)
+          ? 'Không thể hoàn tất xác thực Google. Vui lòng dán Firebase API Key thật vào .env.dev.'
+          : 'Đăng nhập bằng Google không thành công. Lỗi: $rawError';
+      state = state.copyWith(isLoading: false, error: displayError);
       return false;
     }
   }
@@ -356,11 +387,68 @@ class AuthNotifier extends StateNotifier<AuthState> {
     AppLogger.i('Đã đăng xuất tài khoản');
   }
 
+  Future<bool> deleteAccount() async {
+    final user = state.user;
+    final fbUser = FirebaseAuth.instance.currentUser;
+    if (user == null && fbUser == null) return false;
+
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final userId = user?.id ?? fbUser?.uid;
+      if (userId != null) {
+        try {
+          await FirebaseFirestore.instance.collection('users').doc(userId).delete();
+        } catch (e) {
+          AppLogger.w('Firestore delete user document warning: $e');
+        }
+      }
+
+      if (fbUser != null) {
+        await fbUser.delete();
+      }
+
+      state = const AuthState();
+      AppLogger.i('Đã xóa tài khoản người dùng thành công');
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Vì lý do bảo mật, vui lòng đăng xuất và đăng nhập lại trước khi xóa tài khoản.',
+        );
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Không thể xóa tài khoản: ${_mapFirebaseAuthError(e)}',
+        );
+      }
+      return false;
+    } catch (e) {
+      AppLogger.e('Lỗi xóa tài khoản', e);
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Xóa tài khoản thất bại. Vui lòng thử lại sau.',
+      );
+      return false;
+    }
+  }
+
   void clearError() {
-    state = state.copyWith(error: null);
+    state = state.copyWith(clearError: true);
   }
 
   String _mapFirebaseAuthError(FirebaseAuthException e) {
+    final code = e.code.toLowerCase();
+    if (code.contains('api-key-not-valid') || code.contains('invalid-api-key')) {
+      return 'Lỗi Firebase: FIREBASE_API_KEY chưa hợp lệ (API_KEY_INVALID). Vui lòng dán API Key thật từ Firebase Console vào file .env.dev.';
+    }
+    if (code.contains('operation-not-allowed')) {
+      return 'Lỗi Firebase: Đăng nhập Google chưa được bật (Enable) trong Firebase Console > Authentication > Sign-in method.';
+    }
+    if (code.contains('unauthorized-domain')) {
+      return 'Lỗi Firebase: Domain hiện tại chưa được thêm vào Authorized Domains (Firebase Console > Authentication > Settings).';
+    }
+
     switch (e.code) {
       case 'user-not-found':
         return 'Tài khoản email này chưa được đăng ký.';
@@ -380,7 +468,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       case 'network-request-failed':
         return 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối Internet.';
       default:
-        return e.message ?? 'Thao tác thất bại. Vui lòng thử lại.';
+        final msg = e.message;
+        if (msg == null || msg.isEmpty || msg == 'Error') {
+          return 'Lỗi xác thực Firebase [${e.code}]. Vui lòng kiểm tra lại cấu hình Firebase.';
+        }
+        return '[${e.code}] $msg';
     }
   }
 }

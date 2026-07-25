@@ -1,0 +1,147 @@
+mutation CreateUserData($data: User_Data!) @auth(level: USER) {
+  user_insert(data: $data)
+}
+
+mutation UpdateUserData($data: User_Data!) @auth(level: USER) {
+  user_update(key: {id_expr: "auth.uid"}, data: $data)
+}
+
+mutation DeleteUserData @auth(level: USER) {
+  user_delete(key: {id_expr: "auth.uid"})
+}
+
+query GetUserData @auth(level: USER) {
+  user(key: {id_expr: "auth.uid"}) {
+    displayName
+    email
+    interests
+  }
+}
+
+query ListUsers @auth(level: PUBLIC, insecureReason: "Publicly visible directory of users.") {
+  users {
+    displayName
+    email
+  }
+}
+
+mutation CreateLocation($data: Location_Data!) @auth(level: PUBLIC, insecureReason: "Publicly visible locations are required for users to view/review.") {
+  location_insert(data: $data)
+}
+
+mutation UpdateLocation($id: UUID!, $data: Location_Data!) @auth(level: PUBLIC, insecureReason: "Publicly editable location data.") {
+  location_update(key: {id: $id}, data: $data)
+}
+
+mutation DeleteLocation($id: UUID!) @auth(level: PUBLIC, insecureReason: "Publicly editable location data.") {
+  location_delete(key: {id: $id})
+}
+
+query GetLocation($id: UUID!) @auth(level: PUBLIC, insecureReason: "Public location details.") {
+  location(key: {id: $id}) {
+    name
+    category
+    description
+  }
+}
+
+query ListLocations @auth(level: PUBLIC, insecureReason: "Public location list.") {
+  locations {
+    name
+    category
+  }
+}
+
+mutation AddToBucketList($locationId: UUID!) @auth(level: USER) {
+  bucketList_insert(data: {userId_expr: "auth.uid", locationId: $locationId})
+}
+
+mutation RemoveFromBucketList($locationId: UUID!) @auth(level: USER) {
+  bucketList_delete(key: {userId_expr: "auth.uid", locationId: $locationId})
+}
+
+query GetMyBucketList @auth(level: USER) {
+  bucketLists(where: {userId: {eq_expr: "auth.uid"}}) {
+    location {
+      name
+    }
+  }
+}
+
+mutation AddRecommendation($data: Recommendation_Data!) @auth(level: USER) {
+  recommendation_insert(data: $data)
+}
+
+mutation RemoveRecommendation($id: UUID!) @auth(level: USER) {
+  recommendation_delete(key: {id: $id})
+}
+
+mutation UpdateRecommendation($id: UUID!, $data: Recommendation_Data!) @auth(level: USER) {
+  recommendation_update(key: {id: $id}, data: $data)
+}
+
+query GetRecommendation($id: UUID!) @auth(level: USER) {
+  recommendation(key: {id: $id}) {
+    score
+    reasonForRecommendation
+  }
+}
+
+query ListRecommendations @auth(level: PUBLIC, insecureReason: "Public recommendations are helpful.") {
+  recommendations {
+    score
+    reasonForRecommendation
+  }
+}
+
+mutation AddReview($data: Review_Data!) @auth(level: USER) {
+  review_insert(data: $data)
+}
+
+mutation UpdateReview($id: UUID!, $data: Review_Data!) @auth(level: USER) {
+  review_update(key: {id: $id}, data: $data)
+}
+
+mutation DeleteReview($id: UUID!) @auth(level: USER) {
+  review_delete(key: {id: $id})
+}
+
+query GetReview($id: UUID!) @auth(level: PUBLIC, insecureReason: "Public reviews.") {
+  review(key: {id: $id}) {
+    comment
+    rating
+  }
+}
+
+query ListReviews @auth(level: PUBLIC, insecureReason: "Public reviews.") {
+  reviews {
+    comment
+    rating
+  }
+}
+
+mutation CreateEvent($data: Event_Data!) @auth(level: PUBLIC, insecureReason: "Publicly visible events.") {
+  event_insert(data: $data)
+}
+
+mutation UpdateEvent($id: UUID!, $data: Event_Data!) @auth(level: PUBLIC, insecureReason: "Public event updates.") {
+  event_update(key: {id: $id}, data: $data)
+}
+
+mutation DeleteEvent($id: UUID!) @auth(level: PUBLIC, insecureReason: "Public event deletion.") {
+  event_delete(key: {id: $id})
+}
+
+query GetEvent($id: UUID!) @auth(level: PUBLIC, insecureReason: "Public event details.") {
+  event(key: {id: $id}) {
+    title
+    startTime
+  }
+}
+
+query ListEvents @auth(level: PUBLIC, insecureReason: "Public list of events.") {
+  events {
+    title
+    startTime
+  }
+}

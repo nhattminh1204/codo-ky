@@ -56,4 +56,5 @@ flutter:
     - .env.production
     - .env.example
     - assets/data/
+    - assets/images/
     - lib/l10n/
