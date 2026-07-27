@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 
-
 class ProfileHomeScreen extends ConsumerWidget {
   const ProfileHomeScreen({super.key});
 
@@ -12,6 +11,10 @@ class ProfileHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
+
+    // Dynamic membership tier logic (Gold vs Standard Member)
+    final bool isGoldMember = user?.isGold ?? true; // Default to true for design preview
+    final int userPoints = user?.rewardPoints ?? (isGoldMember ? 350 : 120);
 
     // Fallback user values matching the design mockup when user data is empty or loading
     final userName = (user?.name != null && user!.name.isNotEmpty)
@@ -157,7 +160,7 @@ class ProfileHomeScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(top: 110),
               child: Column(
                 children: [
-                  // 2. AVATAR & LEVEL BADGE SECTION
+                  // 2. AVATAR & DYNAMIC LEVEL BADGE SECTION (GOLD VS STANDARD MEMBER)
                   Center(
                     child: Column(
                       children: [
@@ -165,19 +168,27 @@ class ProfileHomeScreen extends ConsumerWidget {
                           alignment: Alignment.center,
                           clipBehavior: Clip.none,
                           children: [
-                            // Avatar Gradient Ring Outer Container
+                            // Avatar Outer Container (Gold Gradient Glow for Gold, Silver Slate for Standard)
                             Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                gradient: isGoldMember
+                                    ? const LinearGradient(
+                                        colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : const LinearGradient(
+                                        colors: [Color(0xFFCBD5E1), Color(0xFF94A3B8)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFFFF5E62).withValues(alpha: 0.35),
+                                    color: isGoldMember
+                                        ? const Color(0xFFFF5E62).withValues(alpha: 0.35)
+                                        : Colors.black.withValues(alpha: 0.08),
                                     blurRadius: 16,
                                     offset: const Offset(0, 6),
                                   ),
@@ -190,16 +201,16 @@ class ProfileHomeScreen extends ConsumerWidget {
                                     ? NetworkImage(user.avatarUrl!)
                                     : null,
                                 child: (user?.avatarUrl == null || user!.avatarUrl!.isEmpty)
-                                    ? const Icon(
+                                    ? Icon(
                                         Icons.person_rounded,
                                         size: 48,
-                                        color: Color(0xFFFF5E62),
+                                        color: isGoldMember ? const Color(0xFFFF5E62) : const Color(0xFF64748B),
                                       )
                                     : null,
                               ),
                             ),
 
-                            // Level Badge Top Center (Aligned Centered over Avatar, OverflowBox prevents Stack 100px width constraint overflow)
+                            // Dynamic Level Badge Top Center (Gold vs Standard Member)
                             Positioned(
                               top: -12,
                               left: 0,
@@ -210,28 +221,35 @@ class ProfileHomeScreen extends ConsumerWidget {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFFB800),
+                                      color: isGoldMember ? const Color(0xFFFFB800) : const Color(0xFFF1F5F9),
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.white, width: 2.0),
+                                      border: Border.all(
+                                        color: isGoldMember ? Colors.white : const Color(0xFFCBD5E1),
+                                        width: 2.0,
+                                      ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.15),
+                                          color: Colors.black.withValues(alpha: 0.12),
                                           blurRadius: 6,
                                           offset: const Offset(0, 2),
                                         ),
                                       ],
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.workspace_premium_rounded, size: 13, color: Colors.black87),
-                                        SizedBox(width: 3),
+                                        Icon(
+                                          isGoldMember ? Icons.workspace_premium_rounded : Icons.shield_outlined,
+                                          size: 13,
+                                          color: isGoldMember ? Colors.black87 : const Color(0xFF475569),
+                                        ),
+                                        const SizedBox(width: 3),
                                         Text(
-                                          'Thành viên Vàng',
+                                          isGoldMember ? 'Thành viên Vàng' : 'Thành viên Thường',
                                           style: TextStyle(
                                             fontSize: 10.5,
                                             fontWeight: FontWeight.w800,
-                                            color: Colors.black87,
+                                            color: isGoldMember ? Colors.black87 : const Color(0xFF475569),
                                           ),
                                         ),
                                       ],
@@ -285,10 +303,10 @@ class ProfileHomeScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(width: 4),
-                            const Icon(
+                            Icon(
                               Icons.check_circle_rounded,
                               size: 18,
-                              color: Color(0xFF2196F3),
+                              color: isGoldMember ? const Color(0xFF2196F3) : const Color(0xFF94A3B8),
                             ),
                           ],
                         ),
@@ -346,15 +364,65 @@ class ProfileHomeScreen extends ConsumerWidget {
                           Expanded(
                             child: _buildStatItem(
                               context,
-                              value: '350',
+                              value: '$userPoints',
                               label: 'Điểm thưởng',
-                              valueColor: const Color(0xFF00B87C),
+                              valueColor: isGoldMember ? const Color(0xFF00B87C) : const Color(0xFF64748B),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
+
+                  // Dynamic Gold Member Upgrade Banner (Only shown if Standard Member)
+                  if (!isGoldMember) ...[
+                    const SizedBox(height: AppSpacing.sm + 2),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFFBEB),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFFDE68A)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Text('👑', style: TextStyle(fontSize: 18)),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Nâng hạng Thành viên Vàng',
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                  ),
+                                  Text(
+                                    'Tích thêm ${300 - userPoints > 0 ? 300 - userPoints : 0} điểm để nhận ưu đãi VIP cá nhân.',
+                                    style: const TextStyle(fontSize: 11, color: Color(0xFFB45309)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => context.push('/explore'),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text(
+                                'Khám phá >',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: AppSpacing.md),
 
                   // SECTION 1: HÀNH TRÌNH & ĐÁNH GIÁ
@@ -849,7 +917,6 @@ class ProfileHomeScreen extends ConsumerWidget {
   }
 
   Widget _buildMockupPastelChips(List<String> labels) {
-    // Pastel colors matched exactly with the mockup screenshot
     final List<Map<String, Color>> chipStyles = [
       {
         'bg': const Color(0xFFFFF8E7),
