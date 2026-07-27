@@ -17,10 +17,10 @@ class ProfileHomeScreen extends ConsumerWidget {
     final int userPoints = user?.rewardPoints ?? (isGoldMember ? 350 : 120);
 
     // Fallback user values matching the design mockup when user data is empty or loading
-    final userName = (user?.name != null && user!.name.isNotEmpty)
+    final userName = (user?.name != null && user!.name.trim().isNotEmpty)
         ? user.name
         : 'Nguyễn Văn Minh Nhật';
-    final userEmail = (user?.email != null && user!.email.isNotEmpty)
+    final userEmail = (user?.email != null && user!.email.trim().isNotEmpty)
         ? user.email
         : 'nhattminh1204@gmail.com';
     final userPhone = user?.phone ?? '';
@@ -28,8 +28,9 @@ class ProfileHomeScreen extends ConsumerWidget {
         ? '${user.createdAt.day.toString().padLeft(2, '0')}/${user.createdAt.month.toString().padLeft(2, '0')}/${user.createdAt.year}'
         : '25/07/2026';
 
-    final userPreferences = (user?.preferences != null && user!.preferences.isNotEmpty)
-        ? user.preferences.map((p) => '${_getPreferenceEmoji(p)} $p').toList()
+    final rawPrefs = user?.preferences.where((p) => p.trim().isNotEmpty).toList() ?? [];
+    final userPreferences = rawPrefs.isNotEmpty
+        ? rawPrefs.map((p) => '${_getPreferenceEmoji(p)} $p').toList()
         : ['✈️ Du lịch bụi', '☕ Cà phê đẹp', '📸 Nhiếp ảnh', '⛰️ Dã ngoại'];
 
     return Scaffold(

@@ -41,7 +41,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _nameController = TextEditingController(text: user?.name ?? '');
     _phoneController = TextEditingController(text: user?.phone ?? '');
     _avatarController = TextEditingController(text: user?.avatarUrl ?? '');
-    _selectedPreferences = List<String>.from(user?.preferences ?? []);
+    _selectedPreferences = user?.preferences.where((p) => p.isNotEmpty).toList() ?? [];
   }
 
   @override
