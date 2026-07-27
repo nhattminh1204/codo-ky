@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/features/review/data/models/review_model.dart';
+import 'package:codoky/features/review/presentation/providers/review_provider.dart';
 import 'package:codoky/core/utils/extensions/extensions.dart';
 
-class ReviewCard extends StatelessWidget {
+class ReviewCard extends ConsumerWidget {
   final ReviewModel review;
   final bool isMyReview;
   final VoidCallback? onTap;
@@ -19,8 +22,13 @@ class ReviewCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFF1F5F9)),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -58,7 +66,7 @@ class ReviewCard extends StatelessWidget {
                         ),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.star,
                               size: 14,
                               color: Colors.amber,
@@ -69,19 +77,19 @@ class ReviewCard extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(width: 8),
-Text(
-  review.createdAt.timeAgo(locale: Localizations.localeOf(context)),
-  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-    color: Theme.of(context).colorScheme.onSurfaceVariant,
-  ),
-),
+                            Text(
+                              review.createdAt.timeAgo(locale: Localizations.localeOf(context)),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
                   if (isMyReview)
-                    PopupMenuButton(
+                    PopupMenuButton<String>(
                       itemBuilder: (context) => [
                         const PopupMenuItem(
                           value: 'edit',
@@ -159,11 +167,11 @@ Text(
               Row(
                 children: [
                   _ActionButton(
-                    icon: Icons.thumb_up_outlined,
+                    icon: review.isLiked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
                     label: review.likeCount.toString(),
                     isActive: review.isLiked,
                     onTap: () {
-                      // TODO: Like review
+                      ref.read(reviewProvider.notifier).toggleLikeReview(review.id);
                     },
                   ),
                   const SizedBox(width: 16),
@@ -171,7 +179,13 @@ Text(
                     icon: Icons.chat_bubble_outline,
                     label: review.commentCount.toString(),
                     onTap: () {
-                      // TODO: Show comments
+                      // Note: Subcollection comments is planned for future scope
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Tính năng bình luận chi tiết đang phát triển.'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
                     },
                   ),
                   const Spacer(),
@@ -179,7 +193,14 @@ Text(
                     icon: Icons.share_outlined,
                     label: 'Chia sẻ',
                     onTap: () {
-                      // TODO: Share review
+                      final shareText = '${review.placeName}: "${review.content}" - Đánh giá từ ${review.userName} trên CodoKy';
+                      Clipboard.setData(ClipboardData(text: shareText));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Đã sao chép nội dung đánh giá vào bộ nhớ tạm!'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
                     },
                   ),
                 ],

@@ -2,14 +2,26 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Mỗi người dùng chỉ có quyền đọc/ghi trên Document UID của chính mình
+    // User profile document rules
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Các collection dùng chung (địa điểm, đánh giá, lịch trình công khai)
+
+    // Reviews collection rules
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && (
+        resource.data.user_id == request.auth.uid ||
+        resource.data.userId == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['like_count', 'liked_by_user_ids', 'likeCount', 'likedByUserIds'])
+      );
+    }
+
+    // Default catch-all rule for general collections
     match /{document=**} {
-      allow read: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }
