@@ -1,112 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
+import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
 
-class ItineraryResultScreen extends StatefulWidget {
+class ItineraryResultScreen extends ConsumerStatefulWidget {
   const ItineraryResultScreen({super.key});
 
   @override
-  State<ItineraryResultScreen> createState() => _ItineraryResultScreenState();
+  ConsumerState<ItineraryResultScreen> createState() => _ItineraryResultScreenState();
 }
 
-class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
+class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
   int _activeDay = 0;
   bool _isSaved = false;
 
-  final List<Map<String, dynamic>> _daysData = const [
-    {
-      'day': 'Ngày 1',
-      'title': 'Khám Phá Di Sản & Ca Huế Sông Hương',
-      'stops': [
-        {
-          'id': '1',
-          'time': '08:00 - 11:30',
-          'title': 'Đại Nội Huế (Hoàng Thành)',
-          'category': '🏰 Di sản',
-          'address': 'Thuận Thành, Thành phố Huế',
-          'image': 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=400&auto=format&fit=crop&q=80',
-          'tip': 'Gợi ý: Đi buổi sáng tránh nắng, chuẩn bị mũ nón và vé gộp di tích.',
-        },
-        {
-          'id': 'f1',
-          'time': '12:00 - 13:30',
-          'title': 'Bún Bò Huế Mụ Rớt',
-          'category': '🍜 Ẩm thực',
-          'address': '22 Kim Long, Huế',
-          'image': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&auto=format&fit=crop&q=80',
-          'tip': 'Thưởng thức bún bò nạm chả chuẩn vị mắm ruốc truyền thống.',
-        },
-        {
-          'id': 'c1',
-          'time': '14:30 - 16:30',
-          'title': 'Cafe Muối Gốc Cố Đô',
-          'category': '☕ Cafe',
-          'address': '10 Nguyễn Lương Bằng, Huế',
-          'image': 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&auto=format&fit=crop&q=80',
-          'tip': 'Trải nghiệm ly cafe muối đằm thắm mặn ngọt nổi tiếng.',
-        },
-        {
-          'id': 't1',
-          'time': '18:30 - 21:00',
-          'title': 'Ca Huế Trên Dòng Sông Hương',
-          'category': '🎶 Văn hóa',
-          'address': 'Bến thuyền Tòa Khâm, Huế',
-          'image': 'https://images.unsplash.com/photo-1548013146-72479768bada?w=400&auto=format&fit=crop&q=80',
-          'tip': 'Đi thuyền rồng ngắm cầu Tràng Tiền lên đèn và thả hoa đăng.',
-        },
-      ],
-    },
-    {
-      'day': 'Ngày 2',
-      'title': 'Lăng Tẩm Triều Nguyễn & Làng Nghề',
-      'stops': [
-        {
-          'id': 'a2',
-          'time': '08:30 - 11:00',
-          'title': 'Lăng Khải Định (Ứng Lăng)',
-          'category': '🏛️ Di sản',
-          'address': 'Thủy Bằng, Hương Thủy, Huế',
-          'image': 'https://images.unsplash.com/photo-1548013146-72479768bada?w=400&auto=format&fit=crop&q=80',
-          'tip': 'Kiến trúc giao thoa Đông - Tây tuyệt đẹp.',
-        },
-        {
-          'id': 'a3',
-          'time': '11:30 - 13:00',
-          'title': 'Cơm Hến Hoa Đông',
-          'category': '🍜 Ẩm thực',
-          'address': 'Vĩ Dạ, Huế',
-          'image': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&auto=format&fit=crop&q=80',
-          'tip': 'Đặc sản Cơm Hến Vĩ Dạ cay nồng khó quên.',
-        },
-      ],
-    },
-    {
-      'day': 'Ngày 3',
-      'title': 'Chùa Cổ Thanh Tịnh & Chợ Đông Ba',
-      'stops': [
-        {
-          'id': 't1',
-          'time': '08:00 - 10:30',
-          'title': 'Chùa Thiên Mụ',
-          'category': '⛩️ Tâm linh',
-          'address': 'Hương Long, Huế',
-          'image': 'https://images.unsplash.com/photo-1548013146-72479768bada?w=400&auto=format&fit=crop&q=80',
-          'tip': 'Thắp hương cầu an và ngắm sông Hương buổi sáng.',
-        },
-      ],
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final currentDay = _daysData[_activeDay];
-    final stops = currentDay['stops'] as List<Map<String, dynamic>>;
+    final itineraryState = ref.watch(itineraryProvider);
+    final itinerary = itineraryState.aiSuggestions.isNotEmpty
+        ? itineraryState.aiSuggestions.first
+        : (itineraryState.myItineraries.isNotEmpty ? itineraryState.myItineraries.last : null);
+
+    if (itinerary == null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          title: const Text('Lịch trình AI Huế', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.auto_awesome_rounded, size: 64, color: Color(0xFFFF7A00)),
+                const SizedBox(height: 16),
+                const Text(
+                  'Chưa có lộ trình AI nào được khởi tạo.',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Hãy thiết lập nhu cầu du lịch để AI đề xuất lịch trình tối ưu nhất.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => context.go('/itinerary/setup'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF7A00),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text('Tạo Lộ Trình Ngay ✨', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final days = itinerary.days;
+    if (_activeDay >= days.length) {
+      _activeDay = 0;
+    }
+    final currentDay = days.isNotEmpty ? days[_activeDay] : null;
+
+    final totalStops = days.fold<int>(0, (sum, day) => sum + day.activities.length);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text(
-          'Gợi ý Lịch trình AI',
+          'Lịch trình AI Huế ✨',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
         ),
         centerTitle: true,
@@ -124,11 +96,19 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(_isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded, color: _isSaved ? const Color(0xFFFF5E62) : const Color(0xFF1E1E1E)),
+            icon: Icon(
+              _isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+              color: _isSaved ? const Color(0xFFFF5E62) : const Color(0xFF1E1E1E),
+            ),
             onPressed: () {
               setState(() => _isSaved = !_isSaved);
+              if (_isSaved) {
+                ref.read(itineraryProvider.notifier).saveItinerary(itinerary);
+              }
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(_isSaved ? 'Đã lưu lịch trình vào danh sách của bạn!' : 'Đã bỏ lưu lịch trình.')),
+                SnackBar(
+                  content: Text(_isSaved ? 'Đã lưu lịch trình vào danh sách của bạn!' : 'Đã bỏ lưu lịch trình.'),
+                ),
               );
             },
           ),
@@ -172,7 +152,7 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
-                            '🌸 Lịch trình AI đề xuất',
+                            '🌸 Lịch trình Gemini AI',
                             style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                         ),
@@ -186,23 +166,25 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-
-                    const Text(
-                      'Hành Trình Khám Phá Cố Đô 3D2N',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+                    Text(
+                      itinerary.title,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Tối ưu cho Cặp đôi • Di sản & Ẩm thực • Ngân sách ~1.2tr',
+                      itinerary.description,
                       style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.9)),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 12),
-
                     Row(
                       children: [
-                        _buildTripBadge('12 Điểm dừng'),
+                        _buildTripBadge('${itinerary.durationDays} Ngày'),
                         const SizedBox(width: 8),
-                        _buildTripBadge('Tối ưu vị trí GPS'),
+                        _buildTripBadge('$totalStops Điểm dừng'),
+                        const SizedBox(width: 8),
+                        _buildTripBadge('${(itinerary.budget / 1000).toInt()}k VNĐ'),
                       ],
                     ),
                   ],
@@ -211,73 +193,100 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
             ),
 
             // 2. DAY TABS BAR
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Row(
-                children: List.generate(_daysData.length, (index) {
-                  final day = _daysData[index];
-                  final isSelected = index == _activeDay;
+            if (days.isNotEmpty)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Row(
+                  children: List.generate(days.length, (index) {
+                    final day = days[index];
+                    final isSelected = index == _activeDay;
 
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: GestureDetector(
-                      onTap: () => setState(() => _activeDay = index),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFFF7A00) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? const Color(0xFFFF7A00) : const Color(0xFFE2E8F0),
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: GestureDetector(
+                        onTap: () => setState(() => _activeDay = index),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFFFF7A00) : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFFFF7A00) : const Color(0xFFE2E8F0),
+                            ),
+                            boxShadow: [
+                              if (isSelected)
+                                BoxShadow(
+                                  color: const Color(0xFFFF7A00).withValues(alpha: 0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                            ],
                           ),
-                          boxShadow: [
-                            if (isSelected)
-                              BoxShadow(
-                                color: const Color(0xFFFF7A00).withValues(alpha: 0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                          ],
-                        ),
-                        child: Text(
-                          day['day'] as String,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: isSelected ? Colors.white : const Color(0xFF475569),
+                          child: Text(
+                            'Ngày ${day.dayNumber}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected ? Colors.white : const Color(0xFF475569),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
-            ),
             const SizedBox(height: AppSpacing.md),
 
             // DAY TITLE
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Text(
-                currentDay['title'] as String,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+            if (currentDay != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      currentDay.title,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+                    ),
+                    if (currentDay.description.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        currentDay.description,
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 10),
 
             // 3. TIMELINE STOPS LIST
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Column(
-                children: List.generate(stops.length, (index) {
-                  final stop = stops[index];
-                  final isLast = index == stops.length - 1;
+            if (currentDay != null && currentDay.activities.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Column(
+                  children: List.generate(currentDay.activities.length, (index) {
+                    final activity = currentDay.activities[index];
+                    final isLast = index == currentDay.activities.length - 1;
 
-                  return _buildTimelineStopCard(context, stop: stop, index: index + 1, isLast: isLast);
-                }),
+                    return _buildTimelineStopCard(
+                      context,
+                      activity: activity,
+                      index: index + 1,
+                      isLast: isLast,
+                    );
+                  }),
+                ),
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.all(AppSpacing.lg),
+                child: Center(
+                  child: Text('Không có hoạt động nào cho ngày này.', style: TextStyle(color: Color(0xFF64748B))),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -300,10 +309,22 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
 
   Widget _buildTimelineStopCard(
     BuildContext context, {
-    required Map<String, dynamic> stop,
+    required ItineraryActivityModel activity,
     required int index,
     required bool isLast,
   }) {
+    final startTimeStr =
+        '${activity.startTime.hour.toString().padLeft(2, '0')}:${activity.startTime.minute.toString().padLeft(2, '0')}';
+    final endTimeStr =
+        '${activity.endTime.hour.toString().padLeft(2, '0')}:${activity.endTime.minute.toString().padLeft(2, '0')}';
+    final timeRange = '$startTimeStr - $endTimeStr';
+
+    final categoryTag = activity.type.toLowerCase().contains('restaurant') || activity.type.toLowerCase().contains('eat') || activity.type.toLowerCase().contains('food')
+        ? '🍜 Ẩm thực'
+        : (activity.type.toLowerCase().contains('temple') ? '⛩️ Tâm linh' : '🏰 Di sản');
+
+    final image = 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=400&auto=format&fit=crop&q=80';
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +362,11 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: GestureDetector(
-                onTap: () => context.push('/itinerary/stop/${stop['id']}'),
+                onTap: () {
+                  if (activity.placeId.isNotEmpty) {
+                    context.push('/place/${activity.placeId}');
+                  }
+                },
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -363,7 +388,7 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            stop['time'] as String,
+                            timeRange,
                             style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
                           ),
                           Container(
@@ -373,20 +398,19 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              stop['category'] as String,
+                              categoryTag,
                               style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
-
                       Row(
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.network(
-                              stop['image'] as String,
+                              image,
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
@@ -398,13 +422,13 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  stop['title'] as String,
+                                  activity.placeName.isNotEmpty ? activity.placeName : activity.name,
                                   style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
                                 ),
                                 Text(
-                                  stop['address'] as String,
+                                  activity.description.isNotEmpty ? activity.description : 'Điểm tham quan Huế',
                                   style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-                                  maxLines: 1,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -412,19 +436,20 @@ class _ItineraryResultScreenState extends State<ItineraryResultScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(10),
+                      if (activity.notes != null && activity.notes!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '💡 ${activity.notes}',
+                            style: const TextStyle(fontSize: 11, color: Color(0xFF475569), fontStyle: FontStyle.italic),
+                          ),
                         ),
-                        child: Text(
-                          stop['tip'] as String,
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF475569), fontStyle: FontStyle.italic),
-                        ),
-                      ),
+                      ],
                     ],
                   ),
                 ),

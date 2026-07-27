@@ -32,27 +32,25 @@ class ItineraryModel {
   });
 
   factory ItineraryModel.fromJson(Map<String, dynamic> json) {
+    final daysList = json['days'] as List? ?? [];
+    final duration = json['duration_days'] ?? json['durationDays'] ?? json['total_days'] ?? daysList.length;
     return ItineraryModel(
-      id: json['id']?.toString() ?? '',
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      durationDays: json['duration_days'] ?? 0,
-      budget: (json['budget'] ?? 0).toDouble(),
-      interests: List<String>.from(json['interests'] ?? []),
-      days: (json['days'] as List? ?? [])
-          .map((e) => ItineraryDayModel.fromJson(e))
+      id: json['id']?.toString() ?? 'itinerary_${DateTime.now().millisecondsSinceEpoch}',
+      title: json['title']?.toString() ?? 'Lộ trình Du lịch Huế',
+      description: json['description']?.toString() ?? 'Lộ trình khám phá Cố đô Huế được đề xuất bởi AI.',
+      durationDays: duration is int ? duration : (int.tryParse(duration.toString()) ?? 1),
+      budget: (json['budget'] ?? json['estimated_budget'] ?? 0).toDouble(),
+      interests: (json['interests'] as List? ?? []).map((e) => e.toString()).toList(),
+      days: daysList
+          .map((e) => ItineraryDayModel.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
-      imageUrl: json['image_url'],
-      thumbnailUrl: json['thumbnail_url'] ?? json['image_url'],
-      rating: (json['rating'] ?? 0).toDouble(),
-      reviewCount: json['review_count'] ?? 0,
-      isAIGenerated: json['is_ai_generated'] ?? false,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
-          : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
-          : DateTime.now(),
+      imageUrl: json['image_url']?.toString() ?? json['imageUrl']?.toString(),
+      thumbnailUrl: json['thumbnail_url']?.toString() ?? json['imageUrl']?.toString(),
+      rating: (json['rating'] ?? 4.8).toDouble(),
+      reviewCount: (json['review_count'] ?? 12) as int,
+      isAIGenerated: json['is_ai_generated'] ?? true,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
+      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'].toString()) ?? DateTime.now() : DateTime.now(),
     );
   }
 
@@ -90,12 +88,14 @@ class ItineraryDayModel {
   });
 
   factory ItineraryDayModel.fromJson(Map<String, dynamic> json) {
+    final rawActivities = json['activities'] ?? json['items'] ?? json['stops'] ?? [];
+    final dayNum = json['day_number'] ?? json['dayNumber'] ?? json['day'] ?? 1;
     return ItineraryDayModel(
-      dayNumber: json['day_number'] ?? 0,
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      activities: (json['activities'] as List? ?? [])
-          .map((e) => ItineraryActivityModel.fromJson(e))
+      dayNumber: dayNum is int ? dayNum : (int.tryParse(dayNum.toString().replaceAll(RegExp(r'\D'), '')) ?? 1),
+      title: json['title']?.toString() ?? 'Ngày $dayNum',
+      description: json['description']?.toString() ?? '',
+      activities: (rawActivities as List? ?? [])
+          .map((e) => ItineraryActivityModel.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
     );
   }
@@ -140,23 +140,36 @@ class ItineraryActivityModel {
   });
 
   factory ItineraryActivityModel.fromJson(Map<String, dynamic> json) {
+    DateTime parseTime(dynamic raw) {
+      if (raw == null) return DateTime.now();
+      final str = raw.toString().trim();
+      if (str.isEmpty) return DateTime.now();
+      try {
+        return DateTime.parse(str);
+      } catch (_) {}
+      final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(str);
+      if (match != null) {
+        final hour = int.parse(match.group(1)!);
+        final minute = int.parse(match.group(2)!);
+        final now = DateTime.now();
+        return DateTime(now.year, now.month, now.day, hour, minute);
+      }
+      return DateTime.now();
+    }
+
     return ItineraryActivityModel(
-      id: json['id']?.toString() ?? '',
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      placeId: json['place_id'] ?? '',
-      placeName: json['place_name'] ?? '',
-      latitude: (json['latitude'] ?? 0).toDouble(),
-      longitude: (json['longitude'] ?? 0).toDouble(),
-      startTime: json['start_time'] != null
-          ? DateTime.parse(json['start_time'])
-          : DateTime.now(),
-      endTime: json['end_time'] != null
-          ? DateTime.parse(json['end_time'])
-          : DateTime.now(),
-      type: json['type'] ?? 'visit',
-      estimatedCost: json['estimated_cost']?.toDouble(),
-      notes: json['notes'],
+      id: json['id']?.toString() ?? json['place_id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      name: json['name']?.toString() ?? json['place_name']?.toString() ?? json['title']?.toString() ?? 'Điểm tham quan',
+      description: json['description']?.toString() ?? json['notes']?.toString() ?? json['tip']?.toString() ?? '',
+      placeId: json['place_id']?.toString() ?? json['id']?.toString() ?? '',
+      placeName: json['place_name']?.toString() ?? json['name']?.toString() ?? json['title']?.toString() ?? 'Địa điểm Huế',
+      latitude: (json['latitude'] ?? json['lat'] ?? 16.4637).toDouble(),
+      longitude: (json['longitude'] ?? json['lng'] ?? 107.5909).toDouble(),
+      startTime: parseTime(json['start_time'] ?? json['startTime'] ?? json['time']),
+      endTime: parseTime(json['end_time'] ?? json['endTime']),
+      type: json['type']?.toString() ?? json['category']?.toString() ?? 'visit',
+      estimatedCost: json['estimated_cost'] != null ? (json['estimated_cost'] as num).toDouble() : null,
+      notes: json['notes']?.toString() ?? json['tip']?.toString() ?? json['description']?.toString(),
     );
   }
 

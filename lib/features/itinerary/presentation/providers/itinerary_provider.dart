@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
+import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
 
 class ItineraryState {
   final List<ItineraryModel> myItineraries;
@@ -28,22 +29,24 @@ class ItineraryState {
       aiSuggestions: aiSuggestions ?? this.aiSuggestions,
       isLoading: isLoading ?? this.isLoading,
       isLoadingSuggestions: isLoadingSuggestions ?? this.isLoadingSuggestions,
-      error: error ?? this.error,
+      error: error,
     );
   }
 }
 
 class ItineraryNotifier extends StateNotifier<ItineraryState> {
-  ItineraryNotifier() : super(const ItineraryState());
+  final AiRemoteService _aiRemoteService;
+
+  ItineraryNotifier({AiRemoteService? aiRemoteService})
+      : _aiRemoteService = aiRemoteService ?? AiRemoteService(),
+        super(const ItineraryState());
 
   Future<void> loadMyItineraries() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      // TODO: Load from API
+      await Future.delayed(const Duration(milliseconds: 200));
       state = state.copyWith(
-        myItineraries: [],
         isLoading: false,
       );
     } catch (e) {
@@ -55,23 +58,33 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
     required int durationDays,
     required double budget,
     required List<String> interests,
+    String companion = 'cặp đôi',
   }) async {
     state = state.copyWith(isLoadingSuggestions: true, error: null);
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      // TODO: Call AI API
+      final itinerary = await _aiRemoteService.generateItinerary(
+        durationDays: durationDays,
+        budget: budget,
+        interests: interests,
+        companion: companion,
+      );
+
       state = state.copyWith(
-        aiSuggestions: [],
+        aiSuggestions: [itinerary, ...state.aiSuggestions],
         isLoadingSuggestions: false,
+        error: null,
       );
     } catch (e) {
-      state = state.copyWith(isLoadingSuggestions: false, error: e.toString());
+      state = state.copyWith(
+        isLoadingSuggestions: false,
+        error: e.toString().replaceAll('Exception: ', ''),
+      );
+      rethrow;
     }
   }
 
   Future<void> saveItinerary(ItineraryModel itinerary) async {
-    // TODO: Save to API
     state = state.copyWith(
       myItineraries: [...state.myItineraries, itinerary],
     );

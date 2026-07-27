@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
 
-class ItinerarySetupScreen extends StatefulWidget {
+class ItinerarySetupScreen extends ConsumerStatefulWidget {
   const ItinerarySetupScreen({super.key});
 
   @override
-  State<ItinerarySetupScreen> createState() => _ItinerarySetupScreenState();
+  ConsumerState<ItinerarySetupScreen> createState() => _ItinerarySetupScreenState();
 }
 
-class _ItinerarySetupScreenState extends State<ItinerarySetupScreen> {
+class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
   String _selectedDuration = '3d2n';
   String _selectedCompanion = 'couple';
   String _selectedBudget = 'standard';
@@ -57,10 +59,42 @@ class _ItinerarySetupScreenState extends State<ItinerarySetupScreen> {
 
   Future<void> _handleGenerate() async {
     setState(() => _isGenerating = true);
-    await Future.delayed(const Duration(milliseconds: 1400));
-    if (!mounted) return;
-    setState(() => _isGenerating = false);
-    context.push('/itinerary/result');
+
+    int days = 3;
+    if (_selectedDuration == '1d') days = 1;
+    if (_selectedDuration == '2d1n') days = 2;
+    if (_selectedDuration == '3d2n') days = 3;
+    if (_selectedDuration == '4d3n') days = 4;
+
+    double budgetPerDay = 800000;
+    if (_selectedBudget == 'saver') budgetPerDay = 400000;
+    if (_selectedBudget == 'standard') budgetPerDay = 800000;
+    if (_selectedBudget == 'luxury') budgetPerDay = 1500000;
+    final totalBudget = budgetPerDay * days;
+
+    try {
+      await ref.read(itineraryProvider.notifier).generateAISuggestion(
+            durationDays: days,
+            budget: totalBudget,
+            interests: _selectedStyles,
+            companion: _selectedCompanion,
+          );
+
+      if (!mounted) return;
+      setState(() => _isGenerating = false);
+      context.push('/itinerary/result');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isGenerating = false);
+      final errorMsg = e.toString().replaceAll('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMsg),
+          backgroundColor: const Color(0xFFEF4444),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 
   @override
