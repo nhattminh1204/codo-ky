@@ -9,6 +9,7 @@ class MapState {
   final dynamic selectedPlace;
   final LatLng? currentLocation;
   final String? selectedCategory;
+  final Set<String> selectedCategories;
   final String searchQuery;
   final bool isLoading;
 
@@ -18,6 +19,7 @@ class MapState {
     this.selectedPlace,
     this.currentLocation,
     this.selectedCategory,
+    this.selectedCategories = const {},
     this.searchQuery = '',
     this.isLoading = false,
   });
@@ -28,6 +30,8 @@ class MapState {
     dynamic selectedPlace,
     LatLng? currentLocation,
     String? selectedCategory,
+    Set<String>? selectedCategories,
+    bool clearCategory = false,
     String? searchQuery,
     bool? isLoading,
   }) {
@@ -36,7 +40,8 @@ class MapState {
       places: places ?? this.places,
       selectedPlace: selectedPlace ?? this.selectedPlace,
       currentLocation: currentLocation ?? this.currentLocation,
-      selectedCategory: selectedCategory ?? this.selectedCategory,
+      selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
+      selectedCategories: selectedCategories ?? this.selectedCategories,
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -61,7 +66,6 @@ class MapNotifier extends StateNotifier<MapState> {
       );
       _applyFilters();
     } catch (e) {
-      // Fallback default list if asset fails
       final fallback = [
         {
           'id': '1',
@@ -100,7 +104,12 @@ class MapNotifier extends StateNotifier<MapState> {
 
   void filterByCategory(String? category) {
     final cat = (category == null || category == 'all') ? null : category;
-    state = state.copyWith(selectedCategory: cat);
+    state = state.copyWith(selectedCategory: cat, selectedCategories: {}, clearCategory: cat == null);
+    _applyFilters();
+  }
+
+  void filterByCategories(Set<String> categories) {
+    state = state.copyWith(selectedCategories: categories, clearCategory: true);
     _applyFilters();
   }
 
@@ -110,23 +119,56 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void _applyFilters() {
-    final category = state.selectedCategory;
+    final categories = state.selectedCategories;
+    final singleCategory = state.selectedCategory;
     final query = state.searchQuery.trim().toLowerCase();
 
     final filtered = state.allPlaces.where((p) {
-      final catMatch = category == null ||
-          ((p['category'] as String?)?.toLowerCase() == category.toLowerCase());
+      final pCat = (p['category'] as String?)?.toLowerCase() ?? '';
+
+      bool catMatch = true;
+      if (categories.isNotEmpty) {
+        catMatch = categories.any((cat) => _matchesCategory(pCat, cat));
+      } else if (singleCategory != null && singleCategory != 'all') {
+        catMatch = _matchesCategory(pCat, singleCategory);
+      }
 
       final name = (p['name'] as String?)?.toLowerCase() ?? '';
       final address = (p['address'] as String?)?.toLowerCase() ?? '';
-      final queryMatch = query.isEmpty ||
-          name.contains(query) ||
-          address.contains(query);
+      final queryMatch = query.isEmpty || name.contains(query) || address.contains(query);
 
       return catMatch && queryMatch;
     }).toList();
 
     state = state.copyWith(places: filtered);
+  }
+
+  static bool _matchesCategory(String placeCategory, String targetCategory) {
+    final cat = placeCategory.toLowerCase();
+    final target = targetCategory.toLowerCase();
+
+    if (target == 'attraction') {
+      return cat.contains('attraction') || cat.contains('di tích') || cat.contains('lịch sử');
+    }
+    if (target == 'food' || target == 'restaurant') {
+      return cat.contains('food') || cat.contains('restaurant') || cat.contains('ẩm thực') || cat.contains('ăn');
+    }
+    if (target == 'temple') {
+      return cat.contains('temple') || cat.contains('chùa') || cat.contains('tâm linh');
+    }
+    if (target == 'tomb') {
+      return cat.contains('tomb') || cat.contains('lăng');
+    }
+    if (target == 'cafe') {
+      return cat.contains('cafe') || cat.contains('cà phê');
+    }
+    if (target == 'shopping') {
+      return cat.contains('shop') || cat.contains('mua sắm') || cat.contains('chợ');
+    }
+    if (target == 'culture') {
+      return cat.contains('culture') || cat.contains('nghệ thuật');
+    }
+    return cat == target;
   }
 
   void setCurrentLocation(LatLng location) {

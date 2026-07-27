@@ -9,6 +9,7 @@ import 'package:codoky/core/logging/app_logger.dart';
 import 'package:codoky/core/services/location/location_service.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
+import 'package:codoky/features/map/presentation/screens/filter_category_sheet.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
 import 'package:codoky/shared/widgets/glass_container.dart';
@@ -23,31 +24,34 @@ class MapHomeScreen extends ConsumerStatefulWidget {
 class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
-  late final AnimationController _pulseController;
-  final LocationService _locationService = LocationService();
+  late final LocationService _locationService;
+  late AnimationController _pulseController;
 
   @override
   void initState() {
     super.initState();
+    _locationService = LocationService();
+
     _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1600),
       vsync: this,
+      duration: const Duration(milliseconds: 2200),
     )..repeat();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Future.microtask(() {
       ref.read(mapProvider.notifier).loadPlaces();
-      _initLiveLocationTracking();
+      _initLocation();
     });
   }
 
-  void _initLiveLocationTracking() {
-    _locationService.startLiveTracking(
-      onLocationUpdate: (pos, accuracy) {
-        if (mounted) {
-          ref.read(mapProvider.notifier).setCurrentLocation(pos);
-        }
-      },
-    );
+  Future<void> _initLocation() async {
+    try {
+      final res = await _locationService.getAccuratePosition();
+      if (res != null && mounted) {
+        ref.read(mapProvider.notifier).setCurrentLocation(res.position);
+      }
+    } catch (e) {
+      AppLogger.w('Location permission or fetch warning: $e');
+    }
   }
 
   @override
@@ -97,7 +101,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     return Scaffold(
       body: Stack(
         children: [
-          // 1. OpenStreetMap Layer with Marker Clustering
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -119,18 +122,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   size: const Size(40, 40),
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(50),
-                  markers: _buildMarkers(state.places, state.selectedPlace),
                   builder: (context, markers) {
                     return Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: const Color(0xFF9B1B30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF9B1B30).withValues(alpha: 0.4),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3)),
                         ],
                       ),
                       child: Center(
@@ -139,7 +138,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -147,20 +146,21 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   },
                 ),
               ),
-              // Render redesigned pulsing user location marker
               if (state.currentLocation != null)
                 MarkerLayer(
                   markers: [
                     _buildUserLocationMarker(state.currentLocation!),
                   ],
                 ),
+              MarkerLayer(
+                markers: _buildMarkers(state.places, state.selectedPlace),
+              ),
               const SimpleAttributionWidget(
                 source: Text('© OpenStreetMap contributors'),
               ),
             ],
           ),
 
-          // 2. Selected Place Bottom Sheet
           if (state.selectedPlace != null)
             Positioned(
               bottom: 80,
@@ -173,129 +173,139 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               ),
             ),
 
-          // 3. Floating Glassmorphic Search Header & Category Bar
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 12,
-            left: 16,
-            right: 16,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GlassContainer(
-                  blur: 16,
-                  opacity: 0.88,
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF9B1B30),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF9B1B30).withValues(alpha: 0.35),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GlassContainer(
+                    blur: 15,
+                    opacity: 0.85,
+                    borderRadius: BorderRadius.circular(20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (val) {
+                                  ref.read(mapProvider.notifier).setSearchQuery(val);
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Tìm kiếm địa điểm Huế...',
+                                  hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF9B1B30), size: 22),
+                                  suffixIcon: _searchController.text.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            ref.read(mapProvider.notifier).setSearchQuery('');
+                                          },
+                                        )
+                                      : null,
                                 ),
-                              ],
+                              ),
                             ),
-                            child: const Icon(Icons.location_on_rounded, color: Colors.white, size: 22),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: (value) {
-                                ref.read(mapProvider.notifier).setSearchQuery(value);
-                              },
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                              decoration: InputDecoration(
-                                hintText: 'Tìm địa điểm ở Huế (lăng tẩm, chùa...)...',
-                                hintStyle: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                                suffixIcon: _searchController.text.isNotEmpty
-                                    ? IconButton(
-                                        icon: const Icon(Icons.clear, size: 18),
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          ref.read(mapProvider.notifier).setSearchQuery('');
-                                        },
-                                      )
+                            if (state.isLoading)
+                              const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.0,
+                                  color: Color(0xFF9B1B30),
+                                ),
+                              )
+                            else
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF9B1B30).withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '${state.places.length}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF9B1B30),
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () => context.push('/profile'),
+                              child: CircleAvatar(
+                                radius: 17,
+                                backgroundColor: const Color(0xFF9B1B30),
+                                backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
+                                    ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
+                                    : null,
+                                child: ref.watch(authProvider).user?.avatarUrl == null
+                                    ? const Icon(Icons.person, size: 20, color: Colors.white)
                                     : null,
                               ),
                             ),
-                          ),
-                          if (state.isLoading)
-                            const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.0,
-                                color: Color(0xFF9B1B30),
-                              ),
-                            )
-                          else
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF9B1B30).withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                '${state.places.length}',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF9B1B30),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => const FilterCategorySheet(),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            margin: const EdgeInsets.only(right: 6),
+                            decoration: BoxDecoration(
+                              color: state.selectedCategories.isNotEmpty ? const Color(0xFF9B1B30) : Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFF9B1B30).withValues(alpha: 0.4)),
+                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  state.selectedCategories.isNotEmpty ? 'Lọc (${state.selectedCategories.length})' : 'Bộ lọc',
+                                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
                                 ),
-                              ),
-                            ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () => context.push('/profile'),
-                            child: CircleAvatar(
-                              radius: 17,
-                              backgroundColor: const Color(0xFF9B1B30),
-                              backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
-                                  ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
-                                  : null,
-                              child: ref.watch(authProvider).user?.avatarUrl == null
-                                  ? const Icon(Icons.person, size: 20, color: Colors.white)
-                                  : null,
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        _buildFilterChip('all', 'Tất cả', state),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('restaurant', 'Quán ăn', state),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('attraction', 'Địa điểm', state),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('tomb', 'Lăng tẩm', state),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('temple', 'Chùa', state),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildFilterChip('all', 'Tất cả', state),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('restaurant', 'Quán ăn', state),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('attraction', 'Địa điểm', state),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('tomb', 'Lăng tẩm', state),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('temple', 'Chùa', state),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

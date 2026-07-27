@@ -8,6 +8,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
+import 'package:codoky/features/review/presentation/providers/review_provider.dart';
+import 'package:codoky/features/review/presentation/widgets/review_card.dart';
+import 'package:codoky/features/review/presentation/widgets/write_review_bottom_sheet.dart';
 
 class PlaceDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -30,6 +33,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
   void initState() {
     super.initState();
     _loadPlaceDetails();
+    Future.microtask(() {
+      ref.read(reviewProvider.notifier).loadAllReviews(placeId: widget.id, refresh: true);
+    });
   }
 
   Future<void> _loadPlaceDetails() async {
@@ -167,6 +173,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
         ),
       );
     }
+
+    final reviewState = ref.watch(reviewProvider);
+    final placeReviews = reviewState.allReviews;
 
     final place = _placeData!;
     final name = place['name'] as String;
@@ -647,7 +656,17 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => context.push('/reviews/write'),
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (ctx) => WriteReviewBottomSheet(
+                                  initialPlaceId: widget.id,
+                                  initialPlaceName: name,
+                                ),
+                              );
+                            },
                             child: const Row(
                               children: [
                                 Icon(Icons.rate_review_outlined, size: 14, color: Color(0xFFFF7A00)),
@@ -663,23 +682,68 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                       ),
                       const SizedBox(height: 8),
 
-                      // Mock Review Card 1
-                      _buildReviewCard(
-                        userName: 'Lê Hoàng Nam',
-                        userAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-                        rating: 5.0,
-                        date: '24/07/2026',
-                        comment: 'Không gian Huế tuyệt đẹp và mang không khí trang nghiêm cổ kính. Rất đáng trải nghiệm!',
-                      ),
-                      const SizedBox(height: 8),
-                      // Mock Review Card 2
-                      _buildReviewCard(
-                        userName: 'Trần Thị Thu Hà',
-                        userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-                        rating: 4.5,
-                        date: '20/07/2026',
-                        comment: 'Địa điểm tuyệt vời để chụp ảnh check-in và tìm hiểu lịch sử nhà Nguyễn.',
-                      ),
+                      if (reviewState.isLoadingAll && placeReviews.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xFFFF7A00)))),
+                        )
+                      else if (placeReviews.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: Column(
+                            children: [
+                              const Icon(Icons.rate_review_outlined, size: 36, color: Color(0xFF94A3B8)),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Chưa có đánh giá nào cho địa điểm này.',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Hãy là người đầu tiên chia sẻ cảm nhận!',
+                                style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                              ),
+                              const SizedBox(height: 12),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (ctx) => WriteReviewBottomSheet(
+                                      initialPlaceId: widget.id,
+                                      initialPlaceName: name,
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.edit, size: 14, color: Colors.white),
+                                label: const Text('Viết Đánh Giá Ngay', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFF7A00),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Column(
+                          children: placeReviews.map((rev) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: ReviewCard(
+                                review: rev,
+                                onDelete: () => ref.read(reviewProvider.notifier).deleteReview(rev.id),
+                              ),
+                            );
+                          }).toList(),
+                        ),
                     ],
                   ),
                 ),
@@ -862,67 +926,6 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           fontWeight: FontWeight.w600,
           color: Color(0xFFFF7A00),
         ),
-      ),
-    );
-  }
-
-  Widget _buildReviewCard({
-    required String userName,
-    required String userAvatar,
-    required double rating,
-    required String date,
-    required String comment,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundImage: NetworkImage(userAvatar),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userName,
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
-                    ),
-                    Text(
-                      date,
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                children: [
-                  const Icon(Icons.star_rounded, size: 14, color: Color(0xFFFFB800)),
-                  const SizedBox(width: 2),
-                  Text(
-                    '$rating',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            comment,
-            style: const TextStyle(fontSize: 12.5, color: Color(0xFF475569), height: 1.35),
-          ),
-        ],
       ),
     );
   }
