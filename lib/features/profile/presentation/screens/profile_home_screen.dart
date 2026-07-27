@@ -32,7 +32,7 @@ class ProfileHomeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: const EdgeInsets.only(bottom: 140),
         child: Stack(
           children: [
             // 1. HERO GRADIENT BACKGROUND BANNER (SOFT SUNSET AMBER GRADIENT)
@@ -199,40 +199,43 @@ class ProfileHomeScreen extends ConsumerWidget {
                               ),
                             ),
 
-                            // Level Badge Top Center (Aligned Centered over Avatar)
+                            // Level Badge Top Center (Aligned Centered over Avatar, OverflowBox prevents Stack 100px width constraint overflow)
                             Positioned(
                               top: -12,
                               left: 0,
                               right: 0,
                               child: Center(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFB800),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: Colors.white, width: 2.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.15),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.workspace_premium_rounded, size: 13, color: Colors.black87),
-                                      SizedBox(width: 3),
-                                      Text(
-                                        'Thành viên Vàng',
-                                        style: TextStyle(
-                                          fontSize: 10.5,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.black87,
+                                child: OverflowBox(
+                                  maxWidth: double.infinity,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFB800),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: Colors.white, width: 2.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.15),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.workspace_premium_rounded, size: 13, color: Colors.black87),
+                                        SizedBox(width: 3),
+                                        Text(
+                                          'Thành viên Vàng',
+                                          style: TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
