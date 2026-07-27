@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
-import 'package:codoky/features/map/presentation/providers/map_provider.dart';
+import 'package:codoky/features/explore/presentation/providers/explore_provider.dart';
 
 class CategoryListScreen extends ConsumerStatefulWidget {
   final String categoryId;
@@ -20,57 +18,12 @@ class CategoryListScreen extends ConsumerStatefulWidget {
 
 class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _categoryPlaces = [];
-  bool _isLoading = true;
   String _activeSort = 'rating'; // 'rating' | 'name'
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCategoryData();
-  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadCategoryData() async {
-    // 1. Try from mapProvider state
-    final mapState = ref.read(mapProvider);
-    final allFromState = mapState.allPlaces;
-
-    List<Map<String, dynamic>> filtered = [];
-
-    if (allFromState.isNotEmpty) {
-      filtered = allFromState
-          .whereType<Map<String, dynamic>>()
-          .where((p) => _matchesCategory(p['category']?.toString(), widget.categoryId))
-          .toList();
-    }
-
-    // 2. If empty, load seed data asset
-    if (filtered.isEmpty) {
-      try {
-        final jsonString = await rootBundle.loadString('assets/data/hue_places_seed.json');
-        final List<dynamic> decoded = json.decode(jsonString);
-        filtered = decoded
-            .whereType<Map<String, dynamic>>()
-            .where((p) => _matchesCategory(p['category']?.toString(), widget.categoryId))
-            .toList();
-      } catch (_) {}
-    }
-
-    // 3. Fallback mock list if empty
-    if (filtered.isEmpty) {
-      filtered = _getMockCategoryPlaces(widget.categoryId);
-    }
-
-    setState(() {
-      _categoryPlaces = filtered;
-      _isLoading = false;
-    });
   }
 
   bool _matchesCategory(String? placeCategory, String targetCategory) {
@@ -81,11 +34,14 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
     if (target == 'attraction') {
       return cat.contains('attraction') || cat.contains('tomb') || cat.contains('di tích') || cat.contains('lịch sử');
     }
-    if (target == 'food') {
+    if (target == 'food' || target == 'restaurant') {
       return cat.contains('food') || cat.contains('restaurant') || cat.contains('ẩm thực') || cat.contains('ăn');
     }
     if (target == 'temple') {
       return cat.contains('temple') || cat.contains('chùa') || cat.contains('tâm linh');
+    }
+    if (target == 'tomb') {
+      return cat.contains('tomb') || cat.contains('lăng');
     }
     if (target == 'cafe') {
       return cat.contains('cafe') || cat.contains('cà phê');
@@ -99,94 +55,10 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
     return cat == target;
   }
 
-  List<Map<String, dynamic>> _getMockCategoryPlaces(String categoryId) {
-    if (categoryId == 'food') {
-      return [
-        {
-          'id': 'f1',
-          'name': 'Bún Bò Huế Mụ Rớt',
-          'category': 'food',
-          'rating': 4.9,
-          'address': '22 Kim Long, Hương Long, TP. Huế',
-          'image_url': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80',
-          'ticket_price': '35.000đ - 55.000đ / Tô',
-          'tag': '🍜 Chuẩn vị Huế',
-        },
-        {
-          'id': 'f2',
-          'name': 'Quán Cơm Hến Hoa Đông',
-          'category': 'food',
-          'rating': 4.8,
-          'address': 'Vĩ Dạ, Thành phố Huế',
-          'image_url': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
-          'ticket_price': '20.000đ - 35.000đ / Tô',
-          'tag': '🐚 Cơm Hến Vĩ Dạ',
-        },
-        {
-          'id': 'f3',
-          'name': 'Bánh Bèo Nậm Lọc O Thủy',
-          'category': 'food',
-          'rating': 4.7,
-          'address': '27 Nguyễn Trãi, Thuận Hòa, Huế',
-          'image_url': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
-          'ticket_price': '30.000đ - 60.000đ / Đĩa',
-          'tag': '🥟 Bánh Huế Truyền Thống',
-        },
-      ];
-    }
-
-    if (categoryId == 'temple') {
-      return [
-        {
-          'id': 't1',
-          'name': 'Chùa Thiên Mụ (Linh Mụ)',
-          'category': 'temple',
-          'rating': 4.9,
-          'address': 'Đường Nguyễn Phúc Nguyên, Hương Long, Huế',
-          'image_url': 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800&auto=format&fit=crop&q=80',
-          'ticket_price': 'Miễn phí tham quan',
-          'tag': '⛩️ Tháp Phước Duyên',
-        },
-        {
-          'id': 't2',
-          'name': 'Chùa Từ Hiếu',
-          'category': 'temple',
-          'rating': 4.8,
-          'address': 'Dương Xuân Thượng, Thủy Xuân, Huế',
-          'image_url': 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=800&auto=format&fit=crop&q=80',
-          'ticket_price': 'Miễn phí tham quan',
-          'tag': '🌿 Chùa Cổ Thanh Tịnh',
-        },
-      ];
-    }
-
-    return [
-      {
-        'id': '1',
-        'name': 'Đại Nội Huế (Hoàng Thành)',
-        'category': 'attraction',
-        'rating': 4.9,
-        'address': 'Thuận Thành, TP. Huế',
-        'image_url': 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=800&auto=format&fit=crop&q=80',
-        'ticket_price': '200.000đ / Vé',
-        'tag': '🏰 Di sản UNESCO',
-      },
-      {
-        'id': 'a2',
-        'name': 'Lăng Khải Định (Ứng Lăng)',
-        'category': 'attraction',
-        'rating': 4.8,
-        'address': 'Thủy Bằng, Hương Thủy, Huế',
-        'image_url': 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800&auto=format&fit=crop&q=80',
-        'ticket_price': '150.000đ / Vé',
-        'tag': '🏛️ Kiến trúc Độc đáo',
-      },
-    ];
-  }
-
   Map<String, dynamic> _getCategoryHeaderInfo(String catId) {
     switch (catId.toLowerCase()) {
       case 'food':
+      case 'restaurant':
         return {
           'title': 'Ẩm thực Cố đô Huế 🍜',
           'subtitle': 'Đặc sản Bún bò, Cơm hến & Bánh Huế truyền thống',
@@ -197,6 +69,12 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
           'title': 'Tâm linh & Chùa Huế ⛩️',
           'subtitle': 'Khám phá các ngôi chùa cổ thanh tịnh linh thiêng',
           'colors': [const Color(0xFF9333EA), const Color(0xFFC084FC)],
+        };
+      case 'tomb':
+        return {
+          'title': 'Lăng tẩm Triều Nguyễn 🏛️',
+          'subtitle': 'Khải Định, Tự Đức, Minh Mạng & Di tích lịch sử',
+          'colors': [const Color(0xFFD97706), const Color(0xFFF59E0B)],
         };
       case 'cafe':
         return {
@@ -227,18 +105,26 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final exploreState = ref.watch(exploreProvider);
     final header = _getCategoryHeaderInfo(widget.categoryId);
     final List<Color> bgColors = header['colors'];
 
-    // Filter search query
+    // 1. Get raw places from exploreState matching category
+    final rawPlaces = exploreState.allPlaces
+        .whereType<Map<String, dynamic>>()
+        .where((p) => _matchesCategory(p['category']?.toString(), widget.categoryId))
+        .toList();
+
+    // 2. Filter search query
     final query = _searchController.text.trim().toLowerCase();
-    final displayPlaces = _categoryPlaces.where((p) {
+    final displayPlaces = rawPlaces.where((p) {
       if (query.isEmpty) return true;
       final name = p['name']?.toString().toLowerCase() ?? '';
       final address = p['address']?.toString().toLowerCase() ?? '';
       return name.contains(query) || address.contains(query);
     }).toList();
 
+    // 3. Sort
     if (_activeSort == 'rating') {
       displayPlaces.sort((a, b) {
         final rA = double.tryParse(a['rating']?.toString() ?? '0') ?? 0;
@@ -405,7 +291,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
 
           // 3. PLACES LIST VIEW
           Expanded(
-            child: _isLoading
+            child: exploreState.isLoading && displayPlaces.isEmpty
                 ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xFFFF7A00))))
                 : displayPlaces.isEmpty
                     ? const Center(

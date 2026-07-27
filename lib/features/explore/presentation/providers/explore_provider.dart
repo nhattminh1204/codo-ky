@@ -29,6 +29,7 @@ class ExploreState {
     List<dynamic> baseList;
     switch (selectedCategory) {
       case 'restaurant':
+      case 'food':
         baseList = restaurants;
         break;
       case 'attraction':
@@ -64,6 +65,7 @@ class ExploreState {
     List<dynamic>? tombs,
     List<dynamic>? categories,
     String? selectedCategory,
+    bool clearCategory = false,
     bool? isLoading,
     String? searchQuery,
   }) {
@@ -74,7 +76,7 @@ class ExploreState {
       temples: temples ?? this.temples,
       tombs: tombs ?? this.tombs,
       categories: categories ?? this.categories,
-      selectedCategory: selectedCategory ?? this.selectedCategory,
+      selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       isLoading: isLoading ?? this.isLoading,
       searchQuery: searchQuery ?? this.searchQuery,
     );
@@ -82,29 +84,53 @@ class ExploreState {
 }
 
 class ExploreNotifier extends StateNotifier<ExploreState> {
-  ExploreNotifier() : super(const ExploreState());
+  ExploreNotifier() : super(const ExploreState()) {
+    loadPlaces();
+  }
 
   Future<void> loadPlaces({bool refresh = false}) async {
+    if (state.allPlaces.isNotEmpty && !refresh) return;
+
     state = state.copyWith(isLoading: true);
 
     try {
       final jsonString = await rootBundle.loadString('assets/data/hue_places_seed.json');
       final List<dynamic> places = json.decode(jsonString);
 
+      final restaurants = places.where((p) {
+        final cat = p['category']?.toString().toLowerCase() ?? '';
+        return cat == 'restaurant' || cat == 'food';
+      }).toList();
+
+      final attractions = places.where((p) {
+        final cat = p['category']?.toString().toLowerCase() ?? '';
+        return cat == 'attraction';
+      }).toList();
+
+      final temples = places.where((p) {
+        final cat = p['category']?.toString().toLowerCase() ?? '';
+        return cat == 'temple';
+      }).toList();
+
+      final tombs = places.where((p) {
+        final cat = p['category']?.toString().toLowerCase() ?? '';
+        return cat == 'tomb';
+      }).toList();
+
       final categories = [
-        {'id': 'all', 'name': 'Tất cả'},
-        {'id': 'restaurant', 'name': 'Nhà hàng'},
-        {'id': 'attraction', 'name': 'Địa điểm'},
-        {'id': 'temple', 'name': 'Chùa'},
-        {'id': 'tomb', 'name': 'Lăng tẩm'},
+        {'id': 'all', 'name': 'Tất cả', 'count': places.length},
+        {'id': 'attraction', 'name': 'Địa điểm', 'count': attractions.length},
+        {'id': 'restaurant', 'name': 'Nhà hàng & Ẩm thực', 'count': restaurants.length},
+        {'id': 'temple', 'name': 'Chùa', 'count': temples.length},
+        {'id': 'tomb', 'name': 'Lăng tẩm', 'count': tombs.length},
       ];
 
       state = state.copyWith(
         allPlaces: places,
-        restaurants: places.where((p) => p['category'] == 'restaurant').toList(),
-        attractions: places.where((p) => p['category'] == 'attraction').toList(),
-        temples: places.where((p) => p['category'] == 'temple').toList(),
-        tombs: places.where((p) => p['category'] == 'tomb').toList(),
+        restaurants: restaurants,
+        attractions: attractions,
+        temples: temples,
+        tombs: tombs,
         categories: categories,
         isLoading: false,
       );
@@ -113,11 +139,15 @@ class ExploreNotifier extends StateNotifier<ExploreState> {
     }
   }
 
-  Future<void> loadCategories() async {}
+  Future<void> loadCategories() async {
+    if (state.allPlaces.isEmpty) {
+      await loadPlaces();
+    }
+  }
 
   void selectCategory(String? categoryId) {
-    if (categoryId == 'all') {
-      state = state.copyWith(selectedCategory: null);
+    if (categoryId == 'all' || categoryId == null) {
+      state = state.copyWith(clearCategory: true);
     } else {
       state = state.copyWith(selectedCategory: categoryId);
     }
