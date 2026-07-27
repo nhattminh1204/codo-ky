@@ -169,45 +169,51 @@ class ProfileHomeScreen extends ConsumerWidget {
                           alignment: Alignment.center,
                           clipBehavior: Clip.none,
                           children: [
-                            // Avatar Outer Container (Gold Gradient Glow for Gold, Silver Slate for Standard)
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: isGoldMember
-                                    ? const LinearGradient(
-                                        colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      )
-                                    : const LinearGradient(
-                                        colors: [Color(0xFFCBD5E1), Color(0xFF94A3B8)],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
+                            // Avatar Outer Container wrapped in Hero for smooth transition animation
+                            Hero(
+                              tag: 'user-avatar-ring',
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: isGoldMember
+                                        ? const LinearGradient(
+                                            colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          )
+                                        : const LinearGradient(
+                                            colors: [Color(0xFFCBD5E1), Color(0xFF94A3B8)],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: isGoldMember
+                                            ? const Color(0xFFFF5E62).withValues(alpha: 0.35)
+                                            : Colors.black.withValues(alpha: 0.08),
+                                        blurRadius: 16,
+                                        offset: const Offset(0, 6),
                                       ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: isGoldMember
-                                        ? const Color(0xFFFF5E62).withValues(alpha: 0.35)
-                                        : Colors.black.withValues(alpha: 0.08),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 6),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: CircleAvatar(
-                                radius: 46,
-                                backgroundColor: Colors.white,
-                                backgroundImage: (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
-                                    ? NetworkImage(user.avatarUrl!)
-                                    : null,
-                                child: (user?.avatarUrl == null || user!.avatarUrl!.isEmpty)
-                                    ? Icon(
-                                        Icons.person_rounded,
-                                        size: 48,
-                                        color: isGoldMember ? const Color(0xFFFF5E62) : const Color(0xFF64748B),
-                                      )
-                                    : null,
+                                  child: CircleAvatar(
+                                    radius: 46,
+                                    backgroundColor: Colors.white,
+                                    backgroundImage: (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
+                                        ? NetworkImage(user.avatarUrl!)
+                                        : null,
+                                    child: (user?.avatarUrl == null || user!.avatarUrl!.isEmpty)
+                                        ? Icon(
+                                            Icons.person_rounded,
+                                            size: 48,
+                                            color: isGoldMember ? const Color(0xFFFF5E62) : const Color(0xFF64748B),
+                                          )
+                                        : null,
+                                  ),
+                                ),
                               ),
                             ),
 

@@ -98,6 +98,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final user = authState.user;
 
     return Scaffold(
       appBar: AppBar(
@@ -112,6 +113,45 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Hero Avatar Preview
+                Center(
+                  child: Hero(
+                    tag: 'user-avatar-ring',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFF5E62).withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundColor: Colors.white,
+                          backgroundImage: _avatarController.text.trim().isNotEmpty
+                              ? NetworkImage(_avatarController.text.trim())
+                              : (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty
+                                  ? NetworkImage(user.avatarUrl!)
+                                  : null),
+                          child: (_avatarController.text.trim().isEmpty && (user?.avatarUrl == null || user!.avatarUrl!.isEmpty))
+                              ? const Icon(Icons.person_rounded, size: 40, color: Color(0xFFFF5E62))
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+
                 // Thông tin cá nhân Card
                 AppCard(
                   child: Column(

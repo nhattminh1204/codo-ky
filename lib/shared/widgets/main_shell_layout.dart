@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:animations/animations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'curved_nav_clipper.dart';
 
@@ -47,6 +48,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
   Widget build(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
     final mediaQuery = MediaQuery.of(context);
+    final currentPath = GoRouterState.of(context).uri.path;
     
     const horizontalMargin = 16.0;
     final navWidth = mediaQuery.size.width - (horizontalMargin * 2);
@@ -56,7 +58,20 @@ class _MainShellLayoutState extends State<MainShellLayout> {
 
     return Scaffold(
       extendBody: true,
-      body: widget.child,
+      body: PageTransitionSwitcher(
+        duration: const Duration(milliseconds: 250),
+        transitionBuilder: (child, animation, secondaryAnimation) {
+          return FadeThroughTransition(
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey(currentPath),
+          child: widget.child,
+        ),
+      ),
       bottomNavigationBar: SafeArea(
         bottom: true,
         child: Padding(

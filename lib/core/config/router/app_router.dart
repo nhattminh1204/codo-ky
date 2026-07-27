@@ -48,6 +48,7 @@ CustomTransitionPage<T> buildPageWithTransition<T>({
   required BuildContext context,
   required GoRouterState state,
   required Widget child,
+  SharedAxisTransitionType type = SharedAxisTransitionType.horizontal,
 }) {
   return CustomTransitionPage<T>(
     key: state.pageKey,
@@ -56,7 +57,7 @@ CustomTransitionPage<T> buildPageWithTransition<T>({
       return SharedAxisTransition(
         animation: animation,
         secondaryAnimation: secondaryAnimation,
-        transitionType: SharedAxisTransitionType.horizontal,
+        transitionType: type,
         child: child,
       );
     },
@@ -90,53 +91,99 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // 0. Global Screens
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const SplashScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const SplashScreen(),
+          type: SharedAxisTransitionType.scaled,
+        ),
       ),
       GoRoute(
         path: '/onboarding',
-        builder: (context, state) => const OnboardingScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const OnboardingScreen(),
+        ),
       ),
       GoRoute(
         path: '/home',
-        builder: (context, state) => const HomeScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const HomeScreen(),
+        ),
       ),
       GoRoute(
         path: '/settings',
-        builder: (context, state) => const SettingsScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const SettingsScreen(),
+        ),
       ),
       GoRoute(
         path: '/offline',
-        builder: (context, state) => const OfflineScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const OfflineScreen(),
+        ),
       ),
       GoRoute(
         path: '/search',
-        builder: (context, state) => const SearchScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const SearchScreen(),
+        ),
       ),
 
       // 1. Auth Feature Screens
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const LoginScreen(),
+          type: SharedAxisTransitionType.scaled,
+        ),
       ),
       GoRoute(
         path: '/register',
-        builder: (context, state) => const RegisterScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const RegisterScreen(),
+        ),
       ),
       GoRoute(
         path: '/forgot-password',
-        builder: (context, state) => const ForgotPasswordScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const ForgotPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: '/onboarding-profile',
-        builder: (context, state) => const OnboardingProfileScreen(),
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const OnboardingProfileScreen(),
+        ),
       ),
 
       // Place Details & Specific Param Routes
       GoRoute(
         path: '/place/:id',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final id = state.pathParameters['id'] ?? '';
-          return PlaceDetailScreen(id: id);
+          return buildPageWithTransition(
+            context: context,
+            state: state,
+            child: PlaceDetailScreen(id: id),
+          );
         },
       ),
 
@@ -156,9 +203,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'category/:categoryId',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final categoryId = state.pathParameters['categoryId'] ?? '';
-                  return CategoryListScreen(categoryId: categoryId);
+                  return buildPageWithTransition(
+                    context: context,
+                    state: state,
+                    child: CategoryListScreen(categoryId: categoryId),
+                  );
                 },
               ),
             ],
@@ -170,22 +221,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/itinerary/setup',
-            builder: (context, state) => const ItinerarySetupScreen(),
+            pageBuilder: (context, state) => buildPageWithTransition(
+              context: context,
+              state: state,
+              child: const ItinerarySetupScreen(),
+            ),
           ),
           GoRoute(
             path: '/itinerary/result',
-            builder: (context, state) => const ItineraryResultScreen(),
+            pageBuilder: (context, state) => buildPageWithTransition(
+              context: context,
+              state: state,
+              child: const ItineraryResultScreen(),
+            ),
           ),
           GoRoute(
             path: '/itinerary/stop/:id',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final id = state.pathParameters['id'] ?? '';
-              return ItineraryStopDetailScreen(id: id);
+              return buildPageWithTransition(
+                context: context,
+                state: state,
+                child: ItineraryStopDetailScreen(id: id),
+              );
             },
           ),
           GoRoute(
             path: '/itinerary/saved',
-            builder: (context, state) => const SavedItinerariesScreen(),
+            pageBuilder: (context, state) => buildPageWithTransition(
+              context: context,
+              state: state,
+              child: const SavedItinerariesScreen(),
+            ),
           ),
           // Reviews
           GoRoute(
@@ -194,17 +261,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/reviews/write',
-            builder: (context, state) => const WriteReviewScreen(),
+            pageBuilder: (context, state) => buildPageWithTransition(
+              context: context,
+              state: state,
+              child: const WriteReviewScreen(),
+            ),
           ),
           GoRoute(
             path: '/reviews/my',
-            builder: (context, state) => const MyReviewsScreen(),
+            pageBuilder: (context, state) => buildPageWithTransition(
+              context: context,
+              state: state,
+              child: const MyReviewsScreen(),
+            ),
           ),
           GoRoute(
             path: '/reviews/:placeId',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final placeId = state.pathParameters['placeId'];
-              return ReviewListScreen(placeId: placeId);
+              return buildPageWithTransition(
+                context: context,
+                state: state,
+                child: ReviewListScreen(placeId: placeId),
+              );
             },
           ),
           // Profile
@@ -214,7 +293,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'edit',
-                builder: (context, state) => const EditProfileScreen(),
+                pageBuilder: (context, state) => buildPageWithTransition(
+                  context: context,
+                  state: state,
+                  child: const EditProfileScreen(),
+                ),
               ),
             ],
           ),
