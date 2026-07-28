@@ -669,13 +669,11 @@ class ProfileHomeScreen extends ConsumerWidget {
                             // Dynamic Level Badge
                             Positioned(
                               top: -12,
-                              left: 0,
-                              right: 0,
+                              left: -80,
+                              right: -80,
                               child: Center(
-                                child: OverflowBox(
-                                  maxWidth: double.infinity,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
                                     decoration: BoxDecoration(
                                       color: isGoldMember ? const Color(0xFFFFB800) : const Color(0xFFF1F5F9),
                                       borderRadius: BorderRadius.circular(20),
@@ -713,7 +711,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                            ),
 
                             // Camera Edit Button
                             Positioned(
@@ -905,19 +902,22 @@ class ProfileHomeScreen extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFFF1F5F9)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 16,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
+                        Material(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          clipBehavior: Clip.antiAlias,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFFF1F5F9)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
                           child: Column(
                             children: [
                               ListTile(
@@ -990,6 +990,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
+                      ),
                       ],
                     ),
                   ),
@@ -1019,7 +1020,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                         const SizedBox(height: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: const Color(0xFFF1F5F9)),
                             boxShadow: [
@@ -1030,7 +1030,11 @@ class ProfileHomeScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          child: Column(
+                          child: Material(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            clipBehavior: Clip.antiAlias,
+                            child: Column(
                             children: [
                               // Phone Number
                               ListTile(
@@ -1167,6 +1171,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
+                      ),
                       ],
                     ),
                   ),
