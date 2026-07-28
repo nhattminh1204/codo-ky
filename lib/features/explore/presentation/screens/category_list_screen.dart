@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:animations/animations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/widgets/animations/staggered_item.dart';
 import 'package:codoky/features/explore/presentation/providers/explore_provider.dart';
+import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
+
 
 class CategoryListScreen extends ConsumerStatefulWidget {
   final String categoryId;
@@ -318,122 +322,137 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
                           final ticketPrice = place['ticket_price']?.toString() ?? 'Tham quan di tích';
                           final tag = place['tag']?.toString() ?? '📍 Điểm đến Huế';
 
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 14),
-                            child: GestureDetector(
-                              onTap: () => context.push('/place/$id'),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFFF1F5F9)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.04),
-                                      blurRadius: 14,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    // Thumbnail Image
-                                    ClipRRect(
-                                      borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
-                                      child: Image.network(
-                                        imageUrl,
-                                        width: 110,
-                                        height: 110,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => Container(
-                                          width: 110,
-                                          height: 110,
-                                          color: const Color(0xFFCBD5E1),
-                                          child: const Icon(Icons.place_rounded, color: Colors.white),
-                                        ),
+                          return StaggeredItem(
+                            index: index,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 14),
+                              child: OpenContainer(
+                                transitionDuration: AppMotion.emphasized,
+                                transitionType: ContainerTransitionType.fade,
+                                closedElevation: 0,
+                                openElevation: 0,
+                                closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                closedColor: Colors.transparent,
+                                openColor: const Color(0xFFF8FAFC),
+                                openBuilder: (context, _) => PlaceDetailScreen(id: id),
+                                closedBuilder: (context, openContainer) {
+                                  return GestureDetector(
+                                    onTap: openContainer,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(color: const Color(0xFFF1F5F9)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.04),
+                                            blurRadius: 14,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
                                       ),
-                                    ),
+                                      child: Row(
+                                        children: [
+                                          // Thumbnail Image
+                                          ClipRRect(
+                                            borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
+                                            child: Image.network(
+                                              imageUrl,
+                                              width: 110,
+                                              height: 110,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) => Container(
+                                                width: 110,
+                                                height: 110,
+                                                color: const Color(0xFFCBD5E1),
+                                                child: const Icon(Icons.place_rounded, color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
 
-                                    // Content Body
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    name,
-                                                    style: const TextStyle(
-                                                      fontSize: 14.5,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Color(0xFF1E1E1E),
-                                                    ),
+                                          // Content Body
+                                          Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(12),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text(
+                                                          name,
+                                                          style: const TextStyle(
+                                                            fontSize: 14.5,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Color(0xFF1E1E1E),
+                                                          ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          const Icon(Icons.star_rounded, size: 14, color: Color(0xFFFFB800)),
+                                                          const SizedBox(width: 2),
+                                                          Text(
+                                                            '$rating',
+                                                            style: const TextStyle(
+                                                              fontSize: 12,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Color(0xFFD97706),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    address,
+                                                    style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis,
                                                   ),
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    const Icon(Icons.star_rounded, size: 14, color: Color(0xFFFFB800)),
-                                                    const SizedBox(width: 2),
-                                                    Text(
-                                                      '$rating',
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Color(0xFFD97706),
+                                                  const SizedBox(height: 8),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Container(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                                        decoration: BoxDecoration(
+                                                          color: const Color(0xFFFFF4EB),
+                                                          borderRadius: BorderRadius.circular(8),
+                                                        ),
+                                                        child: Text(
+                                                          tag,
+                                                          style: const TextStyle(
+                                                            fontSize: 10.5,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Color(0xFFFF7A00),
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              address,
-                                              style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    color: const Color(0xFFFFF4EB),
-                                                    borderRadius: BorderRadius.circular(8),
+                                                      Text(
+                                                        ticketPrice,
+                                                        style: const TextStyle(
+                                                          fontSize: 11,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: Color(0xFF475569),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  child: Text(
-                                                    tag,
-                                                    style: const TextStyle(
-                                                      fontSize: 10.5,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Color(0xFFFF7A00),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  ticketPrice,
-                                                  style: const TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Color(0xFF475569),
-                                                  ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
                             ),
                           );

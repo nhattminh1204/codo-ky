@@ -103,6 +103,17 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
               Row(
                 children: [
                   Expanded(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
+import 'package:codoky/core/widgets/animations/staggered_item.dart';
 import 'package:codoky/features/review/presentation/providers/review_provider.dart';
 import 'package:codoky/features/review/presentation/widgets/review_card.dart';
 import 'package:codoky/features/review/presentation/widgets/write_review_bottom_sheet.dart';
@@ -18,7 +20,7 @@ class ReviewListScreen extends ConsumerStatefulWidget {
   ConsumerState<ReviewListScreen> createState() => _ReviewListScreenState();
 }
 
-class _ReviewListScreenState extends ConsumerState<ReviewListScreen> {
+class _ReviewListScreenState extends ConsumerState<ReviewListScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -28,10 +30,9 @@ class _ReviewListScreenState extends ConsumerState<ReviewListScreen> {
   }
 
   void _openWriteReviewSheet() {
-    showModalBottomSheet(
+    showAppBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      vsync: this,
       builder: (context) => WriteReviewBottomSheet(
         initialPlaceId: widget.placeId,
       ),
@@ -178,9 +179,12 @@ class _ReviewListScreenState extends ConsumerState<ReviewListScreen> {
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final review = reviewState.allReviews[index];
-                      return ReviewCard(
-                        review: review,
-                        onDelete: () => ref.read(reviewProvider.notifier).deleteReview(review.id),
+                      return StaggeredItem(
+                        index: index,
+                        child: ReviewCard(
+                          review: review,
+                          onDelete: () => ref.read(reviewProvider.notifier).deleteReview(review.id),
+                        ),
                       );
                     },
                   ),

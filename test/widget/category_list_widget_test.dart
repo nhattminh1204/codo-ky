@@ -46,7 +46,7 @@ void main() {
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(TextField), findsOneWidget);
       expect(find.textContaining('Thiên Mụ'), findsAtLeastNWidgets(1));
@@ -67,13 +67,13 @@ void main() {
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       final searchField = find.byType(TextField);
       expect(searchField, findsOneWidget);
 
       await tester.enterText(searchField, 'Thiên Mụ');
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.textContaining('Thiên Mụ'), findsAtLeastNWidgets(1));
     });

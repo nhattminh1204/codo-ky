@@ -1,21 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:animations/animations.dart';
+import 'package:codoky/core/theme/motion.dart';
+import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
 
 class PlaceListItem extends StatelessWidget {
   final dynamic place;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool enableContainerTransform;
 
   const PlaceListItem({
     super.key,
     required this.place,
-    required this.onTap,
+    this.onTap,
+    this.enableContainerTransform = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final name = place['name'] as String? ?? 'Địa điểm Huế';
-    final address = place['address'] as String? ?? 'Thừa Thiên Huế';
-    final category = place['category'] as String? ?? 'attraction';
-    final rating = (place['rating'] as num?)?.toDouble() ?? 4.8;
+    final placeId = (place is Map ? place['id'] : place?.id)?.toString() ?? '1';
+
+    if (enableContainerTransform) {
+      return OpenContainer(
+        transitionDuration: AppMotion.emphasized,
+        transitionType: ContainerTransitionType.fade,
+        closedElevation: 0,
+        openElevation: 0,
+        closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        closedColor: Colors.transparent,
+        openColor: const Color(0xFFF8FAFC),
+        openBuilder: (context, _) => PlaceDetailScreen(id: placeId),
+        closedBuilder: (context, openContainer) {
+          return _buildCardContent(context, () {
+            if (onTap != null) onTap!();
+            openContainer();
+          });
+        },
+      );
+    }
+
+    return _buildCardContent(context, onTap ?? () {});
+  }
+
+  Widget _buildCardContent(BuildContext context, VoidCallback handleTap) {
+    final name = place is Map ? (place['name'] as String? ?? 'Địa điểm Huế') : (place?.name as String? ?? 'Địa điểm Huế');
+    final address = place is Map ? (place['address'] as String? ?? 'Thừa Thiên Huế') : (place?.address as String? ?? 'Thừa Thiên Huế');
+    final category = place is Map ? (place['category'] as String? ?? 'attraction') : (place?.category as String? ?? 'attraction');
+    final rating = place is Map ? ((place['rating'] as num?)?.toDouble() ?? 4.8) : ((place?.rating as num?)?.toDouble() ?? 4.8);
 
     final config = _getCategoryConfig(category);
 
@@ -35,7 +65,7 @@ class PlaceListItem extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap,
+          onTap: handleTap,
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(14),

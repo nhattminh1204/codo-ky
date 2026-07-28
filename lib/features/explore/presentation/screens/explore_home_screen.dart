@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:animations/animations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/widgets/animations/staggered_item.dart';
+import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
+
 
 class ExploreHomeScreen extends ConsumerStatefulWidget {
   const ExploreHomeScreen({super.key});
@@ -295,68 +299,71 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                   final cat = _categories[index];
                   final List<Color> colors = cat['colors'];
 
-                  return GestureDetector(
-                    onTap: () => context.push('/explore/category/${cat['id']}'),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: colors,
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                  return StaggeredItem(
+                    index: index,
+                    child: GestureDetector(
+                      onTap: () => context.push('/explore/category/${cat['id']}'),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: colors,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colors.first.withValues(alpha: 0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: colors.first.withValues(alpha: 0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(cat['emoji'] as String, style: const TextStyle(fontSize: 24)),
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.25),
-                                  shape: BoxShape.circle,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(cat['emoji'] as String, style: const TextStyle(fontSize: 24)),
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.25),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
                                 ),
-                                child: const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                cat['title'] as String,
-                                style: const TextStyle(
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  cat['title'] as String,
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                cat['count'] as String,
-                                style: TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white.withValues(alpha: 0.9),
+                                const SizedBox(height: 2),
+                                Text(
+                                  cat['count'] as String,
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -400,104 +407,118 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                 itemCount: _featuredPlaces.length,
                 itemBuilder: (context, index) {
                   final item = _featuredPlaces[index];
+                  final placeId = item['id'] as String;
+
                   return Padding(
                     padding: const EdgeInsets.only(right: 14),
-                    child: GestureDetector(
-                      onTap: () => context.push('/place/${item['id']}'),
-                      child: Container(
-                        width: 180,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFF1F5F9)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 14,
-                              offset: const Offset(0, 4),
+                    child: OpenContainer(
+                      transitionDuration: AppMotion.emphasized,
+                      transitionType: ContainerTransitionType.fade,
+                      closedElevation: 0,
+                      openElevation: 0,
+                      closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      closedColor: Colors.transparent,
+                      openColor: const Color(0xFFF8FAFC),
+                      openBuilder: (context, _) => PlaceDetailScreen(id: placeId),
+                      closedBuilder: (context, openContainer) {
+                        return GestureDetector(
+                          onTap: openContainer,
+                          child: Container(
+                            width: 180,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFFF1F5F9)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Image
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                              child: Stack(
-                                children: [
-                                  Image.network(
-                                    item['image_url'] as String,
-                                    height: 110,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withValues(alpha: 0.6),
-                                        borderRadius: BorderRadius.circular(8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Image
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                                  child: Stack(
+                                    children: [
+                                      Image.network(
+                                        item['image_url'] as String,
+                                        height: 110,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
                                       ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.star_rounded, size: 12, color: Color(0xFFFFB800)),
-                                          const SizedBox(width: 2),
-                                          Text(
-                                            '${item['rating']}',
-                                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Colors.white),
+                                      Positioned(
+                                        top: 8,
+                                        right: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withValues(alpha: 0.6),
+                                            borderRadius: BorderRadius.circular(8),
                                           ),
-                                        ],
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.star_rounded, size: 12, color: Color(0xFFFFB800)),
+                                              const SizedBox(width: 2),
+                                              Text(
+                                                '${item['rating']}',
+                                                style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Colors.white),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
+                                ),
 
-                            // Info Body
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item['name'] as String,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1E1E1E),
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                // Info Body
+                                Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item['name'] as String,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF1E1E1E),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        item['address'] as String,
+                                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFF4EB),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          item['tag'] as String,
+                                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    item['address'] as String,
-                                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF4EB),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      item['tag'] as String,
-                                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },

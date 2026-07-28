@@ -59,7 +59,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     return Scaffold(
       extendBody: true,
       body: PageTransitionSwitcher(
-        duration: const Duration(milliseconds: 250),
+        duration: AppMotion.standard,
         transitionBuilder: (child, animation, secondaryAnimation) {
           return FadeThroughTransition(
             animation: animation,
@@ -84,8 +84,8 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                 // 1. Curved Background Bar
                 TweenAnimationBuilder<double>(
                   tween: Tween<double>(begin: activeX, end: activeX),
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOutCubic,
+                  duration: AppMotion.standard,
+                  curve: AppMotion.standardCurve,
                   builder: (context, currentX, child) {
                     return ClipPath(
                       clipper: CurvedNavClipper(
@@ -108,35 +108,40 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                 // 2. Floating Active Circle Button
                 TweenAnimationBuilder<double>(
                   tween: Tween<double>(begin: activeX, end: activeX),
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOutCubic,
+                  duration: AppMotion.standard,
+                  curve: AppMotion.emphasizedCurve,
                   builder: (context, currentX, child) {
                     return Positioned(
                       left: currentX - (circleSize / 2),
                       top: -12,
-                      child: Container(
-                        width: circleSize,
-                        height: circleSize,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFF5E62).withValues(alpha: 0.4),
-                              blurRadius: 14,
-                              offset: const Offset(0, 4),
+                      child: AnimatedScale(
+                        scale: 1.0,
+                        duration: AppMotion.standard,
+                        curve: AppMotion.emphasizedCurve,
+                        child: Container(
+                          width: circleSize,
+                          height: circleSize,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Icon(
-                            _items[selectedIndex].selectedIcon,
-                            color: Colors.white,
-                            size: 26,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF5E62).withValues(alpha: 0.4),
+                                blurRadius: 14,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              _items[selectedIndex].selectedIcon,
+                              color: Colors.white,
+                              size: 26,
+                            ),
                           ),
                         ),
                       ),
@@ -171,49 +176,60 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                         child: GestureDetector(
                           onTap: () => _onItemTapped(index, context),
                           behavior: HitTestBehavior.opaque,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              if (!isSelected)
-                                Icon(
-                                  item.icon,
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                  size: 22,
-                                )
-                              else
-                                const SizedBox(height: 22),
-                              
-                              const SizedBox(height: 4),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 6),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      item.label,
-                                      style: TextStyle(
-                                        color: isSelected
-                                            ? const Color(0xFFFF7A00)
-                                            : Colors.white.withValues(alpha: 0.5),
-                                        fontSize: isSelected ? 12 : 11,
-                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                      ),
+                          child: AnimatedScale(
+                            scale: isSelected ? 1.08 : 1.0,
+                            duration: AppMotion.standard,
+                            curve: AppMotion.emphasizedCurve,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (!isSelected)
+                                  AnimatedOpacity(
+                                    duration: AppMotion.standard,
+                                    opacity: isSelected ? 0.0 : 0.6,
+                                    child: Icon(
+                                      item.icon,
+                                      color: Colors.white,
+                                      size: 22,
                                     ),
-                                    if (isSelected) ...[
-                                      const SizedBox(height: 2),
-                                      Container(
-                                        width: 4,
-                                        height: 4,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFFFF7A00),
-                                          shape: BoxShape.circle,
+                                  )
+                                else
+                                  const SizedBox(height: 22),
+                                
+                                const SizedBox(height: 4),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      AnimatedDefaultTextStyle(
+                                        duration: AppMotion.standard,
+                                        curve: AppMotion.standardCurve,
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? const Color(0xFFFF7A00)
+                                              : Colors.white.withValues(alpha: 0.5),
+                                          fontSize: isSelected ? 12 : 11,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                         ),
+                                        child: Text(item.label),
                                       ),
+                                      if (isSelected) ...[
+                                        const SizedBox(height: 2),
+                                        Container(
+                                          width: 4,
+                                          height: 4,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFFFF7A00),
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      ],
                                     ],
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );

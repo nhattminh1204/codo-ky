@@ -2,6 +2,7 @@ class AppConstants {
   static const String appName = 'CodoKy';
   static const String appVersion = '1.0.0';
   static const String baseUrl = 'https://api.codoky.com/v1';
+  static const String defaultOsrmBaseUrl = 'http://router.project-osrm.org';
   static const String googleMapsApiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
   static const int defaultTimeout = 30;
   static const int defaultPageSize = 20;

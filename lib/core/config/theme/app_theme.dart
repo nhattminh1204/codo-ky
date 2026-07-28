@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+export 'package:codoky/core/theme/motion.dart';
 
 class AppColors {
   // Brand Primary & Accents - Vibrant Modern Hue Heritage
