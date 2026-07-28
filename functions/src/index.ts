@@ -163,3 +163,90 @@ Trả về DUY NHẤT một JSON object thuần túy theo đúng schema bên dư
     }
   }
 );
+
+/**
+ * Cloud Function proxy for self-hosted OSRM Driving Route API
+ * Enforces per-user / per-IP rate limits and hides internal OSRM backend URL.
+ */
+export const getOsrmRoute = onRequest(
+  { cors: true },
+  async (request, response) => {
+    const startTime = Date.now();
+    const clientIp = request.ip || request.headers["x-forwarded-for"] || "anonymous";
+    const userId = (request.query.userId || request.body?.userId || clientIp) as string;
+
+    logger.info("getOsrmRoute request received", { clientIp, userId, url: request.url });
+
+    // 1. Rate limiting check (60 req/min for routing)
+    if (!checkRateLimit(String(userId), 60, 60000)) {
+      logger.warn("getOsrmRoute rate limit exceeded", { userId });
+      response.status(429).json({
+        code: "TooManyRequests",
+        message: "Bạn đã vượt quá số lượt yêu cầu chỉ đường cho phép (tối đa 60 lượt/phút).",
+      });
+      return;
+    }
+
+    try {
+      // Extract coordinates path from query or URL
+      // E.g. /getOsrmRoute?coords=107.5909,16.4637;107.5800,16.4600 or params start & end
+      let coordsString = (request.query.coords || request.body?.coords) as string;
+
+      if (!coordsString && request.query.start && request.query.end) {
+        coordsString = `${request.query.start};${request.query.end}`;
+      }
+
+      if (!coordsString) {
+        // Match raw path suffix if passed in URL
+        const rawPath = request.url || "";
+        const match = rawPath.match(/\/route\/v1\/[a-z]+\/([^?]+)/);
+        if (match) {
+          coordsString = match[1];
+        }
+      }
+
+      if (!coordsString) {
+        response.status(400).json({
+          code: "InvalidQuery",
+          message: "Thiếu tham số tọa độ chỉ đường (coords=lng1,lat1;lng2,lat2)",
+        });
+        return;
+      }
+
+      const osrmBackendUrl = process.env.OSRM_BACKEND_URL || "http://127.0.0.1:5000";
+      const targetUrl = `${osrmBackendUrl}/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
+
+      logger.info(`Forwarding OSRM request to self-hosted backend: ${targetUrl}`);
+
+      const osrmResponse = await fetch(targetUrl, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+      });
+
+      if (!osrmResponse.ok) {
+        const errText = await osrmResponse.text();
+        logger.error("OSRM backend error response", { status: osrmResponse.status, errText });
+        response.status(osrmResponse.status).json({
+          code: "OsrmError",
+          message: `Lỗi từ OSRM Backend Server (${osrmResponse.status})`,
+        });
+        return;
+      }
+
+      const routeJson = await osrmResponse.json();
+      logger.info("getOsrmRoute success", {
+        durationMs: Date.now() - startTime,
+        code: routeJson.code,
+      });
+
+      response.status(200).json(routeJson);
+    } catch (e: any) {
+      logger.error("getOsrmRoute failed", { error: e?.message || e });
+      response.status(500).json({
+        code: "InternalError",
+        message: "Không thể kết nối đến máy chủ OSRM tự host. " + (e?.message || ""),
+      });
+    }
+  }
+);
+

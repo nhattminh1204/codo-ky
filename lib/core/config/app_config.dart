@@ -10,6 +10,7 @@ class AppConfig {
   
   static String get environment => _getString('ENVIRONMENT', _activeEnvironment);
   static String get apiBaseUrl => _getString('API_BASE_URL');
+  static String get osrmBaseUrl => _getString('OSRM_BASE_URL', 'http://localhost:5000');
   static String get googleMapsApiKey => _getString('GOOGLE_MAPS_API_KEY');
   static String get geminiApiKey => _getString('GEMINI_API_KEY');
   
