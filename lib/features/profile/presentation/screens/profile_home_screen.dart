@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
+import 'package:codoky/features/auth/data/models/user_model.dart';
 
 class ProfileHomeScreen extends ConsumerWidget {
   const ProfileHomeScreen({super.key});
@@ -10,28 +12,483 @@ class ProfileHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final user = authState.user;
 
-    // Dynamic membership tier logic (Gold vs Standard Member)
-    final bool isGoldMember = user?.isGold ?? true; // Default to true for design preview
-    final int userPoints = user?.rewardPoints ?? (isGoldMember ? 350 : 120);
+    // 1. STATE (a): LOADING STATE - Skeleton Shimmer UI
+    if (authState.isLoading) {
+      return _buildLoadingState(context);
+    }
 
-    // Fallback user values matching the design mockup when user data is empty or loading
-    final userName = (user?.name != null && user!.name.trim().isNotEmpty)
-        ? user.name
-        : 'Nguyễn Văn Minh Nhật';
-    final userEmail = (user?.email != null && user!.email.trim().isNotEmpty)
-        ? user.email
-        : 'nhattminh1204@gmail.com';
-    final userPhone = user?.phone ?? '';
-    final joinedDate = user != null
-        ? '${user.createdAt.day.toString().padLeft(2, '0')}/${user.createdAt.month.toString().padLeft(2, '0')}/${user.createdAt.year}'
-        : '25/07/2026';
+    // 2. STATE (c): UNAUTHENTICATED GUEST STATE
+    if (!authState.isAuthenticated || authState.user == null) {
+      return _buildGuestState(context);
+    }
 
-    final rawPrefs = user?.preferences.where((p) => p.trim().isNotEmpty).toList() ?? [];
+    // 3. STATE (b): AUTHENTICATED USER STATE
+    final user = authState.user!;
+    return _buildAuthenticatedProfile(context, ref, authState, user);
+  }
+
+  // ==========================================
+  // STATE (a): LOADING SKELETON / SHIMMER UI
+  // ==========================================
+  Widget _buildLoadingState(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            // Hero Banner Background
+            Container(
+              height: 200,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+
+            // Top App Bar
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                    ),
+                    const Text(
+                      'Hồ sơ cá nhân',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.settings_outlined, color: Colors.white, size: 20),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Shimmer Content Body
+            Padding(
+              padding: const EdgeInsets.only(top: 110, left: 20, right: 20, bottom: 40),
+              child: Shimmer.fromColors(
+                baseColor: const Color(0xFFE2E8F0),
+                highlightColor: const Color(0xFFF8FAFC),
+                child: Column(
+                  children: [
+                    // Avatar Skeleton
+                    Center(
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 92,
+                            height: 92,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: 160,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 200,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Stats Bar Skeleton
+                    Container(
+                      height: 72,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Details Card Skeleton
+                    Container(
+                      height: 220,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Button Skeleton
+                    Container(
+                      height: 52,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // STATE (c): UNAUTHENTICATED GUEST STATE UI
+  // ==========================================
+  Widget _buildGuestState(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            // Hero Sunset Banner Background
+            Container(
+              height: 220,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    right: -30,
+                    bottom: -30,
+                    child: Container(
+                      width: 160,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.15),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Top App Bar
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/map');
+                        }
+                      },
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                      ),
+                    ),
+                    const Text(
+                      'Hồ sơ cá nhân',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => context.push('/settings'),
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.settings_outlined, color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Main Guest Content Card
+            Padding(
+              padding: const EdgeInsets.only(top: 130, left: AppSpacing.lg, right: AppSpacing.lg, bottom: 120),
+              child: Column(
+                children: [
+                  // Guest Avatar Icon Container
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: const CircleAvatar(
+                            radius: 46,
+                            backgroundColor: Color(0xFFF1F5F9),
+                            child: Icon(
+                              Icons.person_outline_rounded,
+                              size: 48,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Khách ghé thăm',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E1E1E),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Chưa đăng nhập tài khoản CodoKy',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Welcome Information Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFF1F5F9)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Text('🏰', style: TextStyle(fontSize: 22)),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Trải nghiệm trọn vẹn Cố đô Huế',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E1E1E),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Đăng nhập tài khoản để trải nghiệm các tính năng độc quyền:',
+                          style: TextStyle(fontSize: 13, color: Color(0xFF475569)),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildGuestFeatureItem(Icons.auto_awesome_rounded, 'Tạo lộ trình du lịch thông minh bằng AI Gemini'),
+                        _buildGuestFeatureItem(Icons.rate_review_outlined, 'Đăng bài đánh giá & nhận xét địa điểm thực tế'),
+                        _buildGuestFeatureItem(Icons.bookmark_outline_rounded, 'Lưu trữ các chuyến đi và điểm check-in yêu thích'),
+                        _buildGuestFeatureItem(Icons.workspace_premium_rounded, 'Tích điểm nâng hạng Thành viên Vàng VIP'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // CTA Login & Register Buttons
+                  Container(
+                    width: double.infinity,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5E62), Color(0xFFFF9966)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF5E62).withValues(alpha: 0.35),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
+                        onTap: () => context.push('/login'),
+                        borderRadius: BorderRadius.circular(16),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.login_rounded, size: 20, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'Đăng nhập ngay',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Register Secondary Button
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFFF5E62), width: 1.5),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
+                        onTap: () => context.push('/register'),
+                        borderRadius: BorderRadius.circular(16),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.person_add_outlined, size: 18, color: Color(0xFFFF5E62)),
+                            SizedBox(width: 8),
+                            Text(
+                              'Tạo tài khoản mới',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFFF5E62),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestFeatureItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFFFF7A00)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12.5, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // STATE (b): AUTHENTICATED USER STATE UI
+  // ==========================================
+  Widget _buildAuthenticatedProfile(
+    BuildContext context,
+    WidgetRef ref,
+    AuthState authState,
+    UserModel user,
+  ) {
+    final bool isGoldMember = user.isGold;
+    final int userPoints = user.rewardPoints;
+
+    final userName = user.name.trim().isNotEmpty ? user.name : 'Người dùng CodoKy';
+    final userEmail = user.email.trim().isNotEmpty ? user.email : 'Chưa cập nhật email';
+    final userPhone = user.phone;
+    final joinedDate = '${user.createdAt.day.toString().padLeft(2, '0')}/${user.createdAt.month.toString().padLeft(2, '0')}/${user.createdAt.year}';
+
+    final rawPrefs = user.preferences.where((p) => p.trim().isNotEmpty).toList();
     final userPreferences = rawPrefs.isNotEmpty
         ? rawPrefs.map((p) => '${_getPreferenceEmoji(p)} $p').toList()
-        : ['✈️ Du lịch bụi', '☕ Cà phê đẹp', '📸 Nhiếp ảnh', '⛰️ Dã ngoại'];
+        : <String>[];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -39,7 +496,7 @@ class ProfileHomeScreen extends ConsumerWidget {
         padding: const EdgeInsets.only(bottom: 140),
         child: Stack(
           children: [
-            // 1. HERO GRADIENT BACKGROUND BANNER (SOFT SUNSET AMBER GRADIENT)
+            // 1. HERO GRADIENT BACKGROUND BANNER
             Container(
               height: 200,
               decoration: const BoxDecoration(
@@ -51,7 +508,6 @@ class ProfileHomeScreen extends ConsumerWidget {
               ),
               child: Stack(
                 children: [
-                  // Decorative glowing circle right
                   Positioned(
                     right: -30,
                     bottom: -30,
@@ -64,7 +520,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  // Decorative glowing circle left
                   Positioned(
                     left: 20,
                     top: -20,
@@ -88,7 +543,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Back Button (Dark Translucent Circle)
                     GestureDetector(
                       onTap: () {
                         if (context.canPop()) {
@@ -107,8 +561,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                         child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
                       ),
                     ),
-
-                    // Screen Title
                     const Text(
                       'Hồ sơ cá nhân',
                       style: TextStyle(
@@ -120,8 +572,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-
-                    // Settings Button with Online Status Badge
                     Stack(
                       children: [
                         GestureDetector(
@@ -156,12 +606,12 @@ class ProfileHomeScreen extends ConsumerWidget {
               ),
             ),
 
-            // MAIN CONTENT BODY (STACKED BELOW TOP BANNER)
+            // MAIN CONTENT BODY
             Padding(
               padding: const EdgeInsets.only(top: 110),
               child: Column(
                 children: [
-                  // 2. AVATAR & DYNAMIC LEVEL BADGE SECTION (GOLD VS STANDARD MEMBER)
+                  // 2. AVATAR & DYNAMIC LEVEL BADGE SECTION
                   Center(
                     child: Column(
                       children: [
@@ -169,7 +619,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                           alignment: Alignment.center,
                           clipBehavior: Clip.none,
                           children: [
-                            // Avatar Outer Container wrapped in Hero for smooth transition animation
                             Hero(
                               tag: 'user-avatar-ring',
                               child: Material(
@@ -202,10 +651,10 @@ class ProfileHomeScreen extends ConsumerWidget {
                                   child: CircleAvatar(
                                     radius: 46,
                                     backgroundColor: Colors.white,
-                                    backgroundImage: (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
+                                    backgroundImage: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
                                         ? NetworkImage(user.avatarUrl!)
                                         : null,
-                                    child: (user?.avatarUrl == null || user!.avatarUrl!.isEmpty)
+                                    child: (user.avatarUrl == null || user.avatarUrl!.isEmpty)
                                         ? Icon(
                                             Icons.person_rounded,
                                             size: 48,
@@ -217,7 +666,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                               ),
                             ),
 
-                            // Dynamic Level Badge Top Center (Gold vs Standard Member)
+                            // Dynamic Level Badge
                             Positioned(
                               top: -12,
                               left: 0,
@@ -266,7 +715,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                               ),
                             ),
 
-                            // Camera Edit Overlay Button
+                            // Camera Edit Button
                             Positioned(
                               bottom: 0,
                               right: 0,
@@ -297,7 +746,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
 
-                        // Name & Verified Checkmark
+                        // Name & Checkmark
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -353,18 +802,20 @@ class ProfileHomeScreen extends ConsumerWidget {
                           Expanded(
                             child: _buildStatItem(
                               context,
-                              value: '12',
-                              label: 'Lịch trình',
+                              value: 'Lịch trình',
+                              label: 'Đã lưu',
                               valueColor: const Color(0xFFFF7A00),
+                              onTap: () => context.push('/itinerary/saved'),
                             ),
                           ),
                           Container(height: 28, width: 1, color: const Color(0xFFF1F5F9)),
                           Expanded(
                             child: _buildStatItem(
                               context,
-                              value: '4.9 ★',
-                              label: '48 Đánh giá',
+                              value: 'Đánh giá',
+                              label: 'Của tôi',
                               valueColor: const Color(0xFFFFB800),
+                              onTap: () => context.push('/reviews/my'),
                             ),
                           ),
                           Container(height: 28, width: 1, color: const Color(0xFFF1F5F9)),
@@ -381,7 +832,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                     ),
                   ),
 
-                  // Dynamic Gold Member Upgrade Banner (Only shown if Standard Member)
+                  // Upgrade Banner if Standard Member
                   if (!isGoldMember) ...[
                     const SizedBox(height: AppSpacing.sm + 2),
                     Padding(
@@ -469,7 +920,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                           ),
                           child: Column(
                             children: [
-                              // Menu item 1: Lịch trình
                               ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                                 leading: Container(
@@ -488,29 +938,11 @@ class ProfileHomeScreen extends ConsumerWidget {
                                   'Xem danh sách các chuyến đi đã lưu',
                                   style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                                 ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFEAD8),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Text(
-                                        '12 chuyến',
-                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF94A3B8)),
-                                  ],
-                                ),
+                                trailing: const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF94A3B8)),
                                 onTap: () => context.push('/itinerary/saved'),
                               ),
                               const Divider(height: 1, thickness: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
 
-                              // Menu item 2: Đánh giá
                               ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                                 leading: Container(
@@ -534,7 +966,6 @@ class ProfileHomeScreen extends ConsumerWidget {
                               ),
                               const Divider(height: 1, thickness: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
 
-                              // Menu item 3: Địa điểm đã lưu
                               ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                                 leading: Container(
@@ -550,7 +981,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E1E1E)),
                                 ),
                                 subtitle: const Text(
-                                  '24 quán cà phê & điểm check-in',
+                                  'Xem lại các điểm check-in yêu thích',
                                   style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                                 ),
                                 trailing: const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF94A3B8)),
@@ -601,7 +1032,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                           ),
                           child: Column(
                             children: [
-                              // Số điện thoại
+                              // Phone Number
                               ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                                 leading: Container(
@@ -622,24 +1053,24 @@ class ProfileHomeScreen extends ConsumerWidget {
                                         'Chưa cập nhật',
                                         style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8), fontStyle: FontStyle.italic),
                                       ),
-                                trailing: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF4EB),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () => context.push('/profile/edit'),
-                                    child: const Text(
-                                      '+ Thêm',
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
+                                trailing: GestureDetector(
+                                  onTap: () => context.push('/profile/edit'),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF4EB),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      userPhone.isNotEmpty ? 'Sửa' : '+ Thêm',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
                                     ),
                                   ),
                                 ),
                               ),
                               const Divider(height: 1, thickness: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
 
-                              // Ngày tham gia
+                              // Joined Date
                               ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                                 leading: Container(
@@ -670,7 +1101,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                               ),
                               const Divider(height: 1, thickness: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
 
-                              // Sở thích cá nhân
+                              // Preferences
                               Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
@@ -705,7 +1136,31 @@ class ProfileHomeScreen extends ConsumerWidget {
                                       ],
                                     ),
                                     const SizedBox(height: AppSpacing.sm + 2),
-                                    _buildMockupPastelChips(userPreferences),
+                                    if (userPreferences.isNotEmpty)
+                                      _buildMockupPastelChips(userPreferences)
+                                    else
+                                      GestureDetector(
+                                        onTap: () => context.push('/profile/edit'),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF8FAFC),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                                          ),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.add_circle_outline, size: 16, color: Color(0xFFFF7A00)),
+                                              SizedBox(width: 6),
+                                              Text(
+                                                'Chưa thiết lập sở thích. Bấm để thêm',
+                                                style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -717,12 +1172,12 @@ class ProfileHomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // ACTION BUTTONS (PRIMARY SUNSET GRADIENT EDIT + MINIMAL NEUTRAL LOGOUT)
+                  // ACTION BUTTONS
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                     child: Column(
                       children: [
-                        // Nút Chỉnh sửa hồ sơ Gradient Sunset
+                        // Edit Profile Button
                         Container(
                           width: double.infinity,
                           height: 52,
@@ -767,7 +1222,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: AppSpacing.sm + 4),
 
-                        // Nút Đăng xuất dạng Minimalist
+                        // Logout Button
                         Container(
                           width: double.infinity,
                           height: 50,
@@ -831,7 +1286,7 @@ class ProfileHomeScreen extends ConsumerWidget {
                         ),
 
                         const SizedBox(height: AppSpacing.xs),
-                        // Delete Account (App Store Compliance)
+                        // Delete Account Button
                         TextButton(
                           onPressed: authState.isLoading
                               ? null
@@ -899,27 +1354,40 @@ class ProfileHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, {required String value, required String label, required Color valueColor}) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: valueColor,
-          ),
+  Widget _buildStatItem(
+    BuildContext context, {
+    required String value,
+    required String label,
+    required Color valueColor,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                color: valueColor,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF64748B),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

@@ -26,6 +26,6 @@
 - **Explore**: 🟢 Hoàn thiện (Client-side Provider). Nối `CategoryListScreen` với `exploreProvider` & `hue_places_seed.json`, loại bỏ hoàn toàn mock data hardcoded. Unit tests pass 100%.
 - **Itinerary AI**: 🟢 Hoàn thiện (Real Gemini API). Tích hợp `AiRemoteService` gọi `gemini-flash-latest`, truyền địa điểm Huế thật từ `hue_places_seed.json`, render động 100% UI. Unit test `itinerary_ai_test.dart` pass.
 - **Review**: 🟢 Hoàn thiện (Real Firestore CRUD). Kết nối Firestore collection `reviews`, phân trang thật `startAfterDocument`, `toggleLikeReview` atomic, CRUD tạo/sửa/xóa bài đánh giá và chọn địa điểm thật. Unit test `review_provider_test.dart` pass 100%.
-- **Auth**: 🟢 Firebase Auth & Firestore implemented, requires real `FIREBASE_API_KEY` in `.env.dev`.
+- **Auth & Profile**: 🟢 Hoàn thiện (Refactor ProfileHomeScreen xóa bỏ 100% dữ liệu hardcode giả, phân tách 3 UI states: Shimmer Loading, Guest Welcome, Authenticated User. Unit test profile_state_test.dart pass 100%).
 - **Backend / Cloud Functions**: 🟢 Hoàn thiện (TypeScript v2 `generateItinerary` endpoint + Gemini server-side execution + rate limit + logging. Đã xóa code chết `codo-codoky`).
 - **Network Layer**: 🟢 Hoàn thiện (`ApiClient` + `NetworkExceptions` được nối 100% vào `AiRemoteService` và `itineraryProvider`, có interceptor logging và unit tests `api_client_test.dart` pass 100%).
