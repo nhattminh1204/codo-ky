@@ -60,6 +60,10 @@ class NetworkExceptions implements Exception {
 
   const NetworkExceptions._(this.message, this.dioException);
 
+  factory NetworkExceptions.custom(String message) => NetworkExceptions._(message, null);
+
+  static String getErrorMessage(NetworkExceptions exception) => exception.message;
+
   @override
   String toString() => message;
 }

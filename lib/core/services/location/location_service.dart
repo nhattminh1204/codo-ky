@@ -127,14 +127,31 @@ class LocationService {
   }) {
     stopLiveTracking();
 
-    final locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: distanceFilterMeters,
-    );
+    LocationSettings locationSettings;
+    try {
+      locationSettings = AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: distanceFilterMeters,
+        forceLocationManager: false,
+        intervalDuration: const Duration(seconds: 2),
+        foregroundNotificationConfig: const ForegroundNotificationConfig(
+          notificationTitle: "CodoKy đang chỉ đường...",
+          notificationText: "Theo dõi vị trí GPS thời gian thực khi màn hình khóa",
+          notificationIcon: AndroidResource(name: 'launch_background'),
+          enableWakeLock: true,
+        ),
+      );
+    } catch (_) {
+      locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: distanceFilterMeters,
+      );
+    }
 
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen(
+
       (Position position) {
         // Filter out extreme inaccuracies (>150m radius)
         if (position.accuracy <= 150) {

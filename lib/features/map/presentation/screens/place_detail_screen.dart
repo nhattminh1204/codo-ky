@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/review/presentation/providers/review_provider.dart';
 import 'package:codoky/features/review/presentation/widgets/review_card.dart';
@@ -24,9 +25,8 @@ class PlaceDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<PlaceDetailScreen> createState() => _PlaceDetailScreenState();
 }
 
-class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
+class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with TickerProviderStateMixin {
   Map<String, dynamic>? _placeData;
-  bool _isSaved = false;
   bool _isLoading = true;
 
   @override
@@ -392,17 +392,23 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                             ),
                             Container(height: 28, width: 1, color: const Color(0xFFF1F5F9)),
                             Expanded(
-                              child: _buildActionButton(
-                                icon: _isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                                label: _isSaved ? 'Đã lưu' : 'Lưu lại',
-                                color: _isSaved ? const Color(0xFFFF5E62) : const Color(0xFF64748B),
-                                onTap: () {
-                                  setState(() => _isSaved = !_isSaved);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(_isSaved ? 'Đã lưu địa điểm vào mục yêu thích!' : 'Đã xóa khỏi danh sách lưu.'),
-                                      duration: const Duration(seconds: 2),
-                                    ),
+                              child: Consumer(
+                                builder: (context, ref, _) {
+                                  final isSaved = ref.watch(mapProvider).savedPlaceIds.contains(widget.id);
+                                  return _buildActionButton(
+                                    icon: isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+                                    label: isSaved ? 'Đã lưu' : 'Lưu lại',
+                                    color: isSaved ? const Color(0xFFFF5E62) : const Color(0xFF64748B),
+                                    onTap: () {
+                                      ref.read(mapProvider.notifier).toggleSavePlace(widget.id);
+                                      final newSaved = !isSaved;
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(newSaved ? 'Đã lưu địa điểm vào mục yêu thích!' : 'Đã xóa khỏi danh sách lưu.'),
+                                          duration: const Duration(seconds: 2),
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
                               ),
@@ -657,10 +663,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              showModalBottomSheet(
+                              showAppBottomSheet(
                                 context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
+                                vsync: this,
                                 builder: (ctx) => WriteReviewBottomSheet(
                                   initialPlaceId: widget.id,
                                   initialPlaceName: name,
@@ -712,10 +717,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                               const SizedBox(height: 12),
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  showModalBottomSheet(
+                                  showAppBottomSheet(
                                     context: context,
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
+                                    vsync: this,
                                     builder: (ctx) => WriteReviewBottomSheet(
                                       initialPlaceId: widget.id,
                                       initialPlaceName: name,
@@ -782,30 +786,36 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                   // Action Buttons Right (Save & Share)
                   Row(
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() => _isSaved = !_isSaved);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(_isSaved ? 'Đã lưu địa điểm!' : 'Đã bỏ lưu địa điểm.'),
-                              duration: const Duration(seconds: 2),
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final isSaved = ref.watch(mapProvider).savedPlaceIds.contains(widget.id);
+                          return GestureDetector(
+                            onTap: () {
+                              ref.read(mapProvider.notifier).toggleSavePlace(widget.id);
+                              final newSaved = !isSaved;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(newSaved ? 'Đã lưu địa điểm!' : 'Đã bỏ lưu địa điểm.'),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.4),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                              ),
+                              child: Icon(
+                                isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+                                color: isSaved ? const Color(0xFFFF5E62) : Colors.white,
+                                size: 20,
+                              ),
                             ),
                           );
                         },
-                        child: Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.4),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                          ),
-                          child: Icon(
-                            _isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                            color: _isSaved ? const Color(0xFFFF5E62) : Colors.white,
-                            size: 20,
-                          ),
-                        ),
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:codoky/core/theme/motion.dart';
 
 class PlaceMarker extends StatelessWidget {
   final String category;
@@ -14,27 +15,32 @@ class PlaceMarker extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _getCategoryColor(category);
 
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: isSelected
-            ? Border.all(color: Colors.white, width: 3)
-            : Border.all(color: Colors.white, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.4),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Icon(
-        _getCategoryIcon(category),
-        color: Colors.white,
-        size: 20,
+    return AnimatedScale(
+      scale: isSelected ? 1.18 : 1.0,
+      duration: AppMotion.standard,
+      curve: isSelected ? AppMotion.springyCurve : AppMotion.standardCurve,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: isSelected
+              ? Border.all(color: Colors.white, width: 3)
+              : Border.all(color: Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: isSelected ? 0.6 : 0.4),
+              blurRadius: isSelected ? 12 : 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          _getCategoryIcon(category),
+          color: Colors.white,
+          size: 20,
+        ),
       ),
     );
   }
