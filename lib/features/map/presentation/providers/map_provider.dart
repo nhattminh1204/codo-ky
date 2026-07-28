@@ -28,6 +28,7 @@ class MapState {
     List<dynamic>? allPlaces,
     List<dynamic>? places,
     dynamic selectedPlace,
+    bool clearSelectedPlace = false,
     LatLng? currentLocation,
     String? selectedCategory,
     Set<String>? selectedCategories,
@@ -38,7 +39,7 @@ class MapState {
     return MapState(
       allPlaces: allPlaces ?? this.allPlaces,
       places: places ?? this.places,
-      selectedPlace: selectedPlace ?? this.selectedPlace,
+      selectedPlace: clearSelectedPlace ? null : (selectedPlace ?? this.selectedPlace),
       currentLocation: currentLocation ?? this.currentLocation,
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       selectedCategories: selectedCategories ?? this.selectedCategories,
@@ -99,7 +100,7 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void clearSelection() {
-    state = state.copyWith(selectedPlace: null);
+    state = state.copyWith(clearSelectedPlace: true);
   }
 
   void filterByCategory(String? category) {

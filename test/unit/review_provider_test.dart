@@ -64,5 +64,15 @@ void main() {
       expect(updatedState.myReviews.length, equals(1));
       expect(updatedState.allReviews.first.placeName, equals('Chùa Thiên Mụ'));
     });
+
+    test('ReviewState clearError and error handling work properly', () {
+      var state = const ReviewState(isLoadingAll: true, error: 'Lỗi tải đánh giá');
+      expect(state.error, equals('Lỗi tải đánh giá'));
+
+      state = state.copyWith(isLoadingAll: false, clearError: true);
+
+      expect(state.isLoadingAll, isFalse);
+      expect(state.error, isNull);
+    });
   });
 }

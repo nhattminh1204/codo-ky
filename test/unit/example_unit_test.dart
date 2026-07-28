@@ -7,10 +7,6 @@ import 'package:codoky/core/utils/helpers/helpers.dart';
 
 void main() {
   group('Example Unit Tests', () {
-    test('TODO: Add unit tests here', () {
-      expect(true, isTrue);
-    });
-
     group('String Extensions', () {
       test('capitalize returns capitalized string', () {
         expect('hello'.capitalize(), equals('Hello'));
