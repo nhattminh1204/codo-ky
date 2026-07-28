@@ -1,11 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:codoky/core/config/app_config.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
+import 'package:codoky/core/logging/app_logger.dart';
+import 'package:codoky/core/network/network_exceptions.dart';
 
 final dioProvider = Provider<Dio>((ref) {
+  final baseUrl = AppConfig.apiBaseUrl.isNotEmpty
+      ? AppConfig.apiBaseUrl
+      : AppConstants.baseUrl;
+
   final dio = Dio(
     BaseOptions(
-      baseUrl: AppConstants.baseUrl,
+      baseUrl: baseUrl,
       connectTimeout: Duration(seconds: AppConstants.defaultTimeout),
       receiveTimeout: Duration(seconds: AppConstants.defaultTimeout),
       headers: {
@@ -17,16 +24,17 @@ final dioProvider = Provider<Dio>((ref) {
 
   dio.interceptors.add(
     InterceptorsWrapper(
-      onError: (error, handler) {
-        // Pass error through, conversion handled at call site
-        return handler.next(error);
-      },
       onRequest: (options, handler) {
-        // Add auth token if available
+        AppLogger.i('🌐 HTTP REQUEST [${options.method}] => Path: ${options.uri}');
         return handler.next(options);
       },
       onResponse: (response, handler) {
+        AppLogger.i('✅ HTTP RESPONSE [${response.statusCode}] <= Path: ${response.requestOptions.uri}');
         return handler.next(response);
+      },
+      onError: (error, handler) {
+        AppLogger.e('❌ HTTP ERROR [${error.response?.statusCode}] <= Path: ${error.requestOptions.uri}: ${error.message}', error);
+        return handler.next(error);
       },
     ),
   );
@@ -35,7 +43,7 @@ final dioProvider = Provider<Dio>((ref) {
 });
 
 final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient(ref.read(dioProvider));
+  return ApiClient(ref.watch(dioProvider));
 });
 
 class ApiClient {
@@ -43,28 +51,107 @@ class ApiClient {
 
   ApiClient(this._dio);
 
-  Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
-    final response = await _dio.get(path, queryParameters: queryParameters);
-    return response.data;
+  /// Getter for internal Dio instance if low-level options manipulation is needed
+  Dio get dio => _dio;
+
+  Future<dynamic> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      final response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw NetworkExceptions.getDioException(e);
+    } catch (e) {
+      rethrow;
+    }
   }
 
-  Future<dynamic> post(String path, {dynamic data, Map<String, dynamic>? queryParameters}) async {
-    final response = await _dio.post(path, data: data, queryParameters: queryParameters);
-    return response.data;
+  Future<dynamic> post(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      final response = await _dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw NetworkExceptions.getDioException(e);
+    } catch (e) {
+      rethrow;
+    }
   }
 
-  Future<dynamic> put(String path, {dynamic data, Map<String, dynamic>? queryParameters}) async {
-    final response = await _dio.put(path, data: data, queryParameters: queryParameters);
-    return response.data;
+  Future<dynamic> put(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      final response = await _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw NetworkExceptions.getDioException(e);
+    } catch (e) {
+      rethrow;
+    }
   }
 
-  Future<dynamic> patch(String path, {dynamic data, Map<String, dynamic>? queryParameters}) async {
-    final response = await _dio.patch(path, data: data, queryParameters: queryParameters);
-    return response.data;
+  Future<dynamic> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw NetworkExceptions.getDioException(e);
+    } catch (e) {
+      rethrow;
+    }
   }
 
-  Future<dynamic> delete(String path, {Map<String, dynamic>? queryParameters}) async {
-    final response = await _dio.delete(path, queryParameters: queryParameters);
-    return response.data;
+  Future<dynamic> delete(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      final response = await _dio.delete(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw NetworkExceptions.getDioException(e);
+    } catch (e) {
+      rethrow;
+    }
   }
 }

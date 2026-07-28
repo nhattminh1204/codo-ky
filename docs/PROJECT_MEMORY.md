@@ -52,9 +52,8 @@
    - Thực tế: Màn hình này bỏ qua `exploreProvider` và dùng hàm mock riêng với 3 địa điểm hardcoded.
 
 4. **ApiClient (Dio Network Layer)**:
-   - Báo cáo/Docs cũ: Khai báo Dio + ApiClient làm tầng Network.
-   - Bằng chứng code: Tìm kiếm `apiClientProvider` trong toàn bộ thư mục `lib/` chỉ xuất hiện ở đúng 1 file `lib/core/network/api_client.dart`.
-   - Thực tế: Chưa từng có feature nào sử dụng `ApiClient` để kết nối backend HTTP.
+   - Trạng thái trước đây: Khai báo Dio + ApiClient nhưng chưa được gọi ở đâu trong `lib/`.
+   - Đã xử lý (28/07/2026): Nâng cấp `ApiClient` & `NetworkExceptions` thành Network Client trung tâm cho mọi truy vấn HTTP/REST. Nối `ApiClient` trực tiếp vào `AiRemoteService` và `itineraryProvider`. Bổ sung logging tự động với `AppLogger`, xử lý lỗi timeout/offline/rate limit (429) và viết unit test `api_client_test.dart` pass 100%.
 
 ---
 
@@ -90,3 +89,5 @@
 - **27/07/2026**: Hoàn thành tính năng Review bằng Firestore CRUD thực tế. Xóa bỏ toàn bộ mock/stub trong `review_provider.dart`, cài đặt `loadAllReviews`, `loadMyReviews`, `loadMoreReviews` (phân trang `startAfterDocument`), `createReview`, `updateReview`, `deleteReview`, và `toggleLikeReview` (dùng `FieldValue.increment` + `arrayUnion`/`arrayRemove`). Cài đặt chọn địa điểm thực tế và đăng bài trong `write_review_bottom_sheet.dart`, đồng thời cập nhật `firestore.rules` bảo mật. Viết unit test `review_provider_test.dart` pass 100%. Các file cập nhật: `review_model.dart`, `review_provider.dart`, `review_card.dart`, `write_review_bottom_sheet.dart`, `review_list_screen.dart`, `my_reviews_screen.dart`, `firestore.rules`, `review_provider_test.dart`.
 - **27/07/2026**: Hoàn thành nâng cấp module Bản đồ (Map Feature). Triển khai `FilterCategorySheet` hỗ trợ lọc đa danh mục và thay đổi trực tiếp marker trên bản đồ OpenStreetMap. Loại bỏ 100% Mock Review Card trong `place_detail_screen.dart`, kết nối `reviewProvider` đọc review Firestore thực tế và hiển thị UI trạng thái rỗng chuẩn kèm nút Viết Đánh Giá. các file cập nhật: `filter_category_sheet.dart`, `map_provider.dart`, `map_home_screen.dart`, `place_detail_screen.dart`.
 - **27/07/2026**: Hoàn thành triển khai Backend Cloud Functions bằng Node.js TypeScript v2. Xây dựng Cloud Function endpoint `generateItinerary` trong `functions/src/index.ts`, gọi Gemini API từ server-side giúp giấu hoàn toàn API key, validate JSON schema, tích hợp rate limit (10 req/min) và Cloud Logging. Xóa bỏ hoàn toàn code chết `codo-codoky` (Python). Cập nhật `AiRemoteService` gọi Cloud Function backend với fallback an toàn. Biên dịch TypeScript pass 100%. Các file cập nhật: `functions/src/index.ts`, `ai_remote_service.dart`, `functions/package.json`.
+- **28/07/2026**: Hoàn thành chuẩn hóa Network Layer (`ApiClient` & `NetworkExceptions`). Xác định kiến trúc dữ liệu Hybrid: dùng Firebase SDK cho Auth/Review real-time, local asset JSON làm seed dataset, và `ApiClient` (Dio) làm Network Client duy nhất xử lý HTTP/REST cho Cloud Functions backend và Gemini AI. Nối `ApiClient` vào `AiRemoteService` & `itineraryProvider`, cài đặt interceptor logging với `AppLogger`, bổ sung xử lý lỗi offline/timeout/429 rate limit và viết unit test `api_client_test.dart` pass 100%. Các file cập nhật: `api_client.dart`, `network_exceptions.dart`, `ai_remote_service.dart`, `itinerary_provider.dart`, `api_client_test.dart`, `DECISIONS_LOG.md`, `PROJECT_MEMORY.md`, `.agents/AGENTS.md`.
+

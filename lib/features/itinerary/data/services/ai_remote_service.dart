@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:codoky/core/config/app_config.dart';
 import 'package:codoky/core/logging/app_logger.dart';
+import 'package:codoky/core/network/api_client.dart';
+import 'package:codoky/core/network/network_exceptions.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 
 class AiApiException implements Exception {
@@ -16,16 +18,19 @@ class AiApiException implements Exception {
 }
 
 class AiRemoteService {
-  final Dio _dio;
+  final ApiClient _apiClient;
 
-  AiRemoteService({Dio? dio})
-      : _dio = dio ??
-            Dio(
-              BaseOptions(
-                connectTimeout: const Duration(seconds: 20),
-                receiveTimeout: const Duration(seconds: 20),
-                headers: {'Content-Type': 'application/json'},
-              ),
+  AiRemoteService({ApiClient? apiClient, Dio? dio})
+      : _apiClient = apiClient ??
+            ApiClient(
+              dio ??
+                  Dio(
+                    BaseOptions(
+                      connectTimeout: const Duration(seconds: 20),
+                      receiveTimeout: const Duration(seconds: 20),
+                      headers: {'Content-Type': 'application/json'},
+                    ),
+                  ),
             );
 
   /// Generate AI Itinerary for Hue travel
@@ -61,7 +66,7 @@ class AiRemoteService {
 
     try {
       AppLogger.i('Calling Cloud Function AI Backend at $functionUrl...');
-      final cfResponse = await _dio.post(
+      final cfResponseData = await _apiClient.post(
         functionUrl,
         data: {
           'durationDays': durationDays,
@@ -73,10 +78,10 @@ class AiRemoteService {
         options: Options(receiveTimeout: const Duration(seconds: 22)),
       );
 
-      if (cfResponse.statusCode == 200 && cfResponse.data != null) {
-        final Map<String, dynamic> decoded = cfResponse.data is String
-            ? json.decode(cfResponse.data)
-            : Map<String, dynamic>.from(cfResponse.data as Map);
+      if (cfResponseData != null) {
+        final Map<String, dynamic> decoded = cfResponseData is String
+            ? json.decode(cfResponseData)
+            : Map<String, dynamic>.from(cfResponseData as Map);
         return ItineraryModel.fromJson(decoded);
       }
     } catch (e) {
@@ -155,15 +160,13 @@ YÊU CẦU BẮT BUỘC:
     };
 
     try {
-      final response = await _dio.post(url, data: payload);
+      final responseData = await _apiClient.post(url, data: payload);
 
-      if (response.statusCode != 200 || response.data == null) {
-        throw AiApiException(
-            'Không nhận được phản hồi từ AI (mã lỗi ${response.statusCode}).',
-            statusCode: response.statusCode);
+      if (responseData == null) {
+        throw AiApiException('Không nhận được phản hồi từ AI.');
       }
 
-      final data = response.data as Map<String, dynamic>;
+      final data = responseData as Map<String, dynamic>;
       final candidates = data['candidates'] as List?;
       if (candidates == null || candidates.isEmpty) {
         throw AiApiException('Hệ thống AI không thể tạo lộ trình lúc này.');
@@ -188,16 +191,13 @@ YÊU CẦU BẮT BUỘC:
 
       final decoded = json.decode(jsonStr) as Map<String, dynamic>;
       return ItineraryModel.fromJson(decoded);
+    } on NetworkExceptions catch (e) {
+      AppLogger.e('Network exception calling AI API: ${e.message}', e);
+      throw AiApiException(e.message);
     } on DioException catch (e) {
       AppLogger.e('Dio error calling AI API: ${e.message}', e);
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw AiApiException('Kết nối AI quá thời gian chờ. Vui lòng kiểm tra lại mạng.');
-      }
-      if (e.response?.statusCode == 429) {
-        throw AiApiException('Hệ thống AI đang bận (Vượt giới hạn lượt gọi). Vui lòng thử lại sau 30 giây.');
-      }
-      throw AiApiException('Không thể kết nối dịch vụ AI. Vui lòng kiểm tra kết nối mạng.');
+      final netExp = NetworkExceptions.getDioException(e);
+      throw AiApiException(netExp.message);
     } on FormatException catch (e) {
       AppLogger.e('JSON Parse error from AI response: $e');
       throw AiApiException('Định dạng phản hồi AI không đúng chuẩn JSON.');
@@ -208,3 +208,4 @@ YÊU CẦU BẮT BUỘC:
     }
   }
 }
+

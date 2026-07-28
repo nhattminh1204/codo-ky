@@ -1,6 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:codoky/core/network/api_client.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
+
+final aiRemoteServiceProvider = Provider<AiRemoteService>((ref) {
+  return AiRemoteService(apiClient: ref.watch(apiClientProvider));
+});
 
 class ItineraryState {
   final List<ItineraryModel> myItineraries;
@@ -92,5 +97,6 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
 }
 
 final itineraryProvider = StateNotifierProvider<ItineraryNotifier, ItineraryState>((ref) {
-  return ItineraryNotifier();
+  final aiService = ref.watch(aiRemoteServiceProvider);
+  return ItineraryNotifier(aiRemoteService: aiService);
 });
