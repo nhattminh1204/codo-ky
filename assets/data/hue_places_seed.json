@@ -6,7 +6,8 @@
     "latitude": 16.4331813,
     "longitude": 107.5645857,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.8,
+    "is_featured": true
   },
   {
     "id": "697255242",
@@ -15,7 +16,8 @@
     "latitude": 16.4839438,
     "longitude": 107.603723,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.7,
+    "is_featured": true
   },
   {
     "id": "1187221499",
@@ -24,7 +26,8 @@
     "latitude": 16.4691737,
     "longitude": 107.5958505,
     "address": "Võ Thị Sáu",
-    "rating": 4.5
+    "rating": 4.6,
+    "is_featured": true
   },
   {
     "id": "1333018015",
@@ -51,7 +54,8 @@
     "latitude": 16.4655821,
     "longitude": 107.5947465,
     "address": "Bến Nghé",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1333052337",
@@ -60,7 +64,8 @@
     "latitude": 16.4643979,
     "longitude": 107.5920373,
     "address": "Nguyễn Tri Phương",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374726",
@@ -69,7 +74,8 @@
     "latitude": 16.3842136,
     "longitude": 107.5819005,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374733",
@@ -78,7 +84,8 @@
     "latitude": 16.398114,
     "longitude": 107.5979898,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374743",
@@ -87,7 +94,8 @@
     "latitude": 16.3865063,
     "longitude": 107.5791927,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374747",
@@ -96,7 +104,8 @@
     "latitude": 16.3744277,
     "longitude": 107.5629811,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374748",
@@ -105,7 +114,8 @@
     "latitude": 16.3836884,
     "longitude": 107.5688649,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374751",
@@ -114,7 +124,8 @@
     "latitude": 16.401296,
     "longitude": 107.571852,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374754",
@@ -123,7 +134,8 @@
     "latitude": 16.3762526,
     "longitude": 107.5897469,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374755",
@@ -132,7 +144,8 @@
     "latitude": 16.398389,
     "longitude": 107.5777188,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374763",
@@ -141,7 +154,8 @@
     "latitude": 16.3787094,
     "longitude": 107.5940809,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374766",
@@ -150,7 +164,8 @@
     "latitude": 16.3974172,
     "longitude": 107.5969099,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374767",
@@ -159,7 +174,8 @@
     "latitude": 16.3775999,
     "longitude": 107.5967007,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374770",
@@ -168,7 +184,8 @@
     "latitude": 16.3814507,
     "longitude": 107.5820398,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374775",
@@ -177,7 +194,8 @@
     "latitude": 16.3597546,
     "longitude": 107.6079173,
     "address": "Thừa Thiên Huế",
-    "rating": 4.5
+    "rating": 4.5,
+    "is_featured": true
   },
   {
     "id": "1335374783",

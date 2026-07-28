@@ -14,6 +14,12 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
 
   final List<Map<String, dynamic>> _categories = const [
     {
+      'id': 'saved',
+      'label': 'Địa điểm đã lưu',
+      'icon': Icons.bookmark_rounded,
+      'color': Color(0xFFE11D48),
+    },
+    {
       'id': 'attraction',
       'label': 'Địa điểm & Di tích',
       'icon': Icons.account_balance_rounded,
@@ -95,101 +101,123 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return DraggableScrollableSheet(
+      initialChildSize: 0.40,
+      minChildSize: 0.25,
+      maxChildSize: 0.85,
+      expand: false,
+      snap: true,
+      snapSizes: const [0.40, 0.85],
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.fromLTRB(24, 10, 24, 36),
             children: [
-              Expanded(
-                child: Text(
-                  'Bộ lọc danh mục',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+              // Visual Drag Handle Pill (Kéo lên / kéo xuống để mở rộng/thu gọn)
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close_rounded),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Chọn một hoặc nhiều danh mục để lọc marker trên bản đồ:',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 10,
-            children: _categories.map((cat) {
-              final catId = cat['id'] as String;
-              final label = cat['label'] as String;
-              final icon = cat['icon'] as IconData;
-              final color = cat['color'] as Color;
-              final isSelected = _selectedCategories.contains(catId);
 
-              return FilterChip(
-                showCheckmark: true,
-                avatar: Icon(icon, size: 16, color: isSelected ? Colors.white : color),
-                label: Text(label),
-                selected: isSelected,
-                selectedColor: color,
-                backgroundColor: color.withValues(alpha: 0.1),
-                labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : color,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 13,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(
-                    color: isSelected ? color : color.withValues(alpha: 0.3),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Bộ lọc danh mục',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
                   ),
-                ),
-                onSelected: (_) => _toggleCategory(catId),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: _reset,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded),
                   ),
-                  child: const Text('Đặt lại', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _apply,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF9B1B30),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              const SizedBox(height: 4),
+              Text(
+                'Chọn một hoặc nhiều danh mục để lọc marker trên bản đồ:',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 10,
+                children: _categories.map((cat) {
+                  final catId = cat['id'] as String;
+                  final label = cat['label'] as String;
+                  final icon = cat['icon'] as IconData;
+                  final color = cat['color'] as Color;
+                  final isSelected = _selectedCategories.contains(catId);
+
+                  return FilterChip(
+                    showCheckmark: true,
+                    avatar: Icon(icon, size: 16, color: isSelected ? Colors.white : color),
+                    label: Text(label),
+                    selected: isSelected,
+                    selectedColor: color,
+                    backgroundColor: color.withValues(alpha: 0.1),
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : color,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: isSelected ? color : color.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    onSelected: (_) => _toggleCategory(catId),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _reset,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text('Đặt lại', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                  child: const Text('Áp dụng', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _apply,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF9B1B30),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text('Áp dụng', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
