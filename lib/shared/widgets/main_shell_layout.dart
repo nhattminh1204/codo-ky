@@ -87,32 +87,34 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(9999),
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                    filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
                     child: Container(
                       height: 62,
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? const Color(0xFF1E222A).withValues(alpha: 0.65)
-                            : Colors.white.withValues(alpha: 0.55),
+                            ? const Color(0xFF0F172A).withValues(alpha: 0.45)
+                            : const Color(0xFFF1F5F9).withValues(alpha: 0.40),
                         borderRadius: BorderRadius.circular(9999),
                         border: Border.all(
                           color: isDark
-                              ? Colors.white.withValues(alpha: 0.25)
-                              : Colors.white.withValues(alpha: 0.75),
+                              ? Colors.white.withValues(alpha: 0.20)
+                              : Colors.white.withValues(alpha: 0.65),
                           width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
-                            blurRadius: 40,
-                            offset: const Offset(0, 20),
-                            spreadRadius: -10,
+                            color: isDark
+                                ? Colors.black.withValues(alpha: 0.50)
+                                : const Color(0xFF334155).withValues(alpha: 0.12),
+                            blurRadius: 36,
+                            offset: const Offset(0, 16),
+                            spreadRadius: -8,
                           ),
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.03),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+                            color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.85),
+                            blurRadius: 1,
+                            offset: const Offset(0, 1.5),
                           ),
                         ],
                       ),
@@ -252,32 +254,34 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(9999),
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                      filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
                       child: Container(
                         width: 62,
                         height: 62,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isDark
-                              ? const Color(0xFF1E222A).withValues(alpha: 0.65)
-                              : Colors.white.withValues(alpha: 0.55),
+                              ? const Color(0xFF0F172A).withValues(alpha: 0.45)
+                              : const Color(0xFFF1F5F9).withValues(alpha: 0.40),
                           border: Border.all(
                             color: isDark
-                                ? Colors.white.withValues(alpha: 0.25)
-                                : Colors.white.withValues(alpha: 0.75),
+                                ? Colors.white.withValues(alpha: 0.20)
+                                : Colors.white.withValues(alpha: 0.65),
                             width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
-                              blurRadius: 40,
-                              offset: const Offset(0, 20),
-                              spreadRadius: -10,
+                              color: isDark
+                                  ? Colors.black.withValues(alpha: 0.50)
+                                  : const Color(0xFF334155).withValues(alpha: 0.12),
+                              blurRadius: 36,
+                              offset: const Offset(0, 16),
+                              spreadRadius: -8,
                             ),
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.03),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.85),
+                              blurRadius: 1,
+                              offset: const Offset(0, 1.5),
                             ),
                           ],
                         ),
