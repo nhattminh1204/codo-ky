@@ -6,12 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/motion.dart';
 
 /// 1. GRADIENT CHO THANH NAV CAPSULE (DẠNG RỘNG)
-/// Tính TOÁN ĐỘNG góc bo thật của capsule dựa trên width/height thực tế,
-/// để đảm bảo vệt màu xám/trắng luôn nằm đúng tại góc bo (không còn hardcode
-/// theo một tỉ lệ cố định như trước).
-///
-/// - Góc DƯỚI-PHẢI & TRÊN-TRÁI: XÁM (đường chéo 45° "trên trái - dưới phải")
-/// - Góc DƯỚI-TRÁI & TRÊN-PHẢI: TRẮNG SÁNG
 SweepGradient buildNavGlassBorderGradient({
   required Color greyBorder,
   required Color whiteBorder,
@@ -19,34 +13,32 @@ SweepGradient buildNavGlassBorderGradient({
   required double width,
   required double height,
 }) {
-  final double r = height / 2; // bán kính bo 2 đầu capsule (stadium shape)
+  final double r = height / 2;
   final double halfW = width / 2;
   final double halfH = height / 2;
 
-  // Góc thực (độ) từ tâm hình đến điểm bo góc của capsule.
-  // Nếu halfW <= r (capsule quá ngắn / gần tròn), fallback về 45°.
   final double cornerDeg = (halfW > r)
       ? math.atan(halfH / (halfW - r)) * 180 / math.pi
       : 45.0;
 
-  const double spread = 3.5; // độ rộng vệt màu quanh mỗi góc, chỉnh tuỳ ý
+  const double spread = 3.5;
 
   double n(double deg) => (deg % 360) / 360;
 
   final double brIn = n(cornerDeg - spread);
-  final double br = n(cornerDeg); // GÓC DƯỚI-PHẢI (xám)
+  final double br = n(cornerDeg);
   final double brOut = n(cornerDeg + spread);
 
   final double blIn = n(180 - cornerDeg - spread);
-  final double bl = n(180 - cornerDeg); // GÓC DƯỚI-TRÁI (trắng)
+  final double bl = n(180 - cornerDeg);
   final double blOut = n(180 - cornerDeg + spread);
 
   final double tlIn = n(180 + cornerDeg - spread);
-  final double tl = n(180 + cornerDeg); // GÓC TRÊN-TRÁI (xám)
+  final double tl = n(180 + cornerDeg);
   final double tlOut = n(180 + cornerDeg + spread);
 
   final double trIn = n(360 - cornerDeg - spread);
-  final double tr = n(360 - cornerDeg); // GÓC TRÊN-PHẢI (trắng)
+  final double tr = n(360 - cornerDeg);
   final double trOut = n(360 - cornerDeg + spread);
 
   return SweepGradient(
@@ -54,19 +46,19 @@ SweepGradient buildNavGlassBorderGradient({
     startAngle: 0.0,
     endAngle: math.pi * 2,
     colors: [
-      fadedBorder, // 0.00: Khép vòng seamless
-      greyBorder, // GÓC BO DƯỚI - PHẢI: XÁM
+      fadedBorder,
+      greyBorder,
       fadedBorder,
       fadedBorder,
-      whiteBorder, // GÓC BO DƯỚI - TRÁI: TRẮNG SÁNG
+      whiteBorder,
       fadedBorder,
       fadedBorder,
-      greyBorder, // GÓC BO TRÊN - TRÁI: XÁM
+      greyBorder,
       fadedBorder,
       fadedBorder,
-      whiteBorder, // GÓC BO TRÊN - PHẢI: TRẮNG SÁNG
+      whiteBorder,
       fadedBorder,
-      fadedBorder, // 1.00: Khép vòng 100%
+      fadedBorder,
     ],
     stops: [
       0.0,
@@ -87,7 +79,6 @@ SweepGradient buildNavGlassBorderGradient({
 }
 
 /// 2. GRADIENT CHO NÚT AI TRÒN (TỶ LỆ 1:1)
-/// Nút AI dạng tròn hình học 1:1 dùng LinearGradient đường chéo 45° đối xứng chuẩn góc.
 LinearGradient buildAIButtonGlassBorderGradient({
   required Color greyBorder,
   required Color whiteBorder,
@@ -97,15 +88,55 @@ LinearGradient buildAIButtonGlassBorderGradient({
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      greyBorder, // Góc TRÊN - TRÁI (XÁM)
-      whiteBorder, // Góc TRÊN - PHẢI (TRẮNG SÁNG)
-      fadedBorder, // Tâm giữa (MỜ)
-      whiteBorder, // Góc DƯỚI - TRÁI (TRẮNG SÁNG)
-      greyBorder, // Góc DƯỚI - PHẢI (XÁM)
+      greyBorder,
+      whiteBorder,
+      fadedBorder,
+      whiteBorder,
+      greyBorder,
     ],
     stops: const [0.0, 0.30, 0.50, 0.70, 1.0],
   );
 }
+
+class _DockColorPalette {
+  final String name;
+  final List<Color> gradientColors;
+  final Color shadowColor;
+  final Color activeIconLight;
+  final Color activeIconDark;
+
+  const _DockColorPalette({
+    required this.name,
+    required this.gradientColors,
+    required this.shadowColor,
+    required this.activeIconLight,
+    required this.activeIconDark,
+  });
+}
+
+const _dockPalettes = [
+  _DockColorPalette(
+    name: 'Emerald Mint 🍃',
+    gradientColors: [Color(0xFF6EE7B7), Color(0xFF10B981)],
+    shadowColor: Color(0xFF10B981),
+    activeIconLight: Color(0xFF059669),
+    activeIconDark: Color(0xFF6EE7B7),
+  ),
+  _DockColorPalette(
+    name: 'Electric Cyan ⚡',
+    gradientColors: [Color(0xFF71E2E8), Color(0xFF2DBAC6)],
+    shadowColor: Color(0xFF2DBAC6),
+    activeIconLight: Color(0xFF0284C7),
+    activeIconDark: Color(0xFF38BDF8),
+  ),
+  _DockColorPalette(
+    name: 'Deep Emerald 🟢',
+    gradientColors: [Color(0xFF34D399), Color(0xFF059669)],
+    shadowColor: Color(0xFF059669),
+    activeIconLight: Color(0xFF059669),
+    activeIconDark: Color(0xFF34D399),
+  ),
+];
 
 class _NavItemData {
   final IconData icon;
@@ -135,6 +166,8 @@ class MainShellLayout extends StatefulWidget {
 }
 
 class _MainShellLayoutState extends State<MainShellLayout> {
+  int _paletteIndex = 0; // 0: Electric Cyan, 1: Emerald Jade, 2: Eco Bamboo
+
   void _onItemTapped(int index, BuildContext context) {
     HapticFeedback.lightImpact();
     widget.navigationShell.goBranch(
@@ -143,8 +176,6 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     );
   }
 
-  /// Ánh xạ branchIndex sang vi trí Tab hiển thị trong thanh Capsule.
-  /// Nếu chọn branchIndex = 2 (Nút Trợ Lý AI), trả về -1 để ẩn Active Pill trong Capsule.
   int _getActiveTabIndex(int currentIndex) {
     switch (currentIndex) {
       case 0:
@@ -157,7 +188,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
         return 3; // Hồ sơ
       case 2:
       default:
-        return -1; // AI Assistant (Đang chọn nút AI tách biệt)
+        return -1; // AI Assistant
     }
   }
 
@@ -167,8 +198,8 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     final activeIndex = _getActiveTabIndex(selectedIndex);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isAiActive = selectedIndex == 2;
+    final currentPalette = _dockPalettes[_paletteIndex];
 
-    // Màu viền gradient dùng chung cho cả nav capsule và AI button
     final greyBorder = isDark
         ? const Color(0xFF475569).withValues(alpha: 0.50)
         : const Color(0xFF64748B).withValues(alpha: 0.60);
@@ -222,176 +253,255 @@ class _MainShellLayoutState extends State<MainShellLayout> {
       bottomNavigationBar: SafeArea(
         bottom: true,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // ─── 1. Floating Glass Navigation Capsule ────────────────────────
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, outerConstraints) {
-                    final navGlassGradient = buildNavGlassBorderGradient(
-                      greyBorder: greyBorder,
-                      whiteBorder: whiteBorder,
-                      fadedBorder: fadedBorder,
-                      width: outerConstraints.maxWidth,
-                      height: navHeight,
-                    );
-
-                    return Container(
-                      height: navHeight,
+              // ── Quick Dock Theme Palette Switcher ──────────────────────────
+              Padding(
+                padding: const EdgeInsets.only(right: 4, bottom: 6),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(9999),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.black.withValues(alpha: 0.35)
+                            : Colors.white.withValues(alpha: 0.55),
                         borderRadius: BorderRadius.circular(9999),
-                        gradient: navGlassGradient,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 28,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(2.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(9999),
-                        clipBehavior: Clip.antiAlias,
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(9999),
-                              color: isDark
-                                  ? const Color(0xFF1E293B).withValues(alpha: 0.10)
-                                  : Colors.white.withValues(alpha: 0.15),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(3),
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final tabWidth =
-                                      constraints.maxWidth / navTabs.length;
-
-                                  return Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: [
-                                      // ── Active Pill Indicator ──
-                                      if (activeIndex != -1)
-                                        AnimatedPositioned(
-                                          duration: AppMotion.standard,
-                                          curve: const Cubic(
-                                            0.34,
-                                            1.20,
-                                            0.64,
-                                            1.0,
-                                          ),
-                                          left: activeIndex * tabWidth,
-                                          top: 0,
-                                          bottom: 0,
-                                          width: tabWidth,
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(9999),
-                                            child: BackdropFilter(
-                                              filter: ImageFilter.blur(
-                                                sigmaX: 16,
-                                                sigmaY: 16,
-                                              ),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      const Color(0xFF71E2E8)
-                                                          .withValues(alpha: 0.75),
-                                                      const Color(0xFF2DBAC6)
-                                                          .withValues(alpha: 0.85),
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(9999),
-                                                  border: Border.all(
-                                                    color: Colors.white
-                                                        .withValues(alpha: 0.85),
-                                                    width: 1.2,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: const Color(0xFF2DBAC6)
-                                                          .withValues(alpha: 0.45),
-                                                      blurRadius: 18,
-                                                      offset: const Offset(0, 6),
-                                                      spreadRadius: -2,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Stack(
-                                                  children: [
-                                                    Positioned.fill(
-                                                      child: DecoratedBox(
-                                                        decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius.circular(9999),
-                                                          gradient: LinearGradient(
-                                                            colors: [
-                                                              Colors.white
-                                                                  .withValues(alpha: 0.55),
-                                                              Colors.white
-                                                                  .withValues(alpha: 0.0),
-                                                            ],
-                                                            stops: const [0.0, 0.55],
-                                                            begin: Alignment.topCenter,
-                                                            end: Alignment.bottomCenter,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                      // ── Tab Buttons ──
-                                      Row(
-                                        children: List.generate(navTabs.length, (index) {
-                                          final item = navTabs[index];
-                                          final isSelected = activeIndex == index;
-
-                                          return Expanded(
-                                            child: _NavItemButton(
-                                              item: item,
-                                              isSelected: isSelected,
-                                              isDark: isDark,
-                                              onTap: () => _onItemTapped(
-                                                item.branchIndex,
-                                                context,
-                                              ),
-                                            ),
-                                          );
-                                        }),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.60),
+                          width: 1.0,
                         ),
                       ),
-                    );
-                  },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(_dockPalettes.length, (i) {
+                          final p = _dockPalettes[i];
+                          final isSelected = _paletteIndex == i;
+                          return GestureDetector(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              setState(() => _paletteIndex = i);
+                            },
+                            child: Tooltip(
+                              message: p.name,
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 3),
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isSelected ? Colors.white : Colors.transparent,
+                                    width: 1.8,
+                                  ),
+                                ),
+                                child: Container(
+                                  width: 13,
+                                  height: 13,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: p.gradientColors,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
                 ),
               ),
 
-              const SizedBox(width: 10),
+              // ── Dock Row (Capsule + AI Button) ─────────────────────────────
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // ─── 1. Floating Glass Navigation Capsule ──────────────────
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, outerConstraints) {
+                        final navGlassGradient = buildNavGlassBorderGradient(
+                          greyBorder: greyBorder,
+                          whiteBorder: whiteBorder,
+                          fadedBorder: fadedBorder,
+                          width: outerConstraints.maxWidth,
+                          height: navHeight,
+                        );
 
-              // ─── 2. Floating AI Circular Glass Button ────────────────────────
-              _AiButtonWidget(
-                isAiActive: isAiActive,
-                isDark: isDark,
-                aiGlassGradient: aiGlassGradient,
-                onTap: () => _onItemTapped(2, context),
+                        return Container(
+                          height: navHeight,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(9999),
+                            gradient: navGlassGradient,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 28,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(2.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(9999),
+                            clipBehavior: Clip.antiAlias,
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(9999),
+                                  color: isDark
+                                      ? const Color(0xFF1E293B).withValues(alpha: 0.10)
+                                      : Colors.white.withValues(alpha: 0.15),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(3),
+                                  child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      final tabWidth =
+                                          constraints.maxWidth / navTabs.length;
+
+                                      return Stack(
+                                        alignment: Alignment.centerLeft,
+                                        children: [
+                                          // ── Active Pill Indicator ──
+                                          if (activeIndex != -1)
+                                            AnimatedPositioned(
+                                              duration: AppMotion.standard,
+                                              curve: const Cubic(
+                                                0.34,
+                                                1.20,
+                                                0.64,
+                                                1.0,
+                                              ),
+                                              left: activeIndex * tabWidth,
+                                              top: 0,
+                                              bottom: 0,
+                                              width: tabWidth,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(9999),
+                                                child: BackdropFilter(
+                                                  filter: ImageFilter.blur(
+                                                    sigmaX: 16,
+                                                    sigmaY: 16,
+                                                  ),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        colors: [
+                                                          currentPalette
+                                                              .gradientColors[0]
+                                                              .withValues(alpha: 0.75),
+                                                          currentPalette
+                                                              .gradientColors[1]
+                                                              .withValues(alpha: 0.85),
+                                                        ],
+                                                        begin: Alignment.topLeft,
+                                                        end: Alignment.bottomRight,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(9999),
+                                                      border: Border.all(
+                                                        color: Colors.white
+                                                            .withValues(alpha: 0.85),
+                                                        width: 1.2,
+                                                      ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: currentPalette
+                                                              .shadowColor
+                                                              .withValues(alpha: 0.45),
+                                                          blurRadius: 18,
+                                                          offset: const Offset(0, 6),
+                                                          spreadRadius: -2,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Stack(
+                                                      children: [
+                                                        Positioned.fill(
+                                                          child: DecoratedBox(
+                                                            decoration: BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                      9999),
+                                                              gradient: LinearGradient(
+                                                                colors: [
+                                                                  Colors.white
+                                                                      .withValues(
+                                                                          alpha: 0.55),
+                                                                  Colors.white
+                                                                      .withValues(
+                                                                          alpha: 0.0),
+                                                                ],
+                                                                stops: const [0.0, 0.55],
+                                                                begin: Alignment
+                                                                    .topCenter,
+                                                                end: Alignment
+                                                                    .bottomCenter,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                          // ── Tab Buttons ──
+                                          Row(
+                                            children: List.generate(navTabs.length,
+                                                (index) {
+                                              final item = navTabs[index];
+                                              final isSelected = activeIndex == index;
+
+                                              return Expanded(
+                                                child: _NavItemButton(
+                                                  item: item,
+                                                  isSelected: isSelected,
+                                                  isDark: isDark,
+                                                  onTap: () => _onItemTapped(
+                                                    item.branchIndex,
+                                                    context,
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // ─── 2. Floating AI Circular Glass Button ──────────────────
+                  _AiButtonWidget(
+                    isAiActive: isAiActive,
+                    isDark: isDark,
+                    palette: currentPalette,
+                    aiGlassGradient: aiGlassGradient,
+                    onTap: () => _onItemTapped(2, context),
+                  ),
+                ],
               ),
             ],
           ),
@@ -401,7 +511,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
   }
 }
 
-/// Nút Tab đơn lẻ giúp tự quản lý hiệu ứng press state cục bộ (không làm rebuild toàn bộ Shell)
+/// Nút Tab đơn lẻ
 class _NavItemButton extends StatefulWidget {
   final _NavItemData item;
   final bool isSelected;
@@ -514,16 +624,18 @@ class _NavItemButtonState extends State<_NavItemButton> {
   }
 }
 
-/// Nút AI Tròn Nội bộ quản lý hiệu ứng press state độc lập
+/// Nút AI Tròn Nội bộ
 class _AiButtonWidget extends StatefulWidget {
   final bool isAiActive;
   final bool isDark;
+  final _DockColorPalette palette;
   final LinearGradient aiGlassGradient;
   final VoidCallback onTap;
 
   const _AiButtonWidget({
     required this.isAiActive,
     required this.isDark,
+    required this.palette,
     required this.aiGlassGradient,
     required this.onTap,
   });
@@ -566,8 +678,8 @@ class _AiButtonWidgetState extends State<_AiButtonWidget> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: widget.isAiActive
-                    ? const LinearGradient(
-                        colors: [Color(0xFF71E2E8), Color(0xFF2DBAC6)],
+                    ? LinearGradient(
+                        colors: widget.palette.gradientColors,
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
@@ -575,7 +687,7 @@ class _AiButtonWidgetState extends State<_AiButtonWidget> {
                 boxShadow: widget.isAiActive
                     ? [
                         BoxShadow(
-                          color: const Color(0xFF2DBAC6).withValues(alpha: 0.45),
+                          color: widget.palette.shadowColor.withValues(alpha: 0.45),
                           blurRadius: 18,
                           offset: const Offset(0, 6),
                         ),
@@ -608,8 +720,8 @@ class _AiButtonWidgetState extends State<_AiButtonWidget> {
                         color: widget.isAiActive
                             ? Colors.white
                             : (widget.isDark
-                                  ? const Color(0xFF38BDF8)
-                                  : const Color(0xFF0284C7)),
+                                  ? widget.palette.activeIconDark
+                                  : widget.palette.activeIconLight),
                       ),
                     ),
                   ),
