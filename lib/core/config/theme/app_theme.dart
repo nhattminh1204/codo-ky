@@ -3,66 +3,67 @@ import 'package:google_fonts/google_fonts.dart';
 export 'package:codoky/core/theme/motion.dart';
 
 class AppColors {
-  // Brand Primary & Accents - Vibrant Modern Hue Heritage
-  static const Color primary = Color(0xFF9B1B30); // Imperial Crimson Huế
-  static const Color primaryDark = Color(0xFF7B0020);
-  static const Color primaryLight = Color(0xFFC4384E);
+  // Minimalist Heritage Brand Palette
+  static const Color primary = Color(0xFF8B1E2F); // Crimson Huế Son-Son
+  static const Color primaryDark = Color(0xFF6B1423);
+  static const Color primaryLight = Color(0xFFA62A3E);
 
-  static const Color secondary = Color(0xFFFF7A00); // Sunset Orange
-  static const Color accent = Color(0xFFFFB800); // Royal Gold
+  static const Color secondary = Color(0xFFE07A5F); // Nắng Hương Hoàng Hôn
+  static const Color accent = Color(0xFFF2CC8F); // Royal Sand Gold
 
   // Supporting Functional Colors
-  static const Color success = Color(0xFF00B87C);
-  static const Color warning = Color(0xFFFF9F43);
-  static const Color error = Color(0xFFEA5455);
-  static const Color info = Color(0xFF00CFE8);
+  static const Color success = Color(0xFF2A9D8F);
+  static const Color warning = Color(0xFFE76F51);
+  static const Color error = Color(0xFFD62828);
+  static const Color info = Color(0xFF3D405B);
 
   // Background & Surfaces
-  static const Color bgLight = Color(0xFFF9F6F0); // Warm Heritage Cream
+  static const Color bgLight = Color(0xFFF4F1DE); // Warm Sand Heritage Surface
   static const Color surfaceLight = Colors.white;
   static const Color cardLight = Colors.white;
+  static const Color borderLight = Color(0xFFE2E8F0);
 
-  static const Color bgDark = Color(0xFF141316);
-  static const Color surfaceDark = Color(0xFF1E1C22);
+  static const Color bgDark = Color(0xFF121212);
+  static const Color surfaceDark = Color(0xFF1E1E1E);
 
   // Text Colors
-  static const Color textPrimary = Color(0xFF1E1E1E);
-  static const Color textSecondary = Color(0xFF6E6E6E);
-  static const Color textLight = Color(0xFF9E9E9E);
+  static const Color textPrimary = Color(0xFF1E293B);
+  static const Color textSecondary = Color(0xFF64748B);
+  static const Color textLight = Color(0xFF94A3B8);
 
-  // Soft Shadows (Backward Compatible)
+  // Soft Shadows (Minimalist Flat Elevation)
   static List<BoxShadow> softShadow = [
-    BoxShadow(
-      color: const Color(0xFF9B1B30).withValues(alpha: 0.08),
-      blurRadius: 20,
-      offset: const Offset(0, 8),
+    const BoxShadow(
+      color: Color(0x08000000),
+      blurRadius: 10,
+      offset: Offset(0, 4),
     ),
   ];
 
   static List<BoxShadow> cardShadow = [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.05),
-      blurRadius: 16,
-      offset: const Offset(0, 6),
+    const BoxShadow(
+      color: Color(0x06000000),
+      blurRadius: 8,
+      offset: Offset(0, 2),
     ),
   ];
 }
 
 class AppGradients {
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF9B1B30), Color(0xFFC4384E)],
+    colors: [Color(0xFF8B1E2F), Color(0xFFA62A3E)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient sunsetGradient = LinearGradient(
-    colors: [Color(0xFF9B1B30), Color(0xFFFF7A00)],
+    colors: [Color(0xFF8B1E2F), Color(0xFFE07A5F)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient heroGradient = LinearGradient(
-    colors: [Color(0xFF7B0020), Color(0xFF9B1B30), Color(0xFFFF7A00)],
+    colors: [Color(0xFF6B1423), Color(0xFF8B1E2F)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
@@ -76,29 +77,29 @@ class AppGradients {
 
 class AppShadows {
   static List<BoxShadow> soft = [
-    BoxShadow(
-      color: const Color(0xFF9B1B30).withValues(alpha: 0.06),
-      blurRadius: 20,
+    const BoxShadow(
+      color: Color(0x08000000),
+      blurRadius: 10,
       spreadRadius: 0,
-      offset: const Offset(0, 8),
+      offset: Offset(0, 4),
     ),
   ];
 
   static List<BoxShadow> card = [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.04),
-      blurRadius: 16,
+    const BoxShadow(
+      color: Color(0x06000000),
+      blurRadius: 8,
       spreadRadius: 0,
-      offset: const Offset(0, 4),
+      offset: Offset(0, 2),
     ),
   ];
 
   static List<BoxShadow> floating = [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.12),
-      blurRadius: 24,
-      spreadRadius: 2,
-      offset: const Offset(0, 10),
+    const BoxShadow(
+      color: Color(0x0A000000),
+      blurRadius: 16,
+      spreadRadius: 0,
+      offset: Offset(0, 6),
     ),
   ];
 }
@@ -113,19 +114,20 @@ class AppSpacing {
 }
 
 class AppRadius {
-  static const double sm = 12.0;
-  static const double md = 16.0;
-  static const double lg = 20.0;
-  static const double xl = 28.0;
+  static const double sm = 8.0;
+  static const double md = 12.0;
+  static const double lg = 16.0;
+  static const double xl = 20.0;
 
-  static final BorderRadius card = BorderRadius.circular(20.0);
-  static final BorderRadius button = BorderRadius.circular(16.0);
+  static final BorderRadius card = BorderRadius.circular(16.0);
+  static final BorderRadius button = BorderRadius.circular(12.0);
   static final BorderRadius chip = BorderRadius.circular(30.0);
 }
 
 class AppTheme {
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.beVietnamProTextTheme();
+    final bodyTextTheme = GoogleFonts.beVietnamProTextTheme();
+    final titleTextTheme = GoogleFonts.plusJakartaSansTextTheme();
 
     return ThemeData(
       useMaterial3: true,
@@ -137,29 +139,29 @@ class AppTheme {
         surface: AppColors.surfaceLight,
         brightness: Brightness.light,
       ),
-      textTheme: baseTextTheme.copyWith(
-        titleLarge: baseTextTheme.titleLarge?.copyWith(
+      textTheme: bodyTextTheme.copyWith(
+        titleLarge: titleTextTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
         ),
-        titleMedium: baseTextTheme.titleMedium?.copyWith(
+        titleMedium: titleTextTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
         ),
-        bodyLarge: baseTextTheme.bodyLarge?.copyWith(
+        bodyLarge: bodyTextTheme.bodyLarge?.copyWith(
           color: AppColors.textPrimary,
         ),
-        bodyMedium: baseTextTheme.bodyMedium?.copyWith(
+        bodyMedium: bodyTextTheme.bodyMedium?.copyWith(
           color: AppColors.textSecondary,
         ),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.white,
         elevation: 0,
-        scrolledUnderElevation: 2,
+        scrolledUnderElevation: 1,
         centerTitle: true,
         iconTheme: const IconThemeData(color: AppColors.primary),
-        titleTextStyle: GoogleFonts.beVietnamPro(
+        titleTextStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.bold,
           color: AppColors.primary,
@@ -167,7 +169,10 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.card,
+          side: const BorderSide(color: AppColors.borderLight, width: 1),
+        ),
         color: AppColors.cardLight,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -177,7 +182,7 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.beVietnamPro(
+          textStyle: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -189,7 +194,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.beVietnamPro(
+          textStyle: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -201,7 +206,7 @@ class AppTheme {
           side: const BorderSide(color: AppColors.primary, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.beVietnamPro(
+          textStyle: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -213,15 +218,15 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: AppRadius.button,
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
+          borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppRadius.button,
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
+          borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppRadius.button,
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
     );
@@ -246,7 +251,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: GoogleFonts.beVietnamPro(
+        titleTextStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.white,

@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 class AppMotion {
   AppMotion._();
 
+  // Micro-interaction press scale
+  static const double pressScale = 0.96;
+
   // Durations
   static const Duration micro = Duration(milliseconds: 150);      // Feedback nhỏ: tap nút, toggle
+  static const Duration snappy = Duration(milliseconds: 200);     // Phản hồi nút bấm tức thì (Minimalist)
   static const Duration standard = Duration(milliseconds: 300);   // Chuyển tab, mở bottom sheet
   static const Duration emphasized = Duration(milliseconds: 450); // Mở chi tiết địa điểm, map camera zoom
 

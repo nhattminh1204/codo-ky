@@ -8,6 +8,7 @@ Future<T?> showAppBottomSheet<T>({
   bool isScrollControlled = true,
   Color backgroundColor = Colors.transparent,
   TickerProvider? vsync,
+  bool useRootNavigator = true,
 }) {
   AnimationController? animationController;
   if (vsync != null) {
@@ -19,6 +20,7 @@ Future<T?> showAppBottomSheet<T>({
 
   return showModalBottomSheet<T>(
     context: context,
+    useRootNavigator: useRootNavigator,
     isScrollControlled: isScrollControlled,
     backgroundColor: backgroundColor,
     transitionAnimationController: animationController,
