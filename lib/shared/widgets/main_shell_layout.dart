@@ -83,27 +83,32 @@ class _MainShellLayoutState extends State<MainShellLayout> {
           padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
           child: Row(
             children: [
-              // 1. Floating Glass Navigation Container (UltraThin Glass Spec JSON)
+              // 1. Floating Glass Navigation Container (3D Multi-stop Glass Gradient Border)
               Expanded(
                 child: Container(
                   height: 62,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(9999),
-                    // border.gradient: top-to-bottom [0.95, 0.45, 0.12]
+                    // Viền Gradient 3D đa điểm: Xám đổ từ đậm sang nhạt ở các góc lượn + Trắng gương mép trên/dưới
                     gradient: LinearGradient(
                       colors: isDark
                           ? [
-                              Colors.white.withValues(alpha: 0.55),
-                              Colors.white.withValues(alpha: 0.25),
-                              Colors.white.withValues(alpha: 0.08),
+                              Colors.white.withValues(alpha: 0.50),
+                              const Color(0xFF64748B).withValues(alpha: 0.40),
+                              Colors.white.withValues(alpha: 0.60),
+                              const Color(0xFF475569).withValues(alpha: 0.35),
+                              Colors.white.withValues(alpha: 0.40),
                             ]
                           : [
-                              Colors.white.withValues(alpha: 0.95), // Top: 0.95
-                              Colors.white.withValues(alpha: 0.45), // Middle: 0.45
-                              Colors.white.withValues(alpha: 0.12), // Bottom: 0.12
+                              const Color(0xFF64748B).withValues(alpha: 0.60), // Góc trên-trái: Xám đậm -> nhạt
+                              Colors.white.withValues(alpha: 0.95),             // Mép trên: Trắng phản quang glass
+                              const Color(0xFF94A3B8).withValues(alpha: 0.65), // Góc trên-phải: Xám đổ nhẹ
+                              Colors.white.withValues(alpha: 0.90),             // Mép dưới: Trắng gương sáng
+                              const Color(0xFF64748B).withValues(alpha: 0.45), // Góc dưới-trái: Xám đệm contour
                             ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 0.25, 0.50, 0.75, 1.0],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                     boxShadow: [
                       // outerShadow: rgba(0,0,0,0.12), blur: 32, offsetY: 12
@@ -121,7 +126,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                     ],
                   ),
                   child: Container(
-                    margin: const EdgeInsets.all(1.0), // border.width: 1px
+                    margin: const EdgeInsets.all(1.2), // Độ dày viền 3D Glass 1.2px
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(9999),
                     ),
@@ -367,17 +372,22 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                               : LinearGradient(
                                   colors: isDark
                                       ? [
-                                          Colors.white.withValues(alpha: 0.55),
-                                          Colors.white.withValues(alpha: 0.25),
-                                          Colors.white.withValues(alpha: 0.08),
+                                          Colors.white.withValues(alpha: 0.50),
+                                          const Color(0xFF64748B).withValues(alpha: 0.40),
+                                          Colors.white.withValues(alpha: 0.60),
+                                          const Color(0xFF475569).withValues(alpha: 0.35),
+                                          Colors.white.withValues(alpha: 0.40),
                                         ]
                                       : [
+                                          const Color(0xFF64748B).withValues(alpha: 0.60),
                                           Colors.white.withValues(alpha: 0.95),
-                                          Colors.white.withValues(alpha: 0.45),
-                                          Colors.white.withValues(alpha: 0.12),
+                                          const Color(0xFF94A3B8).withValues(alpha: 0.65),
+                                          Colors.white.withValues(alpha: 0.90),
+                                          const Color(0xFF64748B).withValues(alpha: 0.45),
                                         ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
+                                  stops: const [0.0, 0.25, 0.50, 0.75, 1.0],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
                           boxShadow: [
                             if (isAiActive)
@@ -402,7 +412,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                           ],
                         ),
                         child: Container(
-                          margin: EdgeInsets.all(isAiActive ? 0 : 1.0),
+                          margin: EdgeInsets.all(isAiActive ? 0 : 1.2),
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                           ),
