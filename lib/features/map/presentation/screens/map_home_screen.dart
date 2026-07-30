@@ -583,9 +583,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                     _buildUserLocationMarker(state.currentLocation!),
                   ],
                 ),
-              const SimpleAttributionWidget(
-                source: Text('© OpenStreetMap contributors'),
-              ),
             ],
           ),
 
@@ -1004,110 +1001,91 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
           ),
           Positioned(
-            top: 195,
-            right: 16,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 0. Nút Tùy Chỉnh Phong Cách Icon (Palette)
-                FloatingActionButton.small(
-                  heroTag: 'icon_style_palette',
-                  onPressed: () => _showIconStyleDrawer(context, ref),
-                  backgroundColor: const Color(0xFF0F172A),
-                  foregroundColor: const Color(0xFFFF5E36),
-                  elevation: 4,
-                  child: const Icon(Icons.palette_outlined, size: 20),
-                ),
-                const SizedBox(height: 8),
-
-                // 1. Nút Phóng To (+)
-                FloatingActionButton.small(
-                  heroTag: 'zoom_in',
-                  onPressed: _zoomIn,
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF1E1E1E),
-                  elevation: 4,
-                  child: const Icon(Icons.add_rounded, size: 20),
-                ),
-                const SizedBox(height: 8),
-
-                // 2. Nút Thu Nhỏ (-)
-                FloatingActionButton.small(
-                  heroTag: 'zoom_out',
-                  onPressed: _zoomOut,
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF1E1E1E),
-                  elevation: 4,
-                  child: const Icon(Icons.remove_rounded, size: 20),
-                ),
-                const SizedBox(height: 8),
-
-                // 3. Nút Theo Dõi Vị Trí / Recenter GPS (Hiện khi đang activeRoute và user đã tự pan map)
-                if (state.activeRoute != null && !_isAutoFollowUser) ...[
-                  FloatingActionButton.small(
-                    heroTag: 'recenter_gps',
-                    onPressed: () {
-                      setState(() {
-                        _isAutoFollowUser = true;
-                      });
-                      final userPos = ref.read(mapProvider).currentLocation;
-                      if (userPos != null) {
-                        _animatedMapMove(userPos, 17.0);
-                      }
-                    },
-                    backgroundColor: const Color(0xFF10B981),
-                    foregroundColor: Colors.white,
-                    elevation: 4,
-                    child: const Icon(Icons.gps_fixed_rounded, size: 20),
+            top: 175,
+            right: 14,
+            child: GlassContainer(
+              blur: 16,
+              opacity: Theme.of(context).brightness == Brightness.dark ? 0.80 : 0.92,
+              borderRadius: BorderRadius.circular(22),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              border: Border.all(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withValues(alpha: 0.15)
+                    : Colors.white.withValues(alpha: 0.70),
+                width: 1,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 1. Theme Palette
+                  _buildControlIconButton(
+                    icon: Icons.palette_outlined,
+                    tooltip: 'Đổi phong cách bản đồ',
+                    iconColor: const Color(0xFFFF7A00),
+                    onPressed: () => _showIconStyleDrawer(context, ref),
                   ),
-                  const SizedBox(height: 8),
-                ],
+                  _buildControlDivider(Theme.of(context).brightness == Brightness.dark),
 
-                // 4. Nút Hủy Lộ Trình (Chỉ hiện khi có lộ trình activeRoute)
-                if (state.activeRoute != null) ...[
-                  FloatingActionButton.small(
-                    heroTag: 'cancel_route',
-                    onPressed: () {
-                      _stopLiveNavigation();
-                      ref.read(mapProvider.notifier).clearRoute();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Đã hủy lộ trình chỉ đường'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    backgroundColor: const Color(0xFFDC2626),
-                    foregroundColor: Colors.white,
-                    elevation: 4,
-                    child: const Icon(Icons.alt_route_rounded, size: 20),
+                  // 2. Zoom In (+)
+                  _buildControlIconButton(
+                    icon: Icons.add_rounded,
+                    tooltip: 'Phóng to',
+                    onPressed: _zoomIn,
                   ),
-                  const SizedBox(height: 8),
+                  // 3. Zoom Out (-)
+                  _buildControlIconButton(
+                    icon: Icons.remove_rounded,
+                    tooltip: 'Thu nhỏ',
+                    onPressed: _zoomOut,
+                  ),
+                  _buildControlDivider(Theme.of(context).brightness == Brightness.dark),
+
+                  // 4. Recenter GPS (Active Route & panned map)
+                  if (state.activeRoute != null && !_isAutoFollowUser) ...[
+                    _buildControlIconButton(
+                      icon: Icons.gps_fixed_rounded,
+                      tooltip: 'Theo dõi lại vị trí',
+                      iconColor: const Color(0xFF10B981),
+                      onPressed: () {
+                        setState(() {
+                          _isAutoFollowUser = true;
+                        });
+                        final userPos = ref.read(mapProvider).currentLocation;
+                        if (userPos != null) {
+                          _animatedMapMove(userPos, 17.0);
+                        }
+                      },
+                    ),
+                  ],
+
+                  // 5. Cancel Active Route
+                  if (state.activeRoute != null) ...[
+                    _buildControlIconButton(
+                      icon: Icons.alt_route_rounded,
+                      tooltip: 'Hủy lộ trình',
+                      iconColor: const Color(0xFFDC2626),
+                      onPressed: () {
+                        _stopLiveNavigation();
+                        ref.read(mapProvider.notifier).clearRoute();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Đã hủy lộ trình chỉ đường'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+
+                  // 6. Locate User GPS
+                  _buildControlIconButton(
+                    icon: Icons.my_location_rounded,
+                    tooltip: 'Vị trí của tôi',
+                    iconColor: const Color(0xFF9B1B30),
+                    onPressed: _goToCurrentLocation,
+                  ),
                 ],
-
-                // 5. Nút Làm Mới Bản Đồ
-                FloatingActionButton.small(
-                  heroTag: 'refresh_map',
-                  onPressed: () {
-                    ref.read(mapProvider.notifier).loadPlaces(forceRefresh: true);
-                  },
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF9B1B30),
-                  elevation: 4,
-                  child: const Icon(Icons.refresh_rounded, size: 20),
-                ),
-                const SizedBox(height: 8),
-
-                // 6. Nút Định Vị Vị Trí Hiện Tại (GPS)
-                FloatingActionButton.small(
-                  heroTag: 'locate',
-                  onPressed: _goToCurrentLocation,
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF9B1B30),
-                  elevation: 4,
-                  child: const Icon(Icons.my_location_rounded, size: 20),
-                ),
-              ],
+              ),
             ),
           ),
         ],
@@ -1115,9 +1093,48 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     );
   }
 
+  Widget _buildControlIconButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    String? tooltip,
+    Color? iconColor,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final defaultColor = isDark ? Colors.white : const Color(0xFF1E222A);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: Tooltip(
+          message: tooltip ?? '',
+          child: Padding(
+            padding: const EdgeInsets.all(9),
+            child: Icon(
+              icon,
+              size: 20,
+              color: iconColor ?? defaultColor,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildControlDivider(bool isDark) {
+    return Container(
+      width: 20,
+      height: 1,
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08),
+    );
+  }
+
   Widget _buildFilterChip(String categoryId, String label, MapState state) {
     final isSelected = (state.selectedCategory == categoryId) ||
         (state.selectedCategory == null && categoryId == 'featured');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () {
@@ -1126,27 +1143,24 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: AppMotion.emphasizedCurve,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: isSelected
-              ? const LinearGradient(
-                  colors: [Color(0xFFFF5E36), Color(0xFFFFAE33)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          color: isSelected ? null : Colors.white.withValues(alpha: 0.92),
+          color: isSelected
+              ? const Color(0xFF9B1B30)
+              : (isDark ? const Color(0xFF1E222A).withValues(alpha: 0.85) : Colors.white.withValues(alpha: 0.92)),
           border: Border.all(
-            color: isSelected ? Colors.transparent : const Color(0xFFE2E8F0),
+            color: isSelected
+                ? const Color(0xFF9B1B30)
+                : (isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFE2E8F0)),
             width: 1.2,
           ),
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: const Color(0xFFFF5E36).withValues(alpha: 0.4),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: const Color(0xFF9B1B30).withValues(alpha: 0.35),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               )
             else
               const BoxShadow(
@@ -1166,9 +1180,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF1E293B),
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                fontSize: 13,
+                fontSize: 12.5,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? Colors.white70 : const Color(0xFF334155)),
               ),
             ),
           ],
