@@ -76,28 +76,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     super.dispose();
   }
 
-  void _zoomIn() {
-    final currentZoom = _mapController.camera.zoom;
-    final targetZoom = (currentZoom + 1.0).clamp(3.0, 18.0);
-    _animatedMapMove(
-      _mapController.camera.center,
-      targetZoom,
-      duration: AppMotion.micro * 2,
-      curve: AppMotion.standardCurve,
-    );
-  }
-
-  void _zoomOut() {
-    final currentZoom = _mapController.camera.zoom;
-    final targetZoom = (currentZoom - 1.0).clamp(3.0, 18.0);
-    _animatedMapMove(
-      _mapController.camera.center,
-      targetZoom,
-      duration: AppMotion.micro * 2,
-      curve: AppMotion.standardCurve,
-    );
-  }
-
   double _calculateBearing(LatLng start, LatLng end) {
     final startLat = start.latitude * (math.pi / 180.0);
     final startLng = start.longitude * (math.pi / 180.0);
@@ -972,7 +950,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               ),
             ),
           Positioned(
-            top: 175,
+            top: state.activeRoute != null ? 115 : 175,
             right: 14,
             child: GlassContainer(
               blur: 16,
@@ -997,21 +975,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   ),
                   _buildControlDivider(Theme.of(context).brightness == Brightness.dark),
 
-                  // 2. Zoom In (+)
-                  _buildControlIconButton(
-                    icon: Icons.add_rounded,
-                    tooltip: 'Phóng to',
-                    onPressed: _zoomIn,
-                  ),
-                  // 3. Zoom Out (-)
-                  _buildControlIconButton(
-                    icon: Icons.remove_rounded,
-                    tooltip: 'Thu nhỏ',
-                    onPressed: _zoomOut,
-                  ),
-                  _buildControlDivider(Theme.of(context).brightness == Brightness.dark),
-
-                  // 4. Recenter GPS (Active Route & panned map)
+                  // 2. Recenter GPS (Active Route & panned map)
                   if (state.activeRoute != null && !_isAutoFollowUser) ...[
                     _buildControlIconButton(
                       icon: Icons.gps_fixed_rounded,
@@ -1027,28 +991,10 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                         }
                       },
                     ),
+                    _buildControlDivider(Theme.of(context).brightness == Brightness.dark),
                   ],
 
-                  // 5. Cancel Active Route
-                  if (state.activeRoute != null) ...[
-                    _buildControlIconButton(
-                      icon: Icons.alt_route_rounded,
-                      tooltip: 'Hủy lộ trình',
-                      iconColor: const Color(0xFFDC2626),
-                      onPressed: () {
-                        _stopLiveNavigation();
-                        ref.read(mapProvider.notifier).clearRoute();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Đã hủy lộ trình chỉ đường'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-
-                  // 6. Locate User GPS
+                  // 3. Locate User GPS
                   _buildControlIconButton(
                     icon: Icons.my_location_rounded,
                     tooltip: 'Vị trí của tôi',
