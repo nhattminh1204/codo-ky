@@ -617,7 +617,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
           // Top Navigation & Overlay Banners (Turn-by-turn instruction, GPS weak status, OSRM fetching, error)
           Positioned(
-            top: 135,
+            top: state.activeRoute != null ? 48 : 135,
             left: 14,
             right: 70,
             child: Column(
@@ -730,7 +730,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 blur: 15,
                 opacity: 0.95,
                 borderRadius: BorderRadius.circular(20),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: Border.all(color: const Color(0xFFFF7A00).withValues(alpha: 0.3), width: 1.5),
                 child: Row(
                   children: [
@@ -749,7 +749,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            'Đang chỉ đường OSRM (Live GPS)',
+                            'Đang chỉ đường',
                             style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
                           ),
                           const SizedBox(height: 2),
@@ -800,7 +800,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFDC2626),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         elevation: 2,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
@@ -811,181 +811,166 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
 
 
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GlassContainer(
-                    blur: 15,
-                    opacity: 0.85,
-                    borderRadius: BorderRadius.circular(20),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                onChanged: (val) {
-                                  ref.read(mapProvider.notifier).setSearchQuery(val);
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'Tìm kiếm địa điểm Huế...',
-                                  hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF9B1B30), size: 22),
-                                  suffixIcon: _searchController.text.isNotEmpty
-                                      ? IconButton(
-                                          icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
-                                          onPressed: () {
-                                            _searchController.clear();
-                                            ref.read(mapProvider.notifier).setSearchQuery('');
-                                          },
-                                        )
-                                      : null,
+          if (state.activeRoute == null)
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GlassContainer(
+                      blur: 15,
+                      opacity: 0.85,
+                      borderRadius: BorderRadius.circular(20),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _searchController,
+                                  onChanged: (val) {
+                                    ref.read(mapProvider.notifier).setSearchQuery(val);
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Tìm kiếm địa điểm Huế...',
+                                    hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF9B1B30), size: 22),
+                                    suffixIcon: _searchController.text.isNotEmpty
+                                        ? IconButton(
+                                            icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                                            onPressed: () {
+                                              _searchController.clear();
+                                              ref.read(mapProvider.notifier).setSearchQuery('');
+                                            },
+                                          )
+                                        : null,
+                                  ),
                                 ),
                               ),
-                            ),
-                            if (state.isLoading)
-                              const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.0,
-                                  color: Color(0xFF9B1B30),
-                                ),
-                              )
-                            else
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF9B1B30).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  '${state.places.length}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
+                              if (state.isLoading)
+                                const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
                                     color: Color(0xFF9B1B30),
                                   ),
                                 ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () => context.push('/profile'),
+                                child: CircleAvatar(
+                                  radius: 17,
+                                  backgroundColor: const Color(0xFF9B1B30),
+                                  backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
+                                      ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
+                                      : null,
+                                  child: ref.watch(authProvider).user?.avatarUrl == null
+                                      ? const Icon(Icons.person, size: 20, color: Colors.white)
+                                      : null,
+                                ),
                               ),
-                            const SizedBox(width: 8),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              showAppBottomSheet(
+                                context: context,
+                                vsync: this,
+                                builder: (_) => const FilterCategorySheet(),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              margin: const EdgeInsets.only(right: 6),
+                              decoration: BoxDecoration(
+                                color: state.selectedCategories.isNotEmpty ? const Color(0xFF9B1B30) : Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: const Color(0xFF9B1B30).withValues(alpha: 0.4)),
+                                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    state.selectedCategories.isNotEmpty ? 'Lọc (${state.selectedCategories.length})' : 'Bộ lọc',
+                                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
+                                  ),
+                                  if (state.selectedCategories.isNotEmpty) ...[
+                                    const SizedBox(width: 6),
+                                    GestureDetector(
+                                      onTap: () {
+                                        ref.read(mapProvider.notifier).filterByCategories({});
+                                      },
+                                      child: const Icon(Icons.cancel_rounded, size: 16, color: Colors.white70),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (state.selectedCategories.isNotEmpty || (state.selectedCategory != null && state.selectedCategory != 'featured' && state.selectedCategory != 'all')) ...[
                             GestureDetector(
-                              onTap: () => context.push('/profile'),
-                              child: CircleAvatar(
-                                radius: 17,
-                                backgroundColor: const Color(0xFF9B1B30),
-                                backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
-                                    ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
-                                    : null,
-                                child: ref.watch(authProvider).user?.avatarUrl == null
-                                    ? const Icon(Icons.person, size: 20, color: Colors.white)
-                                    : null,
+                              onTap: () {
+                                ref.read(mapProvider.notifier).filterByCategories({});
+                                ref.read(mapProvider.notifier).filterByCategory('featured');
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEF2F2),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
+                                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                                ),
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.close_rounded, size: 15, color: Color(0xFFEF4444)),
+                                    SizedBox(width: 3),
+                                    Text(
+                                      'Xóa lọc',
+                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            showAppBottomSheet(
-                              context: context,
-                              vsync: this,
-                              builder: (_) => const FilterCategorySheet(),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            margin: const EdgeInsets.only(right: 6),
-                            decoration: BoxDecoration(
-                              color: state.selectedCategories.isNotEmpty ? const Color(0xFF9B1B30) : Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: const Color(0xFF9B1B30).withValues(alpha: 0.4)),
-                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  state.selectedCategories.isNotEmpty ? 'Lọc (${state.selectedCategories.length})' : 'Bộ lọc',
-                                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
-                                ),
-                                if (state.selectedCategories.isNotEmpty) ...[
-                                  const SizedBox(width: 6),
-                                  GestureDetector(
-                                    onTap: () {
-                                      ref.read(mapProvider.notifier).filterByCategories({});
-                                    },
-                                    child: const Icon(Icons.cancel_rounded, size: 16, color: Colors.white70),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                        if (state.selectedCategories.isNotEmpty || (state.selectedCategory != null && state.selectedCategory != 'featured' && state.selectedCategory != 'all')) ...[
-                          GestureDetector(
-                            onTap: () {
-                              ref.read(mapProvider.notifier).filterByCategories({});
-                              ref.read(mapProvider.notifier).filterByCategory('featured');
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFEF2F2),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
-                                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-                              ),
-                              child: const Row(
-                                children: [
-                                  Icon(Icons.close_rounded, size: 15, color: Color(0xFFEF4444)),
-                                  SizedBox(width: 3),
-                                  Text(
-                                    'Xóa lọc',
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          _buildFilterChip('featured', 'Nổi bật', state),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('saved', 'Đã lưu (${state.savedPlaceIds.length})', state),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('all', 'Tất cả (${state.allPlaces.length})', state),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('restaurant', 'Quán ăn', state),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('attraction', 'Địa điểm', state),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('tomb', 'Lăng tẩm', state),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('temple', 'Chùa', state),
                         ],
-                        _buildFilterChip('featured', 'Nổi bật', state),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('saved', 'Đã lưu (${state.savedPlaceIds.length})', state),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('all', 'Tất cả (${state.allPlaces.length})', state),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('restaurant', 'Quán ăn', state),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('attraction', 'Địa điểm', state),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('tomb', 'Lăng tẩm', state),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('temple', 'Chùa', state),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
           Positioned(
             top: 175,
             right: 14,
