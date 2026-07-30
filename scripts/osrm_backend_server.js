@@ -57,6 +57,8 @@ function generateRoadWaypoints(startLng, startLat, endLng, endLat, profile = 'dr
     distanceMeters: Math.round(distanceMeters * roadDistanceMultiplier * 10) / 10,
     durationSeconds: Math.max(10, durationSeconds)
   };
+}
+
 function generateSteps(coordinates, totalDistance, totalDuration) {
   if (!coordinates || coordinates.length < 2) return [];
 
