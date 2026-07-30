@@ -1022,7 +1022,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
   Widget _buildFilterChip(String categoryId, String label, MapState state) {
     final isSelected = (state.selectedCategory == categoryId) ||
-        (state.selectedCategory == null && categoryId == 'featured');
+        (state.selectedCategory == null && categoryId == 'all');
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(

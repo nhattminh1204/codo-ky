@@ -204,8 +204,8 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void filterByCategory(String? category) {
-    final cat = (category == null || category == 'all') ? null : category;
-    state = state.copyWith(selectedCategory: cat, selectedCategories: {}, clearCategory: cat == null);
+    final cat = category ?? 'all';
+    state = state.copyWith(selectedCategory: cat, selectedCategories: {}, clearCategory: false);
     _applyFilters();
   }
 
@@ -247,17 +247,14 @@ class MapNotifier extends StateNotifier<MapState> {
       bool catMatch = true;
       if (categories.isNotEmpty) {
         catMatch = categories.any((cat) => _matchesCategory(pCat, cat, isFeatured, pId, savedIds));
-      } else if (singleCategory == 'all') {
+      } else if (singleCategory == 'all' || singleCategory == null) {
         catMatch = true;
       } else if (singleCategory == 'featured') {
         catMatch = isFeatured;
       } else if (singleCategory == 'saved') {
         catMatch = savedIds.contains(pId);
-      } else if (singleCategory != null) {
-        catMatch = _matchesCategory(pCat, singleCategory, isFeatured, pId, savedIds);
       } else {
-        // Default initial view: show curated featured places unless searching
-        catMatch = query.isNotEmpty || isFeatured;
+        catMatch = _matchesCategory(pCat, singleCategory, isFeatured, pId, savedIds);
       }
 
       final name = (p['name'] as String?)?.toLowerCase() ?? '';
