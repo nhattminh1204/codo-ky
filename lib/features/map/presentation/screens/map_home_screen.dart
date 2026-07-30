@@ -615,113 +615,111 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               ),
             ),
 
-          if (state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
-            Positioned(
-              top: 135,
-              left: 16,
-              right: 16,
-              child: _buildTurnByTurnBanner(state),
-            ),
+          // Top Navigation & Overlay Banners (Turn-by-turn instruction, GPS weak status, OSRM fetching, error)
+          Positioned(
+            top: 135,
+            left: 14,
+            right: 70,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
+                  _buildTurnByTurnBanner(state),
 
-          if (_isGpsWeak && state.activeRoute != null)
-            Positioned(
-              top: 195,
-              left: 20,
-              right: 20,
-              child: GlassContainer(
-                blur: 15,
-                opacity: 0.95,
-                borderRadius: BorderRadius.circular(16),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Row(
-                  children: [
-                    const Icon(Icons.gps_not_fixed_rounded, color: Colors.orangeAccent, size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        _lastGpsAccuracy != null
-                            ? 'Đang chờ tín hiệu GPS chính xác (bán kính ${_lastGpsAccuracy!.toStringAsFixed(0)}m)...'
-                            : 'Đang kết nối tín hiệu vệ tinh GPS...',
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          if (state.isFetchingRoute)
-            Positioned(
-              top: 140,
-              left: 20,
-              right: 20,
-              child: GlassContainer(
-                blur: 15,
-                opacity: 0.9,
-                borderRadius: BorderRadius.circular(16),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                child: const Row(
-                  children: [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFFFF7A00)),
-                    ),
-                    SizedBox(width: 14),
-                    Text(
-                      'Đang lấy dữ liệu chỉ đường OSRM...',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: Color(0xFF1E1E1E)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          if (state.errorMessage != null && !state.isLoading)
-            Positioned(
-              top: 140,
-              left: 20,
-              right: 20,
-              child: GlassContainer(
-                blur: 15,
-                opacity: 0.95,
-                borderRadius: BorderRadius.circular(16),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline, color: Colors.redAccent, size: 24),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        state.errorMessage!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: Color(0xFF1E1E1E),
+                if (_isGpsWeak && state.activeRoute != null) ...[
+                  const SizedBox(height: 8),
+                  GlassContainer(
+                    blur: 15,
+                    opacity: 0.95,
+                    borderRadius: BorderRadius.circular(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.gps_not_fixed_rounded, color: Colors.orangeAccent, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _lastGpsAccuracy != null
+                                ? 'Đang chờ tín hiệu GPS chính xác (bán kính ${_lastGpsAccuracy!.toStringAsFixed(0)}m)...'
+                                : 'Đang kết nối tín hiệu vệ tinh GPS...',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF9B1B30),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  ),
+                ],
+
+                if (state.isFetchingRoute) ...[
+                  const SizedBox(height: 8),
+                  GlassContainer(
+                    blur: 15,
+                    opacity: 0.9,
+                    borderRadius: BorderRadius.circular(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: const Row(
+                      children: [
+                        SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFFFF7A00)),
                         ),
-                      ),
-                      onPressed: () {
-                        ref.read(mapProvider.notifier).loadPlaces(forceRefresh: true);
-                      },
-                      child: const Text(
-                        'Thử lại',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Đang lấy dữ liệu chỉ đường OSRM...',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E1E1E)),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                ],
+
+                if (state.errorMessage != null && !state.isLoading) ...[
+                  const SizedBox(height: 8),
+                  GlassContainer(
+                    blur: 15,
+                    opacity: 0.95,
+                    borderRadius: BorderRadius.circular(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.redAccent, size: 22),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            state.errorMessage!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12.5,
+                              color: Color(0xFF1E1E1E),
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF9B1B30),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            ref.read(mapProvider.notifier).loadPlaces(forceRefresh: true);
+                          },
+                          child: const Text(
+                            'Thử lại',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
+          ),
 
           if (state.activeRoute != null && !state.isFetchingRoute)
             Positioned(
