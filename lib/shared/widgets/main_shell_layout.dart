@@ -21,6 +21,7 @@ class _NavItemData {
   final String label;
   final String route;
   final int branchIndex;
+  final bool hasBadge;
 
   const _NavItemData({
     required this.icon,
@@ -28,6 +29,7 @@ class _NavItemData {
     required this.label,
     required this.route,
     required this.branchIndex,
+    this.hasBadge = false,
   });
 }
 
@@ -63,10 +65,10 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     final activeIndex = _getActiveTabIndex(selectedIndex);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final aquaItems = const [
+    final navTabs = const [
       _NavItemData(icon: Icons.map_outlined, selectedIcon: Icons.map_rounded, label: 'Bản đồ', route: '/map', branchIndex: 0),
       _NavItemData(icon: Icons.explore_outlined, selectedIcon: Icons.explore_rounded, label: 'Khám phá', route: '/explore', branchIndex: 1),
-      _NavItemData(icon: Icons.calendar_today_outlined, selectedIcon: Icons.calendar_today_rounded, label: 'Lịch trình', route: '/itinerary', branchIndex: 3),
+      _NavItemData(icon: Icons.calendar_today_outlined, selectedIcon: Icons.calendar_today_rounded, label: 'Lịch trình', route: '/itinerary', branchIndex: 3, hasBadge: true),
       _NavItemData(icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded, label: 'Hồ sơ', route: '/profile', branchIndex: 4),
     ];
 
@@ -77,163 +79,167 @@ class _MainShellLayoutState extends State<MainShellLayout> {
       bottomNavigationBar: SafeArea(
         bottom: true,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
+          padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
           child: Row(
             children: [
-              // 1. Thanh kính chính (Main Frost Glass Bar) - [backdrop-filter:blur(28px)_saturate(180%)]
+              // 1. Floating Glass Navigation Container (.glass-container h-[62px])
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(9999),
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+                    filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
                     child: Container(
-                      height: 64,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      height: 62,
+                      padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? const Color(0xFF1E222A).withValues(alpha: 0.40)
-                            : Colors.white.withValues(alpha: 0.25),
+                            ? const Color(0xFF1E222A).withValues(alpha: 0.65)
+                            : Colors.white.withValues(alpha: 0.55),
                         borderRadius: BorderRadius.circular(9999),
                         border: Border.all(
                           color: isDark
-                              ? Colors.white.withValues(alpha: 0.20)
-                              : Colors.white.withValues(alpha: 0.50),
-                          width: 1.2,
+                              ? Colors.white.withValues(alpha: 0.25)
+                              : Colors.white.withValues(alpha: 0.75),
+                          width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: isDark
-                                ? Colors.black.withValues(alpha: 0.45)
-                                : const Color(0xFF475569).withValues(alpha: 0.20),
+                            color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
                             blurRadius: 40,
-                            offset: const Offset(0, 12),
-                            spreadRadius: -12,
+                            offset: const Offset(0, 20),
+                            spreadRadius: -10,
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.03),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: List.generate(aquaItems.length, (i) {
-                          final item = aquaItems[i];
-                          final on = i == activeIndex;
-                          final isPressed = _pressedIndex == item.branchIndex;
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final totalWidth = constraints.maxWidth;
+                          final tabWidth = (totalWidth - 2) / navTabs.length;
 
-                          return GestureDetector(
-                            onTapDown: (_) => setState(() => _pressedIndex = item.branchIndex),
-                            onTapUp: (_) => setState(() => _pressedIndex = null),
-                            onTapCancel: () => setState(() => _pressedIndex = null),
-                            onTap: () => _onItemTapped(item.branchIndex, context),
-                            behavior: HitTestBehavior.opaque,
-                            child: AnimatedScale(
-                              scale: isPressed ? 0.90 : 1.0,
-                              duration: const Duration(milliseconds: 150),
-                              curve: Curves.easeOutCubic,
-                              child: SizedBox(
-                                width: 48,
-                                height: 48,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    // Layer A: Quầng sáng tỏa ra (Glow Aura blur-xl)
-                                    AnimatedOpacity(
-                                      opacity: on ? 0.45 : 0.0,
-                                      duration: const Duration(milliseconds: 500),
+                          return Stack(
+                            alignment: Alignment.centerLeft,
+                            children: [
+                              // 2. Sliding Active Cyan Glowing Pill (.active-pill cubic-bezier(0.34, 1.56, 0.64, 1))
+                              AnimatedPositioned(
+                                duration: const Duration(milliseconds: 380),
+                                curve: const Cubic(0.34, 1.56, 0.64, 1.0),
+                                left: activeIndex * tabWidth,
+                                top: 0,
+                                bottom: 0,
+                                width: tabWidth,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF71E2E8),
+                                        Color(0xFF2DBAC6),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(9999),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.70),
+                                      width: 1.5,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF2DBAC6).withValues(alpha: 0.55),
+                                        blurRadius: 24,
+                                        offset: const Offset(0, 10),
+                                        spreadRadius: -2,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              // 3. Tab Buttons Layer (.nav-btn)
+                              Row(
+                                children: List.generate(navTabs.length, (index) {
+                                  final item = navTabs[index];
+                                  final isSelected = activeIndex == index;
+                                  final isPressed = _pressedIndex == item.branchIndex;
+
+                                  return Expanded(
+                                    child: GestureDetector(
+                                      onTapDown: (_) => setState(() => _pressedIndex = item.branchIndex),
+                                      onTapUp: (_) => setState(() => _pressedIndex = null),
+                                      onTapCancel: () => setState(() => _pressedIndex = null),
+                                      onTap: () => _onItemTapped(item.branchIndex, context),
+                                      behavior: HitTestBehavior.opaque,
                                       child: AnimatedScale(
-                                        scale: on ? 1.0 : 0.5,
-                                        duration: const Duration(milliseconds: 500),
-                                        child: Container(
-                                          width: 56,
-                                          height: 56,
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Color(0xFF2DD4BF), // Aqua blur-xl
-                                                blurRadius: 28,
-                                                spreadRadius: 8,
+                                        scale: isPressed ? 0.92 : 1.0,
+                                        duration: const Duration(milliseconds: 150),
+                                        curve: Curves.easeOutCubic,
+                                        child: SizedBox(
+                                          height: 52,
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              // Icon (.nav-btn.active vs .nav-btn:not(.active))
+                                              Icon(
+                                                isSelected ? item.selectedIcon : item.icon,
+                                                size: 24,
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
                                               ),
+
+                                              // Orange Notification Badge Dot
+                                              if (item.hasBadge && !isSelected)
+                                                Positioned(
+                                                  top: 11,
+                                                  right: 18,
+                                                  child: Container(
+                                                    width: 9,
+                                                    height: 9,
+                                                    decoration: BoxDecoration(
+                                                      gradient: const LinearGradient(
+                                                        colors: [
+                                                          Color(0xFFFBBF24), // amber-400
+                                                          Color(0xFFF97316), // orange-500
+                                                        ],
+                                                      ),
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 1.2,
+                                                      ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withValues(alpha: 0.10),
+                                                          blurRadius: 2,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
                                             ],
                                           ),
                                         ),
                                       ),
                                     ),
-
-                                    // Layer B: Ô active kính aqua (Spring cubic-bezier(0.34, 1.3, 0.64, 1))
-                                    AnimatedOpacity(
-                                      opacity: on ? 1.0 : 0.0,
-                                      duration: const Duration(milliseconds: 400),
-                                      curve: const Cubic(0.34, 1.3, 0.64, 1.0),
-                                      child: AnimatedScale(
-                                        scale: on ? 1.0 : 0.75,
-                                        duration: const Duration(milliseconds: 400),
-                                        curve: const Cubic(0.34, 1.3, 0.64, 1.0),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(19), // rounded-[1.2rem]
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                            child: Container(
-                                              width: 48,
-                                              height: 48,
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFF2DD4BF).withValues(alpha: 0.55), // bg-aqua/55
-                                                borderRadius: BorderRadius.circular(19),
-                                                border: Border.all(
-                                                  color: Colors.white.withValues(alpha: 0.50),
-                                                  width: 1.2,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: const Color(0xFF2DD4BF).withValues(alpha: 0.75),
-                                                    blurRadius: 28,
-                                                    offset: const Offset(0, 8),
-                                                    spreadRadius: -2,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // Layer C: Icon (Lucide Icon 22px)
-                                    Icon(
-                                      on ? item.selectedIcon : item.icon,
-                                      size: 22,
-                                      color: on
-                                          ? Colors.white
-                                          : (isDark ? Colors.white70 : const Color(0xFF475569)),
-                                    ),
-
-                                    // Notification badge dot
-                                    if (item.label == 'Khám phá' && !on)
-                                      Positioned(
-                                        top: 8,
-                                        right: 8,
-                                        child: Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFEF4444),
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
+                                  );
+                                }),
                               ),
-                            ),
+                            ],
                           );
-                        }),
+                        },
                       ),
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
 
-              // 2. Nút phụ tách riêng (Sparkles AI Button - 64x64px h-16 w-16 shrink-0 place-items-center rounded-full)
+              // 4. Separate Floating AI Action Button (62x62px Glass Button)
               GestureDetector(
                 onTapDown: (_) => setState(() => _pressedIndex = 2),
                 onTapUp: (_) => setState(() => _pressedIndex = null),
@@ -246,29 +252,32 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(9999),
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
                       child: Container(
-                        width: 64,
-                        height: 64,
+                        width: 62,
+                        height: 62,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isDark
-                              ? const Color(0xFF1E222A).withValues(alpha: 0.40)
-                              : Colors.white.withValues(alpha: 0.25),
+                              ? const Color(0xFF1E222A).withValues(alpha: 0.65)
+                              : Colors.white.withValues(alpha: 0.55),
                           border: Border.all(
                             color: isDark
-                                ? Colors.white.withValues(alpha: 0.20)
-                                : Colors.white.withValues(alpha: 0.50),
-                            width: 1.2,
+                                ? Colors.white.withValues(alpha: 0.25)
+                                : Colors.white.withValues(alpha: 0.75),
+                            width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: isDark
-                                  ? Colors.black.withValues(alpha: 0.45)
-                                  : const Color(0xFF475569).withValues(alpha: 0.20),
+                              color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
                               blurRadius: 40,
-                              offset: const Offset(0, 12),
-                              spreadRadius: -12,
+                              offset: const Offset(0, 20),
+                              spreadRadius: -10,
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.03),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
@@ -276,7 +285,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                           child: Icon(
                             Icons.auto_awesome_rounded,
                             size: 24,
-                            color: isDark ? Colors.white : const Color(0xFF334155),
+                            color: isDark ? Colors.white : const Color(0xFF4B5563),
                           ),
                         ),
                       ),
