@@ -50,6 +50,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
         return 0;
       case 1:
         return 1;
+      case 2:
       case 3:
         return 2;
       case 4:
@@ -246,60 +247,91 @@ class _MainShellLayoutState extends State<MainShellLayout> {
               const SizedBox(width: 10),
 
               // 4. Separate Floating AI Action Button (62x62px Glass Button)
-              GestureDetector(
-                onTapDown: (_) => setState(() => _pressedIndex = 2),
-                onTapUp: (_) => setState(() => _pressedIndex = null),
-                onTapCancel: () => setState(() => _pressedIndex = null),
-                onTap: () => _onItemTapped(2, context),
-                child: AnimatedScale(
-                  scale: _pressedIndex == 2 ? 0.92 : 1.0,
-                  duration: const Duration(milliseconds: 150),
-                  curve: Curves.easeOutCubic,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(9999),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
-                      child: Container(
-                        width: 62,
-                        height: 62,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isDark
-                              ? const Color(0xFF0F172A).withValues(alpha: 0.45)
-                              : const Color(0xFFF1F5F9).withValues(alpha: 0.40),
-                          border: Border.all(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.20)
-                                : Colors.white.withValues(alpha: 0.65),
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? Colors.black.withValues(alpha: 0.50)
-                                  : const Color(0xFF334155).withValues(alpha: 0.12),
-                              blurRadius: 36,
-                              offset: const Offset(0, 16),
-                              spreadRadius: -8,
+              Builder(
+                builder: (context) {
+                  final isAiActive = selectedIndex == 2;
+                  return GestureDetector(
+                    onTapDown: (_) => setState(() => _pressedIndex = 2),
+                    onTapUp: (_) => setState(() => _pressedIndex = null),
+                    onTapCancel: () => setState(() => _pressedIndex = null),
+                    onTap: () => _onItemTapped(2, context),
+                    child: AnimatedScale(
+                      scale: _pressedIndex == 2 ? 0.92 : 1.0,
+                      duration: const Duration(milliseconds: 150),
+                      curve: Curves.easeOutCubic,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(9999),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            width: 62,
+                            height: 62,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: isAiActive
+                                  ? const LinearGradient(
+                                      colors: [
+                                        Color(0xFF71E2E8),
+                                        Color(0xFF2DBAC6),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : null,
+                              color: isAiActive
+                                  ? null
+                                  : (isDark
+                                      ? const Color(0xFF0F172A).withValues(alpha: 0.45)
+                                      : const Color(0xFFF1F5F9).withValues(alpha: 0.40)),
+                              border: Border.all(
+                                color: isAiActive
+                                    ? Colors.white.withValues(alpha: 0.75)
+                                    : (isDark
+                                        ? Colors.white.withValues(alpha: 0.20)
+                                        : Colors.white.withValues(alpha: 0.65)),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                if (isAiActive)
+                                  BoxShadow(
+                                    color: const Color(0xFF2DBAC6).withValues(alpha: 0.55),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 10),
+                                    spreadRadius: -2,
+                                  )
+                                else ...[
+                                  BoxShadow(
+                                    color: isDark
+                                        ? Colors.black.withValues(alpha: 0.50)
+                                        : const Color(0xFF334155).withValues(alpha: 0.12),
+                                    blurRadius: 36,
+                                    offset: const Offset(0, 16),
+                                    spreadRadius: -8,
+                                  ),
+                                  BoxShadow(
+                                    color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.85),
+                                    blurRadius: 1,
+                                    offset: const Offset(0, 1.5),
+                                  ),
+                                ],
+                              ],
                             ),
-                            BoxShadow(
-                              color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.85),
-                              blurRadius: 1,
-                              offset: const Offset(0, 1.5),
+                            child: Center(
+                              child: Icon(
+                                Icons.auto_awesome_rounded,
+                                size: 24,
+                                color: isAiActive
+                                    ? Colors.white
+                                    : (isDark ? Colors.white : const Color(0xFF4B5563)),
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.auto_awesome_rounded,
-                            size: 24,
-                            color: isDark ? Colors.white : const Color(0xFF4B5563),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),
