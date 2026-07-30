@@ -33,4 +33,5 @@
 - **Auth & Profile**: 🟢 Hoàn thiện (Refactor ProfileHomeScreen xóa bỏ 100% dữ liệu hardcode giả, phân tách 3 UI states: Shimmer Loading, Guest Welcome, Authenticated User. Unit test profile_state_test.dart pass 100%).
 - **Backend / Cloud Functions**: 🟢 Hoàn thiện (TypeScript v2 `generateItinerary` endpoint + Gemini server-side execution + rate limit + logging. Đã xóa code chết `codo-codoky`).
 - **Network Layer**: 🟢 Hoàn thiện (`ApiClient` + `NetworkExceptions` được nối 100% vào `AiRemoteService` và `itineraryProvider`, có interceptor logging và unit tests `api_client_test.dart` pass 100%).
-- **Testing**: 🟢 Hoàn thiện (Xóa 100% test hình thức. Viết unit test suite cho 5 Notifiers chính và 3 widget/interaction tests cho các luồng thao tác người dùng chính. `flutter test` pass 63/63 tests 100%).
+- **Testing**: 🟢 Hoàn thiện (Xóa 100% test hình thức. Viết unit test suite cho 5 Notifiers chính và 3 widget/interaction tests cho các luồng thao tác người dùng chính. `flutter test` pass 87/87 tests 100%).
+- **Motion System & Liquid Glass Dock**: 🟢 Hoàn thiện (Chuẩn hóa tại `lib/core/theme/motion.dart`: AppMotion.micro 150ms, AppMotion.standard 300ms, AppMotion.standardCurve, Liquid Glassmorphism Floating Dock với viền phản quang động, Active Pill nảy đàn hồi, nút AI tròn nổi và isolated press state 0.88, flutter test pass 87/87 tests 100%).
