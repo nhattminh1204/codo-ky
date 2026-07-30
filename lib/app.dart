@@ -5,6 +5,7 @@ import 'core/config/router/app_router.dart';
 import 'core/config/theme/app_theme.dart';
 import 'core/config/localization/app_localizations.dart';
 import 'core/config/constants/app_constants.dart';
+import 'core/providers/theme_provider.dart';
 
 class CodoKyApp extends ConsumerWidget {
   const CodoKyApp({super.key});
@@ -12,12 +13,13 @@ class CodoKyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final themeMode = ref.watch(themeProvider);
 
     return MaterialApp.router(
       title: AppConstants.appName,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
       localizationsDelegates: const [
         AppLocalizations.delegate,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
+import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
+import 'package:codoky/shared/widgets/app_open_container.dart';
 
 class MapBottomSheet extends ConsumerWidget {
   final dynamic place;
@@ -30,7 +31,7 @@ class MapBottomSheet extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
@@ -135,11 +136,10 @@ class MapBottomSheet extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Text(
                   name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E1E1E),
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
                 ),
                 const SizedBox(height: 6),
                 if (address.isNotEmpty)
@@ -165,18 +165,30 @@ class MapBottomSheet extends ConsumerWidget {
                   children: [
                     Expanded(
                       flex: 2,
-                      child: OutlinedButton.icon(
-                        onPressed: onDetail ?? () => context.push('/place/$placeId'),
-                        icon: const Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFFFF7A00)),
-                        label: const Text(
-                          'Xem chi tiết',
-                          style: TextStyle(color: Color(0xFFFF7A00), fontWeight: FontWeight.bold, fontSize: 13),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: const BorderSide(color: Color(0xFFFFEAD8)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
+                      child: AppOpenContainer(
+                        closedRadius: BorderRadius.circular(14),
+                        openBuilder: (context, _) => PlaceDetailScreen(id: placeId),
+                        closedBuilder: (context, openContainer) {
+                          return OutlinedButton.icon(
+                            onPressed: () {
+                              if (onDetail != null) {
+                                onDetail!();
+                              } else {
+                                openContainer();
+                              }
+                            },
+                            icon: const Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFFFF7A00)),
+                            label: const Text(
+                              'Xem chi tiết',
+                              style: TextStyle(color: Color(0xFFFF7A00), fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              side: const BorderSide(color: Color(0xFFFFEAD8)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),

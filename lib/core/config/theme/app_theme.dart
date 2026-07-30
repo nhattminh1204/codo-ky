@@ -17,19 +17,27 @@ class AppColors {
   static const Color error = Color(0xFFD62828);
   static const Color info = Color(0xFF3D405B);
 
-  // Background & Surfaces
+  // Background & Surfaces (Light)
   static const Color bgLight = Color(0xFFF4F1DE); // Warm Sand Heritage Surface
   static const Color surfaceLight = Colors.white;
   static const Color cardLight = Colors.white;
   static const Color borderLight = Color(0xFFE2E8F0);
 
-  static const Color bgDark = Color(0xFF121212);
-  static const Color surfaceDark = Color(0xFF1E1E1E);
+  // Background & Surfaces (Dark Mode - Đêm Hoàng Thành)
+  static const Color bgDark = Color(0xFF121418); // Sand Night Slate
+  static const Color surfaceDark = Color(0xFF1E222A); // Imperial Slate Card
+  static const Color cardDark = Color(0xFF1E222A);
+  static const Color borderDark = Color(0xFF2D333F);
 
-  // Text Colors
+  // Text Colors (Light)
   static const Color textPrimary = Color(0xFF1E293B);
   static const Color textSecondary = Color(0xFF64748B);
   static const Color textLight = Color(0xFF94A3B8);
+
+  // Text Colors (Dark Mode)
+  static const Color textPrimaryDark = Color(0xFFF1F5F9);
+  static const Color textSecondaryDark = Color(0xFF94A3B8);
+  static const Color textLightDark = Color(0xFF64748B);
 
   // Soft Shadows (Minimalist Flat Elevation)
   static List<BoxShadow> softShadow = [
@@ -131,6 +139,7 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.bgLight,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
@@ -229,14 +238,24 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.borderLight,
+        thickness: 1,
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.surfaceLight,
+        modalBackgroundColor: AppColors.surfaceLight,
+      ),
     );
   }
 
   static ThemeData get darkTheme {
-    final baseTextTheme = GoogleFonts.beVietnamProTextTheme(ThemeData.dark().textTheme);
+    final bodyTextTheme = GoogleFonts.beVietnamProTextTheme(ThemeData.dark().textTheme);
+    final titleTextTheme = GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme);
 
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.bgDark,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
@@ -245,10 +264,26 @@ class AppTheme {
         surface: AppColors.surfaceDark,
         brightness: Brightness.dark,
       ),
-      textTheme: baseTextTheme,
+      textTheme: bodyTextTheme.copyWith(
+        titleLarge: titleTextTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimaryDark,
+        ),
+        titleMedium: titleTextTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryDark,
+        ),
+        bodyLarge: bodyTextTheme.bodyLarge?.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        bodyMedium: bodyTextTheme.bodyMedium?.copyWith(
+          color: AppColors.textSecondaryDark,
+        ),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.surfaceDark,
         elevation: 0,
+        scrolledUnderElevation: 1,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
         titleTextStyle: GoogleFonts.plusJakartaSans(
@@ -256,6 +291,76 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.card,
+          side: const BorderSide(color: AppColors.borderDark, width: 1),
+        ),
+        color: AppColors.cardDark,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+          textStyle: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+          textStyle: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.secondary,
+          side: const BorderSide(color: AppColors.secondary, width: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+          textStyle: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.surfaceDark,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: AppRadius.button,
+          borderSide: const BorderSide(color: AppColors.borderDark, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.button,
+          borderSide: const BorderSide(color: AppColors.borderDark, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.button,
+          borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+        ),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.borderDark,
+        thickness: 1,
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.surfaceDark,
+        modalBackgroundColor: AppColors.surfaceDark,
       ),
     );
   }

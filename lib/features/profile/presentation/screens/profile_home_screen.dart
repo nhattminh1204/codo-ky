@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/providers/theme_provider.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/auth/data/models/user_model.dart';
 
@@ -162,8 +163,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                           ),
                     ),
                     GestureDetector(
-                      onTap: () => context.push('/settings'),
-                      child: const Icon(Icons.settings_outlined, color: Colors.white, size: 22),
+                      onTap: () => _showThemeSelectionSheet(context, ref),
+                      child: const Icon(Icons.palette_outlined, color: Colors.white, size: 22),
                     ),
                   ],
                 ),
@@ -398,8 +399,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                           ),
                     ),
                     GestureDetector(
-                      onTap: () => context.push('/settings'),
-                      child: const Icon(Icons.settings_outlined, color: Colors.white, size: 22),
+                      onTap: () => _showThemeSelectionSheet(context, ref),
+                      child: const Icon(Icons.palette_outlined, color: Colors.white, size: 22),
                     ),
                   ],
                 ),
@@ -700,6 +701,61 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // SECTION 3: GIAO DIỆN & CÀI ĐẶT
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'GIAO DIỆN & CÀI ĐẶT',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textSecondary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Material(
+                          color: Colors.white,
+                          borderRadius: AppRadius.card,
+                          clipBehavior: Clip.antiAlias,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: AppRadius.card,
+                              border: Border.all(color: AppColors.borderLight),
+                              boxShadow: AppShadows.card,
+                            ),
+                            child: Column(
+                              children: [
+                                Consumer(
+                                  builder: (context, ref, child) {
+                                    final currentMode = ref.watch(themeProvider);
+                                    String modeLabel = 'Theo hệ thống 📱';
+                                    if (currentMode == ThemeMode.light) {
+                                      modeLabel = 'Giao diện sáng ☀️';
+                                    } else if (currentMode == ThemeMode.dark) {
+                                      modeLabel = 'Đêm Hoàng Thành (Dark Mode) 🌙';
+                                    }
+
+                                    return _buildActionTile(
+                                      icon: Icons.palette_outlined,
+                                      title: 'Giao diện ứng dụng',
+                                      subtitle: modeLabel,
+                                      onTap: () => _showThemeSelectionSheet(context, ref),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: AppSpacing.lg),
 
                   // BUTTONS
@@ -869,6 +925,110 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showThemeSelectionSheet(BuildContext context, WidgetRef ref) {
+    final currentTheme = ref.read(themeProvider);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Giao diện ứng dụng',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildThemeOptionTile(
+                ctx,
+                ref,
+                title: 'Giao diện sáng (Heritage Sand)',
+                subtitle: 'Nền Kem Đất Nung nhã nhặn, sang trọng',
+                icon: Icons.wb_sunny_outlined,
+                mode: ThemeMode.light,
+                isSelected: currentTheme == ThemeMode.light,
+              ),
+              _buildThemeOptionTile(
+                ctx,
+                ref,
+                title: 'Chế độ tối (Đêm Hoàng Thành)',
+                subtitle: 'Nền xám than sẫm sần, dịu mắt ban đêm',
+                icon: Icons.nightlight_round,
+                mode: ThemeMode.dark,
+                isSelected: currentTheme == ThemeMode.dark,
+              ),
+              _buildThemeOptionTile(
+                ctx,
+                ref,
+                title: 'Theo cài đặt hệ thống',
+                subtitle: 'Tự động đồng bộ theo chế độ thiết bị',
+                icon: Icons.settings_brightness_outlined,
+                mode: ThemeMode.system,
+                isSelected: currentTheme == ThemeMode.system,
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOptionTile(
+    BuildContext context,
+    WidgetRef ref, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required ThemeMode mode,
+    required bool isSelected,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.12) : colorScheme.surface,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: isSelected ? AppColors.primary : colorScheme.onSurfaceVariant),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? AppColors.primary : null,
+        ),
+      ),
+      subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
+      trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: AppColors.primary) : null,
+      onTap: () {
+        ref.read(themeProvider.notifier).setThemeMode(mode);
+        Navigator.pop(context);
+      },
     );
   }
 }

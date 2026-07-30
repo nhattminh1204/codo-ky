@@ -55,6 +55,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
             user: userModel,
           );
         } else {
+          // Bỏ qua việc xóa state nếu người dùng đang trong chế độ Dev Mode trên Desktop
+          if (state.user != null && state.user!.id.contains('dev_user')) {
+            return;
+          }
           state = const AuthState();
         }
       }, onError: (e) {
@@ -65,7 +69,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  String _deriveDisplayName(User fbUser, [String? fallbackName]) {
+    if (fbUser.displayName != null && fbUser.displayName!.trim().isNotEmpty) {
+      return fbUser.displayName!.trim();
+    }
+    if (fallbackName != null && fallbackName.trim().isNotEmpty) {
+      return fallbackName.trim();
+    }
+    if (fbUser.email != null && fbUser.email!.contains('@')) {
+      final prefix = fbUser.email!.split('@').first.trim();
+      if (prefix.isNotEmpty) {
+        return prefix[0].toUpperCase() + prefix.substring(1);
+      }
+    }
+    return 'Người dùng CodoKy';
+  }
+
   Future<UserModel> _fetchOrSyncUser(User fbUser, [String? fallbackName, String? fallbackPhone]) async {
+    final derivedName = _deriveDisplayName(fbUser, fallbackName);
     try {
       final doc = await FirebaseFirestore.instance.collection('users').doc(fbUser.uid).get();
       if (doc.exists && doc.data() != null) {
@@ -73,7 +94,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       } else {
         final newUser = UserModel(
           id: fbUser.uid,
-          name: fbUser.displayName ?? fallbackName ?? 'Người dùng CodoKy',
+          name: derivedName,
           email: fbUser.email ?? '',
           phone: fbUser.phoneNumber ?? fallbackPhone ?? '',
           avatarUrl: fbUser.photoURL,
@@ -91,7 +112,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       AppLogger.w('Firestore sync fallback: $e');
       return UserModel(
         id: fbUser.uid,
-        name: fbUser.displayName ?? fallbackName ?? 'Người dùng CodoKy',
+        name: derivedName,
         email: fbUser.email ?? '',
         phone: fbUser.phoneNumber ?? fallbackPhone ?? '',
         avatarUrl: fbUser.photoURL,
@@ -226,7 +247,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             name: 'Google User (Desktop Dev)',
             email: 'google.dev@codoky.com',
             phone: '0905123456',
-            avatarUrl: 'https://lh3.googleusercontent.com/a/default-user',
+            avatarUrl: null,
             preferences: const ['Ẩm thực Huế', 'Di tích lịch sử', 'Sống ảo'],
             createdAt: DateTime.now(),
           );

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:animations/animations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 
 class MainShellLayout extends StatefulWidget {
-  final Widget child;
+  final StatefulNavigationShell navigationShell;
 
   const MainShellLayout({
     super.key,
-    required this.child,
+    required this.navigationShell,
   });
 
   @override
@@ -27,49 +26,24 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     _NavItemData(icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded, label: 'Hồ sơ', route: '/profile'),
   ];
 
-  int _calculateSelectedIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/explore')) return 1;
-    if (location.startsWith('/itinerary/setup')) return 2;
-    if (location.startsWith('/itinerary')) return 3;
-    if (location.startsWith('/profile')) return 4;
-    return 0;
-  }
-
   void _onItemTapped(int index, BuildContext context) {
     HapticFeedback.lightImpact();
-    final item = _items[index];
-    if (item.isCenterAction) {
-      context.push(item.route);
-    } else {
-      context.go(item.route);
-    }
+    widget.navigationShell.goBranch(
+      index,
+      initialLocation: index == widget.navigationShell.currentIndex,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = _calculateSelectedIndex(context);
-    final currentPath = GoRouterState.of(context).uri.path;
+    final selectedIndex = widget.navigationShell.currentIndex;
 
     return Scaffold(
       extendBody: false,
-      backgroundColor: AppColors.bgLight,
-      body: PageTransitionSwitcher(
-        duration: AppMotion.standard,
-        transitionBuilder: (child, animation, secondaryAnimation) {
-          return FadeThroughTransition(
-            animation: animation,
-            secondaryAnimation: secondaryAnimation,
-            child: child,
-          );
-        },
-        child: KeyedSubtree(
-          key: ValueKey(currentPath),
-          child: widget.child,
-        ),
-      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: widget.navigationShell,
       bottomNavigationBar: Container(
-        color: AppColors.bgLight,
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: SafeArea(
           bottom: true,
           child: Padding(
@@ -77,9 +51,9 @@ class _MainShellLayoutState extends State<MainShellLayout> {
             child: Container(
               height: 64,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.borderLight, width: 1),
+                border: Border.all(color: Theme.of(context).dividerColor, width: 1),
                 boxShadow: AppShadows.soft,
               ),
               child: Row(

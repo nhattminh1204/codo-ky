@@ -174,7 +174,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      // Place Details & Specific Param Routes
+      // Place Details & Review Push Routes
       GoRoute(
         path: '/place/:id',
         pageBuilder: (context, state) {
@@ -186,118 +186,140 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+      GoRoute(
+        path: '/reviews',
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const ReviewListScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/reviews/write',
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const WriteReviewScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/reviews/my',
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const MyReviewsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/reviews/:placeId',
+        pageBuilder: (context, state) {
+          final placeId = state.pathParameters['placeId'];
+          return buildPageWithTransition(
+            context: context,
+            state: state,
+            child: ReviewListScreen(placeId: placeId),
+          );
+        },
+      ),
 
-      // 2. Main Shell Tabs
-      ShellRoute(
-        builder: (context, state, child) => MainShellLayout(child: child),
-        routes: [
-          // Map
-          GoRoute(
-            path: '/map',
-            builder: (context, state) => const MapHomeScreen(),
-          ),
-          // Explore
-          GoRoute(
-            path: '/explore',
-            builder: (context, state) => const ExploreHomeScreen(),
+      // 2. Main Shell Tabs with StatefulShellRoute.indexedStack
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => MainShellLayout(navigationShell: navigationShell),
+        branches: [
+          // Branch 0: Map
+          StatefulShellBranch(
             routes: [
               GoRoute(
-                path: 'category/:categoryId',
-                pageBuilder: (context, state) {
-                  final categoryId = state.pathParameters['categoryId'] ?? '';
-                  return buildPageWithTransition(
-                    context: context,
-                    state: state,
-                    child: CategoryListScreen(categoryId: categoryId),
-                  );
-                },
+                path: '/map',
+                builder: (context, state) => const MapHomeScreen(),
               ),
             ],
           ),
-          // Itinerary
-          GoRoute(
-            path: '/itinerary',
-            builder: (context, state) => const ItinerarySetupScreen(),
-          ),
-          GoRoute(
-            path: '/itinerary/setup',
-            pageBuilder: (context, state) => buildPageWithTransition(
-              context: context,
-              state: state,
-              child: const ItinerarySetupScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/itinerary/result',
-            pageBuilder: (context, state) => buildPageWithTransition(
-              context: context,
-              state: state,
-              child: const ItineraryResultScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/itinerary/stop/:id',
-            pageBuilder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              return buildPageWithTransition(
-                context: context,
-                state: state,
-                child: ItineraryStopDetailScreen(id: id),
-              );
-            },
-          ),
-          GoRoute(
-            path: '/itinerary/saved',
-            pageBuilder: (context, state) => buildPageWithTransition(
-              context: context,
-              state: state,
-              child: const SavedItinerariesScreen(),
-            ),
-          ),
-          // Reviews
-          GoRoute(
-            path: '/reviews',
-            builder: (context, state) => const ReviewListScreen(),
-          ),
-          GoRoute(
-            path: '/reviews/write',
-            pageBuilder: (context, state) => buildPageWithTransition(
-              context: context,
-              state: state,
-              child: const WriteReviewScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/reviews/my',
-            pageBuilder: (context, state) => buildPageWithTransition(
-              context: context,
-              state: state,
-              child: const MyReviewsScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/reviews/:placeId',
-            pageBuilder: (context, state) {
-              final placeId = state.pathParameters['placeId'];
-              return buildPageWithTransition(
-                context: context,
-                state: state,
-                child: ReviewListScreen(placeId: placeId),
-              );
-            },
-          ),
-          // Profile
-          GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfileHomeScreen(),
+          // Branch 1: Explore
+          StatefulShellBranch(
             routes: [
               GoRoute(
-                path: 'edit',
-                pageBuilder: (context, state) => buildPageWithTransition(
-                  context: context,
-                  state: state,
-                  child: const EditProfileScreen(),
-                ),
+                path: '/explore',
+                builder: (context, state) => const ExploreHomeScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'category/:categoryId',
+                    pageBuilder: (context, state) {
+                      final categoryId = state.pathParameters['categoryId'] ?? '';
+                      return buildPageWithTransition(
+                        context: context,
+                        state: state,
+                        child: CategoryListScreen(categoryId: categoryId),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Branch 2: Center Action (Itinerary Setup)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/itinerary/setup',
+                builder: (context, state) => const ItinerarySetupScreen(),
+              ),
+            ],
+          ),
+          // Branch 3: Itinerary
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/itinerary',
+                builder: (context, state) => const ItinerarySetupScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'result',
+                    pageBuilder: (context, state) => buildPageWithTransition(
+                      context: context,
+                      state: state,
+                      child: const ItineraryResultScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'stop/:id',
+                    pageBuilder: (context, state) {
+                      final id = state.pathParameters['id'] ?? '';
+                      return buildPageWithTransition(
+                        context: context,
+                        state: state,
+                        child: ItineraryStopDetailScreen(id: id),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'saved',
+                    pageBuilder: (context, state) => buildPageWithTransition(
+                      context: context,
+                      state: state,
+                      child: const SavedItinerariesScreen(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Branch 4: Profile
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const ProfileHomeScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    pageBuilder: (context, state) => buildPageWithTransition(
+                      context: context,
+                      state: state,
+                      child: const EditProfileScreen(),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
