@@ -7,6 +7,7 @@ import 'package:codoky/core/logging/app_logger.dart';
 import 'package:codoky/core/network/network_exceptions.dart';
 import 'package:codoky/features/map/data/datasources/osrm_remote_service.dart';
 import 'package:codoky/features/map/data/models/osrm_route_model.dart';
+import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
 
 class MapState {
   final List<dynamic> allPlaces;
@@ -27,6 +28,8 @@ class MapState {
   final int currentStepIndex;
   final List<OsrmRoute> alternativeRoutes;
   final int selectedRouteIndex;
+  final MapMarkerStyle markerStyle;
+  final MapTileStyle mapTileStyle;
 
   const MapState({
     this.allPlaces = const [],
@@ -47,6 +50,8 @@ class MapState {
     this.currentStepIndex = 0,
     this.alternativeRoutes = const [],
     this.selectedRouteIndex = 0,
+    this.markerStyle = MapMarkerStyle.gradientVibrantGlow,
+    this.mapTileStyle = MapTileStyle.osmStandard,
   });
 
   MapState copyWith({
@@ -73,6 +78,8 @@ class MapState {
     int? currentStepIndex,
     List<OsrmRoute>? alternativeRoutes,
     int? selectedRouteIndex,
+    MapMarkerStyle? markerStyle,
+    MapTileStyle? mapTileStyle,
   }) {
     return MapState(
       allPlaces: allPlaces ?? this.allPlaces,
@@ -93,6 +100,8 @@ class MapState {
       currentStepIndex: currentStepIndex ?? this.currentStepIndex,
       alternativeRoutes: alternativeRoutes ?? this.alternativeRoutes,
       selectedRouteIndex: selectedRouteIndex ?? this.selectedRouteIndex,
+      markerStyle: markerStyle ?? this.markerStyle,
+      mapTileStyle: mapTileStyle ?? this.mapTileStyle,
     );
   }
 
@@ -236,7 +245,8 @@ class MapNotifier extends StateNotifier<MapState> {
     final filtered = state.allPlaces.where((p) {
       final pId = (p['id'] as dynamic)?.toString() ?? '';
       final pCat = (p['category'] as String?)?.toLowerCase() ?? '';
-      final isFeatured = (p['is_featured'] == true) || (p['featured'] == true);
+      final rating = (p['rating'] as num?)?.toDouble() ?? 0.0;
+      final isFeatured = (p['is_featured'] == true) || (p['featured'] == true) || rating >= 4.5;
 
       bool catMatch = true;
       if (categories.isNotEmpty) {
@@ -401,6 +411,32 @@ class MapNotifier extends StateNotifier<MapState> {
       clearRouteError: true,
     );
   }
+
+  /// Sets active marker design style (gradient, duotone, 3d pop)
+  void setMarkerStyle(MapMarkerStyle style) {
+    state = state.copyWith(markerStyle: style);
+    AppLogger.i('🎨 Đã chuyển phong cách Map Marker sang: ${style.name}');
+  }
+
+  /// Sets active map tile theme style (cartoVoyager, cartoDark, cartoPositron, osmStandard)
+  void setMapTileStyle(MapTileStyle style) {
+    state = state.copyWith(mapTileStyle: style);
+    AppLogger.i('🗺️ Đã chuyển phong cách nền bản đồ sang: ${style.name}');
+  }
+}
+
+enum MapTileStyle {
+  /// OpenStreetMap Standard
+  osmStandard,
+
+  /// CartoDB Voyager (Modern colorful travel basemap)
+  cartoVoyager,
+
+  /// CartoDB Dark Matter (Sleek dark basemap)
+  cartoDark,
+
+  /// CartoDB Positron (Minimalist light basemap)
+  cartoPositron,
 }
 
 final mapProvider = StateNotifierProvider<MapNotifier, MapState>((ref) {

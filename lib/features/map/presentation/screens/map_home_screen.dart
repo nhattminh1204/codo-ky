@@ -518,7 +518,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: _getTileUrlTemplate(state.mapTileStyle),
                 userAgentPackageName: 'com.codoky.app',
                 tileProvider: CachedDiskTileProvider(
                   userAgent: 'com.codoky.app',
@@ -548,11 +548,19 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   builder: (context, markers) {
                     return Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(21),
-                        color: const Color(0xFF9B1B30),
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFFFF5E36), Color(0xFFFFAE33)],
+                        ),
                         border: Border.all(color: Colors.white, width: 2.5),
                         boxShadow: const [
-                          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3)),
+                          BoxShadow(
+                            color: Color(0x66FF5E36),
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
+                          ),
                         ],
                       ),
                       child: Center(
@@ -560,7 +568,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                           markers.length.toString(),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w800,
                             fontSize: 14,
                           ),
                         ),
@@ -583,9 +591,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
           if (state.selectedPlace != null)
             Positioned(
-              bottom: 80,
-              left: 0,
-              right: 0,
+              bottom: 12,
+              left: 12,
+              right: 12,
               child: MapBottomSheet(
                 place: state.selectedPlace!,
                 onClose: _clearSelectionAndZoomOut,
@@ -996,11 +1004,22 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
           ),
           Positioned(
-            top: 145,
+            top: 195,
             right: 16,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // 0. Nút Tùy Chỉnh Phong Cách Icon (Palette)
+                FloatingActionButton.small(
+                  heroTag: 'icon_style_palette',
+                  onPressed: () => _showIconStyleDrawer(context, ref),
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: const Color(0xFFFF5E36),
+                  elevation: 4,
+                  child: const Icon(Icons.palette_outlined, size: 20),
+                ),
+                const SizedBox(height: 8),
+
                 // 1. Nút Phóng To (+)
                 FloatingActionButton.small(
                   heroTag: 'zoom_in',
@@ -1100,21 +1119,61 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     final isSelected = (state.selectedCategory == categoryId) ||
         (state.selectedCategory == null && categoryId == 'featured');
 
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      selectedColor: const Color(0xFF9B1B30),
-      backgroundColor: Colors.white.withValues(alpha: 0.92),
-      elevation: isSelected ? 4 : 2,
-      shadowColor: Colors.black26,
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.black87,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        fontSize: 13,
-      ),
-      onSelected: (_) {
+    return GestureDetector(
+      onTap: () {
         ref.read(mapProvider.notifier).filterByCategory(categoryId);
       },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: AppMotion.emphasizedCurve,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: isSelected
+              ? const LinearGradient(
+                  colors: [Color(0xFFFF5E36), Color(0xFFFFAE33)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : Colors.white.withValues(alpha: 0.92),
+          border: Border.all(
+            color: isSelected ? Colors.transparent : const Color(0xFFE2E8F0),
+            width: 1.2,
+          ),
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: const Color(0xFFFF5E36).withValues(alpha: 0.4),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            else
+              const BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected) ...[
+              const Icon(Icons.check_rounded, color: Colors.white, size: 14),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1126,20 +1185,29 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF9B1B30) : Colors.white.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(8),
+          color: isSelected ? const Color(0xFFFF5E36) : Colors.white.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? const Color(0xFF9B1B30) : Colors.grey[300]!,
+            color: isSelected ? const Color(0xFFFF5E36) : const Color(0xFFCBD5E1),
             width: 1.0,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFFFF5E36).withValues(alpha: 0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 10.5,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
             color: isSelected ? Colors.white : const Color(0xFF475569),
           ),
         ),
@@ -1217,7 +1285,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             },
             icon: Icon(
               state.isVoiceMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-              color: state.isVoiceMuted ? Colors.grey : const Color(0xFF9B1B30),
+              color: state.isVoiceMuted ? Colors.grey : const Color(0xFFFF5E36),
               size: 24,
             ),
             tooltip: state.isVoiceMuted ? 'Bật giọng nói' : 'Tắt giọng nói',
@@ -1352,8 +1420,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         markers.add(
           Marker(
             point: targetPos,
-            width: 44,
-            height: 44,
+            width: 52,
+            height: 58,
+            alignment: Alignment.topCenter,
             child: GestureDetector(
               onTap: () {
                 if (_previousCameraCenter == null) {
@@ -1371,6 +1440,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               child: PlaceMarker(
                 category: category,
                 isSelected: isSelected,
+                style: ref.watch(mapProvider).markerStyle,
               ),
             ),
           ),
@@ -1378,6 +1448,20 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       }
     }
     return markers;
+  }
+
+  String _getTileUrlTemplate(MapTileStyle? style) {
+    switch (style) {
+      case MapTileStyle.cartoVoyager:
+        return 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+      case MapTileStyle.cartoDark:
+        return 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+      case MapTileStyle.cartoPositron:
+        return 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+      case MapTileStyle.osmStandard:
+      default:
+        return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    }
   }
 
   Future<void> _goToCurrentLocation() async {
@@ -1416,4 +1500,167 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       }
     }
   }
+
+  void _showIconStyleDrawer(BuildContext context, WidgetRef ref) {
+    final currentStyle = ref.read(mapProvider).markerStyle;
+
+    showAppBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      builder: (context) {
+        final bottomInset = MediaQuery.of(context).padding.bottom;
+        return Container(
+          padding: EdgeInsets.fromLTRB(24, 24, 24, bottomInset + 28),
+          decoration: const BoxDecoration(
+            color: Color(0xFF0F172A),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF5E36).withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFFFF5E36), size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'Tùy Chỉnh Phong Cách Icon',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            Text(
+                              'Chọn phong cách biểu tượng hiện đại & trẻ trung',
+                              style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close, color: Colors.white70),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _buildStyleOptionCard(
+                  context: context,
+                  ref: ref,
+                  style: MapMarkerStyle.gradientVibrantGlow,
+                  title: 'Gradient Vibrant Glow',
+                  subtitle: 'Màu sắc đổ bóng rực rỡ, năng động & nổi bật',
+                  icon: Icons.bolt_rounded,
+                  color: const Color(0xFFFF5E36),
+                  isSelected: currentStyle == MapMarkerStyle.gradientVibrantGlow,
+                ),
+                const SizedBox(height: 12),
+                _buildStyleOptionCard(
+                  context: context,
+                  ref: ref,
+                  style: MapMarkerStyle.glassmorphicDuotone,
+                  title: 'Glassmorphic Duotone',
+                  subtitle: 'Trong suốt 2 tông màu tinh tế, sang trọng',
+                  icon: Icons.layers_rounded,
+                  color: const Color(0xFF06B6D4),
+                  isSelected: currentStyle == MapMarkerStyle.glassmorphicDuotone,
+                ),
+                const SizedBox(height: 12),
+                _buildStyleOptionCard(
+                  context: context,
+                  ref: ref,
+                  style: MapMarkerStyle.playfulPop3D,
+                  title: '3D Playful Pop',
+                  subtitle: 'Khối 3D bo tròn đầy năng lượng tuổi trẻ',
+                  icon: Icons.sentiment_very_satisfied_rounded,
+                  color: const Color(0xFF8B5CF6),
+                  isSelected: currentStyle == MapMarkerStyle.playfulPop3D,
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStyleOptionCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required MapMarkerStyle style,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+  }) {
+    return InkWell(
+      onTap: () {
+        ref.read(mapProvider.notifier).setMarkerStyle(style);
+        Navigator.pop(context);
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B).withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? color : Colors.white10,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+              color: isSelected ? color : Colors.white30,
+              size: 22,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
+
