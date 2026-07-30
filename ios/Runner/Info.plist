@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>CodoKy cần truy cập Camera để chụp ảnh nhận diện di sản, lăng tẩm và món ăn Huế.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CodoKy cần truy cập Thư viện ảnh để chọn hình ảnh địa điểm Huế.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>CodoKy cần vị trí của bạn để hiển thị vị trí trên bản đồ và gợi ý địa điểm xung quanh.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
