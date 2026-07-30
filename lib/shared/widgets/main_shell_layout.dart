@@ -189,6 +189,39 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                           child: Stack(
                                             alignment: Alignment.center,
                                             children: [
+                                              // Pressed soft glass feedback pill (.glass-press-effect)
+                                              AnimatedOpacity(
+                                                opacity: isPressed ? 1.0 : 0.0,
+                                                duration: const Duration(milliseconds: 150),
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(9999),
+                                                  child: BackdropFilter(
+                                                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                                    child: Container(
+                                                      width: 44,
+                                                      height: 44,
+                                                      decoration: BoxDecoration(
+                                                        color: isDark
+                                                            ? Colors.white.withValues(alpha: 0.18)
+                                                            : Colors.white.withValues(alpha: 0.45),
+                                                        borderRadius: BorderRadius.circular(9999),
+                                                        border: Border.all(
+                                                          color: Colors.white.withValues(alpha: 0.60),
+                                                          width: 1.2,
+                                                        ),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.white.withValues(alpha: 0.50),
+                                                            blurRadius: 10,
+                                                            spreadRadius: 1,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
                                               // Icon (.nav-btn.active vs .nav-btn:not(.active))
                                               Icon(
                                                 isSelected ? item.selectedIcon : item.icon,
@@ -250,13 +283,15 @@ class _MainShellLayoutState extends State<MainShellLayout> {
               Builder(
                 builder: (context) {
                   final isAiActive = selectedIndex == 2;
+                  final isPressed = _pressedIndex == 2;
+
                   return GestureDetector(
                     onTapDown: (_) => setState(() => _pressedIndex = 2),
                     onTapUp: (_) => setState(() => _pressedIndex = null),
                     onTapCancel: () => setState(() => _pressedIndex = null),
                     onTap: () => _onItemTapped(2, context),
                     child: AnimatedScale(
-                      scale: _pressedIndex == 2 ? 0.92 : 1.0,
+                      scale: isPressed ? 0.92 : 1.0,
                       duration: const Duration(milliseconds: 150),
                       curve: Curves.easeOutCubic,
                       child: ClipRRect(
@@ -278,19 +313,26 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     )
-                                  : null,
-                              color: isAiActive
+                                  : (isPressed
+                                      ? LinearGradient(
+                                          colors: [
+                                            Colors.white.withValues(alpha: 0.60),
+                                            const Color(0xFFF1F5F9).withValues(alpha: 0.50),
+                                          ],
+                                        )
+                                      : null),
+                              color: isAiActive || isPressed
                                   ? null
                                   : (isDark
                                       ? const Color(0xFF0F172A).withValues(alpha: 0.45)
                                       : const Color(0xFFF1F5F9).withValues(alpha: 0.40)),
                               border: Border.all(
-                                color: isAiActive
-                                    ? Colors.white.withValues(alpha: 0.75)
+                                color: isAiActive || isPressed
+                                    ? Colors.white.withValues(alpha: 0.85)
                                     : (isDark
                                         ? Colors.white.withValues(alpha: 0.20)
                                         : Colors.white.withValues(alpha: 0.65)),
-                                width: 1.5,
+                                width: isPressed ? 2.0 : 1.5,
                               ),
                               boxShadow: [
                                 if (isAiActive)
@@ -299,6 +341,12 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                     blurRadius: 24,
                                     offset: const Offset(0, 10),
                                     spreadRadius: -2,
+                                  )
+                                else if (isPressed)
+                                  BoxShadow(
+                                    color: Colors.white.withValues(alpha: 0.60),
+                                    blurRadius: 16,
+                                    spreadRadius: 2,
                                   )
                                 else ...[
                                   BoxShadow(
@@ -323,7 +371,9 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                 size: 24,
                                 color: isAiActive
                                     ? Colors.white
-                                    : (isDark ? Colors.white : const Color(0xFF4B5563)),
+                                    : (isPressed
+                                        ? const Color(0xFF2DBAC6)
+                                        : (isDark ? Colors.white : const Color(0xFF4B5563))),
                               ),
                             ),
                           ),
