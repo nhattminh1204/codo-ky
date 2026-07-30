@@ -83,30 +83,30 @@ class _MainShellLayoutState extends State<MainShellLayout> {
           padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
           child: Row(
             children: [
-              // 1. Floating Glass Navigation Container (3D Multi-stop Glass Gradient Border)
+              // 1. Floating Glass Navigation Container (Diagonally Opposite 3D Glass Gradient Border)
               Expanded(
                 child: Container(
                   height: 62,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(9999),
-                    // Viền Gradient 3D đa điểm: Xám đổ từ đậm sang nhạt ở các góc lượn + Trắng gương mép trên/dưới
+                    // Viền Gradient đối diện xéo: Góc trên-trái & Góc dưới-phải màu xám đậm->nhạt, Góc trên-phải & Góc dưới-trái màu trắng gương
                     gradient: LinearGradient(
                       colors: isDark
                           ? [
-                              Colors.white.withValues(alpha: 0.50),
-                              const Color(0xFF64748B).withValues(alpha: 0.40),
-                              Colors.white.withValues(alpha: 0.60),
-                              const Color(0xFF475569).withValues(alpha: 0.35),
-                              Colors.white.withValues(alpha: 0.40),
+                              const Color(0xFF475569).withValues(alpha: 0.50), // 0.0: Góc trên-trái xám
+                              Colors.white.withValues(alpha: 0.65),             // 0.30: Góc trên-phải trắng
+                              Colors.white.withValues(alpha: 0.35),             // 0.50: Giữa mờ
+                              Colors.white.withValues(alpha: 0.65),             // 0.70: Góc dưới-trái trắng
+                              const Color(0xFF475569).withValues(alpha: 0.50), // 1.0: Góc dưới-phải xám đối diện xéo
                             ]
                           : [
-                              const Color(0xFF64748B).withValues(alpha: 0.60), // Góc trên-trái: Xám đậm -> nhạt
-                              Colors.white.withValues(alpha: 0.95),             // Mép trên: Trắng phản quang glass
-                              const Color(0xFF94A3B8).withValues(alpha: 0.65), // Góc trên-phải: Xám đổ nhẹ
-                              Colors.white.withValues(alpha: 0.90),             // Mép dưới: Trắng gương sáng
-                              const Color(0xFF64748B).withValues(alpha: 0.45), // Góc dưới-trái: Xám đệm contour
+                              const Color(0xFF64748B).withValues(alpha: 0.65), // 0.0: Góc trên-trái xám
+                              Colors.white.withValues(alpha: 0.95),             // 0.30: Góc trên-phải trắng
+                              Colors.white.withValues(alpha: 0.70),             // 0.50: Giữa mờ
+                              Colors.white.withValues(alpha: 0.95),             // 0.70: Góc dưới-trái trắng
+                              const Color(0xFF64748B).withValues(alpha: 0.65), // 1.0: Góc dưới-phải xám đối diện xéo
                             ],
-                      stops: const [0.0, 0.25, 0.50, 0.75, 1.0],
+                      stops: const [0.0, 0.30, 0.50, 0.70, 1.0],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -340,7 +340,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
 
               const SizedBox(width: 10),
 
-              // 4. Separate Floating AI Action Button (62x62px UltraThin Glass Button)
+              // 4. Separate Floating AI Action Button (62x62px UltraThin Glass Button with Diagonally Opposite Gradient Border)
               Builder(
                 builder: (context) {
                   final isAiActive = selectedIndex == 2;
@@ -372,20 +372,20 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                               : LinearGradient(
                                   colors: isDark
                                       ? [
-                                          Colors.white.withValues(alpha: 0.50),
-                                          const Color(0xFF64748B).withValues(alpha: 0.40),
-                                          Colors.white.withValues(alpha: 0.60),
-                                          const Color(0xFF475569).withValues(alpha: 0.35),
-                                          Colors.white.withValues(alpha: 0.40),
+                                          const Color(0xFF475569).withValues(alpha: 0.50), // 0.0: Góc trên-trái xám
+                                          Colors.white.withValues(alpha: 0.65),             // 0.30: Góc trên-phải trắng
+                                          Colors.white.withValues(alpha: 0.35),             // 0.50: Giữa mờ
+                                          Colors.white.withValues(alpha: 0.65),             // 0.70: Góc dưới-trái trắng
+                                          const Color(0xFF475569).withValues(alpha: 0.50), // 1.0: Góc dưới-phải xám đối diện xéo
                                         ]
                                       : [
-                                          const Color(0xFF64748B).withValues(alpha: 0.60),
-                                          Colors.white.withValues(alpha: 0.95),
-                                          const Color(0xFF94A3B8).withValues(alpha: 0.65),
-                                          Colors.white.withValues(alpha: 0.90),
-                                          const Color(0xFF64748B).withValues(alpha: 0.45),
+                                          const Color(0xFF64748B).withValues(alpha: 0.65), // 0.0: Góc trên-trái xám
+                                          Colors.white.withValues(alpha: 0.95),             // 0.30: Góc trên-phải trắng
+                                          Colors.white.withValues(alpha: 0.70),             // 0.50: Giữa mờ
+                                          Colors.white.withValues(alpha: 0.95),             // 0.70: Góc dưới-trái trắng
+                                          const Color(0xFF64748B).withValues(alpha: 0.65), // 1.0: Góc dưới-phải xám đối diện xéo
                                         ],
-                                  stops: const [0.0, 0.25, 0.50, 0.75, 1.0],
+                                  stops: const [0.0, 0.30, 0.50, 0.70, 1.0],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
