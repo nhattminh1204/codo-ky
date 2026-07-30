@@ -97,27 +97,27 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                       decoration: BoxDecoration(
                         color: isDark
                             ? const Color(0xFF0F172A).withValues(alpha: 0.45)
-                            : const Color(0xFFF1F5F9).withValues(alpha: 0.45),
+                            : const Color(0xFFF8FAFC).withValues(alpha: 0.40),
                         borderRadius: BorderRadius.circular(9999),
                         border: Border.all(
                           color: isDark
-                              ? Colors.white.withValues(alpha: 0.35)
-                              : Colors.white.withValues(alpha: 0.85),
-                          width: 1.8,
+                              ? Colors.white.withValues(alpha: 0.20)
+                              : const Color(0xFFCBD5E1).withValues(alpha: 0.75),
+                          width: 1.2,
                         ),
                         boxShadow: [
                           BoxShadow(
                             color: isDark
                                 ? Colors.black.withValues(alpha: 0.50)
-                                : const Color(0xFF334155).withValues(alpha: 0.14),
-                            blurRadius: 40,
-                            offset: const Offset(0, 18),
-                            spreadRadius: -6,
+                                : const Color(0xFF334155).withValues(alpha: 0.12),
+                            blurRadius: 36,
+                            offset: const Offset(0, 16),
+                            spreadRadius: -8,
                           ),
                           BoxShadow(
-                            color: Colors.white.withValues(alpha: isDark ? 0.10 : 0.95),
-                            blurRadius: 2,
-                            offset: const Offset(0, 1.5),
+                            color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.85),
+                            blurRadius: 1.5,
+                            offset: const Offset(0, 1.2),
                           ),
                         ],
                       ),
@@ -314,7 +314,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
 
               const SizedBox(width: 10),
 
-              // 4. Separate Floating AI Action Button (62x62px Glass Button with Crisp 1.8px Rim)
+              // 4. Separate Floating AI Action Button (62x62px Glass Button with Soft Light Grey Rim)
               Builder(
                 builder: (context) {
                   final isAiActive = selectedIndex == 2;
@@ -360,14 +360,14 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                   ? null
                                   : (isDark
                                       ? const Color(0xFF0F172A).withValues(alpha: 0.45)
-                                      : const Color(0xFFF1F5F9).withValues(alpha: 0.45)),
+                                      : const Color(0xFFF8FAFC).withValues(alpha: 0.40)),
                               border: Border.all(
                                 color: isAiActive || isPressed
                                     ? Colors.white.withValues(alpha: 0.92)
                                     : (isDark
-                                        ? Colors.white.withValues(alpha: 0.35)
-                                        : Colors.white.withValues(alpha: 0.85)),
-                                width: isPressed ? 2.2 : 1.8,
+                                        ? Colors.white.withValues(alpha: 0.20)
+                                        : const Color(0xFFCBD5E1).withValues(alpha: 0.75)),
+                                width: isPressed ? 1.8 : 1.2,
                               ),
                               boxShadow: [
                                 if (isAiActive)
@@ -387,15 +387,15 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                   BoxShadow(
                                     color: isDark
                                         ? Colors.black.withValues(alpha: 0.50)
-                                        : const Color(0xFF334155).withValues(alpha: 0.14),
-                                    blurRadius: 40,
-                                    offset: const Offset(0, 18),
-                                    spreadRadius: -6,
+                                        : const Color(0xFF334155).withValues(alpha: 0.12),
+                                    blurRadius: 36,
+                                    offset: const Offset(0, 16),
+                                    spreadRadius: -8,
                                   ),
                                   BoxShadow(
-                                    color: Colors.white.withValues(alpha: isDark ? 0.10 : 0.95),
-                                    blurRadius: 2,
-                                    offset: const Offset(0, 1.5),
+                                    color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.85),
+                                    blurRadius: 1.5,
+                                    offset: const Offset(0, 1.2),
                                   ),
                                 ],
                               ],
