@@ -86,11 +86,13 @@ class _MainShellLayoutState extends State<MainShellLayout> {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(9999),
+                  clipBehavior: Clip.antiAlias,
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
                     child: Container(
                       height: 62,
-                      padding: const EdgeInsets.all(5),
+                      clipBehavior: Clip.antiAlias,
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: isDark
                             ? const Color(0xFF0F172A).withValues(alpha: 0.45)
@@ -120,17 +122,19 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                       ),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
+                          const inset = 1.0;
                           final totalWidth = constraints.maxWidth;
-                          final tabWidth = (totalWidth - 2) / navTabs.length;
+                          final availableWidth = totalWidth - (inset * 2);
+                          final tabWidth = availableWidth / navTabs.length;
 
                           return Stack(
                             alignment: Alignment.centerLeft,
                             children: [
-                              // 2. Sliding Active Cyan Glowing Pill (.active-pill cubic-bezier(0.34, 1.56, 0.64, 1))
+                              // 2. Sliding Active Cyan Glowing Pill (clip anti-alias + spring curve)
                               AnimatedPositioned(
-                                duration: const Duration(milliseconds: 380),
-                                curve: const Cubic(0.34, 1.56, 0.64, 1.0),
-                                left: activeIndex * tabWidth,
+                                duration: const Duration(milliseconds: 320),
+                                curve: const Cubic(0.34, 1.20, 0.64, 1.0),
+                                left: inset + (activeIndex * tabWidth),
                                 top: 0,
                                 bottom: 0,
                                 width: tabWidth,
