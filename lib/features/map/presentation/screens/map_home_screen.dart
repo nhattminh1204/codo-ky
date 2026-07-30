@@ -901,39 +901,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                               ),
                             ),
                           ),
-                          if (state.selectedCategories.isNotEmpty || (state.selectedCategory != null && state.selectedCategory != 'featured' && state.selectedCategory != 'all')) ...[
-                            GestureDetector(
-                              onTap: () {
-                                ref.read(mapProvider.notifier).filterByCategories({});
-                                ref.read(mapProvider.notifier).filterByCategory('featured');
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                margin: const EdgeInsets.only(right: 8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFEF2F2),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
-                                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-                                ),
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.close_rounded, size: 15, color: Color(0xFFEF4444)),
-                                    SizedBox(width: 3),
-                                    Text(
-                                      'Xóa lọc',
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
                           _buildFilterChip('featured', 'Nổi bật', state),
                           const SizedBox(width: 8),
                           _buildFilterChip('saved', 'Đã lưu (${state.savedPlaceIds.length})', state),
                           const SizedBox(width: 8),
-                          _buildFilterChip('all', 'Tất cả (${state.allPlaces.length})', state),
+                          _buildFilterChip('all', 'Tất cả', state),
                           const SizedBox(width: 8),
                           _buildFilterChip('restaurant', 'Quán ăn', state),
                           const SizedBox(width: 8),
