@@ -119,7 +119,7 @@ class MapNotifier extends StateNotifier<MapState> {
       final prefs = await SharedPreferences.getInstance();
       final savedMode = prefs.getString('last_selected_travel_mode');
       final isMuted = prefs.getBool('is_voice_muted') ?? false;
-      if (savedMode != null && ['motorbike', 'driving', 'foot'].contains(savedMode)) {
+      if (savedMode != null && ['motorbike', 'driving'].contains(savedMode)) {
         state = state.copyWith(travelMode: savedMode, isVoiceMuted: isMuted);
       } else {
         state = state.copyWith(isVoiceMuted: isMuted);
@@ -130,7 +130,7 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   Future<void> setTravelMode(String mode) async {
-    if (!['motorbike', 'driving', 'foot'].contains(mode)) return;
+    if (!['motorbike', 'driving'].contains(mode)) return;
     if (state.travelMode == mode) return;
 
     state = state.copyWith(travelMode: mode, currentStepIndex: 0);
@@ -141,10 +141,6 @@ class MapNotifier extends StateNotifier<MapState> {
       AppLogger.i('💾 Đã lưu travel mode mặc định: $mode');
     } catch (e) {
       AppLogger.w('Lỗi lưu travel mode vào SharedPreferences: $e');
-    }
-
-    if (state.selectedPlace != null) {
-      await fetchRouteToPlace(state.selectedPlace);
     }
   }
 

@@ -236,8 +236,6 @@ class MapBottomSheet extends ConsumerWidget {
         children: [
           _buildTravelModeChip(ref, mode: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
           _buildTravelModeChip(ref, mode: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
-
-          _buildTravelModeChip(ref, mode: 'foot', label: 'Đi bộ', icon: Icons.directions_walk_rounded, isSelected: currentMode == 'foot'),
         ],
       ),
     );
