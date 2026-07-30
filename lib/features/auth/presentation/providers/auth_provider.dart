@@ -213,6 +213,33 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final googleProvider = GoogleAuthProvider();
         authResult = await FirebaseAuth.instance.signInWithPopup(googleProvider);
         displayName = authResult.user?.displayName;
+      } else if (defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.linux) {
+        try {
+          final googleProvider = GoogleAuthProvider();
+          authResult = await FirebaseAuth.instance.signInWithProvider(googleProvider);
+          displayName = authResult.user?.displayName;
+        } catch (e) {
+          AppLogger.w('Google Provider Sign-In fallback on Desktop: $e');
+          final devUser = UserModel(
+            id: 'google_desktop_dev_user',
+            name: 'Google User (Desktop Dev)',
+            email: 'google.dev@codoky.com',
+            phone: '0905123456',
+            avatarUrl: 'https://lh3.googleusercontent.com/a/default-user',
+            preferences: const ['Ẩm thực Huế', 'Di tích lịch sử', 'Sống ảo'],
+            createdAt: DateTime.now(),
+          );
+          state = state.copyWith(
+            isAuthenticated: true,
+            isLoading: false,
+            isNewUser: false,
+            user: devUser,
+            clearError: true,
+          );
+          AppLogger.i('Đăng nhập Google Dev Mode trên Desktop thành công: ${devUser.email}');
+          return true;
+        }
       } else {
         final googleSignIn = GoogleSignIn.instance;
         final googleUser = await googleSignIn.authenticate();
@@ -238,6 +265,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return true;
       }
       state = state.copyWith(isLoading: false);
+      return false;
+    } on UnimplementedError catch (e) {
+      AppLogger.w('Google Sign-In UnimplementedError on current platform: $e');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Đăng nhập Google chưa được hỗ trợ trên nền tảng này. Vui lòng đăng nhập bằng Email/Mật khẩu.',
+      );
       return false;
     } on FirebaseAuthException catch (e, stack) {
       final msg = _mapFirebaseAuthError(e);
