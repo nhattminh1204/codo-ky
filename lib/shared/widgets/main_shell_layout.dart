@@ -140,218 +140,191 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                 : Colors.white.withValues(alpha: 0.25),
                             borderRadius: BorderRadius.circular(9999),
                           ),
-                          child: Stack(
-                            children: [
-                              // reflection: enabled: true, opacity: 0.35, height: 14, blur: 10
-                              Positioned(
-                                top: 0,
-                                left: 24,
-                                right: 24,
-                                height: 14,
-                                child: IgnorePointer(
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              const inset = 1.0;
+                              final totalWidth = constraints.maxWidth;
+                              final availableWidth = totalWidth - (inset * 2);
+                              final tabWidth = availableWidth / navTabs.length;
+
+                              return Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  // 2. Sliding Active Cyan Glowing Pill (3D Liquid Glass)
+                                  AnimatedPositioned(
+                                    duration: const Duration(milliseconds: 320),
+                                    curve: const Cubic(0.34, 1.20, 0.64, 1.0),
+                                    left: inset + (activeIndex * tabWidth),
+                                    top: 0,
+                                    bottom: 0,
+                                    width: tabWidth,
+                                    child: ClipRRect(
                                       borderRadius: BorderRadius.circular(9999),
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.white.withValues(alpha: 0.35),
-                                          Colors.white.withValues(alpha: 0.0),
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                const Color(0xFF71E2E8).withValues(alpha: 0.88),
+                                                const Color(0xFF2DBAC6).withValues(alpha: 0.92),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(9999),
+                                            border: Border.all(
+                                              color: Colors.white.withValues(alpha: 0.92),
+                                              width: 1.5,
+                                            ),
+                                            boxShadow: [
+                                              // Outer cyan glow
+                                              BoxShadow(
+                                                color: const Color(0xFF2DBAC6).withValues(alpha: 0.55),
+                                                blurRadius: 22,
+                                                offset: const Offset(0, 9),
+                                                spreadRadius: -2,
+                                              ),
+                                              // Top rim glass bevel highlight
+                                              BoxShadow(
+                                                color: Colors.white.withValues(alpha: 0.95),
+                                                blurRadius: 2.5,
+                                                offset: const Offset(0, 1.5),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              // Glossy Glass Reflection Overlay (Vệt sáng kính 3D)
+                                              Positioned.fill(
+                                                child: DecoratedBox(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(9999),
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Colors.white.withValues(alpha: 0.65),
+                                                        Colors.white.withValues(alpha: 0.15),
+                                                        Colors.white.withValues(alpha: 0.0),
+                                                      ],
+                                                      stops: const [0.0, 0.45, 1.0],
+                                                      begin: Alignment.topCenter,
+                                                      end: Alignment.bottomCenter,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
 
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  const inset = 1.0;
-                                  final totalWidth = constraints.maxWidth;
-                                  final availableWidth = totalWidth - (inset * 2);
-                                  final tabWidth = availableWidth / navTabs.length;
+                                  // 3. Tab Buttons Layer (.nav-btn)
+                                  Row(
+                                    children: List.generate(navTabs.length, (index) {
+                                      final item = navTabs[index];
+                                      final isSelected = activeIndex == index;
+                                      final isPressed = _pressedIndex == item.branchIndex;
 
-                                  return Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: [
-                                      // 2. Sliding Active Cyan Glowing Pill (3D Liquid Glass)
-                                      AnimatedPositioned(
-                                        duration: const Duration(milliseconds: 320),
-                                        curve: const Cubic(0.34, 1.20, 0.64, 1.0),
-                                        left: inset + (activeIndex * tabWidth),
-                                        top: 0,
-                                        bottom: 0,
-                                        width: tabWidth,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(9999),
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    const Color(0xFF71E2E8).withValues(alpha: 0.88),
-                                                    const Color(0xFF2DBAC6).withValues(alpha: 0.92),
-                                                  ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.circular(9999),
-                                                border: Border.all(
-                                                  color: Colors.white.withValues(alpha: 0.92),
-                                                  width: 1.5,
-                                                ),
-                                                boxShadow: [
-                                                  // Outer cyan glow
-                                                  BoxShadow(
-                                                    color: const Color(0xFF2DBAC6).withValues(alpha: 0.55),
-                                                    blurRadius: 22,
-                                                    offset: const Offset(0, 9),
-                                                    spreadRadius: -2,
-                                                  ),
-                                                  // Top rim glass bevel highlight
-                                                  BoxShadow(
-                                                    color: Colors.white.withValues(alpha: 0.95),
-                                                    blurRadius: 2.5,
-                                                    offset: const Offset(0, 1.5),
-                                                  ),
-                                                ],
-                                              ),
+                                      return Expanded(
+                                        child: GestureDetector(
+                                          onTapDown: (_) => setState(() => _pressedIndex = item.branchIndex),
+                                          onTapUp: (_) => setState(() => _pressedIndex = null),
+                                          onTapCancel: () => setState(() => _pressedIndex = null),
+                                          onTap: () => _onItemTapped(item.branchIndex, context),
+                                          behavior: HitTestBehavior.opaque,
+                                          child: AnimatedScale(
+                                            scale: isPressed ? 0.92 : 1.0,
+                                            duration: const Duration(milliseconds: 150),
+                                            curve: Curves.easeOutCubic,
+                                            child: SizedBox(
+                                              height: 52,
                                               child: Stack(
+                                                alignment: Alignment.center,
                                                 children: [
-                                                  // Glossy Glass Reflection Overlay (Vệt sáng kính 3D)
-                                                  Positioned.fill(
-                                                    child: DecoratedBox(
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(9999),
-                                                        gradient: LinearGradient(
-                                                          colors: [
-                                                            Colors.white.withValues(alpha: 0.65),
-                                                            Colors.white.withValues(alpha: 0.15),
-                                                            Colors.white.withValues(alpha: 0.0),
-                                                          ],
-                                                          stops: const [0.0, 0.45, 1.0],
-                                                          begin: Alignment.topCenter,
-                                                          end: Alignment.bottomCenter,
+                                                  // Pressed soft glass feedback pill (.glass-press-effect)
+                                                  AnimatedOpacity(
+                                                    opacity: isPressed ? 1.0 : 0.0,
+                                                    duration: const Duration(milliseconds: 150),
+                                                    child: ClipRRect(
+                                                      borderRadius: BorderRadius.circular(9999),
+                                                      child: BackdropFilter(
+                                                        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                                        child: Container(
+                                                          width: 44,
+                                                          height: 44,
+                                                          decoration: BoxDecoration(
+                                                            color: isDark
+                                                                ? Colors.white.withValues(alpha: 0.18)
+                                                                : Colors.white.withValues(alpha: 0.45),
+                                                            borderRadius: BorderRadius.circular(9999),
+                                                            border: Border.all(
+                                                              color: Colors.white.withValues(alpha: 0.75),
+                                                              width: 1.5,
+                                                            ),
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: Colors.white.withValues(alpha: 0.50),
+                                                                blurRadius: 10,
+                                                                spreadRadius: 1,
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
+
+                                                  // Icon (.nav-btn.active vs .nav-btn:not(.active))
+                                                  Icon(
+                                                    isSelected ? item.selectedIcon : item.icon,
+                                                    size: 24,
+                                                    color: isSelected
+                                                        ? Colors.white
+                                                        : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
+                                                  ),
+
+                                                  // Orange Notification Badge Dot
+                                                  if (item.hasBadge && !isSelected)
+                                                    Positioned(
+                                                      top: 11,
+                                                      right: 18,
+                                                      child: Container(
+                                                        width: 9,
+                                                        height: 9,
+                                                        decoration: BoxDecoration(
+                                                          gradient: const LinearGradient(
+                                                            colors: [
+                                                              Color(0xFFFBBF24), // amber-400
+                                                              Color(0xFFF97316), // orange-500
+                                                            ],
+                                                          ),
+                                                          shape: BoxShape.circle,
+                                                          border: Border.all(
+                                                            color: Colors.white,
+                                                            width: 1.2,
+                                                          ),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors.black.withValues(alpha: 0.10),
+                                                              blurRadius: 2,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
                                                 ],
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-
-                                      // 3. Tab Buttons Layer (.nav-btn)
-                                      Row(
-                                        children: List.generate(navTabs.length, (index) {
-                                          final item = navTabs[index];
-                                          final isSelected = activeIndex == index;
-                                          final isPressed = _pressedIndex == item.branchIndex;
-
-                                          return Expanded(
-                                            child: GestureDetector(
-                                              onTapDown: (_) => setState(() => _pressedIndex = item.branchIndex),
-                                              onTapUp: (_) => setState(() => _pressedIndex = null),
-                                              onTapCancel: () => setState(() => _pressedIndex = null),
-                                              onTap: () => _onItemTapped(item.branchIndex, context),
-                                              behavior: HitTestBehavior.opaque,
-                                              child: AnimatedScale(
-                                                scale: isPressed ? 0.92 : 1.0,
-                                                duration: const Duration(milliseconds: 150),
-                                                curve: Curves.easeOutCubic,
-                                                child: SizedBox(
-                                                  height: 52,
-                                                  child: Stack(
-                                                    alignment: Alignment.center,
-                                                    children: [
-                                                      // Pressed soft glass feedback pill (.glass-press-effect)
-                                                      AnimatedOpacity(
-                                                        opacity: isPressed ? 1.0 : 0.0,
-                                                        duration: const Duration(milliseconds: 150),
-                                                        child: ClipRRect(
-                                                          borderRadius: BorderRadius.circular(9999),
-                                                          child: BackdropFilter(
-                                                            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                                                            child: Container(
-                                                              width: 44,
-                                                              height: 44,
-                                                              decoration: BoxDecoration(
-                                                                color: isDark
-                                                                    ? Colors.white.withValues(alpha: 0.18)
-                                                                    : Colors.white.withValues(alpha: 0.45),
-                                                                borderRadius: BorderRadius.circular(9999),
-                                                                border: Border.all(
-                                                                  color: Colors.white.withValues(alpha: 0.75),
-                                                                  width: 1.5,
-                                                                ),
-                                                                boxShadow: [
-                                                                  BoxShadow(
-                                                                    color: Colors.white.withValues(alpha: 0.50),
-                                                                    blurRadius: 10,
-                                                                    spreadRadius: 1,
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-
-                                                      // Icon (.nav-btn.active vs .nav-btn:not(.active))
-                                                      Icon(
-                                                        isSelected ? item.selectedIcon : item.icon,
-                                                        size: 24,
-                                                        color: isSelected
-                                                            ? Colors.white
-                                                            : (isDark ? Colors.white70 : const Color(0xFF4B5563)),
-                                                      ),
-
-                                                      // Orange Notification Badge Dot
-                                                      if (item.hasBadge && !isSelected)
-                                                        Positioned(
-                                                          top: 11,
-                                                          right: 18,
-                                                          child: Container(
-                                                            width: 9,
-                                                            height: 9,
-                                                            decoration: BoxDecoration(
-                                                              gradient: const LinearGradient(
-                                                                colors: [
-                                                                  Color(0xFFFBBF24), // amber-400
-                                                                  Color(0xFFF97316), // orange-500
-                                                                ],
-                                                              ),
-                                                              shape: BoxShape.circle,
-                                                              border: Border.all(
-                                                                color: Colors.white,
-                                                                width: 1.2,
-                                                              ),
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  color: Colors.black.withValues(alpha: 0.10),
-                                                                  blurRadius: 2,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
+                                      );
+                                    }),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -447,41 +420,16 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                           ? const Color(0xFF0F172A).withValues(alpha: 0.35)
                                           : Colors.white.withValues(alpha: 0.25)),
                                 ),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    if (!isAiActive)
-                                      Positioned(
-                                        top: 2,
-                                        left: 10,
-                                        right: 10,
-                                        height: 14,
-                                        child: IgnorePointer(
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(9999),
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.white.withValues(alpha: 0.35),
-                                                  Colors.white.withValues(alpha: 0.0),
-                                                ],
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    Icon(
-                                      Icons.auto_awesome_rounded,
-                                      size: 24,
-                                      color: isAiActive
-                                          ? Colors.white
-                                          : (isPressed
-                                              ? const Color(0xFF2DBAC6)
-                                              : (isDark ? Colors.white : const Color(0xFF4B5563))),
-                                    ),
-                                  ],
+                                child: Center(
+                                  child: Icon(
+                                    Icons.auto_awesome_rounded,
+                                    size: 24,
+                                    color: isAiActive
+                                        ? Colors.white
+                                        : (isPressed
+                                            ? const Color(0xFF2DBAC6)
+                                            : (isDark ? Colors.white : const Color(0xFF4B5563))),
+                                  ),
                                 ),
                               ),
                             ),
