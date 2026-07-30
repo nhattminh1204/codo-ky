@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:codoky/core/utils/helpers/app_snackbar.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
 import 'package:codoky/shared/widgets/app_open_container.dart';
@@ -29,15 +30,21 @@ class MapBottomSheet extends ConsumerWidget {
 
     final isSaved = ref.watch(mapProvider).savedPlaceIds.contains(placeId);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, -6),
+            color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.12),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -111,11 +118,10 @@ class MapBottomSheet extends ConsumerWidget {
                       onTap: () {
                         ref.read(mapProvider.notifier).toggleSavePlace(placeId);
                         final newSavedState = !isSaved;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(newSavedState ? 'Đã lưu "$name" vào danh sách yêu thích!' : 'Đã xóa "$name" khỏi danh sách lưu.'),
-                            duration: const Duration(seconds: 2),
-                          ),
+                        AppSnackBar.show(
+                          context,
+                          newSavedState ? 'Đã lưu "$name" vào danh sách yêu thích!' : 'Đã xóa "$name" khỏi danh sách lưu.',
+                          isSuccess: newSavedState,
                         );
                       },
                       child: Container(

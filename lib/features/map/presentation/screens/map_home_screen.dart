@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:vibration/vibration.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
 import 'package:codoky/core/theme/motion.dart';
+import 'package:codoky/core/utils/helpers/app_snackbar.dart';
 import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 import 'package:codoky/core/logging/app_logger.dart';
 import 'package:codoky/core/services/audio/tts_service.dart';
@@ -588,15 +589,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
           if (state.selectedPlace != null)
             Positioned(
-              bottom: 12,
-              left: 12,
-              right: 12,
+              bottom: 82,
+              left: 14,
+              right: 14,
               child: MapBottomSheet(
                 place: state.selectedPlace!,
                 onClose: _clearSelectionAndZoomOut,
                 onNavigate: () async {
                   final targetPlace = state.selectedPlace;
-                  final messenger = ScaffoldMessenger.of(context);
                   ref.read(mapProvider.notifier).clearSelection();
                   final success = await ref.read(mapProvider.notifier).fetchRouteToPlace(targetPlace);
                   if (!mounted) return;
@@ -607,14 +607,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                       _startLiveNavigation();
                     }
                   } else {
+                    if (!context.mounted) return;
                     final err = ref.read(mapProvider).routeErrorMessage ?? 'Không thể lấy chỉ đường OSRM';
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(err),
-                        backgroundColor: Colors.red[800],
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
+                    AppSnackBar.show(context, err, isError: true);
                   }
                 },
               ),
@@ -799,12 +794,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                       onPressed: () {
                         _stopLiveNavigation();
                         ref.read(mapProvider.notifier).clearRoute();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Đã hủy lộ trình chỉ đường'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
+                        AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
                       },
 
                       icon: const Icon(Icons.close_rounded, size: 16, color: Colors.white),
