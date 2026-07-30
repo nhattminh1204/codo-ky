@@ -78,26 +78,6 @@ SweepGradient buildNavGlassBorderGradient({
   );
 }
 
-/// 2. GRADIENT CHO NÚT AI TRÒN (TỶ LỆ 1:1)
-LinearGradient buildAIButtonGlassBorderGradient({
-  required Color greyBorder,
-  required Color whiteBorder,
-  required Color fadedBorder,
-}) {
-  return LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      greyBorder,
-      whiteBorder,
-      fadedBorder,
-      whiteBorder,
-      greyBorder,
-    ],
-    stops: const [0.0, 0.30, 0.50, 0.70, 1.0],
-  );
-}
-
 class _DockColorPalette {
   final String name;
   final List<Color> gradientColors;
@@ -114,29 +94,13 @@ class _DockColorPalette {
   });
 }
 
-const _dockPalettes = [
-  _DockColorPalette(
-    name: 'Emerald Mint 🍃',
-    gradientColors: [Color(0xFF6EE7B7), Color(0xFF10B981)],
-    shadowColor: Color(0xFF10B981),
-    activeIconLight: Color(0xFF059669),
-    activeIconDark: Color(0xFF6EE7B7),
-  ),
-  _DockColorPalette(
-    name: 'Electric Cyan ⚡',
-    gradientColors: [Color(0xFF71E2E8), Color(0xFF2DBAC6)],
-    shadowColor: Color(0xFF2DBAC6),
-    activeIconLight: Color(0xFF0284C7),
-    activeIconDark: Color(0xFF38BDF8),
-  ),
-  _DockColorPalette(
-    name: 'Deep Emerald 🟢',
-    gradientColors: [Color(0xFF34D399), Color(0xFF059669)],
-    shadowColor: Color(0xFF059669),
-    activeIconLight: Color(0xFF059669),
-    activeIconDark: Color(0xFF34D399),
-  ),
-];
+const _cyanPalette = _DockColorPalette(
+  name: 'Electric Cyan ⚡',
+  gradientColors: [Color(0xFF71E2E8), Color(0xFF2DBAC6)],
+  shadowColor: Color(0xFF2DBAC6),
+  activeIconLight: Color(0xFF0284C7),
+  activeIconDark: Color(0xFF38BDF8),
+);
 
 class _NavItemData {
   final IconData icon;
@@ -166,8 +130,6 @@ class MainShellLayout extends StatefulWidget {
 }
 
 class _MainShellLayoutState extends State<MainShellLayout> {
-  int _paletteIndex = 0; // 0: Electric Cyan, 1: Emerald Jade, 2: Eco Bamboo
-
   void _onItemTapped(int index, BuildContext context) {
     HapticFeedback.lightImpact();
     widget.navigationShell.goBranch(
@@ -176,41 +138,35 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     );
   }
 
-  int _getActiveTabIndex(int currentIndex) {
+  int _getActiveTabColumn(int currentIndex) {
     switch (currentIndex) {
       case 0:
-        return 0; // Bản đồ
+        return 0; // Bản đồ -> Column 0
       case 1:
-        return 1; // Khám phá
-      case 3:
-        return 2; // Lịch trình
-      case 4:
-        return 3; // Hồ sơ
+        return 1; // Khám phá -> Column 1
       case 2:
+        return 2; // AI Camera Scanner -> Column 2 (Center)
+      case 3:
+        return 3; // Lịch trình -> Column 3
+      case 4:
+        return 4; // Hồ sơ -> Column 4
       default:
-        return -1; // AI Assistant
+        return -1;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final selectedIndex = widget.navigationShell.currentIndex;
-    final activeIndex = _getActiveTabIndex(selectedIndex);
+    final activeColumn = _getActiveTabColumn(selectedIndex);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isAiActive = selectedIndex == 2;
-    final currentPalette = _dockPalettes[_paletteIndex];
+    final currentPalette = _cyanPalette;
 
     final greyBorder = isDark
         ? const Color(0xFF475569).withValues(alpha: 0.50)
         : const Color(0xFF64748B).withValues(alpha: 0.60);
     final whiteBorder = Colors.white.withValues(alpha: isDark ? 0.70 : 0.90);
     final fadedBorder = Colors.white.withValues(alpha: isDark ? 0.20 : 0.40);
-
-    final aiGlassGradient = buildAIButtonGlassBorderGradient(
-      greyBorder: greyBorder,
-      whiteBorder: whiteBorder,
-      fadedBorder: fadedBorder,
-    );
 
     final navTabs = const [
       _NavItemData(
@@ -254,79 +210,8 @@ class _MainShellLayoutState extends State<MainShellLayout> {
         bottom: true,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // ── Quick Dock Theme Palette Switcher ──────────────────────────
-              Padding(
-                padding: const EdgeInsets.only(right: 4, bottom: 6),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(9999),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.black.withValues(alpha: 0.35)
-                            : Colors.white.withValues(alpha: 0.55),
-                        borderRadius: BorderRadius.circular(9999),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.60),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(_dockPalettes.length, (i) {
-                          final p = _dockPalettes[i];
-                          final isSelected = _paletteIndex == i;
-                          return GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              setState(() => _paletteIndex = i);
-                            },
-                            child: Tooltip(
-                              message: p.name,
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 3),
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isSelected ? Colors.white : Colors.transparent,
-                                    width: 1.8,
-                                  ),
-                                ),
-                                child: Container(
-                                  width: 13,
-                                  height: 13,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: LinearGradient(
-                                      colors: p.gradientColors,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // ── Dock Row (Capsule + AI Button) ─────────────────────────────
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // ─── 1. Floating Glass Navigation Capsule ──────────────────
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, outerConstraints) {
+          child: LayoutBuilder(
+            builder: (context, outerConstraints) {
                         final navGlassGradient = buildNavGlassBorderGradient(
                           greyBorder: greyBorder,
                           whiteBorder: whiteBorder,
@@ -365,14 +250,14 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                   padding: const EdgeInsets.all(3),
                                   child: LayoutBuilder(
                                     builder: (context, constraints) {
-                                      final tabWidth =
-                                          constraints.maxWidth / navTabs.length;
+                                      final columnWidth =
+                                          constraints.maxWidth / 5;
 
                                       return Stack(
                                         alignment: Alignment.centerLeft,
                                         children: [
                                           // ── Active Pill Indicator ──
-                                          if (activeIndex != -1)
+                                          if (activeColumn != -1)
                                             AnimatedPositioned(
                                               duration: AppMotion.standard,
                                               curve: const Cubic(
@@ -381,10 +266,10 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                                 0.64,
                                                 1.0,
                                               ),
-                                              left: activeIndex * tabWidth,
+                                              left: activeColumn * columnWidth,
                                               top: 0,
                                               bottom: 0,
-                                              width: tabWidth,
+                                              width: columnWidth,
                                               child: ClipRRect(
                                                 borderRadius:
                                                     BorderRadius.circular(9999),
@@ -458,25 +343,57 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                               ),
                                             ),
 
-                                          // ── Tab Buttons ──
+                                          // ── Tab Buttons + Center Camera Capture Button ──
                                           Row(
-                                            children: List.generate(navTabs.length,
-                                                (index) {
-                                              final item = navTabs[index];
-                                              final isSelected = activeIndex == index;
-
-                                              return Expanded(
+                                            children: [
+                                              // Column 0: Tab 0 (Bản đồ)
+                                              Expanded(
                                                 child: _NavItemButton(
-                                                  item: item,
-                                                  isSelected: isSelected,
+                                                  item: navTabs[0],
+                                                  isSelected: selectedIndex == 0,
                                                   isDark: isDark,
-                                                  onTap: () => _onItemTapped(
-                                                    item.branchIndex,
-                                                    context,
+                                                  onTap: () => _onItemTapped(navTabs[0].branchIndex, context),
+                                                ),
+                                              ),
+                                              // Column 1: Tab 1 (Khám phá)
+                                              Expanded(
+                                                child: _NavItemButton(
+                                                  item: navTabs[1],
+                                                  isSelected: selectedIndex == 1,
+                                                  isDark: isDark,
+                                                  onTap: () => _onItemTapped(navTabs[1].branchIndex, context),
+                                                ),
+                                              ),
+
+                                              // Column 2: 📸 CENTER CAMERA CAPTURE BUTTON
+                                              Expanded(
+                                                child: Center(
+                                                  child: _CameraCameraButtonWidget(
+                                                    isDark: isDark,
+                                                    onTap: () => _onItemTapped(2, context),
                                                   ),
                                                 ),
-                                              );
-                                            }),
+                                              ),
+
+                                              // Column 3: Tab 2 (Lịch trình)
+                                              Expanded(
+                                                child: _NavItemButton(
+                                                  item: navTabs[2],
+                                                  isSelected: selectedIndex == 3,
+                                                  isDark: isDark,
+                                                  onTap: () => _onItemTapped(navTabs[2].branchIndex, context),
+                                                ),
+                                              ),
+                                              // Column 4: Tab 3 (Hồ sơ)
+                                              Expanded(
+                                                child: _NavItemButton(
+                                                  item: navTabs[3],
+                                                  isSelected: selectedIndex == 4,
+                                                  isDark: isDark,
+                                                  onTap: () => _onItemTapped(navTabs[3].branchIndex, context),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       );
@@ -489,22 +406,6 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                         );
                       },
                     ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  // ─── 2. Floating AI Circular Glass Button ──────────────────
-                  _AiButtonWidget(
-                    isAiActive: isAiActive,
-                    isDark: isDark,
-                    palette: currentPalette,
-                    aiGlassGradient: aiGlassGradient,
-                    onTap: () => _onItemTapped(2, context),
-                  ),
-                ],
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -624,108 +525,64 @@ class _NavItemButtonState extends State<_NavItemButton> {
   }
 }
 
-/// Nút AI Tròn Nội bộ
-class _AiButtonWidget extends StatefulWidget {
-  final bool isAiActive;
+/// Nút Chụp Ảnh Camera ở giữa Bottom Navigation Bar
+class _CameraCameraButtonWidget extends StatefulWidget {
   final bool isDark;
-  final _DockColorPalette palette;
-  final LinearGradient aiGlassGradient;
   final VoidCallback onTap;
 
-  const _AiButtonWidget({
-    required this.isAiActive,
+  const _CameraCameraButtonWidget({
     required this.isDark,
-    required this.palette,
-    required this.aiGlassGradient,
     required this.onTap,
   });
 
   @override
-  State<_AiButtonWidget> createState() => _AiButtonWidgetState();
+  State<_CameraCameraButtonWidget> createState() => _CameraCameraButtonWidgetState();
 }
 
-class _AiButtonWidgetState extends State<_AiButtonWidget> {
+class _CameraCameraButtonWidgetState extends State<_CameraCameraButtonWidget> {
   bool _isPressed = false;
-
-  void _setPressed(bool value) {
-    if (_isPressed != value) {
-      setState(() {
-        _isPressed = value;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Trợ lý AI CodoKy',
-      selected: widget.isAiActive,
       button: true,
+      label: 'Chụp ảnh camera quét di sản Huế',
       child: Tooltip(
-        message: 'Trợ lý AI CodoKy',
+        message: 'Camera AI Quét di sản Huế',
         child: GestureDetector(
-          onTapDown: (_) => _setPressed(true),
-          onTapUp: (_) => _setPressed(false),
-          onTapCancel: () => _setPressed(false),
-          onTap: widget.onTap,
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            widget.onTap();
+          },
+          onTapCancel: () => setState(() => _isPressed = false),
           child: AnimatedScale(
             scale: _isPressed ? 0.88 : 1.0,
             duration: AppMotion.micro,
             curve: AppMotion.standardCurve,
             child: Container(
-              width: 62,
-              height: 62,
+              width: 44,
+              height: 44,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: widget.isAiActive
-                    ? LinearGradient(
-                        colors: widget.palette.gradientColors,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : widget.aiGlassGradient,
-                boxShadow: widget.isAiActive
-                    ? [
-                        BoxShadow(
-                          color: widget.palette.shadowColor.withValues(alpha: 0.45),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
-                        ),
-                      ]
-                    : [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-              ),
-              padding: const EdgeInsets.all(2.0),
-              child: ClipOval(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: widget.isAiActive
-                          ? Colors.transparent
-                          : (widget.isDark
-                                ? const Color(0xFF0F172A).withValues(alpha: 0.12)
-                                : Colors.white.withValues(alpha: 0.18)),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.auto_awesome_rounded,
-                        size: 28,
-                        color: widget.isAiActive
-                            ? Colors.white
-                            : (widget.isDark
-                                  ? widget.palette.activeIconDark
-                                  : widget.palette.activeIconLight),
-                      ),
-                    ),
-                  ),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF71E2E8), Color(0xFF2DBAC6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2DBAC6).withValues(alpha: 0.45),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.camera_alt_rounded,
+                color: Colors.white,
+                size: 22,
               ),
             ),
           ),

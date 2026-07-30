@@ -220,21 +220,32 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Search Bar Card
+                        // Search Bar Card (Solid Clean Bar, Black Icon & Text)
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.08),
+                                color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.25 : 0.08),
                                 blurRadius: 16,
-                                offset: const Offset(0, 6),
+                                offset: const Offset(0, 4),
                               ),
                             ],
+                            border: Border.all(
+                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                              width: 1.0,
+                            ),
                           ),
                           child: TextField(
                             controller: _searchController,
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
                             onSubmitted: (query) {
                               if (query.trim().isNotEmpty) {
                                 context.push('/search');
@@ -242,13 +253,35 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                             },
                             decoration: InputDecoration(
                               hintText: 'Tìm địa điểm, món ăn, lăng tẩm Huế...',
-                              hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
-                              prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFFFF7A00)),
+                              hintStyle: TextStyle(
+                                fontSize: 13,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white60
+                                    : Colors.black54,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search_rounded,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
                               suffixIcon: IconButton(
-                                icon: const Icon(Icons.tune_rounded, color: Color(0xFF64748B), size: 20),
+                                icon: Icon(
+                                  Icons.tune_rounded,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white70
+                                      : Colors.black54,
+                                  size: 20,
+                                ),
                                 onPressed: () => context.push('/search'),
                               ),
                               border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              filled: false,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                             ),
                           ),

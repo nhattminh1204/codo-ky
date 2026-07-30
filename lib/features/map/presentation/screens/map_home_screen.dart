@@ -796,31 +796,74 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    GlassContainer(
-                      blur: 15,
-                      opacity: 0.85,
-                      borderRadius: BorderRadius.circular(20),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
+                  Row(
+                    children: [
+                      // 1. Solid Clean Search Capsule (Black Icon & Text)
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.25 : 0.08),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                              width: 1.0,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                          child: Row(
                             children: [
                               Expanded(
                                 child: TextField(
                                   controller: _searchController,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
                                   onChanged: (val) {
                                     ref.read(mapProvider.notifier).setSearchQuery(val);
                                   },
                                   decoration: InputDecoration(
                                     hintText: 'Tìm kiếm địa điểm Huế...',
-                                    hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+                                    hintStyle: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).brightness == Brightness.dark
+                                          ? Colors.white60
+                                          : Colors.black54,
+                                    ),
                                     border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    errorBorder: InputBorder.none,
+                                    disabledBorder: InputBorder.none,
+                                    focusedErrorBorder: InputBorder.none,
+                                    filled: false,
                                     isDense: true,
-                                    prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF9B1B30), size: 22),
+                                    prefixIcon: Icon(
+                                      Icons.search_rounded,
+                                      color: Theme.of(context).brightness == Brightness.dark
+                                          ? Colors.white
+                                          : Colors.black,
+                                      size: 22,
+                                    ),
                                     suffixIcon: _searchController.text.isNotEmpty
                                         ? IconButton(
-                                            icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                                            icon: Icon(
+                                              Icons.clear,
+                                              size: 18,
+                                              color: Theme.of(context).brightness == Brightness.dark
+                                                  ? Colors.white60
+                                                  : Colors.black54,
+                                            ),
                                             onPressed: () {
                                               _searchController.clear();
                                               ref.read(mapProvider.notifier).setSearchQuery('');
@@ -831,33 +874,58 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                                 ),
                               ),
                               if (state.isLoading)
-                                const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.0,
-                                    color: Color(0xFF9B1B30),
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 8),
+                                  child: SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.0,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
-                              const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () => context.push('/profile'),
-                                child: CircleAvatar(
-                                  radius: 17,
-                                  backgroundColor: const Color(0xFF9B1B30),
-                                  backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
-                                      ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
-                                      : null,
-                                  child: ref.watch(authProvider).user?.avatarUrl == null
-                                      ? const Icon(Icons.person, size: 20, color: Colors.white)
-                                      : null,
-                                ),
-                              ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+
+                      const SizedBox(width: 10),
+
+                      // 2. Separate Profile Avatar Button (Solid Clean Style)
+                      GestureDetector(
+                        onTap: () => context.push('/profile'),
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.25 : 0.08),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 19,
+                            backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : Colors.black,
+                            backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
+                                ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
+                                : null,
+                            child: ref.watch(authProvider).user?.avatarUrl == null
+                                ? const Icon(Icons.person, size: 20, color: Colors.white)
+                                : null,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                     const SizedBox(height: 10),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,

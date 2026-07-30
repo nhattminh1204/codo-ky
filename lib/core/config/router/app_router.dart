@@ -41,6 +41,9 @@ import 'package:codoky/features/review/presentation/screens/my_reviews_screen.da
 import 'package:codoky/features/profile/presentation/screens/profile_home_screen.dart';
 import 'package:codoky/features/profile/presentation/screens/edit_profile_screen.dart';
 
+// Camera Feature
+import 'package:codoky/features/camera/presentation/screens/locket_camera_screen.dart';
+
 // Shared Shell Layout
 import 'package:codoky/shared/widgets/main_shell_layout.dart';
 
@@ -257,12 +260,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // Branch 2: Center Action (Itinerary Setup)
+          // Branch 2: Center Action (AI Camera Scanner)
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/itinerary/setup',
-                builder: (context, state) => const ItinerarySetupScreen(),
+                path: '/camera',
+                builder: (context, state) => const LocketCameraScreen(),
               ),
             ],
           ),
