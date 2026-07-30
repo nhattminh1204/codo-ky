@@ -131,7 +131,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                           return Stack(
                             alignment: Alignment.centerLeft,
                             children: [
-                              // 2. Sliding Active Cyan Glowing Pill (clip anti-alias + spring curve)
+                              // 2. Sliding Active Cyan Glowing Pill (3D Liquid Frosted Glass)
                               AnimatedPositioned(
                                 duration: const Duration(milliseconds: 320),
                                 curve: const Cubic(0.34, 1.20, 0.64, 1.0),
@@ -139,29 +139,64 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                 top: 0,
                                 bottom: 0,
                                 width: tabWidth,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF71E2E8),
-                                        Color(0xFF2DBAC6),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(9999),
-                                    border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.70),
-                                      width: 1.5,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFF2DBAC6).withValues(alpha: 0.55),
-                                        blurRadius: 24,
-                                        offset: const Offset(0, 10),
-                                        spreadRadius: -2,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(9999),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            const Color(0xFF67E8F9).withValues(alpha: 0.85), // Cyan 300
+                                            const Color(0xFF06B6D4).withValues(alpha: 0.90), // Cyan 600
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(9999),
+                                        border: Border.all(
+                                          color: Colors.white.withValues(alpha: 0.90),
+                                          width: 1.5,
+                                        ),
+                                        boxShadow: [
+                                          // Outer cyan glow
+                                          BoxShadow(
+                                            color: const Color(0xFF0891B2).withValues(alpha: 0.55),
+                                            blurRadius: 20,
+                                            offset: const Offset(0, 8),
+                                            spreadRadius: -2,
+                                          ),
+                                          // Top rim glass bevel highlight
+                                          BoxShadow(
+                                            color: Colors.white.withValues(alpha: 0.95),
+                                            blurRadius: 2,
+                                            offset: const Offset(0, 1.5),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                      child: Stack(
+                                        children: [
+                                          // Glossy Glass Reflection Overlay (Vệt sáng kính 3D)
+                                          Positioned.fill(
+                                            child: DecoratedBox(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(9999),
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.white.withValues(alpha: 0.60),
+                                                    Colors.white.withValues(alpha: 0.15),
+                                                    Colors.white.withValues(alpha: 0.0),
+                                                  ],
+                                                  stops: const [0.0, 0.45, 1.0],
+                                                  begin: Alignment.topCenter,
+                                                  end: Alignment.bottomCenter,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
