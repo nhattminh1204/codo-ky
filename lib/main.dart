@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -18,7 +19,9 @@ class DevHttpOverrides extends HttpOverrides {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  HttpOverrides.global = DevHttpOverrides();
+  if (!kIsWeb) {
+    HttpOverrides.global = DevHttpOverrides();
+  }
 
   // Load environment configuration safely
   try {
