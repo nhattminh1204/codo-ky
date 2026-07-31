@@ -23,12 +23,14 @@ class MapToolbarWidget extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppLiquidGlassContainer(
+      blur: 30.0,
+      opacity: isDark ? 0.24 : 0.14,
       borderRadius: BorderRadius.circular(22),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       border: Border.all(
         color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.70),
         width: 1,
       ),
+      enableSpecular: true,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

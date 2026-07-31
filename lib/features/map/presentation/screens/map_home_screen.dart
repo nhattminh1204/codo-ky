@@ -478,12 +478,13 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(mapProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: Stack(
         children: [
           FlutterMap(
-            mapController: _mapController,
+                mapController: _mapController,
             options: MapOptions(
               initialCenter: LatLng(
                 AppConstants.defaultMapLatitude,
@@ -635,9 +636,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
                 if (_isGpsWeak && state.activeRoute != null) ...[
                   const SizedBox(height: 8),
-                  GlassContainer(
-                    blur: 15,
-                    opacity: 0.95,
+                  AppLiquidGlassContainer(
+                    blur: 30.0,
+                    opacity: isDark ? 0.24 : 0.14,
                     borderRadius: BorderRadius.circular(16),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
@@ -659,14 +660,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
                 if (state.isFetchingRoute) ...[
                   const SizedBox(height: 8),
-                  GlassContainer(
-                    blur: 15,
-                    opacity: 0.9,
+                  AppLiquidGlassContainer(
+                    blur: 30.0,
+                    opacity: isDark ? 0.24 : 0.14,
                     borderRadius: BorderRadius.circular(16),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: const Row(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Row(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFFFF7A00)),
@@ -683,9 +684,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
                 if (state.errorMessage != null && !state.isLoading) ...[
                   const SizedBox(height: 8),
-                  GlassContainer(
-                    blur: 15,
-                    opacity: 0.95,
+                  AppLiquidGlassContainer(
+                    blur: 30.0,
+                    opacity: isDark ? 0.24 : 0.14,
                     borderRadius: BorderRadius.circular(16),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
@@ -732,12 +733,12 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               bottom: 90,
               left: 16,
               right: 16,
-              child: GlassContainer(
-                blur: 15,
-                opacity: 0.95,
+              child: AppLiquidGlassContainer(
+                blur: 30.0,
+                opacity: isDark ? 0.24 : 0.14,
                 borderRadius: BorderRadius.circular(20),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: Border.all(color: const Color(0xFFFF7A00).withValues(alpha: 0.3), width: 1.5),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     Container(
@@ -885,6 +886,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   }
 
   Widget _buildTurnByTurnBanner(MapState state) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final steps = state.activeRoute!.steps;
     final idx = state.currentStepIndex.clamp(0, steps.length - 1);
     final currentStep = steps[idx];
@@ -904,12 +906,12 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       turnIcon = Icons.turn_right_rounded;
     }
 
-    return GlassContainer(
-      blur: 15,
-      opacity: 0.95,
+    return AppLiquidGlassContainer(
+      blur: 30.0,
+      opacity: isDark ? 0.24 : 0.14,
       borderRadius: BorderRadius.circular(18),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       border: Border.all(color: const Color(0xFF9B1B30).withValues(alpha: 0.3), width: 1.5),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
         children: [
           Container(

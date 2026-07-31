@@ -35,7 +35,7 @@ class GpxExportService {
       final directory = await getApplicationDocumentsDirectory();
       final sanitizedName = routeName.replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final filePath = '${directory.path}/$sanitizedName\_$timestamp.gpx';
+      final filePath = '${directory.path}/${sanitizedName}_$timestamp.gpx';
       
       final file = File(filePath);
       await file.writeAsString(gpxString);

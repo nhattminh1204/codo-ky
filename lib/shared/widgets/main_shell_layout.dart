@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:codoky/shared/widgets/glass_container.dart';
 import '../../core/theme/motion.dart';
 
 /// 1. GRADIENT CHO THANH NAV CAPSULE (DẠNG RỘNG)
@@ -234,18 +235,12 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                             ],
                           ),
                           padding: const EdgeInsets.all(2.0),
-                          child: ClipRRect(
+                          child: AppLiquidGlassContainer(
+                            blur: 30.0,
+                            opacity: isDark ? 0.24 : 0.14,
                             borderRadius: BorderRadius.circular(9999),
-                            clipBehavior: Clip.antiAlias,
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(9999),
-                                  color: isDark
-                                      ? const Color(0xFF1E293B).withValues(alpha: 0.10)
-                                      : Colors.white.withValues(alpha: 0.15),
-                                ),
+                            enableSpecular: true,
+                            specularStrength: 1.0,
                                 child: Padding(
                                   padding: const EdgeInsets.all(3),
                                   child: LayoutBuilder(
@@ -398,12 +393,10 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                                         ],
                                       );
                                     },
-                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
+                          );
                       },
                     ),
         ),
