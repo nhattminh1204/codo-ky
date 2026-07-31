@@ -179,7 +179,6 @@ class MapNotifier extends StateNotifier<MapState> {
         places: decoded,
         isLoading: false,
         clearErrorMessage: true,
-        currentLocation: const LatLng(16.4637, 107.5909),
       );
       _applyFilters();
     } catch (e, stackTrace) {
@@ -190,7 +189,6 @@ class MapNotifier extends StateNotifier<MapState> {
         places: const [],
         isLoading: false,
         errorMessage: 'Không thể tải dữ liệu địa điểm. Vui lòng thử lại!',
-        currentLocation: const LatLng(16.4637, 107.5909),
       );
     }
   }

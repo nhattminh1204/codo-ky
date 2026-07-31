@@ -87,7 +87,7 @@ void main() {
       expect(state.allPlaces, isNotEmpty);
       expect(state.places, isNotEmpty);
       expect(state.errorMessage, isNull);
-      expect(state.currentLocation, equals(const LatLng(16.4637, 107.5909)));
+      expect(state.currentLocation, isNull);
     });
 
     test('2b. loadPlaces handles asset/parse error by setting errorMessage without hardcoded fallback', () async {
