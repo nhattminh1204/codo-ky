@@ -19,7 +19,7 @@ class AppLiquidGlassContainer extends StatelessWidget {
   const AppLiquidGlassContainer({
     super.key,
     required this.child,
-    this.blur = 24.0,
+    this.blur = 30.0, // Match Apple's ultraThinMaterial blur
     this.opacity,
     this.color,
     this.borderRadius,
@@ -35,24 +35,26 @@ class AppLiquidGlassContainer extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveRadius = borderRadius ?? BorderRadius.circular(20);
 
-    // Adaptive Light / Dark Mode Color & Opacity
-    final effectiveColor = color ??
+    // Adaptive Light / Dark Mode Color & Opacity matching ultraThinMaterial
+    final effectiveColor =
+        color ??
         (isDark
-            ? const Color(0xFF1E293B).withValues(alpha: opacity ?? 0.25)
-            : Colors.white.withValues(alpha: opacity ?? 0.55));
+            ? const Color(0xFF1E293B).withValues(alpha: opacity ?? 0.20)
+            : Colors.white.withValues(alpha: opacity ?? 0.10));
 
-    // Adaptive 45° Specular Refraction Glass Border Highlight
+    // Adaptive 45° Specular Refraction Glass Border Highlight (match panelStroke 0.12)
     final effectiveBorder = borderGradient != null
         ? null
         : (border ??
-            Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.25)
-                  : Colors.white.withValues(alpha: 0.85),
-              width: 1.2,
-            ));
+              Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.white.withValues(alpha: 0.25),
+                width: 1.0,
+              ));
 
-    final effectiveShadow = boxShadow ??
+    final effectiveShadow =
+        boxShadow ??
         [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
@@ -69,7 +71,9 @@ class AppLiquidGlassContainer extends StatelessWidget {
         boxShadow: effectiveShadow,
         gradient: borderGradient,
       ),
-      padding: borderGradient != null ? const EdgeInsets.all(1.5) : EdgeInsets.zero,
+      padding: borderGradient != null
+          ? const EdgeInsets.all(1.5)
+          : EdgeInsets.zero,
       child: ClipRRect(
         borderRadius: effectiveRadius,
         clipBehavior: Clip.antiAlias,

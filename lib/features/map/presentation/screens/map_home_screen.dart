@@ -4,21 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
-import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:vibration/vibration.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
 import 'package:codoky/core/theme/motion.dart';
 import 'package:codoky/core/utils/helpers/app_snackbar.dart';
-import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
+import 'package:vibration/vibration.dart';
 import 'package:codoky/core/logging/app_logger.dart';
 import 'package:codoky/core/services/audio/tts_service.dart';
 import 'package:codoky/core/services/location/location_service.dart';
-import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/map/data/datasources/cached_disk_tile_provider.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
-import 'package:codoky/features/map/presentation/screens/filter_category_sheet.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
+import 'package:codoky/features/map/presentation/widgets/map_search_bar_widget.dart';
+import 'package:codoky/features/map/presentation/widgets/map_toolbar_widget.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
 import 'package:codoky/shared/widgets/glass_container.dart';
 
@@ -31,7 +29,6 @@ class MapHomeScreen extends ConsumerStatefulWidget {
 
 class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
-  final TextEditingController _searchController = TextEditingController();
   late final LocationService _locationService;
   late AnimationController _pulseController;
 
@@ -79,7 +76,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   @override
   void dispose() {
     _stopLiveNavigation();
-    _searchController.dispose();
     _pulseController.dispose();
     super.dispose();
   }
@@ -513,7 +509,30 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   maxCacheAge: const Duration(days: 30),
                 ),
               ),
-              if (state.activeRoute != null)
+              if (state.alternativeRoutes.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    // Các tuyến AI gợi ý (chưa được chọn) -> Nét đứt (Dashed), màu xám nhạt hơn
+                    for (int i = 0; i < state.alternativeRoutes.length; i++)
+                      if (i != state.selectedRouteIndex)
+                        Polyline(
+                          points: state.alternativeRoutes[i].points,
+                          strokeWidth: 4.0,
+                          color: const Color(0xFF94A3B8).withValues(alpha: 0.8),
+                          pattern: StrokePattern.dashed(segments: [15, 10]),
+                        ),
+                    // Tuyến đường đang được chọn (Active Route) -> Nét liền (Solid), màu cam nổi bật, đè lên trên
+                    if (state.activeRoute != null)
+                      Polyline(
+                        points: state.activeRoute!.points,
+                        strokeWidth: 5.0,
+                        color: const Color(0xFFFF7A00),
+                        borderStrokeWidth: 2.0,
+                        borderColor: Colors.white,
+                      ),
+                  ],
+                )
+              else if (state.activeRoute != null)
                 PolylineLayer(
                   polylines: [
                     Polyline(
@@ -799,362 +818,30 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
 
           if (state.activeRoute == null)
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                  Row(
-                    children: [
-                      // 1. Solid Clean Search Capsule (Black Icon & Text)
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.25 : 0.08),
-                                blurRadius: 16,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                            border: Border.all(
-                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-                              width: 1.0,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _searchController,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).brightness == Brightness.dark
-                                        ? Colors.white
-                                        : Colors.black,
-                                  ),
-                                  onChanged: (val) {
-                                    ref.read(mapProvider.notifier).setSearchQuery(val);
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: 'Tìm kiếm địa điểm Huế...',
-                                    hintStyle: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).brightness == Brightness.dark
-                                          ? Colors.white60
-                                          : Colors.black54,
-                                    ),
-                                    border: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    errorBorder: InputBorder.none,
-                                    disabledBorder: InputBorder.none,
-                                    focusedErrorBorder: InputBorder.none,
-                                    filled: false,
-                                    isDense: true,
-                                    prefixIcon: Icon(
-                                      Icons.search_rounded,
-                                      color: Theme.of(context).brightness == Brightness.dark
-                                          ? Colors.white
-                                          : Colors.black,
-                                      size: 22,
-                                    ),
-                                    suffixIcon: _searchController.text.isNotEmpty
-                                        ? IconButton(
-                                            icon: Icon(
-                                              Icons.clear,
-                                              size: 18,
-                                              color: Theme.of(context).brightness == Brightness.dark
-                                                  ? Colors.white60
-                                                  : Colors.black54,
-                                            ),
-                                            onPressed: () {
-                                              _searchController.clear();
-                                              ref.read(mapProvider.notifier).setSearchQuery('');
-                                            },
-                                          )
-                                        : null,
-                                  ),
-                                ),
-                              ),
-                              if (state.isLoading)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 8),
-                                  child: SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 10),
-
-                      // 2. Separate Profile Avatar Button (Solid Clean Style)
-                      GestureDetector(
-                        onTap: () => context.push('/profile'),
-                        child: Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.25 : 0.08),
-                                blurRadius: 16,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                            border: Border.all(
-                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-                              width: 1.0,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 19,
-                            backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : Colors.black,
-                            backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
-                                ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
-                                : null,
-                            child: ref.watch(authProvider).user?.avatarUrl == null
-                                ? const Icon(Icons.person, size: 20, color: Colors.white)
-                                : null,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                    const SizedBox(height: 10),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              showAppBottomSheet(
-                                context: context,
-                                vsync: this,
-                                builder: (_) => const FilterCategorySheet(),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              margin: const EdgeInsets.only(right: 6),
-                              decoration: BoxDecoration(
-                                color: state.selectedCategories.isNotEmpty ? const Color(0xFF9B1B30) : Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFF9B1B30).withValues(alpha: 0.4)),
-                                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    state.selectedCategories.isNotEmpty ? 'Lọc (${state.selectedCategories.length})' : 'Bộ lọc',
-                                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
-                                  ),
-                                  if (state.selectedCategories.isNotEmpty) ...[
-                                    const SizedBox(width: 6),
-                                    GestureDetector(
-                                      onTap: () {
-                                        ref.read(mapProvider.notifier).filterByCategories({});
-                                      },
-                                      child: const Icon(Icons.cancel_rounded, size: 16, color: Colors.white70),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ),
-                          _buildFilterChip('featured', 'Nổi bật', state),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('saved', 'Đã lưu (${state.savedPlaceIds.length})', state),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('all', 'Tất cả', state),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('restaurant', 'Quán ăn', state),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('attraction', 'Địa điểm', state),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('tomb', 'Lăng tẩm', state),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('temple', 'Chùa', state),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            const Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: MapSearchBarWidget(),
             ),
           Positioned(
             top: state.activeRoute != null ? 115 : 175,
             right: 14,
-            child: GlassContainer(
-              blur: 16,
-              opacity: Theme.of(context).brightness == Brightness.dark ? 0.80 : 0.92,
-              borderRadius: BorderRadius.circular(22),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              border: Border.all(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : Colors.white.withValues(alpha: 0.70),
-                width: 1,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 1. Theme Palette
-                  _buildControlIconButton(
-                    icon: Icons.palette_outlined,
-                    tooltip: 'Đổi phong cách bản đồ',
-                    iconColor: const Color(0xFFFF7A00),
-                    onPressed: () => _showIconStyleDrawer(context, ref),
-                  ),
-                  _buildControlDivider(Theme.of(context).brightness == Brightness.dark),
-
-                  // 2. Recenter GPS (Active Route & panned map)
-                  if (state.activeRoute != null && !_isAutoFollowUser) ...[
-                    _buildControlIconButton(
-                      icon: Icons.gps_fixed_rounded,
-                      tooltip: 'Theo dõi lại vị trí',
-                      iconColor: const Color(0xFF10B981),
-                      onPressed: () {
-                        setState(() {
-                          _isAutoFollowUser = true;
-                        });
-                        final userPos = ref.read(mapProvider).currentLocation;
-                        if (userPos != null) {
-                          _animatedMapMove(userPos, 17.0);
-                        }
-                      },
-                    ),
-                    _buildControlDivider(Theme.of(context).brightness == Brightness.dark),
-                  ],
-
-                  // 3. Locate User GPS
-                  _buildControlIconButton(
-                    icon: Icons.my_location_rounded,
-                    tooltip: 'Vị trí của tôi',
-                    iconColor: const Color(0xFF9B1B30),
-                    onPressed: _goToCurrentLocation,
-                  ),
-                ],
-              ),
+            child: MapToolbarWidget(
+              isAutoFollowUser: _isAutoFollowUser,
+              onRecenterGps: () {
+                setState(() {
+                  _isAutoFollowUser = true;
+                });
+                final userPos = ref.read(mapProvider).currentLocation;
+                if (userPos != null) {
+                  _animatedMapMove(userPos, 17.0);
+                }
+              },
+              onLocateUser: _goToCurrentLocation,
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildControlIconButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-    String? tooltip,
-    Color? iconColor,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultColor = isDark ? Colors.white : const Color(0xFF1E222A);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(14),
-        child: Tooltip(
-          message: tooltip ?? '',
-          child: Padding(
-            padding: const EdgeInsets.all(9),
-            child: Icon(
-              icon,
-              size: 20,
-              color: iconColor ?? defaultColor,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildControlDivider(bool isDark) {
-    return Container(
-      width: 20,
-      height: 1,
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08),
-    );
-  }
-
-  Widget _buildFilterChip(String categoryId, String label, MapState state) {
-    final isSelected = (state.selectedCategory == categoryId) ||
-        (state.selectedCategory == null && categoryId == 'all');
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () {
-        ref.read(mapProvider.notifier).filterByCategory(categoryId);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: AppMotion.emphasizedCurve,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: isSelected
-              ? const Color(0xFF9B1B30)
-              : (isDark ? const Color(0xFF1E222A).withValues(alpha: 0.85) : Colors.white.withValues(alpha: 0.92)),
-          border: Border.all(
-            color: isSelected
-                ? const Color(0xFF9B1B30)
-                : (isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFE2E8F0)),
-            width: 1.2,
-          ),
-          boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: const Color(0xFF9B1B30).withValues(alpha: 0.35),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              )
-            else
-              const BoxShadow(
-                color: Colors.black12,
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isSelected) ...[
-              const Icon(Icons.check_rounded, color: Colors.white, size: 14),
-              const SizedBox(width: 4),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected
-                    ? Colors.white
-                    : (isDark ? Colors.white70 : const Color(0xFF334155)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1485,166 +1172,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     }
   }
 
-  void _showIconStyleDrawer(BuildContext context, WidgetRef ref) {
-    final currentStyle = ref.read(mapProvider).markerStyle;
 
-    showAppBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      builder: (context) {
-        final bottomInset = MediaQuery.of(context).padding.bottom;
-        return Container(
-          padding: EdgeInsets.fromLTRB(24, 24, 24, bottomInset + 28),
-          decoration: const BoxDecoration(
-            color: Color(0xFF0F172A),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E36).withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFFFF5E36), size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'Tùy Chỉnh Phong Cách Icon',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            Text(
-                              'Chọn phong cách biểu tượng hiện đại & trẻ trung',
-                              style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close, color: Colors.white70),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _buildStyleOptionCard(
-                  context: context,
-                  ref: ref,
-                  style: MapMarkerStyle.gradientVibrantGlow,
-                  title: 'Gradient Vibrant Glow',
-                  subtitle: 'Màu sắc đổ bóng rực rỡ, năng động & nổi bật',
-                  icon: Icons.bolt_rounded,
-                  color: const Color(0xFFFF5E36),
-                  isSelected: currentStyle == MapMarkerStyle.gradientVibrantGlow,
-                ),
-                const SizedBox(height: 12),
-                _buildStyleOptionCard(
-                  context: context,
-                  ref: ref,
-                  style: MapMarkerStyle.glassmorphicDuotone,
-                  title: 'Glassmorphic Duotone',
-                  subtitle: 'Trong suốt 2 tông màu tinh tế, sang trọng',
-                  icon: Icons.layers_rounded,
-                  color: const Color(0xFF06B6D4),
-                  isSelected: currentStyle == MapMarkerStyle.glassmorphicDuotone,
-                ),
-                const SizedBox(height: 12),
-                _buildStyleOptionCard(
-                  context: context,
-                  ref: ref,
-                  style: MapMarkerStyle.playfulPop3D,
-                  title: '3D Playful Pop',
-                  subtitle: 'Khối 3D bo tròn đầy năng lượng tuổi trẻ',
-                  icon: Icons.sentiment_very_satisfied_rounded,
-                  color: const Color(0xFF8B5CF6),
-                  isSelected: currentStyle == MapMarkerStyle.playfulPop3D,
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildStyleOptionCard({
-    required BuildContext context,
-    required WidgetRef ref,
-    required MapMarkerStyle style,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-    required bool isSelected,
-  }) {
-    return InkWell(
-      onTap: () {
-        ref.read(mapProvider.notifier).setMarkerStyle(style);
-        Navigator.pop(context);
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B).withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? color : Colors.white10,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-              color: isSelected ? color : Colors.white30,
-              size: 22,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
