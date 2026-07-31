@@ -53,9 +53,17 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
   Future<void> _initLocation() async {
     try {
-      final res = await _locationService.getAccuratePosition();
+      final res = await _locationService.getAccuratePosition(
+        onFastFix: (fastResult) {
+          if (mounted) {
+            ref.read(mapProvider.notifier).setCurrentLocation(fastResult.position);
+            _animatedMapMove(fastResult.position, 16.5);
+          }
+        },
+      );
       if (res != null && mounted) {
         ref.read(mapProvider.notifier).setCurrentLocation(res.position);
+        _animatedMapMove(res.position, 16.5);
       }
     } catch (e) {
       AppLogger.w('Location permission or fetch warning: $e');
@@ -523,6 +531,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   size: const Size(42, 42),
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(50),
+                  rotate: true,
                   markers: _buildMarkers(state.places, state.selectedPlace),
                   builder: (context, markers) {
                     return Container(
@@ -1277,6 +1286,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       point: position,
       width: 60,
       height: 60,
+      rotate: true,
       child: AnimatedBuilder(
         animation: _pulseController,
         builder: (context, child) {
@@ -1396,6 +1406,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             width: 52,
             height: 58,
             alignment: Alignment.topCenter,
+            rotate: true,
             child: GestureDetector(
               onTap: () {
                 if (_previousCameraCenter == null) {

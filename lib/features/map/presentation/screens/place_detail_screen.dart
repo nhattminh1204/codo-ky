@@ -601,6 +601,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                                       point: LatLng(lat, lng),
                                       width: 44,
                                       height: 44,
+                                      rotate: true,
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFFF7A00),
