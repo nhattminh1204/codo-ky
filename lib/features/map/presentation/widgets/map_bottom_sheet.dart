@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
+import 'package:codoky/shared/widgets/vehicle_wheel_picker.dart';
 
 class MapBottomSheet extends ConsumerWidget {
   final dynamic place;
@@ -224,84 +225,35 @@ class MapBottomSheet extends ConsumerWidget {
 
 
   Widget _buildTravelModeSelector(BuildContext context, WidgetRef ref, String currentMode, [String? durationText]) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final vehicleItems = const [
+      VehicleOption(id: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded),
+      VehicleOption(id: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded),
+      VehicleOption(id: 'walking', label: 'Đi bộ', icon: Icons.directions_walk_rounded),
+    ];
 
-    double alignX = -1.0;
-    if (currentMode == 'driving') {
-      alignX = 0.0;
-    } else if (currentMode == 'walking') {
-      alignX = 1.0;
-    }
-
-    final modes = ['motorbike', 'driving', 'walking'];
+    final initialOption = vehicleItems.firstWhere(
+      (opt) => opt.id == currentMode,
+      orElse: () => vehicleItems[0],
+    );
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        GestureDetector(
-          onHorizontalDragEnd: (details) {
-            final velocity = details.primaryVelocity ?? 0;
-            final currentIndex = modes.indexOf(currentMode);
-            if (velocity < -80) {
-              // Vuốt sang Trái -> Chuyển sang phương tiện tiếp theo (Xe máy -> Ô tô -> Đi bộ)
-              if (currentIndex < modes.length - 1) {
-                ref.read(mapProvider.notifier).setTravelMode(modes[currentIndex + 1]);
-              }
-            } else if (velocity > 80) {
-              // Vuốt sang Phải -> Chuyển sang phương tiện phía trước (Đi bộ -> Ô tô -> Xe máy)
-              if (currentIndex > 0) {
-                ref.read(mapProvider.notifier).setTravelMode(modes[currentIndex - 1]);
-              }
+        VehicleWheelPicker(
+          items: vehicleItems,
+          initialSelection: initialOption,
+          height: 68.0,
+          viewportFraction: 0.32,
+          accentColor: const Color(0xFF2563EB),
+          onChanged: (selectedVehicle) {
+            if (selectedVehicle.id != currentMode) {
+              ref.read(mapProvider.notifier).setTravelMode(selectedVehicle.id);
             }
           },
-          child: Container(
-            height: 44,
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            padding: const EdgeInsets.all(4),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final tabWidth = constraints.maxWidth / 3;
-                return Stack(
-                  children: [
-                    AnimatedAlign(
-                      duration: const Duration(milliseconds: 240),
-                      curve: Curves.easeOutCubic,
-                      alignment: Alignment(alignX, 0.0),
-                      child: Container(
-                        width: tabWidth,
-                        height: double.infinity,
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF334155) : Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        _buildTravelModeChip(context, ref, mode: 'motorbike', tooltip: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
-                        _buildTravelModeChip(context, ref, mode: 'driving', tooltip: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
-                        _buildTravelModeChip(context, ref, mode: 'walking', tooltip: 'Đi bộ', icon: Icons.directions_walk_rounded, isSelected: currentMode == 'walking'),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
         ),
         if (durationText != null && durationText.isNotEmpty)
           Positioned(
-            top: -10,
+            top: -6,
             right: 14,
             child: TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 0.0, end: 1.0),
@@ -389,27 +341,7 @@ class MapBottomSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildTravelModeChip(BuildContext context, WidgetRef ref, {required String mode, required String tooltip, required IconData icon, required bool isSelected}) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Expanded(
-      child: Tooltip(
-        message: tooltip,
-        child: GestureDetector(
-          onTap: () => ref.read(mapProvider.notifier).setTravelMode(mode),
-          behavior: HitTestBehavior.opaque,
-          child: Center(
-            child: Icon(
-              icon,
-              size: 21,
-              color: isSelected
-                  ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                  : (isDark ? Colors.white54 : const Color(0xFF64748B)),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+
 
 
   _CategoryConfig _getCategoryConfig(String category) {
