@@ -76,7 +76,7 @@ class MapBottomSheet extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-            child: mapState.isNavigating
+            child: (mapState.isNavigating || activeRoute != null)
                 ? Row(
                     children: [
                       Container(

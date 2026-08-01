@@ -553,7 +553,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(50),
                   rotate: true,
-                  markers: (state.isNavigating && state.selectedPlace != null)
+                  markers: (state.activeRoute != null && state.selectedPlace != null)
                       ? _buildMarkers([state.selectedPlace!], state.selectedPlace)
                       : _buildMarkers(state.places, state.selectedPlace),
                   builder: (context, markers) {
@@ -598,7 +598,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
           ),
           if (state.selectedPlace != null)
             Positioned(
-              bottom: state.isNavigating ? 164 : 96,
+              bottom: (state.isNavigating || state.activeRoute != null) ? 164 : 96,
               left: 14,
               right: 14,
               child: MapBottomSheet(
@@ -663,8 +663,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
 
           // Tầng 2: Thanh Điều Khiển Hành Trình Gộp Chung Cố Định (Single Consolidated Control Bar)
-          // CHỈ hiển thị khi người dùng đã thực sự bấm "Bắt đầu di chuyển" (state.isNavigating == true)
-          if (state.activeRoute != null && state.isNavigating && !state.isFetchingRoute)
+          if (state.activeRoute != null && !state.isFetchingRoute)
             Positioned(
               bottom: 96,
               left: 14,
