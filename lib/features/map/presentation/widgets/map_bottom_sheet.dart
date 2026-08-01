@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
@@ -122,12 +120,11 @@ class MapBottomSheet extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                     ],
-                    // Nút Lưu Vị Trí / Yêu Thích với Animation Pop & Haptic
-                    _AnimatedFavoriteButton(
+                    // Nút Lưu / Bookmarkvới pop animation (đơn giản, không AnimationController)
+                    _FavoriteBookmarkButton(
                       isSaved: isSaved,
-                      onTap: () {
-                        ref.read(mapProvider.notifier).toggleSavePlace(placeId);
-                      },
+                      onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
+                      isDark: isDark,
                     ),
                   ],
                 ),
@@ -356,83 +353,53 @@ class _CategoryConfig {
   _CategoryConfig({required this.label, required this.color, required this.icon});
 }
 
-
-class _AnimatedFavoriteButton extends StatefulWidget {
+/// Favorite/Bookmark button với pop animation dùng AnimatedSwitcher.
+/// Không dùng AnimationController/Ticker để tránh lifecycle conflict trnên Windows.
+class _FavoriteBookmarkButton extends StatelessWidget {
   final bool isSaved;
   final VoidCallback onTap;
+  final bool isDark;
 
-  const _AnimatedFavoriteButton({
+  const _FavoriteBookmarkButton({
     required this.isSaved,
     required this.onTap,
+    required this.isDark,
   });
 
   @override
-  State<_AnimatedFavoriteButton> createState() => _AnimatedFavoriteButtonState();
-}
-
-class _AnimatedFavoriteButtonState extends State<_AnimatedFavoriteButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 280),
-      vsync: this,
-    );
-    _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.40), weight: 45),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.40, end: 1.0), weight: 55),
-    ]).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleTap() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      HapticFeedback.lightImpact();
-    }
-    if (!mounted) return;
-    _controller.forward(from: 0.0);
-    widget.onTap();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return GestureDetector(
-      onTap: _handleTap,
+      onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        transitionBuilder: (child, animation) {
+          final scale = Tween<double>(begin: 0.65, end: 1.0).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+          );
+          return ScaleTransition(scale: scale, child: child);
+        },
+        child: Container(
+          key: ValueKey(isSaved),
           padding: const EdgeInsets.all(7),
           decoration: BoxDecoration(
-            color: widget.isSaved
+            color: isSaved
                 ? (isDark ? const Color(0x408B1522) : const Color(0xFFFFF1F2))
                 : (isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFF1F5F9)),
             shape: BoxShape.circle,
             border: Border.all(
-              color: widget.isSaved
+              color: isSaved
                   ? const Color(0xFF8B1522).withValues(alpha: 0.4)
-                  : (isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.05)),
+                  : (isDark
+                      ? Colors.white.withValues(alpha: 0.15)
+                      : Colors.black.withValues(alpha: 0.05)),
               width: 1.0,
             ),
           ),
           child: Icon(
-            widget.isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+            isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
             size: 19,
-            color: widget.isSaved
+            color: isSaved
                 ? const Color(0xFF8B1522)
                 : (isDark ? Colors.white70 : const Color(0xFF64748B)),
           ),
