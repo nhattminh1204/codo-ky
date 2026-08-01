@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -55,15 +56,21 @@ class _LocketCameraScreenState extends State<LocketCameraScreen>
   }
 
   Future<void> _capturePhoto(ImageSource source) async {
-    if (Platform.isAndroid || Platform.isIOS) {
-      HapticFeedback.heavyImpact();
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS)) {
+      try {
+        HapticFeedback.heavyImpact();
+      } catch (_) {}
     }
     try {
       final picker = ImagePicker();
       XFile? image;
 
-      final isDesktop =
-          Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+      final isDesktop = !kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.windows ||
+              defaultTargetPlatform == TargetPlatform.macOS ||
+              defaultTargetPlatform == TargetPlatform.linux);
       final targetSource = isDesktop ? ImageSource.gallery : source;
 
       try {

@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -34,8 +34,12 @@ class MainShellLayout extends StatefulWidget {
 
 class _MainShellLayoutState extends State<MainShellLayout> {
   void _onItemTapped(int index, BuildContext context) {
-    if (Platform.isAndroid || Platform.isIOS) {
-      HapticFeedback.lightImpact();
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS)) {
+      try {
+        HapticFeedback.lightImpact();
+      } catch (_) {}
     }
     widget.navigationShell.goBranch(
       index,
