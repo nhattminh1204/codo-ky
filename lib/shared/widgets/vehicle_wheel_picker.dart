@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Data Model đại diện cho một tùy chọn phương tiện
 class VehicleOption {
@@ -111,12 +113,18 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
     final currentRoundPage = _currentPage.round();
     final currentRealIndex = currentRoundPage % widget.items.length;
 
-    // Debounce 80ms để tránh trigger callback liên tục khi cuộn dở
+    // Trigger haptic feedback & debounce 80ms callback khi qua mỗi phương tiện
     if (currentRealIndex != _lastReportedIndex) {
+      _lastReportedIndex = currentRealIndex;
+
+      // Hiệu ứng rung nhẹ (Haptic Feedback) qua từng item - Có Platform Guard an toàn cho Desktop/Windows
+      if (Platform.isAndroid || Platform.isIOS) {
+        HapticFeedback.selectionClick();
+      }
+
       _debounceTimer?.cancel();
       _debounceTimer = Timer(const Duration(milliseconds: 80), () {
         if (!mounted) return;
-        _lastReportedIndex = currentRealIndex;
         widget.onChanged?.call(widget.items[currentRealIndex]);
       });
     }
@@ -158,7 +166,9 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
           PageView.builder(
             controller: _pageController,
             itemCount: _kLoopItemCount,
-            physics: const BouncingScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
             itemBuilder: (context, index) {
               final realIndex = index % widget.items.length;
               final item = widget.items[realIndex];
@@ -192,7 +202,7 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
                     curve: Curves.easeOutCubic,
                   );
                 },
-                behavior: HitTestBehavior.opaque,
+                behavior: HitTestBehavior.translucent,
                 child: Transform.scale(
                   scale: scale,
                   child: Opacity(
