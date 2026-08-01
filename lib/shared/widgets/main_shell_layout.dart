@@ -65,7 +65,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
       _NavItemData(icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded, label: 'Hồ sơ', route: '/profile', branchIndex: 4),
     ];
 
-    const double navHeight = 64;
+    const double navHeight = 52;
 
     return Scaffold(
       extendBody: true,
@@ -186,47 +186,40 @@ class _NavItemButton extends StatelessWidget {
     final activeColor = isDark ? Colors.white : Colors.black87;
     final inactiveColor = isDark ? Colors.white54 : Colors.black54;
 
+    final isCamera = item.branchIndex == 2;
+    final iconSize = isCamera ? (isSelected ? 27.0 : 25.0) : (isSelected ? 25.0 : 23.0);
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  isSelected ? item.selectedIcon : item.icon,
-                  size: 24,
-                  color: isSelected ? activeColor : inactiveColor,
-                ),
-                if (item.hasBadge)
-                  Positioned(
-                    right: -2,
-                    top: -2,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: isSelected ? activeColor : const Color(0xFFEF4444),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              item.label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            AnimatedScale(
+              scale: isSelected ? 1.08 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              child: Icon(
+                isSelected ? item.selectedIcon : item.icon,
+                size: iconSize,
                 color: isSelected ? activeColor : inactiveColor,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
+            if (item.hasBadge)
+              Positioned(
+                right: -4,
+                top: -4,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: isSelected ? activeColor : const Color(0xFFEF4444),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
