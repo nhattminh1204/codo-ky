@@ -1,10 +1,8 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:codoky/shared/widgets/app_open_container.dart';
 
 class MapBottomSheet extends ConsumerWidget {
@@ -37,28 +35,26 @@ class MapBottomSheet extends ConsumerWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      decoration: BoxDecoration(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Material(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: isDark ? Colors.black.withValues(alpha: 0.40) : Colors.black.withValues(alpha: 0.12),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: CustomPaint(
-        foregroundPainter: _GradientBorderPainter(
-          borderRadius: 24,
-          borderWidth: 1.5,
-          isDark: isDark,
-        ),
-        child: GlassCard(
-          quality: GlassQuality.premium,
-          shape: const LiquidRoundedRectangle(borderRadius: 24),
-          settings: LiquidGlassSettings(
-            glassColor: isDark ? const Color(0x33000000) : const Color(0x33FFFFFF),
+        elevation: 0,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+              width: 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isDark ? Colors.black.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.10),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -229,12 +225,13 @@ class MapBottomSheet extends ConsumerWidget {
               ],
             ),
           ),
-        ],
-      ),
-    ),
-  ),
-);
+          ],        // closes outer Column.children
+        ),          // closes outer Column
+      ),            // closes inner Container
+    ),              // closes Material
+  );               // closes ClipRRect
   }
+
 
   Widget _buildTravelModeSelector(BuildContext context, WidgetRef ref, String currentMode) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -358,66 +355,6 @@ class _CategoryConfig {
   _CategoryConfig({required this.label, required this.color, required this.icon});
 }
 
-class _GradientBorderPainter extends CustomPainter {
-  final double borderRadius;
-  final double borderWidth;
-  final bool isDark;
-
-  const _GradientBorderPainter({
-    required this.borderRadius,
-    required this.borderWidth,
-    required this.isDark,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(
-      borderWidth / 2,
-      borderWidth / 2,
-      size.width - borderWidth,
-      size.height - borderWidth,
-    );
-    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
-
-    final grayColor = isDark
-        ? const Color(0xFF94A3B8).withValues(alpha: 0.85)
-        : const Color(0xFF64748B).withValues(alpha: 0.90);
-    final brightColor = isDark
-        ? Colors.white.withValues(alpha: 0.95)
-        : Colors.white;
-
-    final midBlend = Color.lerp(grayColor, brightColor, 0.5)!;
-
-    final gradient = SweepGradient(
-      center: Alignment.center,
-      startAngle: 0.0,
-      endAngle: 2 * math.pi,
-      colors: [
-        midBlend,    // 0° (Right)
-        grayColor,   // 45° (Bottom-Right corner)
-        brightColor, // 135° (Bottom-Left corner)
-        grayColor,   // 225° (Top-Left corner)
-        brightColor, // 315° (Top-Right corner)
-        midBlend,    // 360° (Right)
-      ],
-      stops: const [0.0, 0.125, 0.375, 0.625, 0.875, 1.0],
-    );
-
-    final paint = Paint()
-      ..shader = gradient.createShader(rect)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = borderWidth;
-
-    canvas.drawRRect(rrect, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _GradientBorderPainter oldDelegate) {
-    return oldDelegate.borderRadius != borderRadius ||
-        oldDelegate.borderWidth != borderWidth ||
-        oldDelegate.isDark != isDark;
-  }
-}
 
 class _AnimatedFavoriteButton extends StatefulWidget {
   final bool isSaved;
