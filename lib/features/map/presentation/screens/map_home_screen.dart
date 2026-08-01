@@ -1131,16 +1131,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   curve: AppMotion.emphasizedCurve,
                   duration: AppMotion.emphasized,
                 );
-                
-                // Auto-fetch route for preview mode
-                ref.read(mapProvider.notifier).fetchRouteToPlace(place).then((success) {
-                  if (success && mounted) {
-                    final route = ref.read(mapProvider).activeRoute;
-                    if (route != null) {
-                      _fitRouteBounds(route.points);
-                    }
-                  }
-                });
               },
               child: PlaceMarker(
                 category: category,
