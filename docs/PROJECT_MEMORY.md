@@ -133,6 +133,17 @@
    - *Ràng buộc nghiêm ngặt*: PHỤ THUỘC 100% vào module **Itinerary AI** (ph Phân bổ lộ trình du lịch) đã được re-audit và xác nhận hoàn thiện thật (không còn bất kỳ code giả lập hay mock nào).
    - *Quy tắc*: Tuyệt đối KHÔNG bắt đầu triển khai Point-to-N cho tới khi module Itinerary AI hoàn thành kiểm toán 100% bài bản.
 
+---
+
+## 🌐 6. GHI CHÚ CHẠY WEB SERVER CHO ĐIỆN THOẠI (WIFI LAN)
+Khi muốn xem ứng dụng trên điện thoại trong mạng Wi-Fi nội bộ:
+1. Đảm bảo điện thoại và máy tính kết nối **cùng một mạng Wi-Fi**.
+2. Kiểm tra IP máy tính bằng `ipconfig` (Ví dụ: `192.168.1.39`).
+3. Mở Terminal tại thư mục `codoky` và chạy:
+   - **Cách A**: `flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080`
+   - **Cách B (Từ build/web)**: `python -m http.server 8080 --directory build/web`
+4. Truy cập từ điện thoại: **`http://<IP_MÁY_TÍNH>:8080`** (Ví dụ `http://192.168.1.39:8080`).
+
 
 
 

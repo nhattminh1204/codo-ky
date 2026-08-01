@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -73,6 +73,7 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
 
   late PageController _pageController;
   double _currentPage = 0.0;
+  int _lastHapticIndex = -1;
   int _lastReportedIndex = -1;
   Timer? _debounceTimer;
 
@@ -80,6 +81,7 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
   void initState() {
     super.initState();
     final initialRealIndex = _getInitialIndex();
+    _lastHapticIndex = initialRealIndex;
     _lastReportedIndex = initialRealIndex;
 
     // Tính toán initialPage nằm ở giữa dải 10.000 để hỗ trợ cuộn vòng lặp cả 2 chiều vô hạn
@@ -106,27 +108,42 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
   void _onScroll() {
     if (!_pageController.hasClients) return;
 
+    final page = _pageController.page ?? _pageController.initialPage.toDouble();
     setState(() {
-      _currentPage = _pageController.page ?? _pageController.initialPage.toDouble();
+      _currentPage = page;
     });
 
-    final currentRoundPage = _currentPage.round();
-    final currentRealIndex = currentRoundPage % widget.items.length;
+    // 1. Theo dõi index của item đang ở vị trí chính giữa tâm (currentCenterIndex)
+    final currentCenterIndex = page.round();
+    final currentRealIndex = currentCenterIndex % widget.items.length;
 
-    // Trigger haptic feedback & debounce 80ms callback khi qua mỗi phương tiện
+    // 2. Mỗi khi currentCenterIndex chuyển sang vị trí mới -> Rung HapticFeedback đúng 1 lần (giống UIPickerView iOS)
+    if (currentCenterIndex != _lastHapticIndex) {
+      _lastHapticIndex = currentCenterIndex;
+      _triggerHapticFeedback();
+    }
+
+    // 3. Debounce 80ms callback onChanged khi người dùng dừng/chậm cuộn
     if (currentRealIndex != _lastReportedIndex) {
       _lastReportedIndex = currentRealIndex;
-
-      // Hiệu ứng rung nhẹ (Haptic Feedback) qua từng item - Có Platform Guard an toàn cho Desktop/Windows
-      if (Platform.isAndroid || Platform.isIOS) {
-        HapticFeedback.selectionClick();
-      }
-
       _debounceTimer?.cancel();
       _debounceTimer = Timer(const Duration(milliseconds: 80), () {
         if (!mounted) return;
         widget.onChanged?.call(widget.items[currentRealIndex]);
       });
+    }
+  }
+
+  /// Gọi HapticFeedback.selectionClick() an toàn tuyệt đối trên mọi nền tảng (Mobile/Web/Desktop)
+  void _triggerHapticFeedback() {
+    try {
+      if (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.android ||
+              defaultTargetPlatform == TargetPlatform.iOS)) {
+        HapticFeedback.selectionClick();
+      }
+    } catch (_) {
+      // Bỏ qua lỗi nếu thiết bị không hỗ trợ phần cứng rung
     }
   }
 

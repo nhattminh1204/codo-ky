@@ -52,10 +52,24 @@ Chỉnh sửa `.env.dev`:
 - `FIREBASE_API_KEY`: Key Firebase thật từ Firebase Console
 - `ENVIRONMENT=development`
 
-### 3. Chạy App
+### 3. Chạy App (Mobile/Desktop Native)
 ```bash
 flutter run --dart-define=ENV=dev
 ```
+
+### 4. Chạy Web Server xem trên Điện thoại (Wi-Fi LAN)
+Đảm bảo điện thoại và máy tính kết nối **cùng một mạng Wi-Fi**.
+
+Mở Terminal tại thư mục `codoky`:
+```bash
+# Cách 1: Chạy Flutter Web Server
+flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
+
+# Cách 2: Chạy siêu nhanh từ bản build sẵn bằng Python
+python -m http.server 8080 --directory build/web
+```
+Trên điện thoại (Safari/Chrome), mở địa chỉ:
+👉 **`http://<IP_MÁY_TÍNH>:8080`** (Ví dụ: `http://192.168.1.39:8080`, xem IP máy bằng lệnh `ipconfig`).
 
 ## 🧪 Testing
 ```bash
