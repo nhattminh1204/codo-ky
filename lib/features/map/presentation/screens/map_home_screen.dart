@@ -50,6 +50,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
   Future<void> _initLocation() async {
     try {
+      final hasPermission = await _locationService.ensureLocationPermission(context);
+      if (!hasPermission) return;
+
       final res = await _locationService.getAccuratePosition(
         onFastFix: (fastResult) {
           if (mounted) {
@@ -1193,6 +1196,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   }
 
   Future<void> _goToCurrentLocation() async {
+    final hasPermission = await _locationService.ensureLocationPermission(context);
+    if (!hasPermission) return;
+
     final activePos = ref.read(mapProvider).currentLocation ??
         LatLng(AppConstants.defaultMapLatitude, AppConstants.defaultMapLongitude);
 
@@ -1211,21 +1217,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       ref.read(mapProvider.notifier).setCurrentLocation(result.position);
       _animatedMapMove(result.position, 17.0);
       AppLogger.i('GPS thực tế: lat=${result.position.latitude}, lng=${result.position.longitude} (Độ chính xác: ${result.accuracy.toStringAsFixed(1)}m)');
-    } else if (mounted) {
-      final hasPermission = await _locationService.checkPermission();
-      if (!hasPermission && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Vui lòng bật GPS để định vị vệ tinh chính xác.'),
-            action: SnackBarAction(
-              label: 'Cài đặt',
-              onPressed: () {
-                _locationService.openAppSettings();
-              },
-            ),
-          ),
-        );
-      }
     }
   }
 

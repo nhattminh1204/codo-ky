@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/logging/app_logger.dart';
@@ -43,6 +44,110 @@ class LocationService {
 
     if (permission == LocationPermission.deniedForever) {
       AppLogger.w('LocationService: Location permission denied forever');
+      return false;
+    }
+
+    return true;
+  }
+
+  /// Request GPS runtime permission cleanly with contextual dialogs
+  Future<bool> ensureLocationPermission(BuildContext context) async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (dialogCtx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Row(
+              children: [
+                Icon(Icons.location_off_rounded, color: Color(0xFFDC2626)),
+                SizedBox(width: 10),
+                Text('Định vị GPS đã tắt', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            content: const Text(
+              'Ứng dụng CodoKy cần dịch vụ vị trí GPS để xác định vị trí của bạn trên bản đồ và chỉ đường. Vui lòng bật GPS.',
+              style: TextStyle(fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: const Text('Bỏ qua'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.pop(dialogCtx);
+                  openLocationSettings();
+                },
+                child: const Text('Mở Cài đặt GPS'),
+              ),
+            ],
+          ),
+        );
+      }
+      return false;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      // Yêu cầu quyền vị trí trực tiếp từ hệ thống
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('⚠️ Bạn đã từ chối cấp quyền vị trí GPS cho ứng dụng.'),
+              backgroundColor: Color(0xFFDC2626),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (dialogCtx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Row(
+              children: [
+                Icon(Icons.security_rounded, color: Color(0xFFDC2626)),
+                SizedBox(width: 10),
+                Text('Cần cấp quyền Vị trí', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            content: const Text(
+              'Quyền vị trí GPS đã bị tắt trong Cài đặt ứng dụng. Vui lòng mở Cài đặt để cho phép CodoKy truy cập vị trí.',
+              style: TextStyle(fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: const Text('Để sau'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.pop(dialogCtx);
+                  openAppSettings();
+                },
+                child: const Text('Mở Cài đặt'),
+              ),
+            ],
+          ),
+        );
+      }
       return false;
     }
 
