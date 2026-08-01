@@ -222,8 +222,8 @@ class MapBottomSheet extends ConsumerWidget {
           padding: const EdgeInsets.all(4),
           child: Row(
             children: [
-              _buildTravelModeChip(context, ref, mode: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
-              _buildTravelModeChip(context, ref, mode: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
+              _buildTravelModeChip(context, ref, mode: 'motorbike', tooltip: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
+              _buildTravelModeChip(context, ref, mode: 'driving', tooltip: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
             ],
           ),
         ),
@@ -306,45 +306,32 @@ class MapBottomSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildTravelModeChip(BuildContext context, WidgetRef ref, {required String mode, required String label, required IconData icon, required bool isSelected}) {
+  Widget _buildTravelModeChip(BuildContext context, WidgetRef ref, {required String mode, required String tooltip, required IconData icon, required bool isSelected}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
-      child: GestureDetector(
-        onTap: () => ref.read(mapProvider.notifier).setTravelMode(mode),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(vertical: 7),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? (isDark ? const Color(0xFF334155) : Colors.white)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: isSelected
-                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 1))]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 17,
-                color: isSelected
-                    ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                    : (isDark ? Colors.white54 : const Color(0xFF64748B)),
-              ),
-              const SizedBox(width: 5),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected
-                      ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                      : (isDark ? Colors.white54 : const Color(0xFF64748B)),
-                ),
-              ),
-            ],
+      child: Tooltip(
+        message: tooltip,
+        child: GestureDetector(
+          onTap: () => ref.read(mapProvider.notifier).setTravelMode(mode),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(vertical: 9),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? (isDark ? const Color(0xFF334155) : Colors.white)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: isSelected
+                  ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 1))]
+                  : null,
+            ),
+            child: Icon(
+              icon,
+              size: 21,
+              color: isSelected
+                  ? (isDark ? Colors.white : const Color(0xFF0F172A))
+                  : (isDark ? Colors.white54 : const Color(0xFF64748B)),
+            ),
           ),
         ),
       ),
