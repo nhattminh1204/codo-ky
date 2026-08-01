@@ -30,6 +30,11 @@ class MapState {
   final int selectedRouteIndex;
   final MapMarkerStyle markerStyle;
   final MapTileStyle mapTileStyle;
+  /// Nguồn sự thật DUY NHẤT cho việc "đã thực sự bắt đầu điều hướng GPS" hay chưa.
+  /// activeRoute != null chỉ nghĩa là "đang có tuyến xem trước (preview)".
+  /// Mọi UI thể hiện trạng thái điều hướng (banner rẽ, top bar, nút Hủy...)
+  /// PHẢI kiểm tra isNavigating, không được suy từ activeRoute.
+  final bool isNavigating;
 
   const MapState({
     this.allPlaces = const [],
@@ -52,6 +57,7 @@ class MapState {
     this.selectedRouteIndex = 0,
     this.markerStyle = MapMarkerStyle.gradientVibrantGlow,
     this.mapTileStyle = MapTileStyle.osmStandard,
+    this.isNavigating = false,
   });
 
   MapState copyWith({
@@ -80,6 +86,7 @@ class MapState {
     int? selectedRouteIndex,
     MapMarkerStyle? markerStyle,
     MapTileStyle? mapTileStyle,
+    bool? isNavigating,
   }) {
     return MapState(
       allPlaces: allPlaces ?? this.allPlaces,
@@ -102,6 +109,7 @@ class MapState {
       selectedRouteIndex: selectedRouteIndex ?? this.selectedRouteIndex,
       markerStyle: markerStyle ?? this.markerStyle,
       mapTileStyle: mapTileStyle ?? this.mapTileStyle,
+      isNavigating: isNavigating ?? this.isNavigating,
     );
   }
 
@@ -203,6 +211,7 @@ class MapNotifier extends StateNotifier<MapState> {
       clearActiveRoute: true,
       alternativeRoutes: const [],
       selectedRouteIndex: 0,
+      isNavigating: false,
     );
   }
 
@@ -409,7 +418,22 @@ class MapNotifier extends StateNotifier<MapState> {
     state = state.copyWith(
       clearActiveRoute: true,
       clearRouteError: true,
+      isNavigating: false,
     );
+  }
+
+  /// Gọi DUY NHẤT khi GPS live-tracking thật sự bắt đầu chạy
+  /// (ví dụ trong _startLiveNavigation của MapHomeScreen).
+  /// Đây là điểm chuyển từ trạng thái "Preview" sang "Navigating".
+  void startNavigating() {
+    state = state.copyWith(isNavigating: true);
+  }
+
+  /// Gọi khi dừng điều hướng (hủy tay hoặc đã đến nơi).
+  /// Không xóa activeRoute — chỉ hạ cờ điều hướng, để UI quay lại chế độ preview
+  /// nếu tuyến vẫn còn hiển thị.
+  void stopNavigating() {
+    state = state.copyWith(isNavigating: false);
   }
 
   /// Sets active marker design style (gradient, duotone, 3d pop)

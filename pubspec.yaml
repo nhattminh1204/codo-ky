@@ -41,6 +41,7 @@ dependencies:
   vibration: ^3.2.0
   image_picker: ^1.2.3
   gpx: ^2.3.0
+  liquid_glass_widgets: ^0.26.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

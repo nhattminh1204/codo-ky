@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
-import 'package:codoky/shared/widgets/glass_container.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class MapToolbarWidget extends ConsumerWidget {
   final bool isAutoFollowUser;
@@ -22,12 +22,10 @@ class MapToolbarWidget extends ConsumerWidget {
     final state = ref.watch(mapProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return AppLiquidGlassContainer(
-      blur: 30.0,
-      opacity: isDark ? 0.24 : 0.14,
-      borderRadius: BorderRadius.circular(22),
-      enableSpecular: true,
-      specularStrength: 1.0,
+    return GlassContainer(
+      useOwnLayer: true,
+      quality: GlassQuality.standard,
+      shape: const LiquidRoundedSuperellipse(borderRadius: 22),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

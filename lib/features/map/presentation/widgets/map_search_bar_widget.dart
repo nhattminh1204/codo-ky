@@ -5,7 +5,7 @@ import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/screens/filter_category_sheet.dart';
-import 'package:codoky/shared/widgets/glass_container.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class MapSearchBarWidget extends ConsumerStatefulWidget {
   const MapSearchBarWidget({super.key});
@@ -38,13 +38,11 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
               children: [
                 // 1. Glassmorphism Search Capsule
                 Expanded(
-                  child: AppLiquidGlassContainer(
-                    blur: 30,
-                    opacity: isDark ? 0.24 : 0.14,
-                    borderRadius: BorderRadius.circular(20),
+                  child: GlassContainer(
+                    useOwnLayer: true,
+                    quality: GlassQuality.standard,
+                    shape: const LiquidRoundedSuperellipse(borderRadius: 20),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                    enableSpecular: true,
-                    specularStrength: 1.0,
                     child: Row(
                       children: [
                         Expanded(
@@ -114,12 +112,10 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                 // 2. Separate Profile Avatar Button (Glassmorphism)
                 GestureDetector(
                   onTap: () => context.push('/profile'),
-                  child: AppLiquidGlassContainer(
-                    blur: 30,
-                    opacity: isDark ? 0.24 : 0.14,
-                    borderRadius: BorderRadius.circular(24),
-                    enableSpecular: true,
-                    specularStrength: 1.0,
+                  child: GlassContainer(
+                    useOwnLayer: true,
+                    quality: GlassQuality.standard,
+                    shape: const LiquidRoundedSuperellipse(borderRadius: 24),
                     padding: const EdgeInsets.all(3),
                     child: CircleAvatar(
                       radius: 19,
@@ -150,15 +146,14 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(right: 6),
-                      child: AppLiquidGlassContainer(
-                        blur: 24,
-                        opacity: isDark ? 0.24 : 0.14,
-                        borderRadius: BorderRadius.circular(20),
+                      child: GlassContainer(
+                        useOwnLayer: true,
+                        quality: GlassQuality.standard,
+                        shape: const LiquidRoundedSuperellipse(borderRadius: 20),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        tint: state.selectedCategories.isNotEmpty ? const Color(0xFF9B1B30) : null,
-                        tintOpacity: 0.55,
-                        enableSpecular: true,
-                        specularStrength: 1.0,
+                        settings: state.selectedCategories.isNotEmpty 
+                          ? const LiquidGlassSettings(glassColor: Color(0x8C9B1B30)) 
+                          : const LiquidGlassSettings(),
                       child: Row(
                         children: [
                           Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
@@ -211,15 +206,14 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
       onTap: () {
         ref.read(mapProvider.notifier).filterByCategory(categoryId);
       },
-      child: AppLiquidGlassContainer(
-        blur: 24,
-        opacity: isDark ? 0.24 : 0.14,
-        borderRadius: BorderRadius.circular(20),
+      child: GlassContainer(
+        useOwnLayer: true,
+        quality: GlassQuality.standard,
+        shape: const LiquidRoundedSuperellipse(borderRadius: 20),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        tint: isSelected ? const Color(0xFF9B1B30) : null,
-        tintOpacity: 0.55,
-        enableSpecular: true,
-        specularStrength: 1.0,
+        settings: isSelected 
+          ? const LiquidGlassSettings(glassColor: Color(0x8C9B1B30)) 
+          : const LiquidGlassSettings(),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

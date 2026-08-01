@@ -7,6 +7,8 @@ import 'package:codoky/core/config/app_config.dart';
 import 'package:codoky/core/logging/app_logger.dart';
 import 'firebase_options.dart';
 
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+
 import 'app.dart';
 
 class DevHttpOverrides extends HttpOverrides {
@@ -41,5 +43,15 @@ void main() async {
     AppLogger.w('Firebase initializeApp note: $e');
   }
 
-  runApp(const ProviderScope(child: CodoKyApp()));
+  try {
+    await LiquidGlassWidgets.initialize();
+  } catch (e) {
+    AppLogger.w('LiquidGlassWidgets initialize error: $e');
+  }
+
+  runApp(
+    LiquidGlassWidgets.wrap(
+      child: const ProviderScope(child: CodoKyApp()),
+    ),
+  );
 }

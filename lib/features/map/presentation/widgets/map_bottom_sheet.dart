@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/utils/helpers/app_snackbar.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:codoky/shared/widgets/app_open_container.dart';
 
 class MapBottomSheet extends ConsumerWidget {
@@ -33,23 +34,11 @@ class MapBottomSheet extends ConsumerWidget {
     final activeRoute = mapState.activeRoute;
     final isFetchingRoute = mapState.isFetchingRoute;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.12),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    return GlassCard(
+      quality: GlassQuality.premium,
+      shape: const LiquidRoundedSuperellipse(borderRadius: 24),
+      settings: LiquidGlassSettings(
+        glassColor: Theme.of(context).cardColor,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

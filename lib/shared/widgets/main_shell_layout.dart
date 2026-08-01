@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:codoky/shared/widgets/glass_container.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import '../../core/theme/motion.dart';
 
 /// 1. GRADIENT CHO THANH NAV CAPSULE (DẠNG RỘNG)
@@ -235,12 +235,10 @@ class _MainShellLayoutState extends State<MainShellLayout> {
                             ],
                           ),
                           padding: const EdgeInsets.all(2.0),
-                          child: AppLiquidGlassContainer(
-                            blur: 30.0,
-                            opacity: isDark ? 0.24 : 0.14,
-                            borderRadius: BorderRadius.circular(9999),
-                            enableSpecular: true,
-                            specularStrength: 1.0,
+                          child: GlassContainer(
+                            useOwnLayer: true,
+                            quality: GlassQuality.standard,
+                            shape: const LiquidRoundedSuperellipse(borderRadius: 9999),
                                 child: Padding(
                                   padding: const EdgeInsets.all(3),
                                   child: LayoutBuilder(
