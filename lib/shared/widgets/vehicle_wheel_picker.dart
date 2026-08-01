@@ -52,16 +52,20 @@ class VehicleWheelPicker extends StatefulWidget {
   /// Tỉ lệ thu nhỏ của item ở rìa (scale min)
   final double scaleUnselected;
 
+  /// Hiển thị nhãn chữ bên dưới icon hay không (mặc định false - chỉ hiện Icon)
+  final bool showLabels;
+
   const VehicleWheelPicker({
     super.key,
     required this.items,
     this.initialSelection,
     this.onChanged,
     this.viewportFraction = 0.28,
-    this.height = 72.0,
+    this.height = 48.0,
     this.accentColor = const Color(0xFF2563EB),
     this.scaleSelected = 1.18,
     this.scaleUnselected = 0.85,
+    this.showLabels = false,
   }) : assert(items.length > 0, 'Danh sách items không được rỗng');
 
   @override
@@ -224,28 +228,36 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
                   scale: scale,
                   child: Opacity(
                     opacity: opacity,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          item.icon,
-                          size: 24,
-                          color: itemColor,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.label,
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: distance < 0.4 ? FontWeight.bold : FontWeight.w500,
-                            color: itemColor,
+                    child: (widget.showLabels && item.label.isNotEmpty)
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                item.icon,
+                                size: 24,
+                                color: itemColor,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                item.label,
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: distance < 0.4 ? FontWeight.bold : FontWeight.w500,
+                                  color: itemColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          )
+                        : Center(
+                            child: Icon(
+                              item.icon,
+                              size: 26,
+                              color: itemColor,
+                            ),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               );

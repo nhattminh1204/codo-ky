@@ -226,13 +226,13 @@ class MapBottomSheet extends ConsumerWidget {
 
   Widget _buildTravelModeSelector(BuildContext context, WidgetRef ref, String currentMode, [String? durationText]) {
     final vehicleItems = const [
-      VehicleOption(id: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded),
-      VehicleOption(id: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded),
-      VehicleOption(id: 'walking', label: 'Đi bộ', icon: Icons.directions_walk_rounded),
+      VehicleOption(id: 'motorbike', label: '', icon: Icons.two_wheeler_rounded),
+      VehicleOption(id: 'driving', label: '', icon: Icons.directions_car_rounded),
+      VehicleOption(id: 'walking', label: '', icon: Icons.directions_walk_rounded),
     ];
 
     final initialOption = vehicleItems.firstWhere(
-      (opt) => opt.id == currentMode,
+      (opt) => opt.id == (currentMode.isEmpty ? 'motorbike' : currentMode),
       orElse: () => vehicleItems[0],
     );
 
@@ -242,8 +242,9 @@ class MapBottomSheet extends ConsumerWidget {
         VehicleWheelPicker(
           items: vehicleItems,
           initialSelection: initialOption,
-          height: 68.0,
+          height: 48.0,
           viewportFraction: 0.32,
+          showLabels: false,
           accentColor: const Color(0xFF2563EB),
           onChanged: (selectedVehicle) {
             if (selectedVehicle.id != currentMode) {
