@@ -403,12 +403,12 @@ class _FavoriteBookmarkButton extends StatelessWidget {
           height: 50,
           decoration: BoxDecoration(
             color: isSaved
-                ? (isDark ? const Color(0x408B1522) : const Color(0xFFFFF1F2))
+                ? (isDark ? const Color(0x40F59E0B) : const Color(0xFFFEF3C7))
                 : (isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFF1F5F9)),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isSaved
-                  ? const Color(0xFF8B1522).withValues(alpha: 0.4)
+                  ? const Color(0xFFF59E0B).withValues(alpha: 0.5)
                   : (isDark
                       ? Colors.white.withValues(alpha: 0.15)
                       : Colors.transparent),
@@ -419,7 +419,7 @@ class _FavoriteBookmarkButton extends StatelessWidget {
             isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
             size: 22,
             color: isSaved
-                ? const Color(0xFF8B1522)
+                ? const Color(0xFFD97706)
                 : (isDark ? Colors.white70 : const Color(0xFF334155)),
           ),
         ),

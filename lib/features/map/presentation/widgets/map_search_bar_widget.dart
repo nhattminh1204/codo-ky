@@ -251,8 +251,8 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                 Icons.bookmark_rounded,
                 size: 13,
                 color: isSelected
-                    ? (isDark ? Colors.black : const Color(0xFF8B1522))
-                    : const Color(0xFF8B1522),
+                    ? (isDark ? Colors.black : const Color(0xFFF59E0B))
+                    : const Color(0xFFF59E0B),
               ),
               const SizedBox(width: 4),
             ],
