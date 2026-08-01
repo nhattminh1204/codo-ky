@@ -245,7 +245,12 @@ class MapNotifier extends StateNotifier<MapState> {
       AppLogger.i('Lưu địa điểm: $placeId');
     }
     state = state.copyWith(savedPlaceIds: currentSaved);
-    _applyFilters();
+    // Chỉ re-filter nếu đang filter theo danh mục 'saved'
+    final cat = state.selectedCategory;
+    final hasMultiCat = state.selectedCategories.contains('saved');
+    if (cat == 'saved' || hasMultiCat) {
+      _applyFilters();
+    }
   }
 
   void _applyFilters() {

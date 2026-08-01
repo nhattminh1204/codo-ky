@@ -154,9 +154,9 @@ class MapBottomSheet extends ConsumerWidget {
                     ],
                   ),
                 const SizedBox(height: 14),
-                _buildTravelModeSelector(context, ref, ref.watch(mapProvider).travelMode),
+                _buildTravelModeSelector(context, ref, mapState.travelMode),
                 const SizedBox(height: 8),
-                _buildAlternativeRoutesSelector(ref, ref.watch(mapProvider)),
+                _buildAlternativeRoutesSelector(ref, mapState),
                 const SizedBox(height: 12),
 
                 Row(
