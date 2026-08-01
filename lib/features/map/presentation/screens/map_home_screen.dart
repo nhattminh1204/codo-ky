@@ -73,7 +73,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   bool _isLiveTracking = false;
   bool _isAutoFollowUser = true;
   bool _isGpsWeak = false;
-  double? _lastGpsAccuracy;
   double? _currentHeading;
 
   @override
@@ -305,7 +304,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
         setState(() {
           _isGpsWeak = isWeak;
-          _lastGpsAccuracy = accuracy;
           _currentHeading = heading;
         });
 
@@ -628,105 +626,39 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               ),
             ),
 
-          // Top Navigation & Overlay Banners (Turn-by-turn instruction, GPS weak status, OSRM fetching, error)
-          Positioned(
-            top: state.activeRoute != null ? 48 : 135,
-            left: 14,
-            right: 70,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
-                  _buildTurnByTurnBanner(state),
-
-                if (_isGpsWeak && state.activeRoute != null) ...[
-                  const SizedBox(height: 8),
-                  _buildGlassOverlay(
-                    borderRadius: 16,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.gps_not_fixed_rounded, color: Colors.orangeAccent, size: 20),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            _lastGpsAccuracy != null
-                                ? 'Đang chờ tín hiệu GPS chính xác (bán kính ${_lastGpsAccuracy!.toStringAsFixed(0)}m)...'
-                                : 'Đang kết nối tín hiệu vệ tinh GPS...',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
-                if (state.isFetchingRoute) ...[
-                  const SizedBox(height: 8),
-                  _buildGlassOverlay(
-                    borderRadius: 16,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFFFF7A00)),
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'Đang lấy dữ liệu chỉ đường OSRM...',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E1E1E)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
-                if (state.errorMessage != null && !state.isLoading) ...[
-                  const SizedBox(height: 8),
-                  _buildGlassOverlay(
-                    borderRadius: 16,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline, color: Colors.redAccent, size: 22),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            state.errorMessage!,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12.5,
-                              color: Color(0xFF1E1E1E),
-                            ),
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF9B1B30),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          onPressed: () {
-                            ref.read(mapProvider.notifier).loadPlaces(forceRefresh: true);
-                          },
-                          child: const Text(
-                            'Thử lại',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
+          // Top Navigation Banner (Turn-by-turn instruction full-width white card)
+          if (state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
+            Positioned(
+              top: 14,
+              left: 14,
+              right: 14,
+              child: _buildTurnByTurnBanner(state),
             ),
-          ),
+
+          if (state.isFetchingRoute)
+            Positioned(
+              top: state.activeRoute != null ? 90 : 135,
+              left: 14,
+              right: 70,
+              child: _buildGlassOverlay(
+                borderRadius: 16,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: const Row(
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFF2563EB)),
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      'Đang lấy dữ liệu chỉ đường OSRM...',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E1E1E)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           // Tầng 2: Thanh Điều Khiển Hành Trình Gộp Chung Cố Định (Single Consolidated Control Bar)
           // CHỈ hiển thị khi người dùng đã thực sự bấm "Bắt đầu di chuyển" (state.isNavigating == true)
@@ -747,7 +679,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               child: MapSearchBarWidget(),
             ),
           Positioned(
-            top: state.activeRoute != null ? 115 : 175,
+            top: state.activeRoute != null ? 96 : 175,
             right: 14,
             child: MapToolbarWidget(
               isAutoFollowUser: _isAutoFollowUser,
@@ -948,6 +880,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   }
 
   Widget _buildTurnByTurnBanner(MapState state) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final steps = state.activeRoute!.steps;
     final idx = state.currentStepIndex.clamp(0, steps.length - 1);
     final currentStep = steps[idx];
@@ -967,17 +900,29 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       turnIcon = Icons.turn_right_rounded;
     }
 
-    return _buildGlassOverlay(
-      quality: GlassQuality.premium,
-      borderRadius: 18,
-      glassColor: const Color(0x1A9B1B30),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.08),
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
+            blurRadius: 18,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF9B1B30),
+              color: const Color(0xFF2563EB),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(turnIcon, color: Colors.white, size: 24),
@@ -990,19 +935,19 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               children: [
                 Text(
                   'Còn $distText',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF9B1B30),
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   currentStep.instruction,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E1E1E),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1010,16 +955,17 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               ],
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
             onPressed: () {
               ref.read(mapProvider.notifier).toggleVoiceMute();
             },
             icon: Icon(
               state.isVoiceMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-              color: state.isVoiceMuted ? Colors.grey : const Color(0xFFFF5E36),
-              size: 24,
+              color: state.isVoiceMuted ? const Color(0xFF94A3B8) : const Color(0xFF2563EB),
+              size: 22,
             ),
-            tooltip: state.isVoiceMuted ? 'Bật giọng nói' : 'Tắt giọng nói',
+            tooltip: state.isVoiceMuted ? 'Bật âm thanh' : 'Tắt âm thanh',
           ),
         ],
       ),
