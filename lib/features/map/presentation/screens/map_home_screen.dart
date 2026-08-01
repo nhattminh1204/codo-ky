@@ -784,6 +784,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                               _buildMiniTravelModeChip('motorbike', '🛵 Xe máy', state.travelMode),
                               const SizedBox(width: 4),
                               _buildMiniTravelModeChip('driving', '🚗 Ô tô', state.travelMode),
+                              const SizedBox(width: 4),
+                              _buildMiniTravelModeChip('walking', '🚶 Đi bộ', state.travelMode),
                             ],
                           ),
                         ],

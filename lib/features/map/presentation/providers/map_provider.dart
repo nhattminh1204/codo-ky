@@ -138,7 +138,7 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   Future<void> setTravelMode(String mode) async {
-    if (!['motorbike', 'driving'].contains(mode)) return;
+    if (!['motorbike', 'driving', 'walking'].contains(mode)) return;
     if (state.travelMode == mode) return;
 
     state = state.copyWith(travelMode: mode, currentStepIndex: 0);
