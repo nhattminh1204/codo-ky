@@ -32,23 +32,36 @@ class MapBottomSheet extends ConsumerWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
-          width: 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: isDark ? Colors.black.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.10),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+      builder: (context, animValue, child) {
+        return Transform.translate(
+          offset: Offset(0, 24 * (1 - animValue)),
+          child: Opacity(
+            opacity: animValue.clamp(0.0, 1.0),
+            child: child,
           ),
-        ],
-      ),
-      child: Column(
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.10),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
@@ -205,52 +218,102 @@ class MapBottomSheet extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
 
   Widget _buildTravelModeSelector(BuildContext context, WidgetRef ref, String currentMode, [String? durationText]) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    double alignX = -1.0;
+    if (currentMode == 'driving') {
+      alignX = 0.0;
+    } else if (currentMode == 'walking') {
+      alignX = 1.0;
+    }
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
+          height: 44,
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(14),
           ),
           padding: const EdgeInsets.all(4),
-          child: Row(
-            children: [
-              _buildTravelModeChip(context, ref, mode: 'motorbike', tooltip: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
-              _buildTravelModeChip(context, ref, mode: 'driving', tooltip: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
-              _buildTravelModeChip(context, ref, mode: 'walking', tooltip: 'Đi bộ', icon: Icons.directions_walk_rounded, isSelected: currentMode == 'walking'),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final tabWidth = constraints.maxWidth / 3;
+              return Stack(
+                children: [
+                  AnimatedAlign(
+                    duration: const Duration(milliseconds: 240),
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment(alignX, 0.0),
+                    child: Container(
+                      width: tabWidth,
+                      height: double.infinity,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF334155) : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      _buildTravelModeChip(context, ref, mode: 'motorbike', tooltip: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
+                      _buildTravelModeChip(context, ref, mode: 'driving', tooltip: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
+                      _buildTravelModeChip(context, ref, mode: 'walking', tooltip: 'Đi bộ', icon: Icons.directions_walk_rounded, isSelected: currentMode == 'walking'),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
         if (durationText != null && durationText.isNotEmpty)
           Positioned(
-            top: -8,
+            top: -10,
             right: 14,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutBack,
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  child: child,
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3B82F6),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  durationText,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
-              child: Text(
-                durationText,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -314,18 +377,8 @@ class MapBottomSheet extends ConsumerWidget {
         message: tooltip,
         child: GestureDetector(
           onTap: () => ref.read(mapProvider.notifier).setTravelMode(mode),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(vertical: 9),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? (isDark ? const Color(0xFF334155) : Colors.white)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: isSelected
-                  ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 1))]
-                  : null,
-            ),
+          behavior: HitTestBehavior.opaque,
+          child: Center(
             child: Icon(
               icon,
               size: 21,
