@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
-import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
-import 'package:codoky/shared/widgets/app_open_container.dart';
 
 class MapBottomSheet extends ConsumerWidget {
   final dynamic place;
@@ -72,149 +70,136 @@ class MapBottomSheet extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header: Title + Close Button
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: config.color.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(config.icon, size: 14, color: config.color),
-                          const SizedBox(width: 4),
-                          Text(
-                            config.label,
-                            style: TextStyle(
-                              color: config.color,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              height: 1.2,
                             ),
-                          ),
-                        ],
                       ),
                     ),
-                    const Spacer(),
-                    if (rating > 0) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: onClose,
+                      child: Container(
+                        padding: const EdgeInsets.all(7),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFB800).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
+                          color: isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFF1F5F9),
+                          shape: BoxShape.circle,
                         ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.star_rounded, size: 16, color: Color(0xFFFFB800)),
-                            const SizedBox(width: 4),
-                            Text(
-                              rating.toStringAsFixed(1),
-                              style: const TextStyle(
-                                color: Color(0xFFD97706),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                    ],
-                    // Nút Lưu / Bookmarkvới pop animation (đơn giản, không AnimationController)
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+
+                // Subtitle: Category • Address
+                Text(
+                  '${config.label} • $address',
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Rating & Status Row: ⭐ 4.5 (128) • Đang mở cửa
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded, size: 18, color: Color(0xFFF59E0B)),
+                    const SizedBox(width: 4),
+                    Text(
+                      rating.toStringAsFixed(1),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.5,
+                      ),
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      '(128)',
+                      style: TextStyle(
+                        color: isDark ? Colors.white54 : const Color(0xFF94A3B8),
+                        fontSize: 13,
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text('•', style: TextStyle(color: Color(0xFFCBD5E1))),
+                    ),
+                    const Text(
+                      'Đang mở cửa',
+                      style: TextStyle(
+                        color: Color(0xFF10B981),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+
+                // Travel Mode Selector Box
+                _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
+                const SizedBox(height: 6),
+                _buildAlternativeRoutesSelector(ref, mapState),
+                const SizedBox(height: 14),
+
+                // Action Row: Bookmark Square Button + CTA Button
+                Row(
+                  children: [
                     _FavoriteBookmarkButton(
                       isSaved: isSaved,
                       onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
                       isDark: isDark,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  name,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-                const SizedBox(height: 6),
-                if (address.isNotEmpty)
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFF8B1522)),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          address,
-                          style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
-                        ),
-                      ),
-                    ],
-                  ),
-                const SizedBox(height: 10),
-                _buildTravelModeSelector(context, ref, mapState.travelMode),
-                const SizedBox(height: 6),
-                _buildAlternativeRoutesSelector(ref, mapState),
-                const SizedBox(height: 10),
-
-                Row(
-                  children: [
+                    const SizedBox(width: 12),
                     Expanded(
-                      flex: 2,
-                      child: AppOpenContainer(
-                        closedRadius: BorderRadius.circular(14),
-                        openBuilder: (context, _) => PlaceDetailScreen(id: placeId),
-                        closedBuilder: (context, openContainer) {
-                          return OutlinedButton.icon(
-                            onPressed: () {
-                              if (onDetail != null) {
-                                onDetail!();
-                              } else {
-                                openContainer();
-                              }
-                            },
-                            icon: const Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFF8B1522)),
-                            label: const Text(
-                              'Xem chi tiết',
-                              style: TextStyle(color: Color(0xFF8B1522), fontWeight: FontWeight.bold, fontSize: 13),
+                      child: SizedBox(
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: isFetchingRoute ? null : onNavigate,
+                          icon: isFetchingRoute
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(
+                                  Icons.directions_rounded,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
+                          label: Text(
+                            isFetchingRoute
+                                ? 'Đang tính...'
+                                : (activeRoute != null
+                                    ? 'Đường đi (${activeRoute.formattedDuration})'
+                                    : 'Đường đi'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: Colors.white,
                             ),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: BorderSide(color: isDark ? const Color(0xFF8B1522).withValues(alpha: 0.4) : const Color(0xFF8B1522).withValues(alpha: 0.2)),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton.icon(
-                        onPressed: isFetchingRoute ? null : onNavigate,
-                        icon: isFetchingRoute 
-                          ? const SizedBox(
-                              width: 16, height: 16, 
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
-                            )
-                          : Icon(
-                              activeRoute != null ? Icons.directions_rounded : Icons.near_me_rounded, 
-                              size: 18, 
-                              color: Colors.white
-                            ),
-                        label: Text(
-                          isFetchingRoute 
-                              ? 'Đang tính...'
-                              : activeRoute != null 
-                                  ? 'Bắt đầu đi (${activeRoute.formattedDuration})'
-                                  : 'Chỉ đường',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF8B1522),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          disabledBackgroundColor: const Color(0xFF8B1522).withValues(alpha: 0.5),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2563EB),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            disabledBackgroundColor: const Color(0xFF2563EB).withValues(alpha: 0.5),
+                          ),
                         ),
                       ),
                     ),
@@ -231,20 +216,51 @@ class MapBottomSheet extends ConsumerWidget {
   }
 
 
-  Widget _buildTravelModeSelector(BuildContext context, WidgetRef ref, String currentMode) {
+  Widget _buildTravelModeSelector(BuildContext context, WidgetRef ref, String currentMode, [String? durationText]) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      padding: const EdgeInsets.all(3),
-      child: Row(
-        children: [
-          _buildTravelModeChip(context, ref, mode: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
-          _buildTravelModeChip(context, ref, mode: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
-        ],
-      ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            children: [
+              _buildTravelModeChip(context, ref, mode: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
+              _buildTravelModeChip(context, ref, mode: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
+            ],
+          ),
+        ),
+        Positioned(
+          top: -8,
+          right: 14,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3B82F6),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              durationText ?? '12 p',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11.5,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -390,27 +406,28 @@ class _FavoriteBookmarkButton extends StatelessWidget {
         },
         child: Container(
           key: ValueKey(isSaved),
-          padding: const EdgeInsets.all(7),
+          width: 50,
+          height: 50,
           decoration: BoxDecoration(
             color: isSaved
                 ? (isDark ? const Color(0x408B1522) : const Color(0xFFFFF1F2))
                 : (isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFF1F5F9)),
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isSaved
                   ? const Color(0xFF8B1522).withValues(alpha: 0.4)
                   : (isDark
                       ? Colors.white.withValues(alpha: 0.15)
-                      : Colors.black.withValues(alpha: 0.05)),
+                      : Colors.transparent),
               width: 1.0,
             ),
           ),
           child: Icon(
             isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-            size: 19,
+            size: 22,
             color: isSaved
                 ? const Color(0xFF8B1522)
-                : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                : (isDark ? Colors.white70 : const Color(0xFF334155)),
           ),
         ),
       ),

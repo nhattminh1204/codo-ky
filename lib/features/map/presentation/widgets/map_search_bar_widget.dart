@@ -36,117 +36,121 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                // 1. Glassmorphism Search Capsule
-                Expanded(
-                  child: _buildGradientGlassContainer(
-                    borderRadius: 20,
-                    isDark: isDark,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white : Colors.black,
-                            ),
-                            onChanged: (val) {
-                              ref.read(mapProvider.notifier).setSearchQuery(val);
-                            },
-                            decoration: InputDecoration(
-                              hintText: 'Tìm kiếm địa điểm Huế...',
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: isDark ? Colors.white60 : Colors.black54,
-                              ),
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              filled: false,
-                              isDense: true,
-                              prefixIcon: Icon(
-                                Icons.search_rounded,
-                                color: isDark ? Colors.white : Colors.black,
-                                size: 22,
-                              ),
-                              suffixIcon: _searchController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: Icon(
-                                        Icons.clear,
-                                        size: 18,
-                                        color: isDark ? Colors.white60 : Colors.black54,
-                                      ),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        ref.read(mapProvider.notifier).setSearchQuery('');
-                                      },
-                                    )
-                                  : null,
-                            ),
-                          ),
+            // 1. Search Bar Capsule with Integrated Mic & Avatar
+            Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search_rounded,
+                    color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                      onChanged: (val) {
+                        ref.read(mapProvider.notifier).setSearchQuery(val);
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Tìm kiếm địa điểm...',
+                        hintStyle: TextStyle(
+                          fontSize: 13.5,
+                          color: isDark ? Colors.white54 : const Color(0xFF94A3B8),
                         ),
-                        if (state.isLoading)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.0,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                            ),
-                          ),
-                      ],
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        focusedErrorBorder: InputBorder.none,
+                        filled: false,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-
-                // 2. Separate Profile Avatar Button (Glassmorphism)
-                Builder(
-                  builder: (context) {
-                    final user = ref.watch(authProvider).user;
-                    final fbPhotoUrl = FirebaseAuth.instance.currentUser?.photoURL;
-                    final avatarUrl = (user?.avatarUrl != null && user!.avatarUrl!.trim().isNotEmpty)
-                        ? user.avatarUrl!.trim()
-                        : (fbPhotoUrl != null && fbPhotoUrl.trim().isNotEmpty ? fbPhotoUrl.trim() : null);
-
-                    return GestureDetector(
-                      onTap: () => context.push('/profile'),
-                      child: _buildGradientGlassContainer(
-                        borderRadius: 24,
-                        isDark: isDark,
-                        padding: const EdgeInsets.all(3),
-                        child: CircleAvatar(
-                          radius: 19,
-                          backgroundColor: Colors.transparent,
-                          backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                          child: avatarUrl == null
-                              ? (user?.name != null && user!.name.trim().isNotEmpty
-                                  ? Text(
-                                      user.name.trim()[0].toUpperCase(),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: isDark ? Colors.white : const Color(0xFF8B1522),
-                                      ),
-                                    )
-                                  : Icon(Icons.person_rounded, size: 20, color: isDark ? Colors.white : Colors.black87))
-                              : null,
+                  if (state.isLoading)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 8),
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.0,
+                          color: Color(0xFF8B1522),
                         ),
                       ),
-                    );
-                  },
-                ),
-              ],
+                    ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(
+                      Icons.mic_rounded,
+                      size: 19,
+                      color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                    ),
+                    onPressed: () {
+                      // Voice search placeholder
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 1,
+                    height: 16,
+                    color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                  ),
+                  const SizedBox(width: 8),
+                  // Profile Avatar Circle (G)
+                  Builder(
+                    builder: (context) {
+                      final user = ref.watch(authProvider).user;
+                      final fbPhotoUrl = FirebaseAuth.instance.currentUser?.photoURL;
+                      final avatarUrl = (user?.avatarUrl != null && user!.avatarUrl!.trim().isNotEmpty)
+                          ? user.avatarUrl!.trim()
+                          : (fbPhotoUrl != null && fbPhotoUrl.trim().isNotEmpty ? fbPhotoUrl.trim() : null);
+
+                      return GestureDetector(
+                        onTap: () => context.push('/profile'),
+                        child: CircleAvatar(
+                          radius: 15,
+                          backgroundColor: const Color(0xFF8B1522),
+                          backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                          child: avatarUrl == null
+                              ? Text(
+                                  (user?.name != null && user!.name.trim().isNotEmpty)
+                                      ? user.name.trim()[0].toUpperCase()
+                                      : 'G',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : null,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 10),
             SingleChildScrollView(
@@ -217,33 +221,49 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
   Widget _buildFilterChip(String categoryId, String label, MapState state, bool isDark) {
     final isSelected = (state.selectedCategory == categoryId) ||
         (state.selectedCategory == null && categoryId == 'all');
+    final isSavedChip = categoryId == 'saved';
 
     return GestureDetector(
       onTap: () {
         ref.read(mapProvider.notifier).filterByCategory(categoryId);
       },
-      child: _buildGradientGlassContainer(
-        borderRadius: 20,
-        isDark: isDark,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        settings: isSelected 
-          ? const LiquidGlassSettings(glassColor: Color(0x8C9B1B30)) 
-          : null,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0F172A))
+              : (isDark ? const Color(0xFF1E293B) : Colors.white),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isSelected) ...[
-              const Icon(Icons.check_rounded, color: Colors.white, size: 14),
+            if (isSavedChip) ...[
+              Icon(
+                Icons.bookmark_rounded,
+                size: 13,
+                color: isSelected
+                    ? (isDark ? Colors.black : const Color(0xFF8B1522))
+                    : const Color(0xFF8B1522),
+              ),
               const SizedBox(width: 4),
             ],
             Text(
               label,
               style: TextStyle(
                 fontSize: 12.5,
-                fontWeight: FontWeight.bold,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
-                    ? Colors.white
-                    : (isDark ? Colors.white : Colors.black87),
+                    ? (isDark ? Colors.black : Colors.white)
+                    : (isDark ? Colors.white70 : const Color(0xFF334155)),
               ),
             ),
           ],

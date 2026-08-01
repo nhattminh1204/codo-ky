@@ -1114,8 +1114,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         markers.add(
           Marker(
             point: targetPos,
-            width: 52,
-            height: 58,
+            width: isSelected ? 130 : 52,
+            height: isSelected ? 86 : 58,
             alignment: Alignment.topCenter,
             rotate: true,
             child: GestureDetector(
@@ -1132,10 +1132,41 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   duration: AppMotion.emphasized,
                 );
               },
-              child: PlaceMarker(
-                category: category,
-                isSelected: isSelected,
-                style: ref.watch(mapProvider).markerStyle,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  PlaceMarker(
+                    category: category,
+                    isSelected: isSelected,
+                    style: ref.watch(mapProvider).markerStyle,
+                  ),
+                  if (isSelected)
+                    Container(
+                      margin: const EdgeInsets.only(top: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        (place['name'] as String? ?? place.name as String? ?? ''),
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
