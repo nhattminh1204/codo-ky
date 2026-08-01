@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/utils/helpers/app_snackbar.dart';
@@ -34,13 +35,32 @@ class MapBottomSheet extends ConsumerWidget {
     final activeRoute = mapState.activeRoute;
     final isFetchingRoute = mapState.isFetchingRoute;
 
-    return GlassCard(
-      quality: GlassQuality.premium,
-      shape: const LiquidRoundedSuperellipse(borderRadius: 24),
-      settings: LiquidGlassSettings(
-        glassColor: Theme.of(context).cardColor,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.40) : Colors.black.withValues(alpha: 0.12),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Column(
+      child: CustomPaint(
+        foregroundPainter: _GradientBorderPainter(
+          borderRadius: 24,
+          borderWidth: 1.5,
+          isDark: isDark,
+        ),
+        child: GlassCard(
+          quality: GlassQuality.premium,
+          shape: const LiquidRoundedRectangle(borderRadius: 24),
+          settings: LiquidGlassSettings(
+            glassColor: isDark ? const Color(0x33000000) : const Color(0x33FFFFFF),
+          ),
+          child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
@@ -143,7 +163,7 @@ class MapBottomSheet extends ConsumerWidget {
                 if (address.isNotEmpty)
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFFFF7A00)),
+                      const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFF8B1522)),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -175,14 +195,14 @@ class MapBottomSheet extends ConsumerWidget {
                                 openContainer();
                               }
                             },
-                            icon: const Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFFFF7A00)),
+                            icon: const Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFF8B1522)),
                             label: const Text(
                               'Xem chi tiết',
-                              style: TextStyle(color: Color(0xFFFF7A00), fontWeight: FontWeight.bold, fontSize: 13),
+                              style: TextStyle(color: Color(0xFF8B1522), fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: const BorderSide(color: Color(0xFFFFEAD8)),
+                              side: BorderSide(color: isDark ? const Color(0xFF8B1522).withValues(alpha: 0.4) : const Color(0xFF8B1522).withValues(alpha: 0.2)),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
                           );
@@ -200,7 +220,7 @@ class MapBottomSheet extends ConsumerWidget {
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
                             )
                           : Icon(
-                              activeRoute != null ? Icons.directions_rounded : Icons.refresh_rounded, 
+                              activeRoute != null ? Icons.directions_rounded : Icons.near_me_rounded, 
                               size: 18, 
                               color: Colors.white
                             ),
@@ -209,15 +229,15 @@ class MapBottomSheet extends ConsumerWidget {
                               ? 'Đang tính...'
                               : activeRoute != null 
                                   ? 'Bắt đầu đi (${activeRoute.formattedDuration})'
-                                  : 'Thử lại / Tìm đường',
+                                  : 'Chỉ đường',
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF7A00),
+                          backgroundColor: const Color(0xFF8B1522),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           elevation: 2,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          disabledBackgroundColor: const Color(0xFFFF7A00).withValues(alpha: 0.5),
+                          disabledBackgroundColor: const Color(0xFF8B1522).withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -228,7 +248,9 @@ class MapBottomSheet extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildTravelModeSelector(BuildContext context, WidgetRef ref, String currentMode) {
@@ -320,7 +342,7 @@ class MapBottomSheet extends ConsumerWidget {
             child: Icon(
               icon,
               size: 21,
-              color: isSelected ? const Color(0xFFFF7A00) : const Color(0xFF64748B),
+              color: isSelected ? const Color(0xFF8B1522) : const Color(0xFF64748B),
             ),
           ),
         ),
@@ -332,15 +354,15 @@ class MapBottomSheet extends ConsumerWidget {
   _CategoryConfig _getCategoryConfig(String category) {
     switch (category.toLowerCase()) {
       case 'restaurant':
-        return _CategoryConfig(label: 'Quán ăn Huế', color: Colors.orange[800]!, icon: Icons.restaurant);
+        return _CategoryConfig(label: 'Quán ăn Huế', color: const Color(0xFF8B1522), icon: Icons.restaurant);
       case 'attraction':
-        return _CategoryConfig(label: 'Địa điểm di sản', color: const Color(0xFFFF7A00), icon: Icons.place);
+        return _CategoryConfig(label: 'Địa điểm di sản', color: const Color(0xFF8B1522), icon: Icons.place);
       case 'temple':
-        return _CategoryConfig(label: 'Chùa chiền', color: Colors.purple[700]!, icon: Icons.church);
+        return _CategoryConfig(label: 'Chùa chiền', color: const Color(0xFF8B1522), icon: Icons.church);
       case 'tomb':
-        return _CategoryConfig(label: 'Lăng tẩm', color: const Color(0xFF9B1B30), icon: Icons.account_balance);
+        return _CategoryConfig(label: 'Lăng tẩm', color: const Color(0xFF8B1522), icon: Icons.account_balance);
       default:
-        return _CategoryConfig(label: 'Tham quan', color: Colors.teal[700]!, icon: Icons.tour);
+        return _CategoryConfig(label: 'Tham quan', color: const Color(0xFF8B1522), icon: Icons.tour);
     }
   }
 }
@@ -351,4 +373,65 @@ class _CategoryConfig {
   final IconData icon;
 
   _CategoryConfig({required this.label, required this.color, required this.icon});
+}
+
+class _GradientBorderPainter extends CustomPainter {
+  final double borderRadius;
+  final double borderWidth;
+  final bool isDark;
+
+  const _GradientBorderPainter({
+    required this.borderRadius,
+    required this.borderWidth,
+    required this.isDark,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(
+      borderWidth / 2,
+      borderWidth / 2,
+      size.width - borderWidth,
+      size.height - borderWidth,
+    );
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+
+    final grayColor = isDark
+        ? const Color(0xFF94A3B8).withValues(alpha: 0.85)
+        : const Color(0xFF64748B).withValues(alpha: 0.90);
+    final brightColor = isDark
+        ? Colors.white.withValues(alpha: 0.95)
+        : Colors.white;
+
+    final midBlend = Color.lerp(grayColor, brightColor, 0.5)!;
+
+    final gradient = SweepGradient(
+      center: Alignment.center,
+      startAngle: 0.0,
+      endAngle: 2 * math.pi,
+      colors: [
+        midBlend,    // 0° (Right)
+        grayColor,   // 45° (Bottom-Right corner)
+        brightColor, // 135° (Bottom-Left corner)
+        grayColor,   // 225° (Top-Left corner)
+        brightColor, // 315° (Top-Right corner)
+        midBlend,    // 360° (Right)
+      ],
+      stops: const [0.0, 0.125, 0.375, 0.625, 0.875, 1.0],
+    );
+
+    final paint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GradientBorderPainter oldDelegate) {
+    return oldDelegate.borderRadius != borderRadius ||
+        oldDelegate.borderWidth != borderWidth ||
+        oldDelegate.isDark != isDark;
+  }
 }

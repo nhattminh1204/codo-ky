@@ -23,11 +23,11 @@ class AppSnackBar {
     Color iconColor = const Color(0xFFFF7A00);
 
     if (isError) {
-      bgColor = const Color(0xFF9B1B30);
+      bgColor = const Color(0xFF8B1522);
       icon = Icons.error_outline_rounded;
       iconColor = Colors.white;
     } else if (isSuccess) {
-      bgColor = const Color(0xFF065F46);
+      bgColor = isDark ? const Color(0xFF1E293B) : const Color(0xFF0F172A);
       icon = Icons.check_circle_outline_rounded;
       iconColor = const Color(0xFF34D399);
     }
