@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:codoky/core/utils/helpers/app_snackbar.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
@@ -125,29 +125,12 @@ class MapBottomSheet extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                     ],
-                    // Nút Lưu Vị Trí / Yêu Thích
-                    GestureDetector(
+                    // Nút Lưu Vị Trí / Yêu Thích với Animation Pop & Haptic
+                    _AnimatedFavoriteButton(
+                      isSaved: isSaved,
                       onTap: () {
                         ref.read(mapProvider.notifier).toggleSavePlace(placeId);
-                        final newSavedState = !isSaved;
-                        AppSnackBar.show(
-                          context,
-                          newSavedState ? 'Đã lưu "$name" vào danh sách yêu thích!' : 'Đã xóa "$name" khỏi danh sách lưu.',
-                          isSuccess: newSavedState,
-                        );
                       },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: isSaved ? const Color(0xFFFFF1F2) : const Color(0xFFF1F5F9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                          size: 18,
-                          color: isSaved ? const Color(0xFFE11D48) : const Color(0xFF64748B),
-                        ),
-                      ),
                     ),
                   ],
                 ),
@@ -433,5 +416,87 @@ class _GradientBorderPainter extends CustomPainter {
     return oldDelegate.borderRadius != borderRadius ||
         oldDelegate.borderWidth != borderWidth ||
         oldDelegate.isDark != isDark;
+  }
+}
+
+class _AnimatedFavoriteButton extends StatefulWidget {
+  final bool isSaved;
+  final VoidCallback onTap;
+
+  const _AnimatedFavoriteButton({
+    required this.isSaved,
+    required this.onTap,
+  });
+
+  @override
+  State<_AnimatedFavoriteButton> createState() => _AnimatedFavoriteButtonState();
+}
+
+class _AnimatedFavoriteButtonState extends State<_AnimatedFavoriteButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 280),
+      vsync: this,
+    );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.40), weight: 45),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.40, end: 1.0), weight: 55),
+    ]).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    HapticFeedback.lightImpact();
+    _controller.forward(from: 0.0);
+    widget.onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: _handleTap,
+      behavior: HitTestBehavior.opaque,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(7),
+          decoration: BoxDecoration(
+            color: widget.isSaved
+                ? (isDark ? const Color(0x408B1522) : const Color(0xFFFFF1F2))
+                : (isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFF1F5F9)),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: widget.isSaved
+                  ? const Color(0xFF8B1522).withValues(alpha: 0.4)
+                  : (isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.05)),
+              width: 1.0,
+            ),
+          ),
+          child: Icon(
+            widget.isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+            size: 19,
+            color: widget.isSaved
+                ? const Color(0xFF8B1522)
+                : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+          ),
+        ),
+      ),
+    );
   }
 }
