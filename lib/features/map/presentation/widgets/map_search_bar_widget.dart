@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -110,23 +111,40 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                 const SizedBox(width: 10),
 
                 // 2. Separate Profile Avatar Button (Glassmorphism)
-                GestureDetector(
-                  onTap: () => context.push('/profile'),
-                  child: _buildGradientGlassContainer(
-                    borderRadius: 24,
-                    isDark: isDark,
-                    padding: const EdgeInsets.all(3),
-                    child: CircleAvatar(
-                      radius: 19,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: ref.watch(authProvider).user?.avatarUrl != null
-                          ? NetworkImage(ref.watch(authProvider).user!.avatarUrl!)
-                          : null,
-                      child: ref.watch(authProvider).user?.avatarUrl == null
-                          ? Icon(Icons.person, size: 20, color: isDark ? Colors.white : Colors.black87)
-                          : null,
-                    ),
-                  ),
+                Builder(
+                  builder: (context) {
+                    final user = ref.watch(authProvider).user;
+                    final fbPhotoUrl = FirebaseAuth.instance.currentUser?.photoURL;
+                    final avatarUrl = (user?.avatarUrl != null && user!.avatarUrl!.trim().isNotEmpty)
+                        ? user.avatarUrl!.trim()
+                        : (fbPhotoUrl != null && fbPhotoUrl.trim().isNotEmpty ? fbPhotoUrl.trim() : null);
+
+                    return GestureDetector(
+                      onTap: () => context.push('/profile'),
+                      child: _buildGradientGlassContainer(
+                        borderRadius: 24,
+                        isDark: isDark,
+                        padding: const EdgeInsets.all(3),
+                        child: CircleAvatar(
+                          radius: 19,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                          child: avatarUrl == null
+                              ? (user?.name != null && user!.name.trim().isNotEmpty
+                                  ? Text(
+                                      user.name.trim()[0].toUpperCase(),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: isDark ? Colors.white : const Color(0xFF8B1522),
+                                      ),
+                                    )
+                                  : Icon(Icons.person_rounded, size: 20, color: isDark ? Colors.white : Colors.black87))
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
