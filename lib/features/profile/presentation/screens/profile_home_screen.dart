@@ -6,7 +6,6 @@ import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/providers/theme_provider.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/auth/data/models/user_model.dart';
-import 'package:codoky/features/auth/presentation/widgets/hue_background_art.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class ProfileHomeScreen extends ConsumerStatefulWidget {
@@ -40,9 +39,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   // STATE (a): LOADING SKELETON / SHIMMER UI
   // ==========================================
   Widget _buildLoadingState(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GlassScaffold(
-      background: const HueBackgroundArt(),
-      backgroundColor: AppColors.bgLight,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -108,9 +107,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   // STATE (c): UNAUTHENTICATED GUEST STATE UI
   // ==========================================
   Widget _buildGuestState(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GlassScaffold(
-      background: const HueBackgroundArt(),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -230,8 +229,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GlassScaffold(
-      background: const HueBackgroundArt(),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
