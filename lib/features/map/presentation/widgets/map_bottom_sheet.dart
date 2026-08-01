@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
-import 'package:codoky/shared/widgets/vehicle_wheel_picker.dart';
+import 'package:codoky/shared/widgets/travel_mode_picker.dart';
 
 class MapBottomSheet extends ConsumerWidget {
   final dynamic place;
@@ -225,30 +225,28 @@ class MapBottomSheet extends ConsumerWidget {
 
 
   Widget _buildTravelModeSelector(BuildContext context, WidgetRef ref, String currentMode, [String? durationText]) {
-    final vehicleItems = const [
-      VehicleOption(id: 'motorbike', label: '', icon: Icons.two_wheeler_rounded),
-      VehicleOption(id: 'driving', label: '', icon: Icons.directions_car_rounded),
-      VehicleOption(id: 'walking', label: '', icon: Icons.directions_walk_rounded),
-    ];
-
-    final initialOption = vehicleItems.firstWhere(
-      (opt) => opt.id == (currentMode.isEmpty ? 'motorbike' : currentMode),
-      orElse: () => vehicleItems[0],
-    );
+    TravelMode initialMode = TravelMode.motorbike;
+    if (currentMode == 'driving') {
+      initialMode = TravelMode.driving;
+    } else if (currentMode == 'walking') {
+      initialMode = TravelMode.walking;
+    }
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        VehicleWheelPicker(
-          items: vehicleItems,
-          initialSelection: initialOption,
+        TravelModePicker(
+          initialMode: initialMode,
           height: 48.0,
-          viewportFraction: 0.32,
-          showLabels: false,
-          accentColor: const Color(0xFF2563EB),
-          onChanged: (selectedVehicle) {
-            if (selectedVehicle.id != currentMode) {
-              ref.read(mapProvider.notifier).setTravelMode(selectedVehicle.id);
+          onChanged: (selectedMode) {
+            String modeStr = 'motorbike';
+            if (selectedMode == TravelMode.driving) {
+              modeStr = 'driving';
+            } else if (selectedMode == TravelMode.walking) {
+              modeStr = 'walking';
+            }
+            if (modeStr != currentMode) {
+              ref.read(mapProvider.notifier).setTravelMode(modeStr);
             }
           },
         ),
