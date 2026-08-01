@@ -233,51 +233,70 @@ class MapBottomSheet extends ConsumerWidget {
       alignX = 1.0;
     }
 
+    final modes = ['motorbike', 'driving', 'walking'];
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Container(
-          height: 44,
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          padding: const EdgeInsets.all(4),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final tabWidth = constraints.maxWidth / 3;
-              return Stack(
-                children: [
-                  AnimatedAlign(
-                    duration: const Duration(milliseconds: 240),
-                    curve: Curves.easeOutCubic,
-                    alignment: Alignment(alignX, 0.0),
-                    child: Container(
-                      width: tabWidth,
-                      height: double.infinity,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF334155) : Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+        GestureDetector(
+          onHorizontalDragEnd: (details) {
+            final velocity = details.primaryVelocity ?? 0;
+            final currentIndex = modes.indexOf(currentMode);
+            if (velocity < -80) {
+              // Vuốt sang Trái -> Chuyển sang phương tiện tiếp theo (Xe máy -> Ô tô -> Đi bộ)
+              if (currentIndex < modes.length - 1) {
+                ref.read(mapProvider.notifier).setTravelMode(modes[currentIndex + 1]);
+              }
+            } else if (velocity > 80) {
+              // Vuốt sang Phải -> Chuyển sang phương tiện phía trước (Đi bộ -> Ô tô -> Xe máy)
+              if (currentIndex > 0) {
+                ref.read(mapProvider.notifier).setTravelMode(modes[currentIndex - 1]);
+              }
+            }
+          },
+          child: Container(
+            height: 44,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            padding: const EdgeInsets.all(4),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final tabWidth = constraints.maxWidth / 3;
+                return Stack(
+                  children: [
+                    AnimatedAlign(
+                      duration: const Duration(milliseconds: 240),
+                      curve: Curves.easeOutCubic,
+                      alignment: Alignment(alignX, 0.0),
+                      child: Container(
+                        width: tabWidth,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF334155) : Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      _buildTravelModeChip(context, ref, mode: 'motorbike', tooltip: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
-                      _buildTravelModeChip(context, ref, mode: 'driving', tooltip: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
-                      _buildTravelModeChip(context, ref, mode: 'walking', tooltip: 'Đi bộ', icon: Icons.directions_walk_rounded, isSelected: currentMode == 'walking'),
-                    ],
-                  ),
-                ],
-              );
-            },
+                    Row(
+                      children: [
+                        _buildTravelModeChip(context, ref, mode: 'motorbike', tooltip: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
+                        _buildTravelModeChip(context, ref, mode: 'driving', tooltip: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
+                        _buildTravelModeChip(context, ref, mode: 'walking', tooltip: 'Đi bộ', icon: Icons.directions_walk_rounded, isSelected: currentMode == 'walking'),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
         if (durationText != null && durationText.isNotEmpty)
