@@ -729,7 +729,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
           ),
 
           // Tầng 2: Thanh Điều Khiển Hành Trình Gộp Chung Cố Định (Single Consolidated Control Bar)
-          if (state.activeRoute != null && !state.isFetchingRoute)
+          // CHỈ hiển thị khi người dùng đã thực sự bấm "Bắt đầu di chuyển" (state.isNavigating == true)
+          if (state.activeRoute != null && state.isNavigating && !state.isFetchingRoute)
             Positioned(
               bottom: 96,
               left: 14,
