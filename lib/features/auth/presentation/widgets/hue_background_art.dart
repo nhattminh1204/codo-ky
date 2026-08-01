@@ -26,7 +26,7 @@ class HueBackgroundArt extends StatelessWidget {
               },
             ),
           ),
-          if (child != null) child!,
+          ?child,
         ],
       );
   }
