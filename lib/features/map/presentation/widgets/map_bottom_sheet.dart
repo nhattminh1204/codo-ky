@@ -32,28 +32,23 @@ class MapBottomSheet extends ConsumerWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Material(
+    return Container(
+      decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        elevation: 0,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
-              width: 1.0,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isDark ? Colors.black.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.10),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.10),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
           ),
-          child: Column(
+        ],
+      ),
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
@@ -208,11 +203,9 @@ class MapBottomSheet extends ConsumerWidget {
               ],
             ),
           ),
-          ],        // closes outer Column.children
-        ),          // closes outer Column
-      ),            // closes inner Container
-    ),              // closes Material
-  );               // closes ClipRRect
+        ],
+      ),
+    );
   }
 
 
