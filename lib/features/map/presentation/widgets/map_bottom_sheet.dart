@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -396,7 +397,10 @@ class _AnimatedFavoriteButtonState extends State<_AnimatedFavoriteButton>
   }
 
   void _handleTap() {
-    HapticFeedback.lightImpact();
+    if (Platform.isAndroid || Platform.isIOS) {
+      HapticFeedback.lightImpact();
+    }
+    if (!mounted) return;
     _controller.forward(from: 0.0);
     widget.onTap();
   }

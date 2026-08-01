@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,7 +34,9 @@ class MainShellLayout extends StatefulWidget {
 
 class _MainShellLayoutState extends State<MainShellLayout> {
   void _onItemTapped(int index, BuildContext context) {
-    HapticFeedback.lightImpact();
+    if (Platform.isAndroid || Platform.isIOS) {
+      HapticFeedback.lightImpact();
+    }
     widget.navigationShell.goBranch(
       index,
       initialLocation: index == widget.navigationShell.currentIndex,

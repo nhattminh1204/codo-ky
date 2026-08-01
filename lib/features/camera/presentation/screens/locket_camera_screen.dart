@@ -55,7 +55,9 @@ class _LocketCameraScreenState extends State<LocketCameraScreen>
   }
 
   Future<void> _capturePhoto(ImageSource source) async {
-    HapticFeedback.heavyImpact();
+    if (Platform.isAndroid || Platform.isIOS) {
+      HapticFeedback.heavyImpact();
+    }
     try {
       final picker = ImagePicker();
       XFile? image;
