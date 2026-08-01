@@ -7,6 +7,7 @@ import 'package:codoky/core/widgets/buttons/social_auth_button.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/auth/presentation/widgets/hue_background_art.dart';
 import 'package:codoky/features/auth/presentation/widgets/hue_brand_logo.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -187,89 +188,92 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
 
     final authState = ref.watch(authProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9F5EF),
-      body: HueBackgroundArt(
-        child: SafeArea(
-          bottom: true,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Top Language Switcher Bar (VI | EN)
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: GestureDetector(
-                            onTap: _toggleLanguage,
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFC89B3C).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: const Color(0xFFC89B3C).withValues(alpha: 0.38),
-                                  width: 1,
+    return GlassScaffold(
+      background: const HueBackgroundArt(),
+      backgroundColor: const Color(0xFFF9F5EF), // Fallback color
+      body: SafeArea(
+        bottom: true,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Top Language Switcher Bar (VI | EN)
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: GestureDetector(
+                          onTap: _toggleLanguage,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFC89B3C).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFFC89B3C).withValues(alpha: 0.38),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.language,
+                                  size: 14,
+                                  color: Color(0xFF8B1522),
                                 ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.language,
-                                    size: 14,
-                                    color: Color(0xFF8B1522),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'VI',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: _currentLang == 'VI'
+                                        ? const Color(0xFF8B1522)
+                                        : const Color(0xFF756E65),
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'VI',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: _currentLang == 'VI'
-                                          ? const Color(0xFF8B1522)
-                                          : const Color(0xFF756E65),
-                                    ),
+                                ),
+                                const Text(
+                                  ' | ',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFFC89B3C),
                                   ),
-                                  const Text(
-                                    ' | ',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFFC89B3C),
-                                    ),
+                                ),
+                                Text(
+                                  'EN',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: _currentLang == 'EN'
+                                        ? const Color(0xFF8B1522)
+                                        : const Color(0xFF756E65),
                                   ),
-                                  Text(
-                                    'EN',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: _currentLang == 'EN'
-                                          ? const Color(0xFF8B1522)
-                                          : const Color(0xFF756E65),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-
-                        // Header Group (Centered vertically with high contrast subtitle)
-                        Column(
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // Wrap main content in a GlassCard
+                      GlassCard(
+                        shape: const LiquidRoundedRectangle(borderRadius: 36),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const SizedBox(height: 12),
-
                             // Logo with Golden Halo Ring Background
                             FadeTransition(
                               opacity: _logoFadeAnim,
@@ -337,7 +341,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
 
                             const SizedBox(height: 12),
 
-                            // Subtitle with High Contrast (Dark Red Crimson / Dark Imperial Brown)
+                            // Subtitle with High Contrast
                             SlideTransition(
                               position: _subtitleSlideAnim,
                               child: FadeTransition(
@@ -354,106 +358,102 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 ),
                               ),
                             ),
-                          ],
-                        ),
 
-                        // Login Options Group (Google & Apple ONLY)
-                        SlideTransition(
-                          position: _buttonsSlideAnim,
-                          child: FadeTransition(
-                            opacity: _buttonsFadeAnim,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                const SizedBox(height: 32),
-
-                                // 1. Google Button
-                                SocialAuthButton(
-                                  type: SocialType.google,
-                                  isLoading: authState.isLoading,
-                                  onPressed: _handleGoogleLogin,
-                                ),
-
-                                // Increased margin between Google & Apple buttons (18px)
-                                const SizedBox(height: 18),
-
-                                // 2. Apple Button
-                                SocialAuthButton(
-                                  type: SocialType.apple,
-                                  isLoading: authState.isLoading,
-                                  onPressed: _handleAppleLogin,
-                                ),
-
-                                // Balanced vertical spacing from Apple button to Terms note (32px)
-                                const SizedBox(height: 32),
-
-                                // Centered Footer Terms & Security Note with High Contrast Text
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                            // Login Options Group
+                            SlideTransition(
+                              position: _buttonsSlideAnim,
+                              child: FadeTransition(
+                                opacity: _buttonsFadeAnim,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(7),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFC89B3C).withValues(alpha: 0.15),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.verified_user_outlined,
-                                        size: 16,
-                                        color: Color(0xFFC89B3C),
-                                      ),
+                                    const SizedBox(height: 32),
+
+                                    // 1. Google Button
+                                    SocialAuthButton(
+                                      type: SocialType.google,
+                                      isLoading: authState.isLoading,
+                                      onPressed: _handleGoogleLogin,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Flexible(
-                                      child: Text.rich(
-                                        textAlign: TextAlign.center,
-                                        TextSpan(
-                                          text: 'Bằng việc tiếp tục, bạn đồng ý với ',
-                                          style: const TextStyle(
-                                            fontSize: 12.5,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xFF3D352E),
-                                            height: 1.45,
+
+                                    const SizedBox(height: 18),
+
+                                    // 2. Apple Button
+                                    SocialAuthButton(
+                                      type: SocialType.apple,
+                                      isLoading: authState.isLoading,
+                                      onPressed: _handleAppleLogin,
+                                    ),
+
+                                    const SizedBox(height: 32),
+
+                                    // Centered Footer Terms
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(7),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFC89B3C).withValues(alpha: 0.15),
+                                            shape: BoxShape.circle,
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: 'Điều khoản dịch vụ',
-                                              style: TextStyle(
-                                                color: const Color(0xFF8B1522),
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                            const TextSpan(text: ' &\n'),
-                                            TextSpan(
-                                              text: 'Chính sách bảo mật',
-                                              style: TextStyle(
-                                                color: const Color(0xFF8B1522),
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                            const TextSpan(text: ' của CodoKy.'),
-                                          ],
+                                          child: const Icon(
+                                            Icons.verified_user_outlined,
+                                            size: 16,
+                                            color: Color(0xFFC89B3C),
+                                          ),
                                         ),
-                                      ),
+                                        const SizedBox(width: 8),
+                                        Flexible(
+                                          child: Text.rich(
+                                            textAlign: TextAlign.center,
+                                            TextSpan(
+                                              text: 'Bằng việc tiếp tục, bạn đồng ý với ',
+                                              style: const TextStyle(
+                                                fontSize: 12.5,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color(0xFF3D352E),
+                                                height: 1.45,
+                                              ),
+                                              children: [
+                                                TextSpan(
+                                                  text: 'Điều khoản dịch vụ',
+                                                  style: TextStyle(
+                                                    color: const Color(0xFF8B1522),
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
+                                                const TextSpan(text: ' &\n'),
+                                                TextSpan(
+                                                  text: 'Chính sách bảo mật',
+                                                  style: TextStyle(
+                                                    color: const Color(0xFF8B1522),
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
+                                                const TextSpan(text: ' của CodoKy.'),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-
-                        // Extra bottom safe area padding (protects home indicator on iOS / Android gesture bar)
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

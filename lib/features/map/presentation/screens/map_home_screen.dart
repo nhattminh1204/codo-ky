@@ -479,8 +479,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   Widget build(BuildContext context) {
     final state = ref.watch(mapProvider);
 
-    return GlassScaffold(
-      background: FlutterMap(
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          FlutterMap(
                 mapController: _mapController,
             options: MapOptions(
               initialCenter: LatLng(
@@ -590,8 +593,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 ),
             ],
           ),
-      body: Stack(
-        children: [
           if (state.selectedPlace != null)
             Positioned(
               bottom: 82,
@@ -639,10 +640,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
                 if (_isGpsWeak && state.activeRoute != null) ...[
                   const SizedBox(height: 8),
-                  GlassContainer(
-                    useOwnLayer: true,
-                    quality: GlassQuality.standard,
-                    shape: const LiquidRoundedSuperellipse(borderRadius: 16),
+                  _buildGlassOverlay(
+                    borderRadius: 16,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
                       children: [
@@ -663,10 +662,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
                 if (state.isFetchingRoute) ...[
                   const SizedBox(height: 8),
-                  GlassContainer(
-                    useOwnLayer: true,
-                    quality: GlassQuality.standard,
-                    shape: const LiquidRoundedSuperellipse(borderRadius: 16),
+                  _buildGlassOverlay(
+                    borderRadius: 16,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
                       children: [
@@ -687,10 +684,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
                 if (state.errorMessage != null && !state.isLoading) ...[
                   const SizedBox(height: 8),
-                  GlassContainer(
-                    useOwnLayer: true,
-                    quality: GlassQuality.standard,
-                    shape: const LiquidRoundedSuperellipse(borderRadius: 16),
+                  _buildGlassOverlay(
+                    borderRadius: 16,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
                       children: [
@@ -736,14 +731,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               bottom: 90,
               left: 16,
               right: 16,
-              child: GlassContainer(
-                useOwnLayer: true,
+              child: _buildGlassOverlay(
                 quality: GlassQuality.premium,
-                shape: const LiquidRoundedSuperellipse(borderRadius: 20),
+                borderRadius: 20,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                settings: const LiquidGlassSettings(
-                  glassColor: Color(0x22FF7A00),
-                ),
+                glassColor: const Color(0x22FF7A00),
                 child: Row(
                   children: [
                     Container(
@@ -890,6 +882,33 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     );
   }
 
+  Widget _buildGlassOverlay({
+    required Widget child,
+    required double borderRadius,
+    EdgeInsetsGeometry? padding,
+    Color? glassColor,
+    GlassQuality quality = GlassQuality.standard,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: isDark ? 0.2 : 0.4),
+          width: 1.2,
+        ),
+      ),
+      child: GlassContainer(
+        useOwnLayer: true,
+        quality: quality,
+        shape: LiquidRoundedRectangle(borderRadius: borderRadius),
+        padding: padding,
+        settings: glassColor != null ? LiquidGlassSettings(glassColor: glassColor) : null,
+        child: child,
+      ),
+    );
+  }
+
   Widget _buildTurnByTurnBanner(MapState state) {
     final steps = state.activeRoute!.steps;
     final idx = state.currentStepIndex.clamp(0, steps.length - 1);
@@ -910,13 +929,10 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       turnIcon = Icons.turn_right_rounded;
     }
 
-    return GlassContainer(
-      useOwnLayer: true,
+    return _buildGlassOverlay(
       quality: GlassQuality.premium,
-      shape: const LiquidRoundedSuperellipse(borderRadius: 18),
-      settings: const LiquidGlassSettings(
-        glassColor: Color(0x1A9B1B30),
-      ),
+      borderRadius: 18,
+      glassColor: const Color(0x1A9B1B30),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
         children: [

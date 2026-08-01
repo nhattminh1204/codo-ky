@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 
 class HueBackgroundArt extends StatelessWidget {
-  final Widget child;
+  final Widget? child;
 
   const HueBackgroundArt({
     super.key,
-    required this.child,
+    this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF9F5EF), // Warm refined soft cream background
-      child: Stack(
-        children: [
+    return Stack(
+      children: [
           // Background Image Asset from e:\Workspace\CodoKy\logo\background.png
           Positioned.fill(
             child: Image.asset(
@@ -28,11 +26,9 @@ class HueBackgroundArt extends StatelessWidget {
               },
             ),
           ),
-          // Screen Child Content Layer
-          child,
+          if (child != null) child!,
         ],
-      ),
-    );
+      );
   }
 }
 

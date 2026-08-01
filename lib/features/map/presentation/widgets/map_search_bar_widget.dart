@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,10 +39,9 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
               children: [
                 // 1. Glassmorphism Search Capsule
                 Expanded(
-                  child: GlassContainer(
-                    useOwnLayer: true,
-                    quality: GlassQuality.standard,
-                    shape: const LiquidRoundedSuperellipse(borderRadius: 20),
+                  child: _buildGradientGlassContainer(
+                    borderRadius: 20,
+                    isDark: isDark,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                     child: Row(
                       children: [
@@ -112,10 +112,9 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                 // 2. Separate Profile Avatar Button (Glassmorphism)
                 GestureDetector(
                   onTap: () => context.push('/profile'),
-                  child: GlassContainer(
-                    useOwnLayer: true,
-                    quality: GlassQuality.standard,
-                    shape: const LiquidRoundedSuperellipse(borderRadius: 24),
+                  child: _buildGradientGlassContainer(
+                    borderRadius: 24,
+                    isDark: isDark,
                     padding: const EdgeInsets.all(3),
                     child: CircleAvatar(
                       radius: 19,
@@ -146,35 +145,34 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(right: 6),
-                      child: GlassContainer(
-                        useOwnLayer: true,
-                        quality: GlassQuality.standard,
-                        shape: const LiquidRoundedSuperellipse(borderRadius: 20),
+                      child: _buildGradientGlassContainer(
+                        borderRadius: 20,
+                        isDark: isDark,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         settings: state.selectedCategories.isNotEmpty 
                           ? const LiquidGlassSettings(glassColor: Color(0x8C9B1B30)) 
-                          : const LiquidGlassSettings(),
-                      child: Row(
-                        children: [
-                          Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
-                          const SizedBox(width: 4),
-                          Text(
-                            state.selectedCategories.isNotEmpty ? 'Lọc (${state.selectedCategories.length})' : 'Bộ lọc',
-                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
-                          ),
-                          if (state.selectedCategories.isNotEmpty) ...[
-                            const SizedBox(width: 6),
-                            GestureDetector(
-                              onTap: () {
-                                ref.read(mapProvider.notifier).filterByCategories({});
-                              },
-                              child: const Icon(Icons.cancel_rounded, size: 16, color: Colors.white70),
+                          : null,
+                        child: Row(
+                          children: [
+                            Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
+                            const SizedBox(width: 4),
+                            Text(
+                              state.selectedCategories.isNotEmpty ? 'Lọc (${state.selectedCategories.length})' : 'Bộ lọc',
+                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
                             ),
+                            if (state.selectedCategories.isNotEmpty) ...[
+                              const SizedBox(width: 6),
+                              GestureDetector(
+                                onTap: () {
+                                  ref.read(mapProvider.notifier).filterByCategories({});
+                                },
+                                child: const Icon(Icons.cancel_rounded, size: 16, color: Colors.white70),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
-                  ),
                 ),
                 _buildFilterChip('featured', 'Nổi bật', state, isDark),
                 const SizedBox(width: 8),
@@ -206,14 +204,13 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
       onTap: () {
         ref.read(mapProvider.notifier).filterByCategory(categoryId);
       },
-      child: GlassContainer(
-        useOwnLayer: true,
-        quality: GlassQuality.standard,
-        shape: const LiquidRoundedSuperellipse(borderRadius: 20),
+      child: _buildGradientGlassContainer(
+        borderRadius: 20,
+        isDark: isDark,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         settings: isSelected 
           ? const LiquidGlassSettings(glassColor: Color(0x8C9B1B30)) 
-          : const LiquidGlassSettings(),
+          : null,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -235,5 +232,105 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
         ),
       ),
     );
+  }
+
+  Widget _buildGradientGlassContainer({
+    required Widget child,
+    required double borderRadius,
+    required bool isDark,
+    EdgeInsetsGeometry? padding,
+    LiquidGlassSettings? settings,
+  }) {
+    final defaultGlassColor = isDark ? const Color(0x33000000) : const Color(0x33FFFFFF);
+    final effectiveSettings = settings ?? LiquidGlassSettings(glassColor: defaultGlassColor);
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: CustomPaint(
+        foregroundPainter: _GradientBorderPainter(
+          borderRadius: borderRadius,
+          borderWidth: 1.2,
+          isDark: isDark,
+        ),
+        child: GlassContainer(
+          useOwnLayer: true,
+          quality: GlassQuality.standard,
+          shape: LiquidRoundedRectangle(borderRadius: borderRadius),
+          padding: padding,
+          settings: effectiveSettings,
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _GradientBorderPainter extends CustomPainter {
+  final double borderRadius;
+  final double borderWidth;
+  final bool isDark;
+
+  const _GradientBorderPainter({
+    required this.borderRadius,
+    required this.borderWidth,
+    required this.isDark,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(
+      borderWidth / 2,
+      borderWidth / 2,
+      size.width - borderWidth,
+      size.height - borderWidth,
+    );
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+
+    final grayColor = isDark
+        ? const Color(0xFF94A3B8).withValues(alpha: 0.85)
+        : const Color(0xFF64748B).withValues(alpha: 0.90);
+    final brightColor = isDark
+        ? Colors.white.withValues(alpha: 0.95)
+        : Colors.white;
+
+    final midBlend = Color.lerp(grayColor, brightColor, 0.5)!;
+
+    final gradient = SweepGradient(
+      center: Alignment.center,
+      startAngle: 0.0,
+      endAngle: 2 * math.pi,
+      colors: [
+        midBlend,    // 0° (Right)
+        grayColor,   // 45° (Bottom-Right corner)
+        brightColor, // 135° (Bottom-Left corner)
+        grayColor,   // 225° (Top-Left corner)
+        brightColor, // 315° (Top-Right corner)
+        midBlend,    // 360° (Right)
+      ],
+      stops: const [0.0, 0.125, 0.375, 0.625, 0.875, 1.0],
+    );
+
+    final paint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GradientBorderPainter oldDelegate) {
+    return oldDelegate.borderRadius != borderRadius ||
+        oldDelegate.borderWidth != borderWidth ||
+        oldDelegate.isDark != isDark;
   }
 }
