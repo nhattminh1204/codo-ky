@@ -39,13 +39,12 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                 // 1. Glassmorphism Search Capsule
                 Expanded(
                   child: AppLiquidGlassContainer(
-                    blur: 20,
+                    blur: 30,
+                    opacity: isDark ? 0.24 : 0.14,
                     borderRadius: BorderRadius.circular(20),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: isDark ? 0.12 : 0.35),
-                      width: 1.0,
-                    ),
+                    enableSpecular: true,
+                    specularStrength: 1.0,
                     child: Row(
                       children: [
                         Expanded(
@@ -116,12 +115,11 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                 GestureDetector(
                   onTap: () => context.push('/profile'),
                   child: AppLiquidGlassContainer(
-                    blur: 20,
+                    blur: 30,
+                    opacity: isDark ? 0.24 : 0.14,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: isDark ? 0.12 : 0.35),
-                      width: 1.0,
-                    ),
+                    enableSpecular: true,
+                    specularStrength: 1.0,
                     padding: const EdgeInsets.all(3),
                     child: CircleAvatar(
                       radius: 19,
@@ -153,18 +151,14 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                     child: Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: AppLiquidGlassContainer(
-                        blur: 16,
+                        blur: 24,
+                        opacity: isDark ? 0.24 : 0.14,
                         borderRadius: BorderRadius.circular(20),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        color: state.selectedCategories.isNotEmpty 
-                            ? const Color(0xFF9B1B30).withValues(alpha: 0.55) 
-                            : null,
-                        border: Border.all(
-                          color: state.selectedCategories.isNotEmpty
-                              ? const Color(0xFF9B1B30).withValues(alpha: 0.6)
-                              : Colors.white.withValues(alpha: isDark ? 0.12 : 0.35),
-                          width: 1.0,
-                        ),
+                        tint: state.selectedCategories.isNotEmpty ? const Color(0xFF9B1B30) : null,
+                        tintOpacity: 0.55,
+                        enableSpecular: true,
+                        specularStrength: 1.0,
                       child: Row(
                         children: [
                           Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
@@ -218,18 +212,14 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
         ref.read(mapProvider.notifier).filterByCategory(categoryId);
       },
       child: AppLiquidGlassContainer(
-        blur: 16,
+        blur: 24,
+        opacity: isDark ? 0.24 : 0.14,
         borderRadius: BorderRadius.circular(20),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        color: isSelected
-            ? const Color(0xFF9B1B30).withValues(alpha: 0.55)
-            : null,
-        border: Border.all(
-          color: isSelected
-              ? const Color(0xFF9B1B30).withValues(alpha: 0.6)
-              : Colors.white.withValues(alpha: isDark ? 0.12 : 0.35),
-          width: 1.0,
-        ),
+        tint: isSelected ? const Color(0xFF9B1B30) : null,
+        tintOpacity: 0.55,
+        enableSpecular: true,
+        specularStrength: 1.0,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

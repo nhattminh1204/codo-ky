@@ -28,7 +28,10 @@ class MapBottomSheet extends ConsumerWidget {
     final rating = place is Map ? ((place['rating'] as num?)?.toDouble() ?? 4.8) : ((place.rating as double?) ?? 4.8);
     final config = _getCategoryConfig(category);
 
-    final isSaved = ref.watch(mapProvider).savedPlaceIds.contains(placeId);
+    final mapState = ref.watch(mapProvider);
+    final isSaved = mapState.savedPlaceIds.contains(placeId);
+    final activeRoute = mapState.activeRoute;
+    final isFetchingRoute = mapState.isFetchingRoute;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -201,17 +204,31 @@ class MapBottomSheet extends ConsumerWidget {
                     Expanded(
                       flex: 2,
                       child: ElevatedButton.icon(
-                        onPressed: onNavigate,
-                        icon: const Icon(Icons.near_me_rounded, size: 18, color: Colors.white),
-                        label: const Text(
-                          'Chỉ đường',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                        onPressed: isFetchingRoute ? null : onNavigate,
+                        icon: isFetchingRoute 
+                          ? const SizedBox(
+                              width: 16, height: 16, 
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
+                            )
+                          : Icon(
+                              activeRoute != null ? Icons.directions_rounded : Icons.refresh_rounded, 
+                              size: 18, 
+                              color: Colors.white
+                            ),
+                        label: Text(
+                          isFetchingRoute 
+                              ? 'Đang tính...'
+                              : activeRoute != null 
+                                  ? 'Bắt đầu đi (${activeRoute.formattedDuration})'
+                                  : 'Thử lại / Tìm đường',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF7A00),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           elevation: 2,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          disabledBackgroundColor: const Color(0xFFFF7A00).withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -244,7 +261,7 @@ class MapBottomSheet extends ConsumerWidget {
 
   Widget _buildAlternativeRoutesSelector(WidgetRef ref, MapState state) {
 
-    if (state.alternativeRoutes.length <= 1) return const SizedBox.shrink();
+    if (state.alternativeRoutes.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

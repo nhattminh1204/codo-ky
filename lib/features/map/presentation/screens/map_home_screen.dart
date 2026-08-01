@@ -604,19 +604,24 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 onClose: _clearSelectionAndZoomOut,
                 onNavigate: () async {
                   final targetPlace = state.selectedPlace;
-                  ref.read(mapProvider.notifier).clearSelection();
-                  final success = await ref.read(mapProvider.notifier).fetchRouteToPlace(targetPlace);
-                  if (!mounted) return;
-                  if (success) {
-                    final route = ref.read(mapProvider).activeRoute;
-                    if (route != null) {
-                      _fitRouteBounds(route.points);
-                      _startLiveNavigation();
+                  if (state.activeRoute == null) {
+                    // Preview mode 1: Fetch routes but don't close bottom sheet
+                    final success = await ref.read(mapProvider.notifier).fetchRouteToPlace(targetPlace);
+                    if (!mounted) return;
+                    if (success) {
+                      final route = ref.read(mapProvider).activeRoute;
+                      if (route != null) {
+                        _fitRouteBounds(route.points);
+                      }
+                    } else {
+                      if (!context.mounted) return;
+                      final err = ref.read(mapProvider).routeErrorMessage ?? 'Không thể lấy chỉ đường OSRM';
+                      AppSnackBar.show(context, err, isError: true);
                     }
                   } else {
-                    if (!context.mounted) return;
-                    final err = ref.read(mapProvider).routeErrorMessage ?? 'Không thể lấy chỉ đường OSRM';
-                    AppSnackBar.show(context, err, isError: true);
+                    // Preview mode 2: Start actual live navigation
+                    ref.read(mapProvider.notifier).clearSelection();
+                    _startLiveNavigation();
                   }
                 },
               ),
@@ -640,6 +645,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                     blur: 30.0,
                     opacity: isDark ? 0.24 : 0.14,
                     borderRadius: BorderRadius.circular(16),
+                    enableSpecular: true,
+                    specularStrength: 1.0,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
                       children: [
@@ -664,6 +671,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                     blur: 30.0,
                     opacity: isDark ? 0.24 : 0.14,
                     borderRadius: BorderRadius.circular(16),
+                    enableSpecular: true,
+                    specularStrength: 1.0,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
                       children: [
@@ -688,6 +697,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                     blur: 30.0,
                     opacity: isDark ? 0.24 : 0.14,
                     borderRadius: BorderRadius.circular(16),
+                    enableSpecular: true,
+                    specularStrength: 1.0,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
                       children: [
@@ -737,7 +748,10 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 blur: 30.0,
                 opacity: isDark ? 0.24 : 0.14,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFFF7A00).withValues(alpha: 0.3), width: 1.5),
+                tint: const Color(0xFFFF7A00),
+                tintOpacity: 0.1,
+                enableSpecular: true,
+                specularStrength: 1.0,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
@@ -910,7 +924,10 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       blur: 30.0,
       opacity: isDark ? 0.24 : 0.14,
       borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: const Color(0xFF9B1B30).withValues(alpha: 0.3), width: 1.5),
+      tint: const Color(0xFF9B1B30),
+      tintOpacity: 0.1,
+      enableSpecular: true,
+      specularStrength: 1.0,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
         children: [
@@ -1109,6 +1126,16 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   curve: AppMotion.emphasizedCurve,
                   duration: AppMotion.emphasized,
                 );
+                
+                // Auto-fetch route for preview mode
+                ref.read(mapProvider.notifier).fetchRouteToPlace(place).then((success) {
+                  if (success && mounted) {
+                    final route = ref.read(mapProvider).activeRoute;
+                    if (route != null) {
+                      _fitRouteBounds(route.points);
+                    }
+                  }
+                });
               },
               child: PlaceMarker(
                 category: category,

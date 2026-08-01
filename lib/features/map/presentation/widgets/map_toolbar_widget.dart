@@ -26,11 +26,8 @@ class MapToolbarWidget extends ConsumerWidget {
       blur: 30.0,
       opacity: isDark ? 0.24 : 0.14,
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(
-        color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.70),
-        width: 1,
-      ),
       enableSpecular: true,
+      specularStrength: 1.0,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

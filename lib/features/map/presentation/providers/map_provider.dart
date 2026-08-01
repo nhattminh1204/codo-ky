@@ -142,6 +142,10 @@ class MapNotifier extends StateNotifier<MapState> {
     } catch (e) {
       AppLogger.w('Lỗi lưu travel mode vào SharedPreferences: $e');
     }
+
+    if (state.activeRoute != null && state.selectedPlace != null) {
+      fetchRouteToPlace(state.selectedPlace);
+    }
   }
 
   Future<void> toggleVoiceMute() async {
@@ -194,7 +198,12 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void selectPlace(dynamic place) {
-    state = state.copyWith(selectedPlace: place);
+    state = state.copyWith(
+      selectedPlace: place,
+      clearActiveRoute: true,
+      alternativeRoutes: const [],
+      selectedRouteIndex: 0,
+    );
   }
 
   void clearSelection() {

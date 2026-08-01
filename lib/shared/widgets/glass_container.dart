@@ -87,7 +87,7 @@ class AppLiquidGlassContainer extends StatelessWidget {
                 : null),
       ),
       padding: useGradientBorder
-          ? EdgeInsets.all(borderGradient != null ? 1.5 : 1.2)
+          ? const EdgeInsets.all(1.5)
           : EdgeInsets.zero,
       child: ClipRRect(
         borderRadius: effectiveRadius,
