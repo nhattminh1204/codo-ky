@@ -595,7 +595,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
           ),
           if (state.selectedPlace != null)
             Positioned(
-              bottom: 82,
+              bottom: 96,
               left: 14,
               right: 14,
               child: MapBottomSheet(
