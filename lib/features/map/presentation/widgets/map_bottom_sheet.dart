@@ -68,7 +68,7 @@ class MapBottomSheet extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -150,11 +150,11 @@ class MapBottomSheet extends ConsumerWidget {
                       ),
                     ],
                   ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 _buildTravelModeSelector(context, ref, mapState.travelMode),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 _buildAlternativeRoutesSelector(ref, mapState),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
                 Row(
                   children: [
@@ -235,14 +235,14 @@ class MapBottomSheet extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(12),
+        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.all(3),
       child: Row(
         children: [
-          _buildTravelModeChip(context, ref, mode: 'motorbike', tooltip: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
-          _buildTravelModeChip(context, ref, mode: 'driving', tooltip: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
+          _buildTravelModeChip(context, ref, mode: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded, isSelected: currentMode == 'motorbike'),
+          _buildTravelModeChip(context, ref, mode: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded, isSelected: currentMode == 'driving'),
         ],
       ),
     );
@@ -296,32 +296,41 @@ class MapBottomSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildTravelModeChip(BuildContext context, WidgetRef ref, {required String mode, required String tooltip, required IconData icon, required bool isSelected}) {
+  Widget _buildTravelModeChip(BuildContext context, WidgetRef ref, {required String mode, required String label, required IconData icon, required bool isSelected}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
-      child: Tooltip(
-        message: tooltip,
-        child: GestureDetector(
-          onTap: () {
-            ref.read(mapProvider.notifier).setTravelMode(mode);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? (isDark ? const Color(0xFF334155) : Colors.white)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: isSelected
-                  ? [BoxShadow(color: Colors.black.withValues(alpha: 0.10), blurRadius: 6, offset: const Offset(0, 2))]
-                  : null,
-            ),
-            child: Icon(
-              icon,
-              size: 21,
-              color: isSelected ? const Color(0xFF8B1522) : const Color(0xFF64748B),
-            ),
+      child: GestureDetector(
+        onTap: () => ref.read(mapProvider.notifier).setTravelMode(mode),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 7),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? (isDark ? const Color(0xFF334155) : Colors.white)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: isSelected
+                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 1))]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 17,
+                color: isSelected ? const Color(0xFF8B1522) : const Color(0xFF94A3B8),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? const Color(0xFF8B1522) : const Color(0xFF94A3B8),
+                ),
+              ),
+            ],
           ),
         ),
       ),
