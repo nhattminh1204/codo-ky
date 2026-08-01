@@ -76,146 +76,203 @@ class MapBottomSheet extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header: Title + Close Button
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              height: 1.2,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    GestureDetector(
-                      onTap: onClose,
-                      child: Container(
-                        padding: const EdgeInsets.all(7),
+            child: mapState.isNavigating
+                ? Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFF1F5F9),
+                          color: const Color(0xFF2563EB).withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          Icons.close_rounded,
-                          size: 18,
-                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                        child: const Icon(Icons.navigation_rounded, color: Color(0xFF2563EB), size: 18),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Đang di chuyển đến điểm này • $address',
+                              style: TextStyle(
+                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                fontSize: 12,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-
-                // Subtitle: Category • Address
-                Text(
-                  '${config.label} • $address',
-                  style: TextStyle(
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Rating & Status Row: ⭐ 4.5 (128) • Đang mở cửa
-                Row(
-                  children: [
-                    const Icon(Icons.star_rounded, size: 18, color: Color(0xFFF59E0B)),
-                    const SizedBox(width: 4),
-                    Text(
-                      rating.toStringAsFixed(1),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13.5,
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: onClose,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 16,
+                            color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      '(128)',
-                      style: TextStyle(
-                        color: isDark ? Colors.white54 : const Color(0xFF94A3B8),
-                        fontSize: 13,
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Text('•', style: TextStyle(color: Color(0xFFCBD5E1))),
-                    ),
-                    const Text(
-                      'Đang mở cửa',
-                      style: TextStyle(
-                        color: Color(0xFF10B981),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-
-                // Travel Mode Selector Box
-                _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
-                const SizedBox(height: 6),
-                _buildAlternativeRoutesSelector(ref, mapState),
-                const SizedBox(height: 14),
-
-                // Action Row: Bookmark Square Button + CTA Button
-                Row(
-                  children: [
-                    _FavoriteBookmarkButton(
-                      isSaved: isSaved,
-                      onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
-                      isDark: isDark,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SizedBox(
-                        height: 50,
-                        child: ElevatedButton.icon(
-                          onPressed: isFetchingRoute ? null : onNavigate,
-                          icon: isFetchingRoute
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                              : const Icon(
-                                  Icons.directions_rounded,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                          label: Text(
-                            isFetchingRoute
-                                ? 'Đang tính...'
-                                : (activeRoute != null
-                                    ? 'Đường đi (${activeRoute.formattedDuration})'
-                                    : 'Đường đi'),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: Colors.white,
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header: Title + Close Button
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              name,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.2,
+                                  ),
                             ),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            disabledBackgroundColor: const Color(0xFF2563EB).withValues(alpha: 0.5),
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: onClose,
+                            child: Container(
+                              padding: const EdgeInsets.all(7),
+                              decoration: BoxDecoration(
+                                color: isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFF1F5F9),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 18,
+                                color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                              ),
+                            ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Subtitle: Category • Address
+                      Text(
+                        '${config.label} • $address',
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                      const SizedBox(height: 8),
+
+                      // Rating & Status Row: ⭐ 4.5 (128) • Đang mở cửa
+                      Row(
+                        children: [
+                          const Icon(Icons.star_rounded, size: 18, color: Color(0xFFF59E0B)),
+                          const SizedBox(width: 4),
+                          Text(
+                            rating.toStringAsFixed(1),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.5,
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            '(128)',
+                            style: TextStyle(
+                              color: isDark ? Colors.white54 : const Color(0xFF94A3B8),
+                              fontSize: 13,
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Text('•', style: TextStyle(color: Color(0xFFCBD5E1))),
+                          ),
+                          const Text(
+                            'Đang mở cửa',
+                            style: TextStyle(
+                              color: Color(0xFF10B981),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Travel Mode Selector Box
+                      _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
+                      const SizedBox(height: 6),
+                      _buildAlternativeRoutesSelector(ref, mapState),
+                      const SizedBox(height: 14),
+
+                      // Action Row: Bookmark Square Button + CTA Button
+                      Row(
+                        children: [
+                          _FavoriteBookmarkButton(
+                            isSaved: isSaved,
+                            onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
+                            isDark: isDark,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: SizedBox(
+                              height: 50,
+                              child: ElevatedButton.icon(
+                                onPressed: isFetchingRoute ? null : onNavigate,
+                                icon: isFetchingRoute
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                    : const Icon(
+                                        Icons.directions_rounded,
+                                        size: 20,
+                                        color: Colors.white,
+                                      ),
+                                label: Text(
+                                  isFetchingRoute
+                                      ? 'Đang tính...'
+                                      : (activeRoute != null
+                                          ? 'Bắt đầu di chuyển'
+                                          : 'Đường đi'),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2563EB),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  disabledBackgroundColor: const Color(0xFF2563EB).withValues(alpha: 0.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),

@@ -596,9 +596,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 ),
             ],
           ),
-          if (state.selectedPlace != null && !state.isNavigating)
+          if (state.selectedPlace != null)
             Positioned(
-              bottom: 96,
+              bottom: state.isNavigating ? 164 : 96,
               left: 14,
               right: 14,
               child: MapBottomSheet(
@@ -622,7 +622,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                     }
                   } else {
                     // Preview mode 2: Start actual live navigation
-                    ref.read(mapProvider.notifier).clearSelection();
                     _startLiveNavigation();
                   }
                 },
@@ -631,14 +630,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
           // Top Navigation & Overlay Banners (Turn-by-turn instruction, GPS weak status, OSRM fetching, error)
           Positioned(
-            top: state.isNavigating ? 48 : 135,
+            top: state.activeRoute != null ? 48 : 135,
             left: 14,
             right: 70,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (state.isNavigating && state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
+                if (state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
                   _buildTurnByTurnBanner(state),
 
                 if (_isGpsWeak && state.activeRoute != null) ...[
@@ -729,94 +728,13 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
           ),
 
-          if (state.isNavigating && state.activeRoute != null && !state.isFetchingRoute)
+          // Tầng 2: Thanh Điều Khiển Hành Trình Gộp Chung Cố Định (Single Consolidated Control Bar)
+          if (state.activeRoute != null && !state.isFetchingRoute)
             Positioned(
               bottom: 96,
-              left: 16,
-              right: 16,
-              child: _buildGlassOverlay(
-                quality: GlassQuality.premium,
-                borderRadius: 20,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                glassColor: const Color(0x22FF7A00),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF7A00).withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.navigation_rounded, color: Color(0xFFFF7A00), size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            'Đang chỉ đường',
-                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              Text(
-                                state.activeRoute!.formattedDistance,
-                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF1E1E1E)),
-                              ),
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFECFDF5),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
-                                ),
-                                child: Text(
-                                  state.activeRoute!.formattedDuration,
-                                  style: const TextStyle(color: Color(0xFF047857), fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              _buildMiniTravelModeChip('motorbike', '🛵 Xe máy', state.travelMode),
-                              const SizedBox(width: 4),
-                              _buildMiniTravelModeChip('driving', '🚗 Ô tô', state.travelMode),
-                              const SizedBox(width: 4),
-                              _buildMiniTravelModeChip('walking', '🚶 Đi bộ', state.travelMode),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        _stopLiveNavigation();
-                        ref.read(mapProvider.notifier).clearRoute();
-                        AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
-                      },
-
-                      icon: const Icon(Icons.close_rounded, size: 16, color: Colors.white),
-                      label: const Text(
-                        'Hủy',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC2626),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              left: 14,
+              right: 14,
+              child: _buildConsolidatedNavigationControlBar(state),
             ),
 
 
@@ -910,6 +828,120 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         padding: padding,
         settings: glassColor != null ? LiquidGlassSettings(glassColor: glassColor) : null,
         child: child,
+      ),
+    );
+  }
+
+  Widget _buildConsolidatedNavigationControlBar(MapState state) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeRoute = state.activeRoute!;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.08),
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
+            blurRadius: 18,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 1. Khoảng cách & Thời gian
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2563EB).withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  activeRoute.formattedDistance,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13.5,
+                    color: Color(0xFF2563EB),
+                  ),
+                ),
+                const Text(
+                  ' · ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2563EB),
+                  ),
+                ),
+                Text(
+                  activeRoute.formattedDuration,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: Color(0xFF2563EB),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          // 2. Chip phương tiện nhanh 1 dòng gọn đẹp
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildMiniTravelModeChip('motorbike', '🛵 Xe máy', state.travelMode),
+                const SizedBox(width: 4),
+                _buildMiniTravelModeChip('driving', '🚗 Ô tô', state.travelMode),
+                const SizedBox(width: 4),
+                _buildMiniTravelModeChip('walking', '🚶 Đi bộ', state.travelMode),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          // 3. Nút Hủy màu đỏ
+          Material(
+            color: const Color(0xFFDC2626),
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                _stopLiveNavigation();
+                ref.read(mapProvider.notifier).clearRoute();
+                AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.close_rounded, size: 15, color: Colors.white),
+                    SizedBox(width: 3),
+                    Text(
+                      'Hủy',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
