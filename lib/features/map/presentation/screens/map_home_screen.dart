@@ -596,7 +596,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 ),
             ],
           ),
-          if (state.selectedPlace != null)
+          if (state.selectedPlace != null && !state.isNavigating)
             Positioned(
               bottom: 96,
               left: 14,
@@ -631,14 +631,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
           // Top Navigation & Overlay Banners (Turn-by-turn instruction, GPS weak status, OSRM fetching, error)
           Positioned(
-            top: state.activeRoute != null ? 48 : 135,
+            top: state.isNavigating ? 48 : 135,
             left: 14,
             right: 70,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
+                if (state.isNavigating && state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
                   _buildTurnByTurnBanner(state),
 
                 if (_isGpsWeak && state.activeRoute != null) ...[
@@ -729,9 +729,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
           ),
 
-          if (state.activeRoute != null && !state.isFetchingRoute)
+          if (state.isNavigating && state.activeRoute != null && !state.isFetchingRoute)
             Positioned(
-              bottom: 90,
+              bottom: 96,
               left: 16,
               right: 16,
               child: _buildGlassOverlay(
