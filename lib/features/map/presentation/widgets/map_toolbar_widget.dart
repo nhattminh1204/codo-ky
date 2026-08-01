@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class MapToolbarWidget extends ConsumerWidget {
   final bool isAutoFollowUser;
@@ -22,10 +21,22 @@ class MapToolbarWidget extends ConsumerWidget {
     final state = ref.watch(mapProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GlassContainer(
-      useOwnLayer: true,
-      quality: GlassQuality.standard,
-      shape: const LiquidRoundedSuperellipse(borderRadius: 22),
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.08),
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -34,7 +45,7 @@ class MapToolbarWidget extends ConsumerWidget {
             context: context,
             icon: Icons.palette_outlined,
             tooltip: 'Đổi phong cách bản đồ',
-            iconColor: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF8B1522),
+            iconColor: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF2563EB),
             onPressed: () => _showIconStyleDrawer(context, ref),
           ),
           _buildControlDivider(isDark),
@@ -45,7 +56,7 @@ class MapToolbarWidget extends ConsumerWidget {
               context: context,
               icon: Icons.gps_fixed_rounded,
               tooltip: 'Theo dõi lại vị trí',
-              iconColor: const Color(0xFF8B1522),
+              iconColor: const Color(0xFF2563EB),
               onPressed: onRecenterGps,
             ),
             _buildControlDivider(isDark),
@@ -56,7 +67,7 @@ class MapToolbarWidget extends ConsumerWidget {
             context: context,
             icon: Icons.my_location_rounded,
             tooltip: 'Vị trí của tôi',
-            iconColor: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF8B1522),
+            iconColor: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF2563EB),
             onPressed: onLocateUser,
           ),
         ],
