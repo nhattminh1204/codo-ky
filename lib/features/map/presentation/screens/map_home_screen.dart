@@ -522,12 +522,12 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                           color: const Color(0xFF94A3B8).withValues(alpha: 0.8),
                           pattern: StrokePattern.dashed(segments: [15, 10]),
                         ),
-                    // Tuyến đường đang được chọn (Active Route) -> Nét liền (Solid), màu cam nổi bật, đè lên trên
+                    // Tuyến đường đang được chọn (Active Route) -> Nét liền (Solid), màu Crimson Huế chuyên nghiệp
                     if (state.activeRoute != null)
                       Polyline(
                         points: state.activeRoute!.points,
                         strokeWidth: 5.0,
-                        color: const Color(0xFFFF7A00),
+                        color: const Color(0xFF8B1522),
                         borderStrokeWidth: 2.0,
                         borderColor: Colors.white,
                       ),
@@ -539,7 +539,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                     Polyline(
                       points: state.activeRoute!.points,
                       strokeWidth: 5.0,
-                      color: const Color(0xFFFF7A00),
+                      color: const Color(0xFF8B1522),
                       borderStrokeWidth: 2.0,
                       borderColor: Colors.white,
                     ),
@@ -560,13 +560,13 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFFFF5E36), Color(0xFFFFAE33)],
+                          colors: [Color(0xFF8B1522), Color(0xFFA61C31)],
                         ),
-                        border: Border.all(color: Colors.white, width: 2.5),
+                        border: Border.all(color: Colors.white, width: 2.0),
                         boxShadow: const [
                           BoxShadow(
-                            color: Color(0x66FF5E36),
-                            blurRadius: 10,
+                            color: Color(0x408B1522),
+                            blurRadius: 8,
                             offset: Offset(0, 3),
                           ),
                         ],

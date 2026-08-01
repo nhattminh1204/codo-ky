@@ -215,7 +215,7 @@ class _NavItemButton extends StatelessWidget {
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: isSelected ? activeColor : const Color(0xFFEF4444),
+                    color: isSelected ? activeColor : const Color(0xFF8B1522),
                     shape: BoxShape.circle,
                   ),
                 ),
