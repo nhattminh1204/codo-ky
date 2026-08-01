@@ -553,7 +553,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(50),
                   rotate: true,
-                  markers: _buildMarkers(state.places, state.selectedPlace),
+                  markers: (state.isNavigating && state.selectedPlace != null)
+                      ? _buildMarkers([state.selectedPlace!], state.selectedPlace)
+                      : _buildMarkers(state.places, state.selectedPlace),
                   builder: (context, markers) {
                     return Container(
                       decoration: BoxDecoration(
