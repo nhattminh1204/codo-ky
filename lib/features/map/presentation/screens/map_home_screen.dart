@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/theme/motion.dart';
 import 'package:codoky/core/utils/helpers/app_snackbar.dart';
 import 'package:vibration/vibration.dart';
@@ -373,7 +374,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF9B1B30),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -680,20 +681,27 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               child: MapSearchBarWidget(),
             ),
           Positioned(
-            top: state.activeRoute != null ? 96 : 175,
+            top: state.activeRoute != null ? 96 : 124,
             right: 14,
-            child: MapToolbarWidget(
-              isAutoFollowUser: _isAutoFollowUser,
-              onRecenterGps: () {
-                setState(() {
-                  _isAutoFollowUser = true;
-                });
-                final userPos = ref.read(mapProvider).currentLocation;
-                if (userPos != null) {
-                  _animatedMapMove(userPos, 17.0);
-                }
-              },
-              onLocateUser: _goToCurrentLocation,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 250),
+              opacity: state.selectedPlace != null ? 0.0 : 1.0,
+              child: IgnorePointer(
+                ignoring: state.selectedPlace != null,
+                child: MapToolbarWidget(
+                  isAutoFollowUser: _isAutoFollowUser,
+                  onRecenterGps: () {
+                    setState(() {
+                      _isAutoFollowUser = true;
+                    });
+                    final userPos = ref.read(mapProvider).currentLocation;
+                    if (userPos != null) {
+                      _animatedMapMove(userPos, 17.0);
+                    }
+                  },
+                  onLocateUser: _goToCurrentLocation,
+                ),
+              ),
             ),
           ),
         ],
