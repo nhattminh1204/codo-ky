@@ -167,7 +167,15 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final parentWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 145.0;
-        final highlightWidth = (parentWidth * widget.viewportFraction).clamp(38.0, parentWidth / 2);
+        final double highlightWidth;
+        if (parentWidth <= 0) {
+          highlightWidth = 0.0;
+        } else {
+          final maxW = parentWidth / 2;
+          highlightWidth = maxW > 38.0
+              ? (parentWidth * widget.viewportFraction).clamp(38.0, maxW)
+              : maxW;
+        }
 
         return Container(
           height: widget.height,

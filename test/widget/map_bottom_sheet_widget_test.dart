@@ -135,8 +135,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Fling UP to expand
-      await tester.fling(find.byType(MapBottomSheet), const Offset(0, -300), 1000);
+      // Tap handle to expand
+      final handleFinder = find.byKey(const Key('map_bottom_sheet_handle'));
+      await tester.tap(handleFinder);
       await tester.pumpAndSettle();
 
       // Verify expanded detail view elements appear
@@ -145,9 +146,8 @@ void main() {
       expect(find.text('Gọi điện'), findsOneWidget);
       expect(find.text('Bản đồ ngoài'), findsOneWidget);
 
-      // Tap collapse button to collapse back
-      final collapseButtonFinder = find.byIcon(Icons.keyboard_arrow_down_rounded);
-      await tester.tap(collapseButtonFinder);
+      // Tap handle to collapse back
+      await tester.tap(handleFinder);
       await tester.pumpAndSettle();
 
       // Verify collapsed back to compact view

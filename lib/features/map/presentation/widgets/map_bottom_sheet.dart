@@ -220,6 +220,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           children: [
             // Handle Top Header Bar with drag gesture & expand indicator
             GestureDetector(
+              key: const Key('map_bottom_sheet_handle'),
               onTap: _toggleExpand,
               behavior: HitTestBehavior.opaque,
               child: Container(
@@ -285,24 +286,16 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
               ),
             ),
 
-            // Bottom Fixed Action Bar with Ultra Smooth AnimatedCrossFade Motion
-            AnimatedCrossFade(
-              duration: const Duration(milliseconds: 320),
-              firstCurve: Curves.easeOutCubic,
-              secondCurve: Curves.easeOutCubic,
-              sizeCurve: Curves.easeOutCubic,
-              crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-              firstChild: _buildCompactBottomActionBar(
-                context,
-                ref,
-                mapState,
-                activeRoute,
-                isFetchingRoute,
-                isSaved,
-                placeId,
-                isDark,
-              ),
-              secondChild: _buildExpandedBottomActionBar(context, ref, mapState, isFetchingRoute, isDark),
+            // Bottom Fixed Action Bar with Continuous Morphing Motion
+            _buildMorphingBottomActionBar(
+              context,
+              ref,
+              mapState,
+              activeRoute,
+              isFetchingRoute,
+              isSaved,
+              placeId,
+              isDark,
             ),
           ],
         ),
@@ -469,7 +462,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     );
   }
 
-  Widget _buildCompactBottomActionBar(
+  Widget _buildMorphingBottomActionBar(
     BuildContext context,
     WidgetRef ref,
     MapState mapState,
@@ -479,33 +472,120 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     String placeId,
     bool isDark,
   ) {
-    return Container(
-      key: const ValueKey('compact_action_bar'),
-      padding: const EdgeInsets.fromLTRB(20, 6, 20, 16),
+    final vehicleItems = const [
+      VehicleOption(id: 'walking', label: 'Đi bộ', icon: Icons.directions_walk_rounded),
+      VehicleOption(id: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded),
+      VehicleOption(id: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded),
+    ];
+
+    final initialOption = vehicleItems.firstWhere(
+      (opt) => opt.id == mapState.travelMode,
+      orElse: () => vehicleItems[1],
+    );
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+      padding: EdgeInsets.fromLTRB(16, _isExpanded ? 10 : 6, 16, _isExpanded ? 14 : 16),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),
         ),
+        border: Border(
+          top: BorderSide(
+            color: _isExpanded
+                ? (isDark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.06))
+                : Colors.transparent,
+            width: 1.0,
+          ),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
-          const SizedBox(height: 6),
-          _buildAlternativeRoutesSelector(ref, mapState),
-          const SizedBox(height: 10),
+          // 1. Full-Width Mode Picker in Collapsed Mode (Morphs Out into Wheel in Expanded Mode)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
+            child: _isExpanded
+                ? const SizedBox.shrink()
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
+                      const SizedBox(height: 6),
+                      _buildAlternativeRoutesSelector(ref, mapState),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+          ),
+
+          // 2. Action Bar Row (Morphs between Bookmark + CTA vs VehicleWheelPicker + CTA)
           Row(
             children: [
-              _FavoriteBookmarkButton(
-                isSaved: isSaved,
-                onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
-                isDark: isDark,
+              // Wheel Picker Morphs In on the Left when Expanded
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeOutCubic,
+                width: _isExpanded ? 145.0 : 0.0,
+                height: 48.0,
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(),
+                child: Offstage(
+                  offstage: !_isExpanded,
+                  child: VehicleWheelPicker(
+                    items: vehicleItems,
+                    initialSelection: initialOption,
+                    height: 48,
+                    viewportFraction: 0.333,
+                    showLabels: false,
+                    accentColor: AppColors.primary,
+                    onChanged: (selectedVehicle) {
+                      if (selectedVehicle.id != mapState.travelMode) {
+                        ref.read(mapProvider.notifier).setTravelMode(selectedVehicle.id);
+                      }
+                    },
+                  ),
+                ),
               ),
-              const SizedBox(width: 12),
+
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeOutCubic,
+                width: _isExpanded ? 10.0 : 0.0,
+              ),
+
+              // Bookmark Button Morphs Out when Expanded
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeOutCubic,
+                width: _isExpanded ? 0.0 : 48.0,
+                height: 48.0,
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(),
+                child: Offstage(
+                  offstage: _isExpanded,
+                  child: _FavoriteBookmarkButton(
+                    isSaved: isSaved,
+                    onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
+                    isDark: isDark,
+                  ),
+                ),
+              ),
+
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeOutCubic,
+                width: _isExpanded ? 0.0 : 12.0,
+              ),
+
+              // Direction Button (Morphs geometry and text smoothly)
               Expanded(
-                child: SizedBox(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 320),
+                  curve: Curves.easeOutCubic,
                   height: 48,
                   child: ElevatedButton.icon(
                     onPressed: isFetchingRoute ? null : widget.onNavigate,
@@ -520,22 +600,36 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                             size: 20,
                             color: Colors.white,
                           ),
-                    label: Text(
-                      isFetchingRoute
-                          ? 'Đang tính...'
-                          : (activeRoute != null
-                              ? 'Bắt đầu di chuyển'
-                              : 'Đường đi'),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.white,
+                    label: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 240),
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: SizeTransition(
+                          sizeFactor: animation,
+                          axis: Axis.horizontal,
+                          child: child,
+                        ),
+                      ),
+                      child: Text(
+                        isFetchingRoute
+                            ? 'Đang tính...'
+                            : (activeRoute != null
+                                ? 'Bắt đầu di chuyển'
+                                : (_isExpanded ? 'Chỉ đường' : 'Đường đi')),
+                        key: ValueKey('${_isExpanded}_${activeRoute != null}'),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.5,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(_isExpanded ? 14 : 16),
+                      ),
                       disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
                     ),
                   ),
