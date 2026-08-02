@@ -46,9 +46,12 @@ class TravelModePicker extends StatefulWidget {
 }
 
 class _TravelModePickerState extends State<TravelModePicker> {
-  late int _selectedIndex;
-  late int _lastHapticIndex;
-  late FixedExtentScrollController _wheelController;
+  int _selectedIndex = 1;
+  int _lastHapticIndex = 1;
+  FixedExtentScrollController? _wheelController;
+
+  FixedExtentScrollController get _controller =>
+      _wheelController ??= FixedExtentScrollController(initialItem: 3000 + _selectedIndex);
 
   final List<TravelMode> _modes = const [
     TravelMode.walking,
@@ -78,7 +81,7 @@ class _TravelModePickerState extends State<TravelModePicker> {
 
   @override
   void dispose() {
-    _wheelController.dispose();
+    _wheelController?.dispose();
     super.dispose();
   }
 
@@ -98,13 +101,13 @@ class _TravelModePickerState extends State<TravelModePicker> {
       widget.onChanged(_modes[_selectedIndex]);
     }
 
-    if (animateWheel && _wheelController.hasClients) {
-      final currentItem = _wheelController.selectedItem;
+    if (animateWheel && _controller.hasClients) {
+      final currentItem = _controller.selectedItem;
       final currentMod = (currentItem % _modes.length + _modes.length) % _modes.length;
       int diff = normalizedIndex - currentMod;
       if (diff > 1) diff -= 3;
       if (diff < -1) diff += 3;
-      _wheelController.animateToItem(
+      _controller.animateToItem(
         currentItem + diff,
         duration: const Duration(milliseconds: 240),
         curve: Curves.easeOutCubic,
@@ -221,7 +224,7 @@ class _TravelModePickerState extends State<TravelModePicker> {
 
             // --- 3D INFINITE WHEEL DIAL (VÒNG LẶP VÔ HẠN PHONG CÁCH iOS ALARM PICKER) ---
             ListWheelScrollView.useDelegate(
-              controller: _wheelController,
+              controller: _controller,
               itemExtent: 44,
               diameterRatio: 1.1,
               perspective: 0.003,
