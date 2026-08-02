@@ -899,7 +899,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
               items: vehicleItems,
               initialSelection: initialOption,
               height: 48,
-              viewportFraction: 0.36,
+              viewportFraction: 0.333,
               showLabels: false,
               accentColor: AppColors.primary,
               onChanged: (selectedVehicle) {

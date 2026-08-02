@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 
 /// Data Model đại diện cho một tùy chọn phương tiện
 class VehicleOption {
@@ -162,109 +163,128 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pillBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
+    final activePillColor = isDark ? const Color(0xFF1E3A8A) : AppColors.primaryContainer;
 
-    return SizedBox(
-      height: widget.height,
-      width: double.infinity,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // 1. Thẻ Nền bo tròn cố định ở tâm highlight vị trí được chọn
-          Container(
-            width: (MediaQuery.of(context).size.width * widget.viewportFraction).clamp(76.0, 110.0),
-            height: widget.height - 12,
-            decoration: BoxDecoration(
-              color: widget.accentColor.withValues(alpha: isDark ? 0.20 : 0.10),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: widget.accentColor.withValues(alpha: 0.35),
-                width: 1.5,
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final parentWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 145.0;
+        final highlightWidth = (parentWidth * widget.viewportFraction).clamp(38.0, parentWidth / 2);
+
+        return Container(
+          height: widget.height,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: pillBg,
+            borderRadius: BorderRadius.circular(9999),
+            border: Border.all(
+              color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+              width: 1,
             ),
           ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // 1. Thẻ Nền bo tròn cố định ở tâm highlight vị trí được chọn
+              Container(
+                width: highlightWidth,
+                height: widget.height - 8,
+                decoration: BoxDecoration(
+                  color: activePillColor,
+                  borderRadius: BorderRadius.circular(9999),
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.accentColor.withValues(alpha: isDark ? 0.30 : 0.20),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
 
-          // 2. PageView cuộn ngang vô hạn với snapping mặc định
-          PageView.builder(
-            controller: _pageController,
-            itemCount: _kLoopItemCount,
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-            itemBuilder: (context, index) {
-              final realIndex = index % widget.items.length;
-              final item = widget.items[realIndex];
+              // 2. PageView cuộn ngang vô hạn với snapping mặc định
+              PageView.builder(
+                controller: _pageController,
+                itemCount: _kLoopItemCount,
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                itemBuilder: (context, index) {
+                  final realIndex = index % widget.items.length;
+                  final item = widget.items[realIndex];
 
-              // --- NỘI SUY TOÁN HỌC LIÊN TỤC THEO KHOẢNG CÁCH TỚI TÂM ---
-              // distance = 0.0 khi item ở chính giữa tâm viewport
-              final distance = (index - _currentPage).abs();
-              final normalizedDistance = distance.clamp(0.0, 1.0);
+                  // --- NỘI SUY TOÁN HỌC LIÊN TỤC THEO KHOẢNG CÁCH TỚI TÂM ---
+                  final distance = (index - _currentPage).abs();
+                  final normalizedDistance = distance.clamp(0.0, 1.0);
 
-              // Scale: 1.18 tại tâm -> 0.85 khi cách xa 1 page
-              final scale = widget.scaleSelected -
-                  (normalizedDistance * (widget.scaleSelected - widget.scaleUnselected));
+                  // Scale: 1.15 tại tâm -> 0.85 khi cách xa 1 page
+                  final scale = widget.scaleSelected -
+                      (normalizedDistance * (widget.scaleSelected - widget.scaleUnselected));
 
-              // Opacity: 1.0 tại tâm -> 0.40 khi cách xa 1 page
-              final opacity = (1.0 - (normalizedDistance * 0.60)).clamp(0.40, 1.0);
+                  // Opacity: 1.0 tại tâm -> 0.45 khi cách xa 1 page
+                  final opacity = (1.0 - (normalizedDistance * 0.55)).clamp(0.45, 1.0);
 
-              // Color: Tự động lerp mượt giữa màu Accent tại tâm và màu Xám khi cách xa tâm
-              final itemColor = Color.lerp(
-                    widget.accentColor,
-                    isDark ? Colors.white54 : const Color(0xFF64748B),
-                    normalizedDistance,
-                  ) ??
-                  widget.accentColor;
+                  // Color: Tự động lerp mượt giữa màu Accent tại tâm và màu Xám khi cách xa tâm
+                  final itemColor = Color.lerp(
+                        isDark ? const Color(0xFF93C5FD) : AppColors.primaryDark,
+                        isDark ? Colors.white54 : const Color(0xFF64748B),
+                        normalizedDistance,
+                      ) ??
+                      widget.accentColor;
 
-              return GestureDetector(
-                onTap: () {
-                  // Tap trực tiếp vào item để nhảy thẳng mượt tới vị trí đó
-                  _pageController.animateToPage(
-                    index,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutCubic,
-                  );
-                },
-                behavior: HitTestBehavior.translucent,
-                child: Transform.scale(
-                  scale: scale,
-                  child: Opacity(
-                    opacity: opacity,
-                    child: (widget.showLabels && item.label.isNotEmpty)
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                item.icon,
-                                size: 24,
-                                color: itemColor,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                item.label,
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: distance < 0.4 ? FontWeight.bold : FontWeight.w500,
+                  return GestureDetector(
+                    onTap: () {
+                      _pageController.animateToPage(
+                        index,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                      );
+                    },
+                    behavior: HitTestBehavior.translucent,
+                    child: Transform.scale(
+                      scale: scale,
+                      child: Opacity(
+                        opacity: opacity,
+                        child: (widget.showLabels && item.label.isNotEmpty)
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    item.icon,
+                                    size: 22,
+                                    color: itemColor,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    item.label,
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: distance < 0.4 ? FontWeight.bold : FontWeight.w500,
+                                      color: itemColor,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              )
+                            : Center(
+                                child: Icon(
+                                  item.icon,
+                                  size: 22,
                                   color: itemColor,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
-                          )
-                        : Center(
-                            child: Icon(
-                              item.icon,
-                              size: 26,
-                              color: itemColor,
-                            ),
-                          ),
-                  ),
-                ),
-              );
-            },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
