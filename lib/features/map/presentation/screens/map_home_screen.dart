@@ -687,9 +687,13 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             right: 14,
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 250),
-              opacity: state.selectedPlace != null ? 0.0 : 1.0,
+              // Toolbar hiện khi:
+              // - Không có địa điểm nào (bình thường)
+              // - Đang điều hướng thực tế (cần nút recenter GPS)
+              // Ẩn khi: có địa điểm nhưng chưa navigate (bottom sheet đang mở)
+              opacity: (state.selectedPlace != null && !state.isNavigating) ? 0.0 : 1.0,
               child: IgnorePointer(
-                ignoring: state.selectedPlace != null,
+                ignoring: state.selectedPlace != null && !state.isNavigating,
                 child: MapToolbarWidget(
                   isAutoFollowUser: _isAutoFollowUser,
                   onRecenterGps: () {
@@ -815,11 +819,18 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         ? const Color(0x33000000)
         : Colors.white.withValues(alpha: 0.92);
 
+    // ETA: giờ đến dự kiến = hiện tại + remainingDuration
+    final etaTime = DateTime.now().add(
+      Duration(seconds: activeRoute.durationSeconds.toInt()),
+    );
+    final etaLabel =
+        '${etaTime.hour.toString().padLeft(2, '0')}:${etaTime.minute.toString().padLeft(2, '0')}';
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: glassSurface,
-        borderRadius: BorderRadius.circular(9999), // Capsule shape chuẩn
+        borderRadius: BorderRadius.circular(9999),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.12)
@@ -834,93 +845,224 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // 1. Khoảng cách & Thời gian — Royal Blue token, không hardcode màu
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+      child: state.isNavigating
+          // ============================================================
+          // CHẾNG NAVIGATE: Distance · Duration · ETA | GPS Recenter | Hủy
+          // ============================================================
+          ? Row(
               children: [
-                Text(
-                  activeRoute.formattedDistance,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 13.5,
-                    color: isDark ? Colors.white : AppColors.primaryDark,
+                // Khoảng cách + thời gian còn lại
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            activeRoute.formattedDistance,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                              color: isDark ? Colors.white : AppColors.primaryDark,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Text(
+                              '·',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: isDark
+                                    ? Colors.white38
+                                    : AppColors.primary.withValues(alpha: 0.40),
+                              ),
+                            ),
+                          ),
+                          Text(
+                            activeRoute.formattedDuration,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: isDark ? Colors.white70 : AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 1),
+                      // ETA — giờ đến dự kiến
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.flag_rounded,
+                            size: 10,
+                            color: isDark
+                                ? Colors.white38
+                                : AppColors.primary.withValues(alpha: 0.50),
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            'Đến lúc $etaLabel',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w500,
+                              color: isDark
+                                  ? Colors.white38
+                                  : AppColors.primary.withValues(alpha: 0.60),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    '·',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 15,
-                      color: isDark
-                          ? Colors.white38
-                          : AppColors.primary.withValues(alpha: 0.40),
+
+                const Spacer(),
+
+                // Nút Recenter GPS — quan trọng khi đang navigate và bản đồ bị pan
+                GestureDetector(
+                  onTap: () {
+                    setState(() => _isAutoFollowUser = true);
+                    final userPos = ref.read(mapProvider).currentLocation;
+                    if (userPos != null) _animatedMapMove(userPos, 17.0);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: _isAutoFollowUser
+                          ? AppColors.primary
+                          : (isDark
+                              ? Colors.white.withValues(alpha: 0.10)
+                              : AppColors.primaryContainer),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: _isAutoFollowUser
+                            ? AppColors.primaryDark
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.15)
+                                : AppColors.primary.withValues(alpha: 0.25)),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Icon(
+                      _isAutoFollowUser
+                          ? Icons.my_location_rounded
+                          : Icons.location_searching_rounded,
+                      size: 16,
+                      color: _isAutoFollowUser
+                          ? Colors.white
+                          : (isDark ? Colors.white70 : AppColors.primary),
                     ),
                   ),
                 ),
-                Text(
-                  activeRoute.formattedDuration,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                    color: isDark
-                        ? Colors.white70
-                        : AppColors.primary,
+
+                // Divider mỏng
+                Container(
+                  width: 1,
+                  height: 20,
+                  margin: const EdgeInsets.only(right: 8),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : AppColors.primary.withValues(alpha: 0.15),
+                ),
+
+                // Nút Hủy
+                GestureDetector(
+                  onTap: () {
+                    _stopLiveNavigation();
+                    ref.read(mapProvider.notifier).clearRoute();
+                    AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.red.withValues(alpha: 0.18)
+                          : const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(9999),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.red.withValues(alpha: 0.35)
+                            : const Color(0xFFFCA5A5),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.close_rounded, size: 13,
+                            color: isDark ? Colors.red[300] : const Color(0xFFDC2626)),
+                        const SizedBox(width: 4),
+                        Text('Hủy',
+                            style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
+                            )),
+                      ],
+                    ),
                   ),
                 ),
               ],
-            ),
-          ),
-
-          // Divider mỏng
-          Container(
-            width: 1,
-            height: 20,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.12)
-                : AppColors.primary.withValues(alpha: 0.15),
-          ),
-
-          // 2. Chip phương tiện
-          Expanded(
-            child: state.isNavigating
-                // Navigating: chỉ hiện mode đang dùng, không cho đổi
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            )
+          // ============================================================
+          // CHẾNG PREVIEW: Distance · Duration | Chips phương tiện | Hủy
+          // ============================================================
+          : Row(
+              children: [
+                // Khoảng cách & Thời gian
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        switch (state.travelMode) {
-                          'motorbike' => Icons.two_wheeler_rounded,
-                          'driving'   => Icons.directions_car_rounded,
-                          _           => Icons.directions_walk_rounded,
-                        },
-                        size: 15,
-                        color: isDark ? Colors.white70 : AppColors.primary,
-                      ),
-                      const SizedBox(width: 5),
                       Text(
-                        switch (state.travelMode) {
-                          'motorbike' => 'Xe máy',
-                          'driving'   => 'Ô tô',
-                          _           => 'Đi bộ',
-                        },
+                        activeRoute.formattedDistance,
                         style: TextStyle(
-                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13.5,
+                          color: isDark ? Colors.white : AppColors.primaryDark,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          '·',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 15,
+                            color: isDark
+                                ? Colors.white38
+                                : AppColors.primary.withValues(alpha: 0.40),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        activeRoute.formattedDuration,
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white70 : AppColors.primaryDark,
+                          fontSize: 13,
+                          color: isDark ? Colors.white70 : AppColors.primary,
                         ),
                       ),
                     ],
-                  )
-                // Preview: 3 chip bấm được
-                : Row(
+                  ),
+                ),
+
+                // Divider mỏng
+                Container(
+                  width: 1, height: 20,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : AppColors.primary.withValues(alpha: 0.15),
+                ),
+
+                // 3 chip phương tiện bấm được
+                Expanded(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildMiniTravelModeChip('motorbike', state.travelMode),
@@ -928,62 +1070,55 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                       _buildMiniTravelModeChip('walking', state.travelMode),
                     ],
                   ),
-          ),
-
-          // Divider mỏng
-          Container(
-            width: 1,
-            height: 20,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.12)
-                : AppColors.primary.withValues(alpha: 0.15),
-          ),
-
-          // 3. Nút Hủy — không dùng đỏ thuần; dùng destructive tint đồng bộ
-          GestureDetector(
-            onTap: () {
-              _stopLiveNavigation();
-              ref.read(mapProvider.notifier).clearRoute();
-              AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.red.withValues(alpha: 0.18)
-                    : const Color(0xFFFEE2E2),
-                borderRadius: BorderRadius.circular(9999),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.red.withValues(alpha: 0.35)
-                      : const Color(0xFFFCA5A5),
-                  width: 1.0,
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.close_rounded,
-                    size: 13,
-                    color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Hủy',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
+
+                // Divider mỏng
+                Container(
+                  width: 1, height: 20,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : AppColors.primary.withValues(alpha: 0.15),
+                ),
+
+                // Nút Hủy
+                GestureDetector(
+                  onTap: () {
+                    _stopLiveNavigation();
+                    ref.read(mapProvider.notifier).clearRoute();
+                    AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.red.withValues(alpha: 0.18)
+                          : const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(9999),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.red.withValues(alpha: 0.35)
+                            : const Color(0xFFFCA5A5),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.close_rounded, size: 13,
+                            color: isDark ? Colors.red[300] : const Color(0xFFDC2626)),
+                        const SizedBox(width: 4),
+                        Text('Hủy',
+                            style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
+                            )),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
