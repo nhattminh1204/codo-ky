@@ -754,11 +754,11 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
             description,
             style: TextStyle(
               fontSize: 13.5,
-              height: 1.48,
-              letterSpacing: -0.1,
+              height: 1.55,
+              letterSpacing: 0.1,
               color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
             ),
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.justify,
           ),
 
           const SizedBox(height: 12),
