@@ -161,7 +161,9 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenHeight = MediaQuery.of(context).size.height;
-    final expandedMaxHeight = (screenHeight * 0.78).clamp(460.0, 720.0);
+    final bottomOffset = (mapState.isNavigating || activeRoute != null) ? 164.0 : 96.0;
+    final topTargetMargin = 130.0; // Extends right below the top filter chips bar
+    final expandedMaxHeight = (screenHeight - bottomOffset - topTargetMargin).clamp(420.0, 950.0);
 
     final reviewState = ref.watch(reviewProvider);
     final placeReviews = reviewState.allReviews;
