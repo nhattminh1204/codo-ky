@@ -26,7 +26,10 @@ class OsrmRemoteService {
             : 'http://router.project-osrm.org';
 
   /// Fetches a real OSRM route from origin [start] to destination [end] for specified [profile].
-  /// Profiles supported: 'driving' (car), 'motorbike' (or 'bike'), 'foot' (walking).
+  /// Profiles supported by OSRM public server:
+  ///   - 'driving'    → xe ô tô / xe hơi
+  ///   - 'bike'       → xe máy / xe đạp (motorbike maps to this)
+  ///   - 'foot'       → đi bộ
   /// Fetches real driving routes from OSRM server with optional alternatives=true.
   /// Throws [NetworkExceptions] or [FormatException] if routing fails.
   /// NO mock data or fake straight line fallbacks allowed.
@@ -36,9 +39,15 @@ class OsrmRemoteService {
     String profile = 'driving',
     bool alternatives = true,
   }) async {
-    final osrmProfile = (profile == 'motorbike')
-        ? 'motorbike'
-        : (profile == 'foot' ? 'foot' : 'driving');
+    // Map internal profile names to OSRM public server profiles:
+    // 'motorbike' → 'bike'  (OSRM public only supports driving/bike/foot)
+    // 'walking'   → 'foot'
+    // 'driving'   → 'driving'
+    final osrmProfile = switch (profile) {
+      'motorbike' => 'bike',
+      'walking' || 'foot' => 'foot',
+      _ => 'driving',
+    };
     final formattedCoords =
         '${start.longitude},${start.latitude};${end.longitude},${end.latitude}';
     final altParam = alternatives ? '&alternatives=true' : '';

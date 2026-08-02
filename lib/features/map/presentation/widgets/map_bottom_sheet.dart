@@ -1100,49 +1100,262 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
   Widget _buildAlternativeRoutesSelector(WidgetRef ref, MapState state) {
     if (state.alternativeRoutes.isEmpty) return const SizedBox.shrink();
 
+    final routes = state.alternativeRoutes;
+    final selectedIdx = state.selectedRouteIndex;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // --- Smart Label Logic ---
+    // Tìm tuyến nhanh nhất (duration nhỏ nhất) và ngắn nhất (distance nhỏ nhất)
+    int fastestIdx = 0;
+    int shortestIdx = 0;
+    for (int i = 1; i < routes.length; i++) {
+      if (routes[i].durationSeconds < routes[fastestIdx].durationSeconds) {
+        fastestIdx = i;
+      }
+      if (routes[i].distanceMeters < routes[shortestIdx].distanceMeters) {
+        shortestIdx = i;
+      }
+    }
+
+    String _getRouteLabel(int idx) {
+      if (idx == fastestIdx) return '⚡ Nhanh nhất';
+      if (idx == shortestIdx && idx != fastestIdx) return '📍 Ngắn nhất';
+      return '🔄 Tuyến thay thế';
+    }
+
+    Color _getLabelColor(int idx, bool isSelected) {
+      if (isSelected) return Colors.white;
+      if (idx == fastestIdx) return const Color(0xFF2563EB); // Blue
+      if (idx == shortestIdx && idx != fastestIdx) return const Color(0xFF059669); // Green
+      return const Color(0xFF64748B); // Gray
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Chọn tuyến đường:',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
-        ),
-        const SizedBox(height: 6),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: state.alternativeRoutes.asMap().entries.map((entry) {
-              final idx = entry.key;
-              final route = entry.value;
-              final isSelected = idx == state.selectedRouteIndex;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: ChoiceChip(
-                  label: Text(
-                    'Tuyến ${idx + 1}: ${route.formattedDistance} (${route.formattedDuration})',
-                  ),
-                  selected: isSelected,
-                  selectedColor: AppColors.primary,
-                  backgroundColor: Colors.white,
-                  side: BorderSide(
-                    color: isSelected ? AppColors.primary : const Color(0xFFCBD5E1),
-                  ),
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF334155),
-                    fontSize: 11.5,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  ),
-                  onSelected: (_) {
-                    ref.read(mapProvider.notifier).selectRouteIndex(idx);
-                  },
-                ),
-              );
-            }).toList(),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            'Chọn tuyến đường',
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+              letterSpacing: 0.3,
+            ),
           ),
+        ),
+        Column(
+          children: List.generate(routes.length, (idx) {
+            final route = routes[idx];
+            final isSelected = idx == selectedIdx;
+            final label = _getRouteLabel(idx);
+            final labelColor = _getLabelColor(idx, isSelected);
+
+            // Tính % chênh lệch so với tuyến nhanh nhất (để hiển thị hint)
+            final fastestDuration = routes[fastestIdx].durationSeconds;
+            final extraMinutes = ((route.durationSeconds - fastestDuration) / 60).round();
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: GestureDetector(
+                onTap: () => ref.read(mapProvider.notifier).selectRouteIndex(idx),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  decoration: BoxDecoration(
+                    // Active: Royal Blue gradient | Inactive: Glassmorphism
+                    gradient: isSelected
+                        ? const LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [Color(0xFF1D4ED8), Color(0xFF2563EB)],
+                          )
+                        : null,
+                    color: isSelected
+                        ? null
+                        : (isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFF8FAFC)),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isSelected
+                          ? const Color(0xFF3B82F6)
+                          : (isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : const Color(0xFFE2E8F0)),
+                      width: isSelected ? 1.5 : 1.0,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: const Color(0xFF2563EB).withValues(alpha: 0.28),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                  child: Row(
+                    children: [
+                      // Left: Checkmark / Radio indicator
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected
+                              ? Colors.white
+                              : (isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFFE2E8F0)),
+                          border: isSelected
+                              ? null
+                              : Border.all(
+                                  color: isDark
+                                      ? const Color(0xFF475569)
+                                      : const Color(0xFFCBD5E1),
+                                  width: 1.5,
+                                ),
+                        ),
+                        child: isSelected
+                            ? const Icon(
+                                Icons.check_rounded,
+                                size: 13,
+                                color: Color(0xFF1D4ED8),
+                              )
+                            : null,
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      // Center: Label + Stats
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: labelColor,
+                                letterSpacing: 0.1,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  size: 12,
+                                  color: isSelected
+                                      ? Colors.white70
+                                      : const Color(0xFF94A3B8),
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  route.formattedDuration,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : (isDark
+                                            ? const Color(0xFFCBD5E1)
+                                            : const Color(0xFF334155)),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                                  child: Text(
+                                    '•',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isSelected
+                                          ? Colors.white54
+                                          : const Color(0xFFCBD5E1),
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.straighten_rounded,
+                                  size: 12,
+                                  color: isSelected
+                                      ? Colors.white70
+                                      : const Color(0xFF94A3B8),
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  route.formattedDistance,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : (isDark
+                                            ? const Color(0xFFCBD5E1)
+                                            : const Color(0xFF334155)),
+                                  ),
+                                ),
+                                // Hiển thị "+X phút" cho tuyến chậm hơn tuyến nhanh nhất
+                                if (!isSelected && idx != fastestIdx && extraMinutes > 0) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFEF3C7),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      '+$extraMinutes ph',
+                                      style: const TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF92400E),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Right: Arrow indicator
+                      Icon(
+                        isSelected
+                            ? Icons.radio_button_checked_rounded
+                            : Icons.radio_button_unchecked_rounded,
+                        size: 18,
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark
+                                ? const Color(0xFF475569)
+                                : const Color(0xFFCBD5E1)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
       ],
     );
   }
+
 
   _CategoryConfig _getCategoryConfig(String category) {
     switch (category.toLowerCase()) {
