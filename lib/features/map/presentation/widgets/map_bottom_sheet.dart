@@ -518,10 +518,13 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     bool isDark,
     List<dynamic> placeReviews,
   ) {
-    return SingleChildScrollView(
-      key: const ValueKey('expanded_content'),
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 16),
-      child: Column(
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+      child: SingleChildScrollView(
+        key: const ValueKey('expanded_content'),
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 16),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cover Image Banner
@@ -667,46 +670,50 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           const SizedBox(height: 14),
 
           // Quick Action Shortcuts Bar (Call, Google Maps, Share, Favorite)
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildQuickActionButton(
-                  icon: Icons.phone_rounded,
-                  label: 'Gọi điện',
-                  color: const Color(0xFF10B981),
-                  isDark: isDark,
-                  onTap: () => _makePhoneCall(phone),
-                ),
-                const SizedBox(width: 14),
-                _buildQuickActionButton(
-                  icon: Icons.map_rounded,
-                  label: 'Bản đồ ngoài',
-                  color: const Color(0xFF2563EB),
-                  isDark: isDark,
-                  onTap: () => _openExternalMap(lat, lng),
-                ),
-                const SizedBox(width: 14),
-                _buildQuickActionButton(
-                  icon: Icons.share_rounded,
-                  label: 'Chia sẻ',
-                  color: const Color(0xFF8B5CF6),
-                  isDark: isDark,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Đã sao chép liên kết địa điểm "$name"')),
-                    );
-                  },
-                ),
-                const SizedBox(width: 14),
-                _buildQuickActionButton(
-                  icon: isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                  label: isSaved ? 'Đã lưu' : 'Lưu',
-                  color: const Color(0xFFF59E0B),
-                  isDark: isDark,
-                  onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
-                ),
-              ],
+          ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  _buildQuickActionButton(
+                    icon: Icons.phone_rounded,
+                    label: 'Gọi điện',
+                    color: const Color(0xFF10B981),
+                    isDark: isDark,
+                    onTap: () => _makePhoneCall(phone),
+                  ),
+                  const SizedBox(width: 14),
+                  _buildQuickActionButton(
+                    icon: Icons.map_rounded,
+                    label: 'Bản đồ ngoài',
+                    color: const Color(0xFF2563EB),
+                    isDark: isDark,
+                    onTap: () => _openExternalMap(lat, lng),
+                  ),
+                  const SizedBox(width: 14),
+                  _buildQuickActionButton(
+                    icon: Icons.share_rounded,
+                    label: 'Chia sẻ',
+                    color: const Color(0xFF8B5CF6),
+                    isDark: isDark,
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Đã sao chép liên kết địa điểm "$name"')),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 14),
+                  _buildQuickActionButton(
+                    icon: isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+                    label: isSaved ? 'Đã lưu' : 'Lưu',
+                    color: const Color(0xFFF59E0B),
+                    isDark: isDark,
+                    onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -830,8 +837,9 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
             ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildExpandedBottomActionBar(
     BuildContext context,
