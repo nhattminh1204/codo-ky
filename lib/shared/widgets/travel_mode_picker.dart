@@ -119,16 +119,13 @@ class _TravelModePickerState extends State<TravelModePicker> {
     }
   }
 
-  /// Gọi HapticFeedback.selectionClick() an toàn 100% trên mọi nền tảng (Android/iOS/Web/Desktop)
+  /// Gọi HapticFeedback.selectionClick() & lightImpact() tạo hiệu ứng nấc khấc rung giật nhẹ kiểu iOS Alarm Clock Wheel
   void _triggerHapticFeedback() {
     try {
-      if (!kIsWeb &&
-          (defaultTargetPlatform == TargetPlatform.android ||
-              defaultTargetPlatform == TargetPlatform.iOS)) {
-        HapticFeedback.selectionClick();
-      }
+      HapticFeedback.selectionClick();
+      HapticFeedback.lightImpact();
     } catch (_) {
-      // Ignored for non-supported devices
+      // Ignored for non-supported hardware
     }
   }
 

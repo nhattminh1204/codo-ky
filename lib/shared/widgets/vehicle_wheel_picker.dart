@@ -139,16 +139,13 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
     }
   }
 
-  /// Gọi HapticFeedback.selectionClick() an toàn tuyệt đối trên mọi nền tảng (Mobile/Web/Desktop)
+  /// Gọi HapticFeedback.selectionClick() & lightImpact() tạo hiệu ứng nấc khấc rung giật nhẹ kiểu iOS Alarm Clock Wheel
   void _triggerHapticFeedback() {
     try {
-      if (!kIsWeb &&
-          (defaultTargetPlatform == TargetPlatform.android ||
-              defaultTargetPlatform == TargetPlatform.iOS)) {
-        HapticFeedback.selectionClick();
-      }
+      HapticFeedback.selectionClick();
+      HapticFeedback.lightImpact();
     } catch (_) {
-      // Bỏ qua lỗi nếu thiết bị không hỗ trợ phần cứng rung
+      // Ignored for non-supported hardware
     }
   }
 
