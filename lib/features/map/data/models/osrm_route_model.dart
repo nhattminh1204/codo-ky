@@ -44,18 +44,18 @@ class OsrmRoute {
   factory OsrmRoute.fromJson(Map<String, dynamic> json) {
     final routes = json['routes'] as List<dynamic>?;
     if (routes == null || routes.isEmpty) {
-      throw const FormatException('Không tìm thấy tuyến đường trong phản hồi OSRM');
+      throw const FormatException('Không tìm thấy tuyến đường hợp lệ');
     }
 
     final primaryRoute = routes.first as Map<String, dynamic>;
     final geometry = primaryRoute['geometry'] as Map<String, dynamic>?;
     if (geometry == null) {
-      throw const FormatException('Phản hồi OSRM thiếu thông tin geometry');
+      throw const FormatException('Dữ liệu tọa độ tuyến đường không hợp lệ');
     }
 
     final coordinates = geometry['coordinates'] as List<dynamic>?;
     if (coordinates == null || coordinates.isEmpty) {
-      throw const FormatException('Phản hồi OSRM không có tọa độ đường đi');
+      throw const FormatException('Không có dữ liệu tọa độ đường đi');
     }
 
     final points = <LatLng>[];
@@ -99,7 +99,7 @@ class OsrmRoute {
   static List<OsrmRoute> fromMultiRouteJson(Map<String, dynamic> json) {
     final routesRaw = json['routes'] as List<dynamic>?;
     if (routesRaw == null || routesRaw.isEmpty) {
-      throw const FormatException('Không tìm thấy tuyến đường trong phản hồi OSRM');
+      throw const FormatException('Không tìm thấy tuyến đường hợp lệ');
     }
 
     final result = <OsrmRoute>[];

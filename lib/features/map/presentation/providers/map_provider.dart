@@ -336,6 +336,10 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   Future<bool> fetchRouteToPlace(dynamic destinationPlace) async {
+    if (state.isFetchingRoute) {
+      return false;
+    }
+
     if (destinationPlace == null) {
       state = state.copyWith(
         clearActiveRoute: true,
@@ -376,7 +380,7 @@ class MapNotifier extends StateNotifier<MapState> {
 
     try {
       if (osrmRemoteService == null) {
-        throw NetworkExceptions.custom('Dịch vụ OSRM Routing chưa được khởi tạo');
+        throw NetworkExceptions.custom('Dịch vụ chỉ đường chưa được khởi tạo');
       }
 
       final routes = await osrmRemoteService!.getRoutes(

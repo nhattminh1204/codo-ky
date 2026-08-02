@@ -476,6 +476,31 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     }
   }
 
+  Map<String, Offset> _markerOverlapOffsets = {};
+
+  void _recalculateMarkerOverlapOffsets(List<dynamic> places) {
+    if (places.isEmpty) return;
+    final entries = <MapEntry<String, Offset>>[];
+    for (final place in places) {
+      final lat = place['latitude'] as double? ?? (place.latitude as double?);
+      final lng = place['longitude'] as double? ?? (place.longitude as double?);
+      final pId = (place['id'] as dynamic)?.toString() ?? '';
+      if (lat != null && lng != null && pId.isNotEmpty) {
+        final point = _mapController.camera.latLngToScreenPoint(LatLng(lat, lng));
+        entries.add(MapEntry(pId, Offset(point.x, point.y)));
+      }
+    }
+    final resolved = MarkerOverlapResolver.resolveOverlaps(
+      screenPositions: entries,
+      threshold: MarkerConstants.overlapThresholdPx,
+    );
+    if (mounted) {
+      setState(() {
+        _markerOverlapOffsets = resolved;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(mapProvider);
@@ -493,6 +518,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               ),
               initialZoom: AppConstants.defaultMapZoom.toDouble(),
               onTap: (_, _) => _clearSelectionAndZoomOut(),
+              onMapEvent: (event) {
+                if (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd) {
+                  _recalculateMarkerOverlapOffsets(state.places);
+                }
+              },
               onPositionChanged: (position, hasGesture) {
                 if (hasGesture && _isAutoFollowUser && state.activeRoute != null) {
                   setState(() {
@@ -628,6 +658,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                       place: state.selectedPlace!,
                       onClose: _clearSelectionAndZoomOut,
                       onNavigate: () async {
+                        if (state.isFetchingRoute) return;
                         final targetPlace = state.selectedPlace;
                         if (state.activeRoute == null) {
                           // Preview mode 1: Fetch routes but don't close bottom sheet
@@ -640,7 +671,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                             }
                           } else {
                             if (!context.mounted) return;
-                            final err = ref.read(mapProvider).routeErrorMessage ?? 'Không thể lấy chỉ đường OSRM';
+                            final err = ref.read(mapProvider).routeErrorMessage ?? 'Không thể tìm thấy tuyến đường';
                             AppSnackBar.show(context, err, isError: true);
                           }
                         } else {
@@ -660,31 +691,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               left: 14,
               right: 14,
               child: _buildTurnByTurnBanner(state),
-            ),
-
-          if (state.isFetchingRoute)
-            Positioned(
-              top: state.activeRoute != null ? 90 : 135,
-              left: 14,
-              right: 70,
-              child: _buildGlassOverlay(
-                borderRadius: 16,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                child: const Row(
-                  children: [
-                    SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFF2563EB)),
-                    ),
-                    SizedBox(width: 12),
-                    Text(
-                      'Đang lấy dữ liệu chỉ đường OSRM...',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E1E1E)),
-                    ),
-                  ],
-                ),
-              ),
             ),
 
           // Tầng 2: Thanh Điều Khiển Hành Trình Gộp Chung Cố Định (Single Consolidated Control Bar)
@@ -1367,6 +1373,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
       if (lat != null && lng != null) {
         final targetPos = LatLng(lat, lng);
+        final overlapOffset = _markerOverlapOffsets[pId] ?? Offset.zero;
+
         markers.add(
           Marker(
             point: targetPos,
@@ -1374,9 +1382,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             height: 96,
             alignment: Alignment.topCenter,
             rotate: true,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
+            child: Transform.translate(
+              offset: overlapOffset,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
                 if (_previousCameraCenter == null) {
                   _previousCameraCenter = _mapController.camera.center;
                   _previousCameraZoom = _mapController.camera.zoom;
@@ -1438,7 +1448,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               ),
             ),
           ),
-        );
+        ),
+      );
       }
     }
     return markers;

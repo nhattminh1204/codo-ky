@@ -228,7 +228,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
               behavior: HitTestBehavior.opaque,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.only(top: 7, bottom: 6),
                 child: Center(
                   child: Container(
                     width: 56,
@@ -312,7 +312,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
   ) {
     return Padding(
       key: const ValueKey('compact_content'),
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
       child: (mapState.isNavigating || activeRoute != null)
           ? Row(
               children: [
@@ -406,7 +406,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
 
                 // Subtitle: Category • Address
                 Text(
@@ -417,7 +417,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
 
                 // Rating & Status Row
                 Row(
@@ -453,13 +453,13 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 6),
 
                 // Travel Mode Selector Box (Full-Width in Compact Mode)
                 _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
-                const SizedBox(height: 6),
+                const SizedBox(height: 2),
                 _buildAlternativeRoutesSelector(ref, mapState),
-                const SizedBox(height: 12),
+                const SizedBox(height: 5),
 
                 // Action Row: Bookmark Square Button + Full-Width Direction CTA Button
                 Row(
@@ -1046,7 +1046,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
       children: [
         TravelModePicker(
           initialMode: initialMode,
-          height: 48.0,
+          height: 43.0,
           onChanged: (selectedMode) {
             String modeStr = 'motorbike';
             if (selectedMode == TravelMode.driving) {

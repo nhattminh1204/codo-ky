@@ -153,5 +153,56 @@ void main() {
       // Verify collapsed back to compact view
       expect(find.text('Giới thiệu & Lịch sử'), findsNothing);
     });
+
+    testWidgets('3. Compact mini preview sheet triggers onNavigate and onClose correctly', (WidgetTester tester) async {
+      bool navigatePressed = false;
+      bool closePressed = false;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            mapProvider.overrideWith((ref) => MapNotifierMock()),
+            reviewProvider.overrideWith((ref) => ReviewNotifierMock()),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 360,
+                  height: 600,
+                  child: MapBottomSheet(
+                    place: mockPlace,
+                    onClose: () {
+                      closePressed = true;
+                    },
+                    onNavigate: () {
+                      navigatePressed = true;
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify compact sheet renders CTA button 'Đường đi'
+      final navigateButtonFinder = find.widgetWithText(ElevatedButton, 'Đường đi');
+      expect(navigateButtonFinder, findsOneWidget);
+
+      // Tap 'Đường đi' button
+      await tester.tap(navigateButtonFinder);
+      await tester.pumpAndSettle();
+      expect(navigatePressed, isTrue);
+
+      // Tap close button
+      final closeButtonFinder = find.byIcon(Icons.close_rounded).first;
+      await tester.tap(closeButtonFinder);
+      await tester.pumpAndSettle();
+      expect(closePressed, isTrue);
+    });
   });
 }
+

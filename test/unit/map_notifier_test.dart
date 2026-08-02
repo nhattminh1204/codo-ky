@@ -195,5 +195,19 @@ void main() {
       expect(notifier.state.activeRoute, isNull);
       expect(notifier.state.routeErrorMessage, isNull);
     });
+
+    test('9. fetchRouteToPlace guards against double-tap when isFetchingRoute is true', () async {
+      final notifier = MapNotifier(osrmRemoteService: MockSuccessOsrmRemoteService());
+      final place = {'id': '2', 'name': 'Chùa Thiên Mụ', 'latitude': 16.4439, 'longitude': 107.5833};
+
+      // Manually simulate isFetchingRoute = true
+      notifier.state = notifier.state.copyWith(isFetchingRoute: true);
+
+      // Attempting to call fetchRouteToPlace while fetching should return false immediately
+      final result = await notifier.fetchRouteToPlace(place);
+
+      expect(result, isFalse);
+    });
   });
 }
+

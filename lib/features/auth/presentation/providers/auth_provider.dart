@@ -316,7 +316,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       AppLogger.e('=== [EXACT GOOGLE SIGN-IN ERROR] ===\nRuntimeType: ${e.runtimeType}\nError string: $e\nStack trace:\n$stack\n====================================', e, stack);
       final rawError = e.toString().trim();
       final displayError = (rawError == 'Error' || rawError.isEmpty)
-          ? 'Không thể hoàn tất xác thực Google. Vui lòng dán Firebase API Key thật vào .env.dev.'
+          ? 'Không thể hoàn tất xác thực Google. Vui lòng thử lại sau.'
           : 'Đăng nhập bằng Google không thành công. Lỗi: $rawError';
       state = state.copyWith(isLoading: false, error: displayError);
       return false;
