@@ -31,6 +31,9 @@ class TravelModePicker extends StatefulWidget {
   /// Màu icon của phương tiện không chọn
   final Color inactiveIconColor;
 
+  /// Cho phép sử dụng giao diện 3D Infinite Wheel Dial khi mở rộng
+  final bool isWheelMode;
+
   const TravelModePicker({
     super.key,
     this.initialMode = TravelMode.motorbike,
@@ -39,6 +42,7 @@ class TravelModePicker extends StatefulWidget {
     this.activePillColor = AppColors.primaryContainer,
     this.activeIconColor = AppColors.primaryDark,
     this.inactiveIconColor = const Color(0xFF64748B),
+    this.isWheelMode = false,
   });
 
   @override
@@ -173,6 +177,84 @@ class _TravelModePickerState extends State<TravelModePicker> {
     final activeIcon = isDark ? const Color(0xFF93C5FD) : widget.activeIconColor;
     final inactiveIcon = isDark ? Colors.white54 : widget.inactiveIconColor;
 
+    if (!widget.isWheelMode) {
+      // --- GIỮ NGUYÊN GIAO DIỆN CHỌN BAN ĐẦU KHI VUỐT XUỐNG (COLLAPSED / COMPACT VIEW) ---
+      return GestureDetector(
+        onHorizontalDragEnd: (details) {
+          final velocity = details.primaryVelocity ?? 0;
+          if (velocity < -120) {
+            _selectModeIndex((_selectedIndex + 1).clamp(0, 2));
+          } else if (velocity > 120) {
+            _selectModeIndex((_selectedIndex - 1).clamp(0, 2));
+          }
+        },
+        child: Container(
+          height: widget.height,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: pillBg,
+            borderRadius: BorderRadius.circular(9999),
+          ),
+          padding: const EdgeInsets.all(3.5),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = constraints.maxWidth / 3;
+
+              return Stack(
+                children: [
+                  AnimatedAlign(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment(_getAlignmentX(_selectedIndex), 0.0),
+                    child: Container(
+                      width: itemWidth,
+                      height: double.infinity,
+                      decoration: BoxDecoration(
+                        color: activePill,
+                        borderRadius: BorderRadius.circular(9999),
+                        boxShadow: [
+                          BoxShadow(
+                            color: activePill.withValues(alpha: isDark ? 0.3 : 0.25),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: List.generate(_modes.length, (index) {
+                      final mode = _modes[index];
+                      final isSelected = index == _selectedIndex;
+
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => _selectModeIndex(index),
+                          behavior: HitTestBehavior.opaque,
+                          child: Tooltip(
+                            message: _getModeTooltip(mode),
+                            child: Center(
+                              child: AnimatedColorIcon(
+                                icon: _getModeIcon(mode),
+                                color: isSelected ? activeIcon : inactiveIcon,
+                                duration: const Duration(milliseconds: 120),
+                                size: 23,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    // --- 3D INFINITE WHEEL DIAL (KHI MỞ RỘNG / VUỐT LÊN) ---
     return Container(
       height: widget.height,
       width: double.infinity,

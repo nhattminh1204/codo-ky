@@ -887,6 +887,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
               height: 48,
               initialMode: _parseTravelMode(mapState.travelMode),
               onChanged: (newMode) => ref.read(mapProvider.notifier).setTravelMode(newMode.name),
+              isWheelMode: true,
             ),
           ),
           const SizedBox(width: 10),
