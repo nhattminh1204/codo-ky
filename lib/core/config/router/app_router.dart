@@ -21,6 +21,7 @@ import 'package:codoky/features/auth/presentation/screens/onboarding_profile_scr
 // Map Feature
 import 'package:codoky/features/map/presentation/screens/map_home_screen.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
+import 'package:codoky/features/map/presentation/screens/marker_preview_screen.dart';
 
 // Explore Feature
 import 'package:codoky/features/explore/presentation/screens/explore_home_screen.dart';
@@ -79,7 +80,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           loc == '/register' ||
           loc == '/forgot-password' ||
           loc == '/splash' ||
-          loc == '/onboarding';
+          loc == '/onboarding' ||
+          loc == '/marker-preview';
 
       if (loc == '/' || (!isAuth && !isAuthRoute)) {
         return '/login';
@@ -91,6 +93,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/marker-preview',
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const MarkerPreviewScreen(),
+        ),
+      ),
       // 0. Global Screens
       GoRoute(
         path: '/splash',
