@@ -135,12 +135,26 @@ class AppRadius {
 }
 
 class AppTheme {
+  static const String fontFamily = '.SF Pro Text';
+  static const List<String> fontFamilyFallback = [
+    '.SF Pro Display',
+    'SF Pro Text',
+    'SF Pro Display',
+    'San Francisco',
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'Inter',
+    'Roboto',
+  ];
+
   static ThemeData get lightTheme {
     final bodyTextTheme = GoogleFonts.beVietnamProTextTheme();
     final titleTextTheme = GoogleFonts.plusJakartaSansTextTheme();
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.bgLight,
       colorScheme: ColorScheme.fromSeed(
@@ -257,6 +271,8 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.bgDark,
       colorScheme: ColorScheme.fromSeed(

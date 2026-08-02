@@ -741,9 +741,11 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
             description,
             style: TextStyle(
               fontSize: 13.5,
-              height: 1.5,
-              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+              height: 1.55,
+              letterSpacing: 0.1,
+              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
             ),
+            textAlign: TextAlign.justify,
           ),
 
           const SizedBox(height: 12),
@@ -870,62 +872,40 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           _buildTravelModeSelector(context, ref, mapState.travelMode, mapState.activeRoute?.formattedDuration),
           const SizedBox(height: 8),
 
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: isFetchingRoute ? null : widget.onNavigate,
-                    icon: isFetchingRoute
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Icon(
-                            Icons.directions_rounded,
-                            size: 20,
-                            color: Colors.white,
-                          ),
-                    label: Text(
-                      isFetchingRoute
-                          ? 'Đang tính toán...'
-                          : (mapState.activeRoute != null
-                              ? 'Bắt đầu di chuyển ngay'
-                              : 'Chỉ đường OSRM'),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.white,
-                      ),
+          SizedBox(
+            height: 48,
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: isFetchingRoute ? null : widget.onNavigate,
+              icon: isFetchingRoute
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(
+                      Icons.directions_rounded,
+                      size: 20,
+                      color: Colors.white,
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
+              label: Text(
+                isFetchingRoute
+                    ? 'Đang tính toán...'
+                    : (mapState.activeRoute != null
+                        ? 'Bắt đầu di chuyển ngay'
+                        : 'Chỉ đường OSRM'),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(width: 10),
-              GestureDetector(
-                onTap: _collapse,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFE2E8F0),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: isDark ? Colors.white70 : const Color(0xFF475569),
-                    size: 26,
-                  ),
-                ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-            ],
+            ),
           ),
         ],
       ),
