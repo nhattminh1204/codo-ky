@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -200,13 +201,22 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
                 ),
               ),
 
-              // 2. PageView cuộn ngang vô hạn với snapping mặc định
-              PageView.builder(
-                controller: _pageController,
-                itemCount: _kLoopItemCount,
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
+              // 2. PageView cuộn ngang vô hạn với snapping mặc định (Hỗ trợ kéo bằng chuột trên Windows/Desktop)
+              ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                    PointerDeviceKind.trackpad,
+                    PointerDeviceKind.stylus,
+                  },
                 ),
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _kLoopItemCount,
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
                 itemBuilder: (context, index) {
                   final realIndex = index % widget.items.length;
                   final item = widget.items[realIndex];
@@ -278,7 +288,8 @@ class _VehicleWheelPickerState extends State<VehicleWheelPicker> {
                   );
                 },
               ),
-            ],
+            ),
+          ],
           ),
         );
       },
