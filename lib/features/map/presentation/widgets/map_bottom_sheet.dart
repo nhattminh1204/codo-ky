@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/shared/widgets/travel_mode_picker.dart';
+import 'package:codoky/shared/widgets/vehicle_wheel_picker.dart';
 import 'package:codoky/features/review/data/models/review_model.dart';
 import 'package:codoky/features/review/presentation/providers/review_provider.dart';
 import 'package:codoky/features/review/presentation/widgets/review_card.dart';
@@ -863,6 +864,17 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     bool isFetchingRoute,
     bool isDark,
   ) {
+    final vehicleItems = const [
+      VehicleOption(id: 'walking', label: 'Đi bộ', icon: Icons.directions_walk_rounded),
+      VehicleOption(id: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded),
+      VehicleOption(id: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded),
+    ];
+
+    final initialOption = vehicleItems.firstWhere(
+      (opt) => opt.id == mapState.travelMode,
+      orElse: () => vehicleItems[1],
+    );
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
@@ -883,11 +895,18 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           SizedBox(
             width: 145,
             height: 48,
-            child: TravelModePicker(
+            child: VehicleWheelPicker(
+              items: vehicleItems,
+              initialSelection: initialOption,
               height: 48,
-              initialMode: _parseTravelMode(mapState.travelMode),
-              onChanged: (newMode) => ref.read(mapProvider.notifier).setTravelMode(newMode.name),
-              isWheelMode: true,
+              viewportFraction: 0.36,
+              showLabels: false,
+              accentColor: AppColors.primary,
+              onChanged: (selectedVehicle) {
+                if (selectedVehicle.id != mapState.travelMode) {
+                  ref.read(mapProvider.notifier).setTravelMode(selectedVehicle.id);
+                }
+              },
             ),
           ),
           const SizedBox(width: 10),
