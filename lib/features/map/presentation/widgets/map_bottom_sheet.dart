@@ -239,53 +239,71 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
             ),
 
             // Content Area (Compact vs Expanded)
-            if (_isExpanded)
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 280),
-                  child: _buildExpandedContent(
-                    context,
-                    ref,
-                    parsedPlace,
-                    placeId,
-                    name,
-                    address,
-                    category,
-                    rating,
-                    reviewCount,
-                    openHours,
-                    ticketPrice,
-                    phone,
-                    imageUrl,
-                    description,
-                    lat,
-                    lng,
-                    config,
-                    isSaved,
-                    isDark,
-                    placeReviews,
-                  ),
-                ),
-              )
-            else
-              _buildCompactContent(
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 320),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeOutCubic,
+                child: _isExpanded
+                    ? _buildExpandedContent(
+                        context,
+                        ref,
+                        parsedPlace,
+                        placeId,
+                        name,
+                        address,
+                        category,
+                        rating,
+                        reviewCount,
+                        openHours,
+                        ticketPrice,
+                        phone,
+                        imageUrl,
+                        description,
+                        lat,
+                        lng,
+                        config,
+                        isSaved,
+                        isDark,
+                        placeReviews,
+                      )
+                    : SingleChildScrollView(
+                        key: const ValueKey('compact_scroll_content'),
+                        physics: const BouncingScrollPhysics(),
+                        child: _buildCompactContent(
+                          context,
+                          ref,
+                          name,
+                          address,
+                          rating,
+                          config,
+                          isDark,
+                          mapState,
+                          activeRoute,
+                        ),
+                      ),
+              ),
+            ),
+
+            // Bottom Fixed Action Bar with Ultra Smooth AnimatedCrossFade Motion
+            AnimatedCrossFade(
+              duration: const Duration(milliseconds: 320),
+              firstCurve: Curves.easeOutCubic,
+              secondCurve: Curves.easeOutCubic,
+              sizeCurve: Curves.easeOutCubic,
+              crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+              firstChild: _buildCompactBottomActionBar(
                 context,
                 ref,
-                name,
-                address,
-                rating,
-                config,
-                isSaved,
-                isDark,
                 mapState,
                 activeRoute,
                 isFetchingRoute,
+                isSaved,
                 placeId,
+                isDark,
               ),
-
-            // Bottom Fixed Action Bar when Expanded
-            if (_isExpanded)
-              _buildExpandedBottomActionBar(context, ref, mapState, isFetchingRoute, isDark),
+              secondChild: _buildExpandedBottomActionBar(context, ref, mapState, isFetchingRoute, isDark),
+            ),
           ],
         ),
       ),
@@ -299,16 +317,13 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     String address,
     double rating,
     _CategoryConfig config,
-    bool isSaved,
     bool isDark,
     MapState mapState,
     dynamic activeRoute,
-    bool isFetchingRoute,
-    String placeId,
   ) {
     return Padding(
       key: const ValueKey('compact_content'),
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
       child: (mapState.isNavigating || activeRoute != null)
           ? Row(
               children: [
@@ -449,64 +464,87 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-
-                // Travel Mode Selector Box (Full-Width in Compact Mode)
-                _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
-                const SizedBox(height: 6),
-                _buildAlternativeRoutesSelector(ref, mapState),
-                const SizedBox(height: 12),
-
-                // Action Row: Bookmark Square Button + Full-Width Direction CTA Button
-                Row(
-                  children: [
-                    _FavoriteBookmarkButton(
-                      isSaved: isSaved,
-                      onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
-                      isDark: isDark,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SizedBox(
-                        height: 48,
-                        child: ElevatedButton.icon(
-                          onPressed: isFetchingRoute ? null : widget.onNavigate,
-                          icon: isFetchingRoute
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                              : const Icon(
-                                  Icons.directions_rounded,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                          label: Text(
-                            isFetchingRoute
-                                ? 'Đang tính...'
-                                : (activeRoute != null
-                                    ? 'Bắt đầu di chuyển'
-                                    : 'Đường đi'),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: Colors.white,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
+    );
+  }
+
+  Widget _buildCompactBottomActionBar(
+    BuildContext context,
+    WidgetRef ref,
+    MapState mapState,
+    dynamic activeRoute,
+    bool isFetchingRoute,
+    bool isSaved,
+    String placeId,
+    bool isDark,
+  ) {
+    return Container(
+      key: const ValueKey('compact_action_bar'),
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
+          const SizedBox(height: 6),
+          _buildAlternativeRoutesSelector(ref, mapState),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _FavoriteBookmarkButton(
+                isSaved: isSaved,
+                onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
+                isDark: isDark,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: isFetchingRoute ? null : widget.onNavigate,
+                    icon: isFetchingRoute
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(
+                            Icons.directions_rounded,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                    label: Text(
+                      isFetchingRoute
+                          ? 'Đang tính...'
+                          : (activeRoute != null
+                              ? 'Bắt đầu di chuyển'
+                              : 'Đường đi'),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
