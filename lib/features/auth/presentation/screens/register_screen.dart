@@ -6,6 +6,7 @@ import 'package:codoky/core/utils/validators/validators.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
 import 'package:codoky/core/widgets/buttons/social_auth_button.dart';
 import 'package:codoky/core/widgets/inputs/text_input.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -130,7 +131,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   'Tạo tài khoản mới',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF9B1B30),
+                        color: AppColors.primary,
                       ),
                 ),
                 const SizedBox(height: 6),
@@ -207,7 +208,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   text: 'Đăng ký',
                   isLoading: authState.isLoading,
                   onPressed: _handleRegister,
-                  backgroundColor: const Color(0xFF9B1B30),
+                  backgroundColor: AppColors.primary,
                 ),
                 const SizedBox(height: 24),
 
@@ -254,7 +255,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       child: const Text(
                         'Đăng nhập ngay',
                         style: TextStyle(
-                          color: Color(0xFF9B1B30),
+                          color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

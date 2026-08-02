@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 
 class CustomSearchBar extends StatelessWidget {
-  final String hintText;
+  final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onFilterTap;
-  final TextEditingController? controller;
+  final String hintText;
 
   const CustomSearchBar({
     super.key,
-    this.hintText = 'Tìm kiếm địa điểm, di tích, nhà hàng tại Huế...',
+    this.controller,
     this.onChanged,
     this.onFilterTap,
-    this.controller,
+    this.hintText = 'Tìm kiếm địa điểm, món ăn...',
   });
 
   @override
@@ -20,13 +21,7 @@ class CustomSearchBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppColors.softShadow,
       ),
       child: TextField(
         controller: controller,
@@ -35,7 +30,7 @@ class CustomSearchBar extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13.5),
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF9B1B30)),
+          prefixIcon: const Icon(Icons.search, color: AppColors.primary),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -49,7 +44,7 @@ class CustomSearchBar extends StatelessWidget {
                 ),
               if (onFilterTap != null)
                 IconButton(
-                  icon: const Icon(Icons.tune, color: Color(0xFF9B1B30), size: 20),
+                  icon: const Icon(Icons.tune, color: AppColors.primary, size: 20),
                   onPressed: onFilterTap,
                 ),
             ],

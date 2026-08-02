@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 
 class HueBrandLogo extends StatelessWidget {
   final double size;
@@ -50,7 +51,7 @@ class HueBrandLogo extends StatelessWidget {
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  color: const Color(0xFF9B1B30),
+                  color: AppColors.primary,
                   child: const Icon(
                     Icons.map_rounded,
                     color: Colors.white,

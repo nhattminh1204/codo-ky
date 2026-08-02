@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 
 class FilterCategorySheet extends ConsumerStatefulWidget {
@@ -205,7 +206,7 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
                     child: ElevatedButton(
                       onPressed: _apply,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF9B1B30),
+                        backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),

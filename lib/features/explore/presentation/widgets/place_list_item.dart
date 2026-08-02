@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:animations/animations.dart';
 import 'package:codoky/core/theme/motion.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
@@ -172,7 +173,7 @@ class PlaceListItem extends StatelessWidget {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(Icons.location_on_outlined, size: 14, color: Color(0xFF9B1B30)),
+                          const Icon(Icons.location_on_outlined, size: 14, color: AppColors.primary),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -207,7 +208,7 @@ class PlaceListItem extends StatelessWidget {
       case 'temple':
         return _CategoryConfig(label: 'Chùa chiền', color: const Color(0xFF6A1B9A), icon: Icons.temple_buddhist);
       case 'tomb':
-        return _CategoryConfig(label: 'Lăng tẩm', color: const Color(0xFF9B1B30), icon: Icons.account_balance);
+        return _CategoryConfig(label: 'Lăng tẩm', color: AppColors.primary, icon: Icons.account_balance);
       default:
         return _CategoryConfig(label: 'Tham quan', color: const Color(0xFF2E7D32), icon: Icons.explore_rounded);
     }

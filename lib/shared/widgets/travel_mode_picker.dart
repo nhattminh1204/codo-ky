@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 
 /// Enum định nghĩa các phương tiện di chuyển
 enum TravelMode {
@@ -35,8 +36,8 @@ class TravelModePicker extends StatefulWidget {
     this.initialMode = TravelMode.motorbike,
     required this.onChanged,
     this.height = 46.0,
-    this.activePillColor = const Color(0xFFD6E4FF),
-    this.activeIconColor = const Color(0xFF1D4ED8),
+    this.activePillColor = AppColors.primaryContainer,
+    this.activeIconColor = AppColors.primaryDark,
     this.inactiveIconColor = const Color(0xFF64748B),
   });
 

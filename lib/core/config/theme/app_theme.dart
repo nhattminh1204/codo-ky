@@ -3,39 +3,41 @@ import 'package:google_fonts/google_fonts.dart';
 export 'package:codoky/core/theme/motion.dart';
 
 class AppColors {
-  // Minimalist Heritage Brand Palette
-  static const Color primary = Color(0xFF8B1E2F); // Crimson Huế Son-Son
-  static const Color primaryDark = Color(0xFF6B1423);
-  static const Color primaryLight = Color(0xFFA62A3E);
+  // Royal Blue Modern Brand Palette
+  static const Color primary = Color(0xFF2563EB); // Royal Blue Primary
+  static const Color primaryDark = Color(0xFF1D4ED8); // Deep Royal Blue
+  static const Color primaryLight = Color(0xFF3B82F6); // Bright Sky Blue
+  static const Color primaryContainer = Color(0xFFDBEAFE); // Light Blue Pill Container Tint
+  static const Color primarySurface = Color(0xFFEFF6FF); // Soft Blue Surface Background
 
-  static const Color secondary = Color(0xFFE07A5F); // Nắng Hương Hoàng Hôn
-  static const Color accent = Color(0xFFF2CC8F); // Royal Sand Gold
+  static const Color secondary = Color(0xFF3B82F6); // Vibrant Blue Secondary
+  static const Color accent = Color(0xFFF59E0B); // Amber Gold Accent
 
   // Supporting Functional Colors
-  static const Color success = Color(0xFF2A9D8F);
-  static const Color warning = Color(0xFFE76F51);
-  static const Color error = Color(0xFFD62828);
-  static const Color info = Color(0xFF3D405B);
+  static const Color success = Color(0xFF10B981);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color error = Color(0xFFEF4444);
+  static const Color info = Color(0xFF3B82F6);
 
   // Background & Surfaces (Light)
-  static const Color bgLight = Color(0xFFF4F1DE); // Warm Sand Heritage Surface
+  static const Color bgLight = Color(0xFFF8FAFC); // Clean Slate Heritage Surface
   static const Color surfaceLight = Colors.white;
   static const Color cardLight = Colors.white;
   static const Color borderLight = Color(0xFFE2E8F0);
 
   // Background & Surfaces (Dark Mode - Đêm Hoàng Thành)
-  static const Color bgDark = Color(0xFF121418); // Sand Night Slate
-  static const Color surfaceDark = Color(0xFF1E222A); // Imperial Slate Card
-  static const Color cardDark = Color(0xFF1E222A);
-  static const Color borderDark = Color(0xFF2D333F);
+  static const Color bgDark = Color(0xFF0F172A); // Deep Slate Night Surface
+  static const Color surfaceDark = Color(0xFF1E293B); // Slate Card Surface
+  static const Color cardDark = Color(0xFF1E293B);
+  static const Color borderDark = Color(0xFF334155);
 
   // Text Colors (Light)
-  static const Color textPrimary = Color(0xFF1E293B);
+  static const Color textPrimary = Color(0xFF0F172A);
   static const Color textSecondary = Color(0xFF64748B);
   static const Color textLight = Color(0xFF94A3B8);
 
   // Text Colors (Dark Mode)
-  static const Color textPrimaryDark = Color(0xFFF1F5F9);
+  static const Color textPrimaryDark = Color(0xFFF8FAFC);
   static const Color textSecondaryDark = Color(0xFF94A3B8);
   static const Color textLightDark = Color(0xFF64748B);
 
@@ -59,19 +61,19 @@ class AppColors {
 
 class AppGradients {
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF8B1E2F), Color(0xFFA62A3E)],
+    colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient sunsetGradient = LinearGradient(
-    colors: [Color(0xFF8B1E2F), Color(0xFFE07A5F)],
+    colors: [Color(0xFF1D4ED8), Color(0xFF60A5FA)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient heroGradient = LinearGradient(
-    colors: [Color(0xFF6B1423), Color(0xFF8B1E2F)],
+    colors: [Color(0xFF1E40AF), Color(0xFF2563EB)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );

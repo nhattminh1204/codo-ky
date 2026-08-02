@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 
@@ -88,7 +89,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                       'Bạn yêu thích trải nghiệm nào ở Huế?',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF9B1B30),
+                            color: AppColors.primary,
                           ),
                     ),
                     const SizedBox(height: 8),
@@ -117,19 +118,19 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF9B1B30).withValues(alpha: 0.08)
+                                  ? AppColors.primaryContainer.withValues(alpha: 0.50)
                                   : Colors.white,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF9B1B30)
+                                    ? AppColors.primary
                                     : Colors.grey.shade300,
                                 width: isSelected ? 2 : 1,
                               ),
                               boxShadow: isSelected
                                   ? [
                                       BoxShadow(
-                                        color: const Color(0xFF9B1B30).withValues(alpha: 0.15),
+                                        color: AppColors.primary.withValues(alpha: 0.15),
                                         blurRadius: 8,
                                         offset: const Offset(0, 3),
                                       ),
@@ -153,7 +154,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: isSelected
-                                              ? const Color(0xFF9B1B30)
+                                              ? AppColors.primary
                                               : Colors.black87,
                                         ),
                                       ),
@@ -170,7 +171,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                                 ),
                                 Checkbox(
                                   value: isSelected,
-                                  activeColor: const Color(0xFF9B1B30),
+                                  activeColor: AppColors.primary,
                                   onChanged: (_) => _togglePreference(cat['id']!),
                                 ),
                               ],
@@ -191,7 +192,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                 text: 'Lưu & Khám phá ngay (${_selectedPreferences.length})',
                 isLoading: authState.isLoading,
                 onPressed: _handleSave,
-                backgroundColor: const Color(0xFF9B1B30),
+                backgroundColor: AppColors.primary,
               ),
             ),
           ],

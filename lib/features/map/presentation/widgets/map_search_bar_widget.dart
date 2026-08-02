@@ -7,6 +7,7 @@ import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/screens/filter_category_sheet.dart';
+import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class MapSearchBarWidget extends ConsumerStatefulWidget {
@@ -172,15 +173,15 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                         isDark: isDark,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         settings: state.selectedCategories.isNotEmpty 
-                          ? const LiquidGlassSettings(glassColor: Color(0x8C9B1B30)) 
+                          ? LiquidGlassSettings(glassColor: AppColors.primary.withValues(alpha: 0.85)) 
                           : null,
                         child: Row(
                           children: [
-                            Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
+                            Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : AppColors.primary),
                             const SizedBox(width: 4),
                             Text(
                               state.selectedCategories.isNotEmpty ? 'Lọc (${state.selectedCategories.length})' : 'Bộ lọc',
-                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : const Color(0xFF9B1B30)),
+                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : AppColors.primary),
                             ),
                             if (state.selectedCategories.isNotEmpty) ...[
                               const SizedBox(width: 6),

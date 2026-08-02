@@ -31,8 +31,7 @@ void main() {
 
       // Verify Guest Welcome title and CTA buttons appear
       expect(find.text('Khách ghé thăm'), findsOneWidget);
-      expect(find.text('Đăng nhập ngay'), findsOneWidget);
-      expect(find.text('Tạo tài khoản mới'), findsOneWidget);
+      expect(find.text('Đăng nhập / Đăng ký'), findsOneWidget);
 
       // Verify zero fake user names or emails are shown
       expect(find.text('Nguyễn Văn Minh Nhật'), findsNothing);
