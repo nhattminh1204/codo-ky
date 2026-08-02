@@ -144,15 +144,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify expanded detail view elements appear
-      expect(find.text('Vuốt xuống để thu gọn'), findsOneWidget);
+      expect(find.text('Vuốt xuống để thu gọn'), findsNothing);
       expect(find.text('Giới thiệu & Lịch sử'), findsOneWidget);
       expect(find.text('Đánh giá & Trải nghiệm'), findsOneWidget);
       expect(find.text('Gọi điện'), findsOneWidget);
       expect(find.text('Bản đồ ngoài'), findsOneWidget);
 
-      // Tap to collapse back
-      final collapseHandleFinder = find.text('Vuốt xuống để thu gọn');
-      await tester.tap(collapseHandleFinder);
+      // Tap collapse button to collapse back
+      final collapseButtonFinder = find.byIcon(Icons.keyboard_arrow_down_rounded);
+      await tester.tap(collapseButtonFinder);
       await tester.pumpAndSettle();
 
       // Verify collapsed back to compact view
