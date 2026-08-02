@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:codoky/features/map/presentation/widgets/marker_constants.dart';
 
 /// Functional state of a place marker
 enum PlaceMarkerState {
@@ -143,7 +144,7 @@ class _PlaceMarkerState extends State<PlaceMarker> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    const double markerSize = 42.0;
+    final double markerSize = MarkerConstants.visibleSize;
     const double tailSize = 10.0;
 
     final selected = _effectiveSelected;
@@ -152,12 +153,12 @@ class _PlaceMarkerState extends State<PlaceMarker> with TickerProviderStateMixin
     final isHighlighted = widget.enablePulse || selected || featured;
 
     return AnimatedScale(
-      scale: selected ? 1.16 : 1.0,
+      scale: selected ? MarkerConstants.selectedScale : 1.0,
       duration: const Duration(milliseconds: 450),
       curve: Curves.easeInOutCubic,
       child: SizedBox(
-        width: 54.0,
-        height: 60.0,
+        width: markerSize + 12.0,
+        height: markerSize + 18.0,
         child: Stack(
           alignment: Alignment.topCenter,
           clipBehavior: Clip.none,
@@ -210,7 +211,7 @@ class _PlaceMarkerState extends State<PlaceMarker> with TickerProviderStateMixin
                           child: Icon(
                             _getCategoryIcon(widget.category),
                             color: _getIconColor(),
-                            size: 22,
+                            size: 24,
                           ),
                         ),
                       ),
