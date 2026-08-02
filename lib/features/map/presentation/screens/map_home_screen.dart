@@ -711,39 +711,69 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     );
   }
 
-  Widget _buildMiniTravelModeChip(String mode, String label, String currentMode) {
+  // Chip phương tiện — có thể bấm, đồng bộ Royal Blue token, dùng Material Icon không dùng emoji
+  Widget _buildMiniTravelModeChip(String mode, String currentMode) {
     final isSelected = mode == currentMode;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final IconData icon;
+    final String label;
+    switch (mode) {
+      case 'motorbike':
+        icon = Icons.two_wheeler_rounded;
+        label = 'Xe máy';
+      case 'driving':
+        icon = Icons.directions_car_rounded;
+        label = 'Ô tô';
+      default:
+        icon = Icons.directions_walk_rounded;
+        label = 'Đi bộ';
+    }
+
     return GestureDetector(
-      onTap: () {
-        ref.read(mapProvider.notifier).setTravelMode(mode);
-      },
+      onTap: () => ref.read(mapProvider.notifier).setTravelMode(mode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFF5E36) : Colors.white.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(10),
+          color: isSelected
+              ? AppColors.primary
+              : (isDark
+                  ? Colors.white.withValues(alpha: 0.07)
+                  : AppColors.primaryContainer.withValues(alpha: 0.40)),
+          borderRadius: BorderRadius.circular(9999),
           border: Border.all(
-            color: isSelected ? const Color(0xFFFF5E36) : const Color(0xFFCBD5E1),
+            color: isSelected
+                ? AppColors.primary
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : AppColors.primary.withValues(alpha: 0.18)),
             width: 1.0,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFFFF5E36).withValues(alpha: 0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? Colors.white : const Color(0xFF475569),
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : AppColors.primary),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? Colors.white70 : AppColors.primaryDark),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -780,132 +810,175 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeRoute = state.activeRoute!;
 
+    // Glass tint chuẩn theo UI_RULES: 20% white/black trong suốt
+    final glassSurface = isDark
+        ? const Color(0x33000000)
+        : Colors.white.withValues(alpha: 0.92);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: glassSurface,
+        borderRadius: BorderRadius.circular(9999), // Capsule shape chuẩn
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.08),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.12)
+              : Colors.black.withValues(alpha: 0.07),
           width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
-            blurRadius: 18,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.10),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         children: [
-          // 1. Khoảng cách & Thời gian
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2563EB).withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(12),
-            ),
+          // 1. Khoảng cách & Thời gian — Royal Blue token, không hardcode màu
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   activeRoute.formattedDistance,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 13.5,
-                    color: Color(0xFF2563EB),
+                    color: isDark ? Colors.white : AppColors.primaryDark,
                   ),
                 ),
-                const Text(
-                  ' · ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2563EB),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    '·',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 15,
+                      color: isDark
+                          ? Colors.white38
+                          : AppColors.primary.withValues(alpha: 0.40),
+                    ),
                   ),
                 ),
                 Text(
                   activeRoute.formattedDuration,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
                     fontSize: 13,
-                    color: Color(0xFF2563EB),
+                    color: isDark
+                        ? Colors.white70
+                        : AppColors.primary,
                   ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(width: 8),
+          // Divider mỏng
+          Container(
+            width: 1,
+            height: 20,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : AppColors.primary.withValues(alpha: 0.15),
+          ),
 
-          // 2. Chế độ Preview: chip đổi phương tiện | Chế độ Navigating: chỉ hiện tên phương tiện đang dùng
+          // 2. Chip phương tiện
           Expanded(
             child: state.isNavigating
-                // Khi đang navigate: không cho đổi phương tiện — hiện label tĩnh gọn
-                ? Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2563EB).withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
+                // Navigating: chỉ hiện mode đang dùng, không cho đổi
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
                         switch (state.travelMode) {
-                          'motorbike' => '🛵 Xe máy',
-                          'driving'   => '🚗 Ô tô',
-                          _           => '🚶 Đi bộ',
+                          'motorbike' => Icons.two_wheeler_rounded,
+                          'driving'   => Icons.directions_car_rounded,
+                          _           => Icons.directions_walk_rounded,
                         },
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF2563EB),
+                        size: 15,
+                        color: isDark ? Colors.white70 : AppColors.primary,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        switch (state.travelMode) {
+                          'motorbike' => 'Xe máy',
+                          'driving'   => 'Ô tô',
+                          _           => 'Đi bộ',
+                        },
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white70 : AppColors.primaryDark,
                         ),
                       ),
-                    ),
+                    ],
                   )
-                // Chế độ Preview: 3 chip có thể bấm để đổi phương tiện
+                // Preview: 3 chip bấm được
                 : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildMiniTravelModeChip('motorbike', '🛵 Xe máy', state.travelMode),
-                      const SizedBox(width: 4),
-                      _buildMiniTravelModeChip('driving', '🚗 Ô tô', state.travelMode),
-                      const SizedBox(width: 4),
-                      _buildMiniTravelModeChip('walking', '🚶 Đi bộ', state.travelMode),
+                      _buildMiniTravelModeChip('motorbike', state.travelMode),
+                      _buildMiniTravelModeChip('driving', state.travelMode),
+                      _buildMiniTravelModeChip('walking', state.travelMode),
                     ],
                   ),
           ),
 
-          const SizedBox(width: 8),
+          // Divider mỏng
+          Container(
+            width: 1,
+            height: 20,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : AppColors.primary.withValues(alpha: 0.15),
+          ),
 
-          // 3. Nút Hủy màu đỏ
-          Material(
-            color: const Color(0xFFDC2626),
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () {
-                _stopLiveNavigation();
-                ref.read(mapProvider.notifier).clearRoute();
-                AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
-              },
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.close_rounded, size: 15, color: Colors.white),
-                    SizedBox(width: 3),
-                    Text(
-                      'Hủy',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+          // 3. Nút Hủy — không dùng đỏ thuần; dùng destructive tint đồng bộ
+          GestureDetector(
+            onTap: () {
+              _stopLiveNavigation();
+              ref.read(mapProvider.notifier).clearRoute();
+              AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.red.withValues(alpha: 0.18)
+                    : const Color(0xFFFEE2E2),
+                borderRadius: BorderRadius.circular(9999),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.red.withValues(alpha: 0.35)
+                      : const Color(0xFFFCA5A5),
+                  width: 1.0,
                 ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.close_rounded,
+                    size: 13,
+                    color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Hủy',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
