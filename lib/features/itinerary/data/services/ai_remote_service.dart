@@ -89,9 +89,10 @@ class AiRemoteService {
     }
 
     // 3. Fallback direct Gemini REST API call
-    var apiKey = AppConfig.geminiApiKey;
-    if (apiKey.isEmpty || apiKey == 'YOUR_DEV_GEMINI_API_KEY') {
-      apiKey = 'AIzaSyDipy8Mfljw8yn-l5ftOQQscugUIGsv7X0';
+    final apiKey = AppConfig.geminiApiKey;
+    if (apiKey.trim().isEmpty || apiKey == 'YOUR_DEV_GEMINI_API_KEY') {
+      AppLogger.e('Thiếu cấu hình GEMINI_API_KEY');
+      throw AiApiException('Thiếu cấu hình GEMINI_API_KEY. Vui lòng cấu hình môi trường đúng cách.');
     }
 
     final prompt = '''
