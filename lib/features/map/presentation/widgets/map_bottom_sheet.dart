@@ -448,10 +448,15 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                     ),
                   ],
                 ),
-                _buildAlternativeRoutesSelector(ref, mapState),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
 
-                // Action Row: Bookmark + Travel Mode Wheel Segment + Direction CTA Button
+                // Travel Mode Selector Box (Full-Width in Compact Mode)
+                _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
+                const SizedBox(height: 6),
+                _buildAlternativeRoutesSelector(ref, mapState),
+                const SizedBox(height: 12),
+
+                // Action Row: Bookmark Square Button + Full-Width Direction CTA Button
                 Row(
                   children: [
                     _FavoriteBookmarkButton(
@@ -459,17 +464,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                       onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
                       isDark: isDark,
                     ),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 142,
-                      height: 48,
-                      child: TravelModePicker(
-                        height: 48,
-                        initialMode: _parseTravelMode(mapState.travelMode),
-                        onChanged: (newMode) => ref.read(mapProvider.notifier).setTravelMode(newMode.name),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: SizedBox(
                         height: 48,
@@ -490,18 +485,18 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                             isFetchingRoute
                                 ? 'Đang tính...'
                                 : (activeRoute != null
-                                    ? 'Bắt đầu'
+                                    ? 'Bắt đầu di chuyển'
                                     : 'Đường đi'),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 14.5,
+                              fontSize: 15,
                               color: Colors.white,
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
                           ),
                         ),
