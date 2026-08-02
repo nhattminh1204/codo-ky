@@ -136,7 +136,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap handle to expand
-      final handleFinder = find.byKey(const Key('map_bottom_sheet_handle'));
+      final handleFinder = find.byType(GestureDetector).at(1);
       await tester.tap(handleFinder);
       await tester.pumpAndSettle();
 
