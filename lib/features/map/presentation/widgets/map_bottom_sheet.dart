@@ -136,6 +136,19 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     }
   }
 
+  TravelMode _parseTravelMode(String mode) {
+    switch (mode) {
+      case 'walking':
+        return TravelMode.walking;
+      case 'motorbike':
+        return TravelMode.motorbike;
+      case 'driving':
+        return TravelMode.driving;
+      default:
+        return TravelMode.motorbike;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final parsedPlace = _parsePlace(widget.place);
@@ -435,15 +448,10 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-
-                // Travel Mode Selector Box
-                _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
-                const SizedBox(height: 6),
                 _buildAlternativeRoutesSelector(ref, mapState),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
-                // Action Row: Bookmark Square Button + CTA Button
+                // Action Row: Bookmark + Travel Mode Wheel Segment + Direction CTA Button
                 Row(
                   children: [
                     _FavoriteBookmarkButton(
@@ -451,7 +459,17 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                       onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
                       isDark: isDark,
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 142,
+                      height: 48,
+                      child: TravelModePicker(
+                        height: 48,
+                        initialMode: _parseTravelMode(mapState.travelMode),
+                        onChanged: (newMode) => ref.read(mapProvider.notifier).setTravelMode(newMode.name),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: SizedBox(
                         height: 48,
@@ -472,19 +490,19 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                             isFetchingRoute
                                 ? 'Đang tính...'
                                 : (activeRoute != null
-                                    ? 'Bắt đầu di chuyển'
+                                    ? 'Bắt đầu'
                                     : 'Đường đi'),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 15,
+                              fontSize: 14.5,
                               color: Colors.white,
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
+                            backgroundColor: AppColors.primary,
                             elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            disabledBackgroundColor: const Color(0xFF2563EB).withValues(alpha: 0.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -865,45 +883,51 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           ),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
-          // Travel Mode Picker
-          _buildTravelModeSelector(context, ref, mapState.travelMode, mapState.activeRoute?.formattedDuration),
-          const SizedBox(height: 8),
-
           SizedBox(
+            width: 145,
             height: 48,
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: isFetchingRoute ? null : widget.onNavigate,
-              icon: isFetchingRoute
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(
-                      Icons.directions_rounded,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-              label: Text(
-                isFetchingRoute
-                    ? 'Đang tính toán...'
-                    : (mapState.activeRoute != null
-                        ? 'Bắt đầu di chuyển ngay'
-                        : 'Chỉ đường OSRM'),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: Colors.white,
+            child: TravelModePicker(
+              height: 48,
+              initialMode: _parseTravelMode(mapState.travelMode),
+              onChanged: (newMode) => ref.read(mapProvider.notifier).setTravelMode(newMode.name),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: SizedBox(
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: isFetchingRoute ? null : widget.onNavigate,
+                icon: isFetchingRoute
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(
+                        Icons.directions_rounded,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                label: Text(
+                  isFetchingRoute
+                      ? 'Đang tính...'
+                      : (mapState.activeRoute != null
+                          ? 'Bắt đầu di chuyển'
+                          : 'Chỉ đường OSRM'),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14.5,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
               ),
             ),
           ),
