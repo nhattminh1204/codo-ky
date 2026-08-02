@@ -148,8 +148,8 @@ class AppTheme {
   ];
 
   static ThemeData get lightTheme {
-    final bodyTextTheme = GoogleFonts.beVietnamProTextTheme();
-    final titleTextTheme = GoogleFonts.plusJakartaSansTextTheme();
+    final bodyTextTheme = GoogleFonts.interTextTheme();
+    final titleTextTheme = GoogleFonts.interTextTheme();
 
     return ThemeData(
       useMaterial3: true,
@@ -266,8 +266,8 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
-    final bodyTextTheme = GoogleFonts.beVietnamProTextTheme(ThemeData.dark().textTheme);
-    final titleTextTheme = GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme);
+    final bodyTextTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
+    final titleTextTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
 
     return ThemeData(
       useMaterial3: true,
