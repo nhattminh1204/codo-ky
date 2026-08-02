@@ -320,6 +320,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       },
     );
 
+    // ✔️ Cờ hiệu isNavigating → UI chuyển sang chế độ Navigate (chips ẩn, ETA hiện)
+    ref.read(mapProvider.notifier).startNavigating();
+
     AppLogger.i('📡 Đã khởi chạy Real-Time GPS Live Navigation Tracking (Voice, Re-routing & Arrival Enabled)');
   }
 
@@ -402,6 +405,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         _isRecalculatingRoute = false;
       });
     }
+    // ✔️ Hạ cờ isNavigating → UI quay lại Preview mode
+    ref.read(mapProvider.notifier).stopNavigating();
     AppLogger.i('🛑 Đã dừng Real-Time GPS Live Navigation Tracking');
   }
 
