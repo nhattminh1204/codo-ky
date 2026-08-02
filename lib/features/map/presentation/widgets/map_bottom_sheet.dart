@@ -209,41 +209,17 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
               onTap: _toggleExpand,
               behavior: HitTestBehavior.opaque,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 4.5,
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white30 : const Color(0xFFCBD5E1),
-                        borderRadius: BorderRadius.circular(2.5),
-                      ),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Center(
+                  child: Container(
+                    width: 56,
+                    height: 5.5,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white38 : const Color(0xFFCBD5E1),
+                      borderRadius: BorderRadius.circular(3),
                     ),
-                    if (!_isExpanded) ...[
-                      const SizedBox(height: 6),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.keyboard_arrow_up_rounded,
-                            size: 18,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Vuốt lên để xem chi tiết',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),

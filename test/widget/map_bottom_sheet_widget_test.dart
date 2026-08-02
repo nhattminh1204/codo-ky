@@ -105,7 +105,6 @@ void main() {
 
       expect(find.byType(MapBottomSheet), findsOneWidget);
       expect(find.text('Đại Nội Huế'), findsOneWidget);
-      expect(find.text('Vuốt lên để xem chi tiết'), findsOneWidget);
       expect(find.text('Giới thiệu & Lịch sử'), findsNothing);
     });
 
@@ -136,15 +135,11 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final handleFinder = find.text('Vuốt lên để xem chi tiết');
-      expect(handleFinder, findsOneWidget);
-
-      // Tap to expand
-      await tester.tap(handleFinder);
+      // Fling UP to expand
+      await tester.fling(find.byType(MapBottomSheet), const Offset(0, -300), 1000);
       await tester.pumpAndSettle();
 
       // Verify expanded detail view elements appear
-      expect(find.text('Vuốt xuống để thu gọn'), findsNothing);
       expect(find.text('Giới thiệu & Lịch sử'), findsOneWidget);
       expect(find.text('Đánh giá & Trải nghiệm'), findsOneWidget);
       expect(find.text('Gọi điện'), findsOneWidget);
@@ -156,7 +151,6 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify collapsed back to compact view
-      expect(find.text('Vuốt lên để xem chi tiết'), findsOneWidget);
       expect(find.text('Giới thiệu & Lịch sử'), findsNothing);
     });
   });
