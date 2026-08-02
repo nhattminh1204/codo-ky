@@ -505,21 +505,25 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 1. Full-Width Mode Picker in Collapsed Mode (Morphs Out into Wheel in Expanded Mode)
-          AnimatedSize(
+          // 1. CHỈ ÁP DỤNG MORPH ANIMATION CHO KHỐI CHỌN PHƯƠNG TIỆN (Travel Mode Selector)
+          AnimatedCrossFade(
             duration: const Duration(milliseconds: 320),
-            curve: Curves.easeOutCubic,
-            child: _isExpanded
-                ? const SizedBox.shrink()
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
-                      const SizedBox(height: 6),
-                      _buildAlternativeRoutesSelector(ref, mapState),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
+            firstCurve: Curves.easeOutCubic,
+            secondCurve: Curves.easeOutCubic,
+            sizeCurve: Curves.easeOutCubic,
+            crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            firstChild: Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTravelModeSelector(context, ref, mapState.travelMode, activeRoute?.formattedDuration),
+                  const SizedBox(height: 6),
+                  _buildAlternativeRoutesSelector(ref, mapState),
+                ],
+              ),
+            ),
+            secondChild: const SizedBox.shrink(),
           ),
 
           // 2. Action Bar Row (Morphs between Bookmark + CTA vs VehicleWheelPicker + CTA)
