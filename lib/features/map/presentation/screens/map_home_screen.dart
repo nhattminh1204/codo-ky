@@ -597,9 +597,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 ),
             ],
           ),
-          if (state.selectedPlace != null)
+          // BottomSheet chỉ hiện ở chế độ Preview (chưa navigate)
+          // Khi isNavigating == true → ẩn để UI gọn gàng, không che bản đồ
+          if (state.selectedPlace != null && !state.isNavigating)
             Positioned(
-              bottom: (state.isNavigating || state.activeRoute != null) ? 164 : 96,
+              bottom: state.activeRoute != null ? 164 : 96,
               left: 14,
               right: 14,
               child: MapBottomSheet(
@@ -836,18 +838,42 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
           const SizedBox(width: 8),
 
-          // 2. Chip phương tiện nhanh 1 dòng gọn đẹp
+          // 2. Chế độ Preview: chip đổi phương tiện | Chế độ Navigating: chỉ hiện tên phương tiện đang dùng
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildMiniTravelModeChip('motorbike', '🛵 Xe máy', state.travelMode),
-                const SizedBox(width: 4),
-                _buildMiniTravelModeChip('driving', '🚗 Ô tô', state.travelMode),
-                const SizedBox(width: 4),
-                _buildMiniTravelModeChip('walking', '🚶 Đi bộ', state.travelMode),
-              ],
-            ),
+            child: state.isNavigating
+                // Khi đang navigate: không cho đổi phương tiện — hiện label tĩnh gọn
+                ? Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        switch (state.travelMode) {
+                          'motorbike' => '🛵 Xe máy',
+                          'driving'   => '🚗 Ô tô',
+                          _           => '🚶 Đi bộ',
+                        },
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF2563EB),
+                        ),
+                      ),
+                    ),
+                  )
+                // Chế độ Preview: 3 chip có thể bấm để đổi phương tiện
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildMiniTravelModeChip('motorbike', '🛵 Xe máy', state.travelMode),
+                      const SizedBox(width: 4),
+                      _buildMiniTravelModeChip('driving', '🚗 Ô tô', state.travelMode),
+                      const SizedBox(width: 4),
+                      _buildMiniTravelModeChip('walking', '🚶 Đi bộ', state.travelMode),
+                    ],
+                  ),
           ),
 
           const SizedBox(width: 8),
