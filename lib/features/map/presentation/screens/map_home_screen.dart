@@ -19,6 +19,8 @@ import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
 import 'package:codoky/features/map/presentation/widgets/map_search_bar_widget.dart';
 import 'package:codoky/features/map/presentation/widgets/map_toolbar_widget.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
+import 'package:codoky/features/map/presentation/widgets/marker_constants.dart';
+import 'package:codoky/features/map/utils/marker_overlap_resolver.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class MapHomeScreen extends ConsumerStatefulWidget {
@@ -1369,10 +1371,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
           Marker(
             point: targetPos,
             width: 140,
-            height: 86,
+            height: 96,
             alignment: Alignment.topCenter,
             rotate: true,
             child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 if (_previousCameraCenter == null) {
                   _previousCameraCenter = _mapController.camera.center;
