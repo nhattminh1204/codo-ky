@@ -48,6 +48,7 @@ class TravelModePicker extends StatefulWidget {
 class _TravelModePickerState extends State<TravelModePicker> {
   late int _selectedIndex;
   late int _lastHapticIndex;
+  late FixedExtentScrollController _wheelController;
 
   final List<TravelMode> _modes = const [
     TravelMode.walking,
@@ -61,6 +62,7 @@ class _TravelModePickerState extends State<TravelModePicker> {
     _selectedIndex = _modes.indexOf(widget.initialMode);
     if (_selectedIndex < 0) _selectedIndex = 1; // Default: Motorbike
     _lastHapticIndex = _selectedIndex;
+    _wheelController = FixedExtentScrollController(initialItem: 3000 + _selectedIndex);
   }
 
   @override
@@ -69,29 +71,44 @@ class _TravelModePickerState extends State<TravelModePicker> {
     if (oldWidget.initialMode != widget.initialMode) {
       final newIdx = _modes.indexOf(widget.initialMode);
       if (newIdx >= 0 && newIdx != _selectedIndex) {
-        setState(() {
-          _selectedIndex = newIdx;
-        });
+        _selectModeIndex(newIdx, animateWheel: true);
       }
     }
   }
 
-  void _selectModeIndex(int index) {
-    if (index < 0 || index >= _modes.length) return;
+  @override
+  void dispose() {
+    _wheelController.dispose();
+    super.dispose();
+  }
 
-    if (index != _selectedIndex) {
+  void _selectModeIndex(int index, {bool animateWheel = false}) {
+    final normalizedIndex = (index % _modes.length + _modes.length) % _modes.length;
+
+    if (normalizedIndex != _selectedIndex) {
       setState(() {
-        _selectedIndex = index;
+        _selectedIndex = normalizedIndex;
       });
 
-      // 1. Kích hoạt rung HapticFeedback đúng 1 lần duy nhất khi thực sự đổi item
       if (_selectedIndex != _lastHapticIndex) {
         _lastHapticIndex = _selectedIndex;
         _triggerHapticFeedback();
       }
 
-      // 2. Báo callback cho widget cha
       widget.onChanged(_modes[_selectedIndex]);
+    }
+
+    if (animateWheel && _wheelController.hasClients) {
+      final currentItem = _wheelController.selectedItem;
+      final currentMod = (currentItem % _modes.length + _modes.length) % _modes.length;
+      int diff = normalizedIndex - currentMod;
+      if (diff > 1) diff -= 3;
+      if (diff < -1) diff += 3;
+      _wheelController.animateToItem(
+        currentItem + diff,
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOutCubic,
+      );
     }
   }
 
@@ -153,83 +170,95 @@ class _TravelModePickerState extends State<TravelModePicker> {
     final activeIcon = isDark ? const Color(0xFF93C5FD) : widget.activeIconColor;
     final inactiveIcon = isDark ? Colors.white54 : widget.inactiveIconColor;
 
-    return GestureDetector(
-      // Hỗ trợ vuốt lướt tay ngang để chuyển nấc phương tiện
-      onHorizontalDragEnd: (details) {
-        final velocity = details.primaryVelocity ?? 0;
-        if (velocity < -120) {
-          // Vuốt sang Trái -> Tiến sang phương tiện tiếp theo
-          _selectModeIndex((_selectedIndex + 1).clamp(0, 2));
-        } else if (velocity > 120) {
-          // Vuốt sang Phải -> Lùi về phương tiện phía trước
-          _selectModeIndex((_selectedIndex - 1).clamp(0, 2));
-        }
-      },
-      child: Container(
-        height: widget.height,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: pillBg,
-          borderRadius: BorderRadius.circular(9999),
+    return Container(
+      height: widget.height,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: pillBg,
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+          width: 1,
         ),
-        padding: const EdgeInsets.all(3.5),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final itemWidth = constraints.maxWidth / 3;
-
-            return Stack(
-              children: [
-                // --- SLIDING PILL BACKGROUND ANIMATION ---
-                // Thẻ nền màu xanh nhạt trượt ngang mượt mà (AnimatedAlign 200ms easeOut)
-                AnimatedAlign(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutCubic,
-                  alignment: Alignment(_getAlignmentX(_selectedIndex), 0.0),
-                  child: Container(
-                    width: itemWidth,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      color: activePill,
-                      borderRadius: BorderRadius.circular(9999),
-                      boxShadow: [
-                        BoxShadow(
-                          color: activePill.withValues(alpha: isDark ? 0.3 : 0.25),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+      child: GestureDetector(
+        // Hỗ trợ vuốt xoay chuyển phương tiện theo vòng lặp vô hạn (Infinite Loop)
+        onHorizontalDragEnd: (details) {
+          final velocity = details.primaryVelocity ?? 0;
+          if (velocity < -120) {
+            // Vuốt sang Trái -> Tiến sang phương tiện tiếp theo (vòng lặp vô hạn)
+            _selectModeIndex(_selectedIndex + 1, animateWheel: true);
+          } else if (velocity > 120) {
+            // Vuốt sang Phải -> Lùi về phương tiện phía trước (vòng lặp vô hạn)
+            _selectModeIndex(_selectedIndex - 1, animateWheel: true);
+          }
+        },
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // --- PILL NỀN XANH HIGHLIGHT TẠI NẤC ĐANG CHỌN ---
+            AnimatedAlign(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment(_getAlignmentX(_selectedIndex), 0.0),
+              child: Container(
+                width: 44,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: activePill,
+                  borderRadius: BorderRadius.circular(9999),
+                  boxShadow: [
+                    BoxShadow(
+                      color: activePill.withValues(alpha: isDark ? 0.35 : 0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
+                  ],
                 ),
+              ),
+            ),
 
-                // --- 3 ICON BUTTONS XẾP NGANG ---
-                Row(
-                  children: List.generate(_modes.length, (index) {
-                    final mode = _modes[index];
-                    final isSelected = index == _selectedIndex;
+            // --- 3D INFINITE WHEEL DIAL (VÒNG LẶP VÔ HẠN PHONG CÁCH iOS ALARM PICKER) ---
+            ListWheelScrollView.useDelegate(
+              controller: _wheelController,
+              itemExtent: 44,
+              diameterRatio: 1.1,
+              perspective: 0.003,
+              magnification: 1.2,
+              useMagnifier: true,
+              physics: const FixedExtentScrollPhysics(),
+              onSelectedItemChanged: (index) {
+                final realIndex = (index % _modes.length + _modes.length) % _modes.length;
+                _selectModeIndex(realIndex, animateWheel: false);
+              },
+              childDelegate: ListWheelChildLoopingListDelegate(
+                children: List.generate(_modes.length, (index) {
+                  final mode = _modes[index];
+                  final isSelected = index == _selectedIndex;
 
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () => _selectModeIndex(index),
-                        behavior: HitTestBehavior.opaque,
-                        child: Tooltip(
-                          message: _getModeTooltip(mode),
-                          child: Center(
-                            child: AnimatedColorIcon(
-                              icon: _getModeIcon(mode),
-                              color: isSelected ? activeIcon : inactiveIcon,
-                              duration: const Duration(milliseconds: 120),
-                              size: 23,
-                            ),
+                  return GestureDetector(
+                    onTap: () => _selectModeIndex(index, animateWheel: true),
+                    behavior: HitTestBehavior.opaque,
+                    child: Center(
+                      child: Tooltip(
+                        message: _getModeTooltip(mode),
+                        child: AnimatedScale(
+                          scale: isSelected ? 1.15 : 0.85,
+                          duration: const Duration(milliseconds: 150),
+                          child: Icon(
+                            _getModeIcon(mode),
+                            color: isSelected ? activeIcon : inactiveIcon,
+                            size: 22,
                           ),
                         ),
                       ),
-                    );
-                  }),
-                ),
-              ],
-            );
-          },
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
         ),
       ),
     );

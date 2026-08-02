@@ -911,7 +911,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                       ? 'Đang tính...'
                       : (mapState.activeRoute != null
                           ? 'Bắt đầu di chuyển'
-                          : 'Chỉ đường OSRM'),
+                          : 'Chỉ đường'),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14.5,
