@@ -455,16 +455,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
   void _clearSelectionAndZoomOut() {
     ref.read(mapProvider.notifier).clearSelection();
-    if (_previousCameraCenter != null && _previousCameraZoom != null) {
-      _animatedMapMove(
-        _previousCameraCenter!,
-        _previousCameraZoom!,
-        curve: AppMotion.standardCurve,
-        duration: AppMotion.standard,
-      );
-      _previousCameraCenter = null;
-      _previousCameraZoom = null;
-    }
+    _previousCameraCenter = null;
+    _previousCameraZoom = null;
   }
 
   void _fitRouteBounds(List<LatLng> points) {
@@ -602,39 +594,62 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 ),
             ],
           ),
-          // BottomSheet chỉ hiện ở chế độ Preview (chưa navigate)
-          // Khi isNavigating == true → ẩn để UI gọn gàng, không che bản đồ
-          if (state.selectedPlace != null && !state.isNavigating)
-            Positioned(
-              bottom: state.activeRoute != null ? 164 : 96,
-              left: 14,
-              right: 14,
-              child: MapBottomSheet(
-                place: state.selectedPlace!,
-                onClose: _clearSelectionAndZoomOut,
-                onNavigate: () async {
-                  final targetPlace = state.selectedPlace;
-                  if (state.activeRoute == null) {
-                    // Preview mode 1: Fetch routes but don't close bottom sheet
-                    final success = await ref.read(mapProvider.notifier).fetchRouteToPlace(targetPlace);
-                    if (!mounted) return;
-                    if (success) {
-                      final route = ref.read(mapProvider).activeRoute;
-                      if (route != null) {
-                        _fitRouteBounds(route.points);
-                      }
-                    } else {
-                      if (!context.mounted) return;
-                      final err = ref.read(mapProvider).routeErrorMessage ?? 'Không thể lấy chỉ đường OSRM';
-                      AppSnackBar.show(context, err, isError: true);
-                    }
-                  } else {
-                    // Preview mode 2: Start actual live navigation
-                    _startLiveNavigation();
-                  }
-                },
-              ),
+          // BottomSheet chỉ hiện ở chế độ Preview (chưa navigate) với animation Slide + Fade
+          Positioned(
+            bottom: state.activeRoute != null ? 164 : 96,
+            left: 14,
+            right: 14,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 380),
+              reverseDuration: const Duration(milliseconds: 320),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.35),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              },
+              child: (state.selectedPlace != null && !state.isNavigating)
+                  ? MapBottomSheet(
+                      key: ValueKey(
+                        state.selectedPlace is Map
+                            ? (state.selectedPlace['id']?.toString() ?? '1')
+                            : (state.selectedPlace.id?.toString() ?? '1'),
+                      ),
+                      place: state.selectedPlace!,
+                      onClose: _clearSelectionAndZoomOut,
+                      onNavigate: () async {
+                        final targetPlace = state.selectedPlace;
+                        if (state.activeRoute == null) {
+                          // Preview mode 1: Fetch routes but don't close bottom sheet
+                          final success = await ref.read(mapProvider.notifier).fetchRouteToPlace(targetPlace);
+                          if (!mounted) return;
+                          if (success) {
+                            final route = ref.read(mapProvider).activeRoute;
+                            if (route != null) {
+                              _fitRouteBounds(route.points);
+                            }
+                          } else {
+                            if (!context.mounted) return;
+                            final err = ref.read(mapProvider).routeErrorMessage ?? 'Không thể lấy chỉ đường OSRM';
+                            AppSnackBar.show(context, err, isError: true);
+                          }
+                        } else {
+                          // Preview mode 2: Start actual live navigation
+                          _startLiveNavigation();
+                        }
+                      },
+                    )
+                  : const SizedBox.shrink(key: ValueKey('empty_sheet')),
             ),
+          ),
 
           // Top Navigation Banner (Turn-by-turn instruction full-width white card)
           if (state.activeRoute != null && state.activeRoute!.steps.isNotEmpty && !state.isFetchingRoute)
@@ -1335,10 +1350,17 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
   List<Marker> _buildMarkers(List<dynamic> places, dynamic selectedPlace) {
     final markers = <Marker>[];
+    final mapState = ref.watch(mapProvider);
+    final savedIds = mapState.savedPlaceIds;
+
     for (final place in places) {
       final lat = place['latitude'] as double? ?? (place.latitude as double?);
       final lng = place['longitude'] as double? ?? (place.longitude as double?);
       final category = place['category'] as String? ?? (place.category as String? ?? 'attraction');
+      final pId = (place['id'] as dynamic)?.toString() ?? '';
+      final rating = (place['rating'] as num?)?.toDouble() ?? 0.0;
+      final isFeatured = (place['is_featured'] == true) || (place['featured'] == true) || rating >= 4.5;
+      final isSaved = savedIds.contains(pId);
       final isSelected = selectedPlace != null && (place['id'] == selectedPlace['id']);
 
       if (lat != null && lng != null) {
@@ -1346,8 +1368,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         markers.add(
           Marker(
             point: targetPos,
-            width: isSelected ? 130 : 52,
-            height: isSelected ? 86 : 58,
+            width: 140,
+            height: 86,
             alignment: Alignment.topCenter,
             rotate: true,
             child: GestureDetector(
@@ -1359,9 +1381,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 ref.read(mapProvider.notifier).selectPlace(place);
                 _animatedMapMove(
                   targetPos,
-                  16.5,
-                  curve: AppMotion.emphasizedCurve,
-                  duration: AppMotion.emphasized,
+                  16.8,
+                  curve: Curves.easeInOutCubic,
+                  duration: const Duration(milliseconds: 650),
                 );
               },
               child: Column(
@@ -1370,34 +1392,45 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   PlaceMarker(
                     category: category,
                     isSelected: isSelected,
-                    style: ref.watch(mapProvider).markerStyle,
+                    isSaved: isSaved,
+                    isFeatured: isFeatured,
+                    style: mapState.markerStyle,
                   ),
-                  if (isSelected)
-                    Container(
-                      margin: const EdgeInsets.only(top: 2),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 6,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        (place['name'] as String? ?? place.name as String? ?? ''),
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F172A),
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeInOutCubic,
+                    opacity: isSelected ? 1.0 : 0.0,
+                    child: AnimatedScale(
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.easeInOutCubic,
+                      scale: isSelected ? 1.0 : 0.75,
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        child: Text(
+                          (place['name'] as String? ?? place.name as String? ?? ''),
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0F172A),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),

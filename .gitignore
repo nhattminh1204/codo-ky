@@ -54,3 +54,5 @@ app.*.map.json
 __pycache__/
 venv/
 
+# Local UI proof images (ignored by git)
+docs/images/

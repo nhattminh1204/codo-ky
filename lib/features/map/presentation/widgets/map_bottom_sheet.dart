@@ -36,6 +36,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      if (!mounted) return;
       try {
         final placeId = _getPlaceId(widget.place);
         ref.read(reviewProvider.notifier).loadAllReviews(placeId: placeId, refresh: true);
@@ -50,10 +51,13 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
       setState(() {
         _isExpanded = false;
       });
-      try {
-        final placeId = _getPlaceId(widget.place);
-        ref.read(reviewProvider.notifier).loadAllReviews(placeId: placeId, refresh: true);
-      } catch (_) {}
+      Future.microtask(() {
+        if (!mounted) return;
+        try {
+          final placeId = _getPlaceId(widget.place);
+          ref.read(reviewProvider.notifier).loadAllReviews(placeId: placeId, refresh: true);
+        } catch (_) {}
+      });
     }
   }
 
