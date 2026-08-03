@@ -266,18 +266,50 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
             if (currentDay != null && currentDay.activities.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Column(
-                  children: List.generate(currentDay.activities.length, (index) {
+                child: ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: currentDay.activities.length,
+                  onReorder: (oldIndex, newIndex) async {
+                    if (itinerary.status == 'completed') {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không thể sửa lộ trình đã hoàn thành.')));
+                      return;
+                    }
+                    if (newIndex > oldIndex) {
+                      newIndex -= 1;
+                    }
+                    try {
+                      final isLate = await ref.read(itineraryProvider.notifier).reorderActivity(
+                        itinerary.id,
+                        _activeDay,
+                        oldIndex,
+                        newIndex,
+                      );
+                      if (isLate && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('⚠️ Cảnh báo: Lịch trình vượt quá 22:00 do thay đổi.'),
+                          backgroundColor: Colors.orange,
+                        ));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                      }
+                    }
+                  },
+                  itemBuilder: (context, index) {
                     final activity = currentDay.activities[index];
                     final isLast = index == currentDay.activities.length - 1;
 
                     return _buildTimelineStopCard(
                       context,
+                      key: ValueKey(activity.id),
                       activity: activity,
                       index: index + 1,
                       isLast: isLast,
+                      onDelete: itinerary.status == 'completed' ? null : () => _confirmDeleteActivity(context, itinerary.id, _activeDay, activity),
                     );
-                  }),
+                  },
                 ),
               )
             else
@@ -289,6 +321,46 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmDeleteActivity(BuildContext context, String itineraryId, int dayIndex, ItineraryActivityModel activity) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: Text('Bạn có chắc chắn muốn xóa "${activity.name}" khỏi lộ trình ngày này?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              try {
+                final isLate = await ref.read(itineraryProvider.notifier).removeActivity(itineraryId, dayIndex, activity.id);
+                if (isLate && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('⚠️ Cảnh báo: Lịch trình vượt quá 22:00 do thay đổi.'),
+                    backgroundColor: Colors.orange,
+                  ));
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  final message = e.toString().replaceAll('Exception: ', '');
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Không thể xóa hoạt động: $message'),
+                    backgroundColor: Colors.red,
+                  ));
+                }
+              }
+            },
+            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -309,9 +381,11 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
 
   Widget _buildTimelineStopCard(
     BuildContext context, {
+    Key? key,
     required ItineraryActivityModel activity,
     required int index,
     required bool isLast,
+    VoidCallback? onDelete,
   }) {
     final startTimeStr =
         '${activity.startTime.hour.toString().padLeft(2, '0')}:${activity.startTime.minute.toString().padLeft(2, '0')}';
@@ -326,6 +400,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
     final image = 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=400&auto=format&fit=crop&q=80';
 
     return IntrinsicHeight(
+      key: key,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -456,6 +531,11 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
               ),
             ),
           ),
+          if (onDelete != null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+              onPressed: onDelete,
+            ),
         ],
       ),
     );

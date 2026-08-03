@@ -28,6 +28,17 @@ class MockSuccessOsrmRemoteService implements OsrmRemoteService {
     final routes = await getRoutes(start: start, end: end, profile: profile);
     return routes.first;
   }
+
+  @override
+  Future<OsrmRoute> getMultiWaypointRoute({required List<LatLng> waypoints, String profile = 'driving'}) async {
+    return OsrmRoute(
+      points: waypoints,
+      distanceMeters: 2500,
+      durationSeconds: 180,
+      summary: 'Multi-waypoint mock',
+      legDurations: List.filled(waypoints.length - 1, 90),
+    );
+  }
 }
 
 class MockErrorOsrmRemoteService implements OsrmRemoteService {
@@ -41,6 +52,11 @@ class MockErrorOsrmRemoteService implements OsrmRemoteService {
 
   @override
   Future<OsrmRoute> getDrivingRoute({required LatLng start, required LatLng end, String profile = 'driving'}) async {
+    throw NetworkExceptions.custom('Không thể tìm tuyến đường OSRM');
+  }
+
+  @override
+  Future<OsrmRoute> getMultiWaypointRoute({required List<LatLng> waypoints, String profile = 'driving'}) async {
     throw NetworkExceptions.custom('Không thể tìm tuyến đường OSRM');
   }
 }

@@ -92,4 +92,56 @@ class OsrmRemoteService {
     final routes = await getRoutes(start: start, end: end, profile: profile, alternatives: false);
     return routes.first;
   }
+
+  /// Fetches a multi-waypoint OSRM route through [waypoints] in order.
+  /// Returns a single [OsrmRoute] containing leg durations for each segment.
+  /// Requires at least 2 waypoints. Throws on failure.
+  Future<OsrmRoute> getMultiWaypointRoute({
+    required List<LatLng> waypoints,
+    String profile = 'driving',
+  }) async {
+    if (waypoints.length < 2) {
+      throw ArgumentError('Cần ít nhất 2 điểm dừng để tính tuyến đường');
+    }
+
+    final osrmProfile = switch (profile) {
+      'motorbike' => 'bike',
+      'walking' || 'foot' => 'foot',
+      _ => 'driving',
+    };
+    final formattedCoords = waypoints
+        .map((w) => '${w.longitude},${w.latitude}')
+        .join(';');
+    final requestUri =
+        '$_baseUrl/route/v1/$osrmProfile/$formattedCoords?overview=full&geometries=geojson&steps=true';
+
+    AppLogger.i('🌐 Fetching multi-waypoint OSRM route ($osrmProfile, ${waypoints.length} waypoints): $requestUri');
+
+    try {
+      final responseData = await apiClient.get(requestUri);
+
+      if (responseData is Map<String, dynamic>) {
+        final code = responseData['code'] as String?;
+        if (code != 'Ok') {
+          final message = responseData['message'] as String? ?? 'OSRM error code: $code';
+          AppLogger.e('❌ OSRM multi-waypoint routing failed: $code ($message)');
+          throw NetworkExceptions.custom('Không thể tính lại tuyến đường: $message');
+        }
+
+        final route = OsrmRoute.fromJson(responseData);
+        AppLogger.i('✅ OSRM multi-waypoint route fetched (${route.legDurations.length} legs)');
+        return route;
+      } else {
+        throw const FormatException('Định dạng dữ liệu OSRM không hợp lệ');
+      }
+    } on NetworkExceptions {
+      rethrow;
+    } catch (e) {
+      AppLogger.e('❌ OSRM multi-waypoint route error: $e');
+      if (e is DioException) {
+        throw NetworkExceptions.getDioException(e);
+      }
+      throw NetworkExceptions.custom('Lỗi kết nối OSRM: $e');
+    }
+  }
 }

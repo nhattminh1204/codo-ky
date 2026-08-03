@@ -1,0 +1,177 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
+import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
+import 'package:codoky/features/itinerary/presentation/screens/itinerary_result_screen.dart';
+import 'package:codoky/core/network/api_client.dart';
+import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
+import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
+import 'package:codoky/features/map/data/datasources/osrm_remote_service.dart';
+import 'dart:io';
+
+import 'package:codoky/features/map/data/models/osrm_route_model.dart';
+import 'package:latlong2/latlong.dart';
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
+class MockOsrmRemoteService extends OsrmRemoteService {
+  MockOsrmRemoteService() : super(apiClient: ApiClient(Dio()));
+
+  @override
+  Future<OsrmRoute> getMultiWaypointRoute({
+    required List<LatLng> waypoints,
+    String profile = 'driving',
+  }) async {
+    throw Exception('Mocked exception to skip routing calculation');
+  }
+}
+
+void main() {
+  setUpAll(() {
+    HttpOverrides.global = MyHttpOverrides();
+  });
+
+  testWidgets('ItineraryResultScreen handles drag and drop reordering correctly', (
+    WidgetTester tester,
+  ) async {
+    // 1. Prepare data
+    final activity1 = ItineraryActivityModel(
+      id: 'act1',
+      name: 'Chùa Thiên Mụ',
+      description: 'Chùa cổ kính',
+      placeId: 'p1',
+      placeName: 'Chùa Thiên Mụ',
+      latitude: 16.45,
+      longitude: 107.58,
+      startTime: DateTime(2026, 1, 1, 8, 0),
+      endTime: DateTime(2026, 1, 1, 10, 0),
+      type: 'visit',
+      status: 'active',
+    );
+    final activity2 = ItineraryActivityModel(
+      id: 'act2',
+      name: 'Đại Nội Huế',
+      description: 'Kinh thành Huế',
+      placeId: 'p2',
+      placeName: 'Đại Nội Huế',
+      latitude: 16.46,
+      longitude: 107.59,
+      startTime: DateTime(2026, 1, 1, 10, 30),
+      endTime: DateTime(2026, 1, 1, 12, 30),
+      type: 'visit',
+      status: 'active',
+    );
+    final activity3 = ItineraryActivityModel(
+      id: 'act3',
+      name: 'Lăng Tự Đức',
+      description: 'Lăng tẩm',
+      placeId: 'p3',
+      placeName: 'Lăng Tự Đức',
+      latitude: 16.47,
+      longitude: 107.60,
+      startTime: DateTime(2026, 1, 1, 14, 0),
+      endTime: DateTime(2026, 1, 1, 16, 0),
+      type: 'visit',
+      status: 'active',
+    );
+
+    final itinerary = ItineraryModel(
+      id: 'it1',
+      title: 'Lộ trình test',
+      description: 'Test',
+      durationDays: 1,
+      budget: 1000000,
+      interests: ['culture'],
+      status: 'active',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      days: [
+        ItineraryDayModel(
+          dayNumber: 1,
+          title: 'Ngày 1',
+          description: 'Ngày 1',
+          activities: [activity1, activity2, activity3],
+        ),
+      ],
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        aiRemoteServiceProvider.overrideWithValue(
+          AiRemoteService(apiClient: ApiClient(Dio())),
+        ),
+        osrmRemoteServiceProvider.overrideWithValue(MockOsrmRemoteService()),
+      ],
+    );
+
+    container.read(itineraryProvider.notifier).state = ItineraryState(
+      myItineraries: [itinerary],
+      isLoading: false,
+    );
+
+    // Add dummy go router
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const ItineraryResultScreen(),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chùa Thiên Mụ'), findsOneWidget);
+    expect(find.text('Đại Nội Huế'), findsOneWidget);
+    expect(find.text('Lăng Tự Đức'), findsOneWidget);
+
+    final initialState = container.read(itineraryProvider);
+    expect(initialState.myItineraries.first.days[0].activities[0].id, 'act1');
+    expect(initialState.myItineraries.first.days[0].activities[1].id, 'act2');
+    expect(initialState.myItineraries.first.days[0].activities[2].id, 'act3');
+
+    // In ReorderableListView, we can drag items using the drag handle or the item itself depending on config.
+    // By default on mobile ReorderableListView requires a long press to drag.
+    // Flutter test gestures for ReorderableListView can be very flaky.
+    // We will directly invoke the onReorder callback from the widget to test the UI logic (off-by-one bug fix).
+    final reorderableListFinder = find.byType(ReorderableListView);
+    expect(reorderableListFinder, findsOneWidget);
+
+    final reorderableList = tester.widget<ReorderableListView>(
+      reorderableListFinder,
+    );
+
+    // Simulate dragging item at index 0 down to index 3 (after index 2)
+    // The UI should subtract 1 because newIndex > oldIndex
+    reorderableList.onReorder!(0, 3);
+
+    // Wait for the provider to finish its async task (since it's async but returns void)
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+
+    final updatedState = container.read(itineraryProvider);
+    final updatedActivities =
+        updatedState.myItineraries.first.days[0].activities;
+
+    expect(updatedActivities[0].id, 'act2');
+    expect(updatedActivities[1].id, 'act3');
+    expect(updatedActivities[2].id, 'act1');
+  });
+}

@@ -8,6 +8,7 @@ class OsrmRoute {
   final double distanceMeters;
   final double durationSeconds;
   final String summary;
+  final List<double> legDurations;
 
   const OsrmRoute({
     required this.points,
@@ -15,6 +16,7 @@ class OsrmRoute {
     required this.distanceMeters,
     required this.durationSeconds,
     this.summary = '',
+    this.legDurations = const [],
   });
 
   /// Distance formatted in kilometers (or meters if < 1km)
@@ -72,15 +74,24 @@ class OsrmRoute {
 
     String routeSummary = '';
     final stepsList = <OsrmStep>[];
+    final legDurationsList = <double>[];
     final legs = primaryRoute['legs'] as List<dynamic>?;
     if (legs != null && legs.isNotEmpty) {
-      final leg = legs.first as Map<String, dynamic>;
-      routeSummary = leg['summary'] as String? ?? '';
-      final rawSteps = leg['steps'] as List<dynamic>?;
-      if (rawSteps != null) {
-        for (final rawStep in rawSteps) {
-          if (rawStep is Map<String, dynamic>) {
-            stepsList.add(OsrmStep.fromJson(rawStep));
+      final firstLeg = legs.first as Map<String, dynamic>;
+      routeSummary = firstLeg['summary'] as String? ?? '';
+      
+      for (final legRaw in legs) {
+        if (legRaw is Map<String, dynamic>) {
+          final legDuration = (legRaw['duration'] as num?)?.toDouble() ?? 0.0;
+          legDurationsList.add(legDuration);
+          
+          final rawSteps = legRaw['steps'] as List<dynamic>?;
+          if (rawSteps != null) {
+            for (final rawStep in rawSteps) {
+              if (rawStep is Map<String, dynamic>) {
+                stepsList.add(OsrmStep.fromJson(rawStep));
+              }
+            }
           }
         }
       }
@@ -92,6 +103,7 @@ class OsrmRoute {
       distanceMeters: distance,
       durationSeconds: duration,
       summary: routeSummary,
+      legDurations: legDurationsList,
     );
   }
 

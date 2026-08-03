@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:codoky/core/network/api_client.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
 import 'package:codoky/features/itinerary/presentation/screens/itinerary_setup_screen.dart';
+import 'package:codoky/features/map/data/datasources/osrm_remote_service.dart';
+import 'package:codoky/features/map/data/models/osrm_route_model.dart';
 
 class MockAiService extends AiRemoteService {
   @override
@@ -29,6 +33,26 @@ class MockAiService extends AiRemoteService {
   }
 }
 
+class MockOsrmService implements OsrmRemoteService {
+  @override
+  ApiClient get apiClient => throw UnimplementedError();
+
+  @override
+  Future<List<OsrmRoute>> getRoutes({required LatLng start, required LatLng end, String profile = 'driving', bool alternatives = true}) async {
+    return [];
+  }
+
+  @override
+  Future<OsrmRoute> getDrivingRoute({required LatLng start, required LatLng end, String profile = 'driving'}) async {
+    return OsrmRoute(points: [], distanceMeters: 0, durationSeconds: 0);
+  }
+
+  @override
+  Future<OsrmRoute> getMultiWaypointRoute({required List<LatLng> waypoints, String profile = 'driving'}) async {
+    return OsrmRoute(points: [], distanceMeters: 0, durationSeconds: 0, legDurations: []);
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -40,6 +64,7 @@ void main() {
         ProviderScope(
           overrides: [
             aiRemoteServiceProvider.overrideWithValue(MockAiService()),
+            osrmRemoteServiceProvider.overrideWithValue(MockOsrmService()),
           ],
           child: const MaterialApp(
             home: ItinerarySetupScreen(),
@@ -58,17 +83,18 @@ void main() {
     testWidgets('2. Tapping submit button invokes AI itinerary generation flow', (WidgetTester tester) async {
       await tester.binding.setSurfaceSize(const Size(1080, 2400));
 
-      final mockAi = MockAiService();
+      final container = ProviderContainer(
+        overrides: [
+          aiRemoteServiceProvider.overrideWithValue(MockAiService()),
+          osrmRemoteServiceProvider.overrideWithValue(MockOsrmService()),
+        ],
+      );
 
-      late ProviderContainer container;
+      addTearDown(container.dispose);
 
       await tester.pumpWidget(
         UncontrolledProviderScope(
-          container: container = ProviderContainer(
-            overrides: [
-              aiRemoteServiceProvider.overrideWithValue(mockAi),
-            ],
-          ),
+          container: container,
           child: const MaterialApp(
             home: ItinerarySetupScreen(),
           ),

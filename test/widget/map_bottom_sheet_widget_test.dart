@@ -24,6 +24,11 @@ class MockOsrmRemoteService implements OsrmRemoteService {
   Future<OsrmRoute> getDrivingRoute({required LatLng start, required LatLng end, String profile = 'driving'}) async {
     return OsrmRoute(points: [], distanceMeters: 0, durationSeconds: 0);
   }
+
+  @override
+  Future<OsrmRoute> getMultiWaypointRoute({required List<LatLng> waypoints, String profile = 'driving'}) async {
+    return OsrmRoute(points: [], distanceMeters: 0, durationSeconds: 0);
+  }
 }
 
 class MapNotifierMock extends MapNotifier {

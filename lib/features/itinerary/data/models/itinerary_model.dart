@@ -11,6 +11,7 @@ class ItineraryModel {
   final double rating;
   final int reviewCount;
   final bool isAIGenerated;
+  final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -27,9 +28,46 @@ class ItineraryModel {
     this.rating = 0,
     this.reviewCount = 0,
     this.isAIGenerated = false,
+    this.status = 'draft',
     required this.createdAt,
     required this.updatedAt,
   });
+
+  ItineraryModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    int? durationDays,
+    double? budget,
+    List<String>? interests,
+    List<ItineraryDayModel>? days,
+    String? imageUrl,
+    String? thumbnailUrl,
+    double? rating,
+    int? reviewCount,
+    bool? isAIGenerated,
+    String? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return ItineraryModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      durationDays: durationDays ?? this.durationDays,
+      budget: budget ?? this.budget,
+      interests: interests ?? this.interests,
+      days: days ?? this.days,
+      imageUrl: imageUrl ?? this.imageUrl,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
+      isAIGenerated: isAIGenerated ?? this.isAIGenerated,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   factory ItineraryModel.fromJson(Map<String, dynamic> json) {
     final daysList = json['days'] as List? ?? [];
@@ -49,6 +87,7 @@ class ItineraryModel {
       rating: (json['rating'] ?? 4.8).toDouble(),
       reviewCount: (json['review_count'] ?? 12) as int,
       isAIGenerated: json['is_ai_generated'] ?? true,
+      status: json['status']?.toString() ?? 'draft',
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'].toString()) ?? DateTime.now() : DateTime.now(),
     );
@@ -68,6 +107,7 @@ class ItineraryModel {
       'rating': rating,
       'review_count': reviewCount,
       'is_ai_generated': isAIGenerated,
+      'status': status,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -86,6 +126,20 @@ class ItineraryDayModel {
     required this.description,
     required this.activities,
   });
+
+  ItineraryDayModel copyWith({
+    int? dayNumber,
+    String? title,
+    String? description,
+    List<ItineraryActivityModel>? activities,
+  }) {
+    return ItineraryDayModel(
+      dayNumber: dayNumber ?? this.dayNumber,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      activities: activities ?? this.activities,
+    );
+  }
 
   factory ItineraryDayModel.fromJson(Map<String, dynamic> json) {
     final rawActivities = json['activities'] ?? json['items'] ?? json['stops'] ?? [];
@@ -123,6 +177,8 @@ class ItineraryActivityModel {
   final String type; // visit, eat, move, rest
   final double? estimatedCost;
   final String? notes;
+  /// Trạng thái hoạt động ('draft'/'active'/'completed') - 'completed' độc lập để đánh dấu check-in/gắn ảnh từng điểm dừng khi lộ trình chung vẫn 'active'
+  final String status;
 
   ItineraryActivityModel({
     required this.id,
@@ -137,7 +193,40 @@ class ItineraryActivityModel {
     required this.type,
     this.estimatedCost,
     this.notes,
+    this.status = 'draft',
   });
+
+  ItineraryActivityModel copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? placeId,
+    String? placeName,
+    double? latitude,
+    double? longitude,
+    DateTime? startTime,
+    DateTime? endTime,
+    String? type,
+    double? estimatedCost,
+    String? notes,
+    String? status,
+  }) {
+    return ItineraryActivityModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      placeId: placeId ?? this.placeId,
+      placeName: placeName ?? this.placeName,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      type: type ?? this.type,
+      estimatedCost: estimatedCost ?? this.estimatedCost,
+      notes: notes ?? this.notes,
+      status: status ?? this.status,
+    );
+  }
 
   factory ItineraryActivityModel.fromJson(Map<String, dynamic> json) {
     DateTime parseTime(dynamic raw) {
@@ -170,6 +259,7 @@ class ItineraryActivityModel {
       type: json['type']?.toString() ?? json['category']?.toString() ?? 'visit',
       estimatedCost: json['estimated_cost'] != null ? (json['estimated_cost'] as num).toDouble() : null,
       notes: json['notes']?.toString() ?? json['tip']?.toString() ?? json['description']?.toString(),
+      status: json['status']?.toString() ?? 'draft',
     );
   }
 
@@ -187,6 +277,7 @@ class ItineraryActivityModel {
       'type': type,
       'estimated_cost': estimatedCost,
       'notes': notes,
+      'status': status,
     };
   }
 }
