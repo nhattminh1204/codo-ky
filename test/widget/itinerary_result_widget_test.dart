@@ -169,10 +169,10 @@ void main() {
     expect(initialState.myItineraries.first.days[0].activities[1].id, 'act2');
     expect(initialState.myItineraries.first.days[0].activities[2].id, 'act3');
 
-    // In ReorderableListView, we can drag items using the drag handle or the item itself depending on config.
-    // By default on mobile ReorderableListView requires a long press to drag.
-    // Flutter test gestures for ReorderableListView can be very flaky.
-    // We will directly invoke the onReorder callback from the widget to test the UI logic (off-by-one bug fix).
+    // ReorderableListView.builder dùng onReorderItem (Flutter ≥ 3.22) thay vì onReorder cũ.
+    // onReorderItem nhận newIndex là vị trí đích thật sự (đã tự bù trừ off-by-one nội bộ),
+    // khác với onReorder cũ trả về raw index cần caller tự trừ 1 khi kéo xuống.
+    // Ta invoke trực tiếp callback để tránh flakiness của gesture drag trong headless test.
     final reorderableListFinder = find.byType(ReorderableListView);
     expect(reorderableListFinder, findsOneWidget);
 
@@ -180,9 +180,9 @@ void main() {
       reorderableListFinder,
     );
 
-    // Simulate dragging item at index 0 down to index 3 (after index 2)
-    // The UI should subtract 1 because newIndex > oldIndex
-    reorderableList.onReorder!(0, 3);
+    // Kéo XUỐNG: act1 (index 0) → vị trí đích index 2 (sau act3)
+    // onReorderItem đã tự bù trừ — ta truyền newIndex=2 (không phải 3 như onReorder cũ).
+    reorderableList.onReorderItem!(0, 2);
 
     // Wait for the provider to finish its async task (since it's async but returns void)
     await tester.pump(const Duration(milliseconds: 500));
@@ -192,12 +192,139 @@ void main() {
     final updatedActivities =
         updatedState.myItineraries.first.days[0].activities;
 
+    // Kết quả mong muốn: act2, act3, act1
     expect(updatedActivities[0].id, 'act2');
     expect(updatedActivities[1].id, 'act3');
     expect(updatedActivities[2].id, 'act1');
   });
 
+  testWidgets('ItineraryResultScreen handles drag UP (reorder from bottom to top) correctly', (
+    WidgetTester tester,
+  ) async {
+    // Kéo NGƯỢC LÊN: bug off-by-one kinh điển CHỈ xảy ra khi kéo xuống (newIndex > oldIndex).
+    // Test này xác nhận onReorderItem cũng hoạt động đúng chiều ngược lại.
+    final activity1 = ItineraryActivityModel(
+      id: 'act1',
+      name: 'Chùa Thiên Mụ',
+      description: 'Chùa cổ kính',
+      placeId: 'p1',
+      placeName: 'Chùa Thiên Mụ',
+      latitude: 16.45,
+      longitude: 107.58,
+      startTime: DateTime(2026, 1, 1, 8, 0),
+      endTime: DateTime(2026, 1, 1, 10, 0),
+      type: 'visit',
+      status: 'active',
+    );
+    final activity2 = ItineraryActivityModel(
+      id: 'act2',
+      name: 'Đại Nội Huế',
+      description: 'Kinh thành Huế',
+      placeId: 'p2',
+      placeName: 'Đại Nội Huế',
+      latitude: 16.46,
+      longitude: 107.59,
+      startTime: DateTime(2026, 1, 1, 10, 30),
+      endTime: DateTime(2026, 1, 1, 12, 30),
+      type: 'visit',
+      status: 'active',
+    );
+    final activity3 = ItineraryActivityModel(
+      id: 'act3',
+      name: 'Lăng Tự Đức',
+      description: 'Lăng tẩm',
+      placeId: 'p3',
+      placeName: 'Lăng Tự Đức',
+      latitude: 16.47,
+      longitude: 107.60,
+      startTime: DateTime(2026, 1, 1, 14, 0),
+      endTime: DateTime(2026, 1, 1, 16, 0),
+      type: 'visit',
+      status: 'active',
+    );
+
+    final itinerary = ItineraryModel(
+      id: 'it2',
+      title: 'Lộ trình test drag-up',
+      description: 'Test',
+      durationDays: 1,
+      budget: 1000000,
+      interests: const ['culture'],
+      status: 'active',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      days: [
+        ItineraryDayModel(
+          dayNumber: 1,
+          title: 'Ngày 1',
+          description: 'Ngày 1',
+          activities: [activity1, activity2, activity3],
+        ),
+      ],
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        aiRemoteServiceProvider.overrideWithValue(
+          AiRemoteService(apiClient: ApiClient(Dio())),
+        ),
+        osrmRemoteServiceProvider.overrideWithValue(MockOsrmRemoteService()),
+        exploreProvider.overrideWith((ref) => MockExploreNotifier()),
+      ],
+    );
+
+    container.read(itineraryProvider.notifier).state = ItineraryState(
+      myItineraries: [itinerary],
+      isLoading: false,
+    );
+
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const ItineraryResultScreen(),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Xác nhận thứ tự ban đầu: act1, act2, act3
+    final initialState = container.read(itineraryProvider);
+    expect(initialState.myItineraries.first.days[0].activities[0].id, 'act1');
+    expect(initialState.myItineraries.first.days[0].activities[1].id, 'act2');
+    expect(initialState.myItineraries.first.days[0].activities[2].id, 'act3');
+
+    final reorderableListFinder = find.byType(ReorderableListView);
+    expect(reorderableListFinder, findsOneWidget);
+
+    final reorderableList = tester.widget<ReorderableListView>(reorderableListFinder);
+
+    // Kéo LÊN: act3 (index 2) → vị trí đích index 0 (trước act1)
+    // Khi kéo LÊN (newIndex < oldIndex), onReorderItem KHÔNG bù trừ — newIndex là index đích chính xác.
+    reorderableList.onReorderItem!(2, 0);
+
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+
+    final updatedState = container.read(itineraryProvider);
+    final updatedActivities = updatedState.myItineraries.first.days[0].activities;
+
+    // Kết quả mong muốn: act3, act1, act2
+    expect(updatedActivities[0].id, 'act3');
+    expect(updatedActivities[1].id, 'act1');
+    expect(updatedActivities[2].id, 'act2');
+  });
+
   testWidgets('ItineraryResultScreen calls addActivity when valid place is selected', (WidgetTester tester) async {
+
     final activity1 = ItineraryActivityModel(
       id: 'act1',
       name: 'Chùa Thiên Mụ',

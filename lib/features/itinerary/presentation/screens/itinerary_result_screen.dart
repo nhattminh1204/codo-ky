@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
+import 'package:codoky/features/itinerary/presentation/providers/weather_provider.dart';
 import 'package:codoky/features/itinerary/presentation/widgets/place_picker_bottom_sheet.dart';
+import 'package:codoky/features/itinerary/presentation/widgets/weather_strip.dart';
 
 class ItineraryResultScreen extends ConsumerStatefulWidget {
   const ItineraryResultScreen({super.key});
@@ -240,6 +242,23 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
               ),
             const SizedBox(height: AppSpacing.md),
 
+            // WEATHER STRIP — per-day forecast, gọi 1 lần cache toàn lộ trình
+            if (days.isNotEmpty)
+              Builder(builder: (context) {
+                final forecastAsync =
+                    ref.watch(weatherForecastProvider(days.length));
+                return forecastAsync.when(
+                  loading: () => const WeatherStrip.loading(),
+                  // Lỗi mạng / timeout → ẩn hoàn toàn, không crash UI
+                  error: (_, _) => const WeatherStrip.empty(),
+                  data: (result) {
+                    final dayForecast = result.dayAt(_activeDay);
+                    // Nếu API trả ít ngày hơn lộ trình → ẩn an toàn
+                    return WeatherStrip(forecast: dayForecast);
+                  },
+                );
+              }),
+
             // DAY TITLE
             if (currentDay != null)
               Padding(
@@ -271,14 +290,12 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: currentDay.activities.length,
-                  onReorder: (oldIndex, newIndex) async {
+                  onReorderItem: (oldIndex, newIndex) async {
                     if (itinerary.status == 'completed') {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không thể sửa lộ trình đã hoàn thành.')));
                       return;
                     }
-                    if (newIndex > oldIndex) {
-                      newIndex -= 1;
-                    }
+                    // onReorderItem đã tự điều chỉnh newIndex — không cần newIndex -= 1
                     try {
                       final isLate = await ref.read(itineraryProvider.notifier).reorderActivity(
                         itinerary.id,
