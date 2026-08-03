@@ -4,6 +4,7 @@ import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
 import 'package:codoky/features/map/data/datasources/osrm_remote_service.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:uuid/uuid.dart';
 
 final aiRemoteServiceProvider = Provider<AiRemoteService>((ref) {
   return AiRemoteService(apiClient: ref.watch(apiClientProvider));
@@ -141,11 +142,7 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
       state = state.copyWith(myItineraries: updatedList);
     }
     
-    if (finalDay.activities.isEmpty) return false;
-    final firstActivity = finalDay.activities.first;
-    final lastActivity = finalDay.activities.last;
-    bool isLate = lastActivity.endTime.hour >= 22 || lastActivity.endTime.day != firstActivity.startTime.day;
-    return isLate;
+    return _checkIsLate(finalDay);
   }
 
   Future<bool> removeActivity(String itineraryId, int dayIndex, String activityId) async {
@@ -186,11 +183,125 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
       state = state.copyWith(myItineraries: updatedList);
     }
 
-    if (finalDay.activities.isEmpty) return false;
-    final firstActivity = finalDay.activities.first;
-    final lastActivity = finalDay.activities.last;
-    bool isLate = lastActivity.endTime.hour >= 22 || lastActivity.endTime.day != firstActivity.startTime.day;
-    return isLate;
+    return _checkIsLate(finalDay);
+  }
+
+  Future<bool> addActivity(
+    String itineraryId,
+    int dayIndex, {
+    required String placeId,
+    required String placeName,
+    required double latitude,
+    required double longitude,
+  }) async {
+    int iterIndex = state.aiSuggestions.indexWhere((it) => it.id == itineraryId);
+    bool isAiSuggestion = true;
+    if (iterIndex == -1) {
+      iterIndex = state.myItineraries.indexWhere((it) => it.id == itineraryId);
+      isAiSuggestion = false;
+    }
+    if (iterIndex == -1) return false;
+
+    final itinerary = isAiSuggestion ? state.aiSuggestions[iterIndex] : state.myItineraries[iterIndex];
+    if (itinerary.status == 'completed') throw Exception("Cannot modify completed itinerary");
+    if (dayIndex < 0 || dayIndex >= itinerary.days.length) return false;
+
+    final day = itinerary.days[dayIndex];
+    final activities = List<ItineraryActivityModel>.from(day.activities);
+
+    // 1. Validate Radius (50km Haversine distance)
+    if (activities.isNotEmpty) {
+      const distanceCalc = Distance();
+      final newPoint = LatLng(latitude, longitude);
+      final isWithinRadius = activities.any((act) {
+        final actPoint = LatLng(act.latitude, act.longitude);
+        return distanceCalc.as(LengthUnit.Kilometer, newPoint, actPoint) <= 50.0;
+      });
+      if (!isWithinRadius) {
+        throw Exception("Địa điểm quá xa (> 50km) so với các điểm dừng hiện có trong ngày");
+      }
+    }
+
+    // 2. Nearest-Insertion: Determine optimal insertion index
+    int bestIndex = activities.length;
+    if (activities.isNotEmpty) {
+      const distanceCalc = Distance();
+      final newPoint = LatLng(latitude, longitude);
+      double minTotalDist = double.infinity;
+
+      for (int i = 0; i <= activities.length; i++) {
+        final candidatePoints = <LatLng>[];
+        for (int j = 0; j < activities.length; j++) {
+          if (j == i) {
+            candidatePoints.add(newPoint);
+          }
+          candidatePoints.add(LatLng(activities[j].latitude, activities[j].longitude));
+        }
+        if (i == activities.length) {
+          candidatePoints.add(newPoint);
+        }
+
+        double candidateDist = 0.0;
+        for (int k = 0; k < candidatePoints.length - 1; k++) {
+          candidateDist += distanceCalc.as(LengthUnit.Meter, candidatePoints[k], candidatePoints[k + 1]);
+        }
+
+        if (candidateDist < minTotalDist) {
+          minTotalDist = candidateDist;
+          bestIndex = i;
+        }
+      }
+    }
+
+    // 3. Create new ItineraryActivityModel with UUID & default 1-hour duration
+    final newId = const Uuid().v4();
+    final DateTime newStartTime = (bestIndex == 0 && activities.isNotEmpty)
+        ? activities.first.startTime
+        : DateTime.now();
+    final DateTime newEndTime = newStartTime.add(const Duration(hours: 1));
+
+    final newActivity = ItineraryActivityModel(
+      id: newId,
+      name: placeName,
+      description: '',
+      placeId: placeId,
+      placeName: placeName,
+      latitude: latitude,
+      longitude: longitude,
+      startTime: newStartTime,
+      endTime: newEndTime,
+      type: 'visit',
+      status: itinerary.status == 'completed' ? 'completed' : 'draft',
+    );
+
+    activities.insert(bestIndex, newActivity);
+
+    // 4. Recalculate Day Route using OSRM
+    final updatedDay = day.copyWith(activities: activities);
+    final finalDay = await _recalculateDayRoute(updatedDay);
+
+    final updatedDays = List<ItineraryDayModel>.from(itinerary.days);
+    updatedDays[dayIndex] = finalDay;
+    final updatedItinerary = itinerary.copyWith(days: updatedDays);
+
+    if (isAiSuggestion) {
+      final updatedList = List<ItineraryModel>.from(state.aiSuggestions);
+      updatedList[iterIndex] = updatedItinerary;
+      state = state.copyWith(aiSuggestions: updatedList);
+    } else {
+      final updatedList = List<ItineraryModel>.from(state.myItineraries);
+      updatedList[iterIndex] = updatedItinerary;
+      state = state.copyWith(myItineraries: updatedList);
+    }
+
+    return _checkIsLate(finalDay);
+  }
+
+  bool _checkIsLate(ItineraryDayModel day) {
+    if (day.activities.isEmpty) return false;
+    final firstActivity = day.activities.first;
+    final lastActivity = day.activities.last;
+    return lastActivity.endTime.hour >= 22 || lastActivity.endTime.day != firstActivity.startTime.day;
   }
 
   Future<ItineraryDayModel> _recalculateDayRoute(ItineraryDayModel day) async {

@@ -176,5 +176,181 @@ void main() {
         throwsA(isA<Exception>()),
       );
     });
+
+    test('5. addActivity: chèn vị trí tối ưu (giữa act_1 và act_2), OSRM call count = 1, AI call count = 0', () async {
+      final itinerary = _buildTestItinerary();
+      // Sau khi chèn 1 điểm vào danh sách 3 điểm -> 4 waypoints -> 3 legDurations
+      final osrm = MockOsrmWithLegDurations([300, 400, 800]);
+      final aiService = MockAiSuccess(itinerary);
+      final notifier = ItineraryNotifier(
+        aiRemoteService: aiService,
+        osrmRemoteService: osrm,
+      );
+      await notifier.saveItinerary(itinerary);
+
+      // Điểm Kim Long (16.4630, 107.5600) nằm giữa Đại Nội (16.4697, 107.5786) và Chùa Thiên Mụ (16.4537, 107.5423)
+      final isLate = await notifier.addActivity(
+        'itin_test',
+        0,
+        placeId: 'p_kimlong',
+        placeName: 'Chợ Kim Long',
+        latitude: 16.4630,
+        longitude: 107.5600,
+      );
+
+      expect(osrm.callCount, equals(1));
+      expect(aiService.generateCount, equals(0));
+      expect(isLate, equals(false));
+
+      final updated = notifier.state.myItineraries.first;
+      final day = updated.days.first;
+
+      expect(day.activities.length, equals(4));
+      // Điểm mới nằm ở vị trí index 1 (sau Đại Nội act_1, trước Chùa Thiên Mụ act_2)
+      expect(day.activities[0].id, equals('act_1'));
+      expect(day.activities[1].placeId, equals('p_kimlong'));
+      expect(day.activities[2].id, equals('act_2'));
+      expect(day.activities[3].id, equals('act_3'));
+    });
+
+    test('6. addActivity bị chặn khi itinerary.status = completed', () async {
+      final itinerary = _buildTestItinerary(status: 'completed');
+      final notifier = ItineraryNotifier();
+      await notifier.saveItinerary(itinerary);
+
+      expect(
+        () async => await notifier.addActivity(
+          'itin_test',
+          0,
+          placeId: 'p_kimlong',
+          placeName: 'Chợ Kim Long',
+          latitude: 16.4630,
+          longitude: 107.5600,
+        ),
+        throwsA(isA<Exception>()),
+      );
+    });
+
+    test('7. addActivity bị từ chối khi toạ độ cách xa > 50km', () async {
+      final itinerary = _buildTestItinerary();
+      final notifier = ItineraryNotifier();
+      await notifier.saveItinerary(itinerary);
+
+      // Toạ độ Đà Nẵng (~80km từ Huế)
+      expect(
+        () async => await notifier.addActivity(
+          'itin_test',
+          0,
+          placeId: 'p_danang',
+          placeName: 'Cầu Rồng Đà Nẵng',
+          latitude: 16.0544,
+          longitude: 108.2022,
+        ),
+        throwsA(isA<Exception>()),
+      );
+    });
+
+    test('8. addActivity vào 1 ngày rỗng (danh sách activities trống) cho phép thêm tự do', () async {
+      final emptyDayItinerary = ItineraryModel(
+        id: 'itin_empty',
+        title: 'Empty Itinerary',
+        description: '',
+        durationDays: 1,
+        budget: 100000,
+        interests: [],
+        days: [ItineraryDayModel(dayNumber: 1, title: 'Ngày 1', description: '', activities: [])],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      final notifier = ItineraryNotifier();
+      await notifier.saveItinerary(emptyDayItinerary);
+
+      final isLate = await notifier.addActivity(
+        'itin_empty',
+        0,
+        placeId: 'p_first',
+        placeName: 'Địa điểm đầu tiên',
+        latitude: 16.4630,
+        longitude: 107.5600,
+      );
+
+      expect(isLate, equals(false));
+      final updated = notifier.state.myItineraries.first;
+      expect(updated.days.first.activities.length, equals(1));
+      expect(updated.days.first.activities.first.placeId, equals('p_first'));
+    });
+
+    test('9. addActivity chèn vào GIỮA: startTime điểm mới thực sự nằm giữa endTime điểm liền trước và startTime điểm liền sau', () async {
+      final itinerary = _buildTestItinerary();
+      // OSRM 3 leg durations: 300s, 400s, 800s
+      final osrm = MockOsrmWithLegDurations([300, 400, 800]);
+      final notifier = ItineraryNotifier(
+        aiRemoteService: MockAiSuccess(itinerary),
+        osrmRemoteService: osrm,
+      );
+      await notifier.saveItinerary(itinerary);
+
+      final originalLastActivityEndTime = itinerary.days.first.activities.last.endTime;
+
+      // Điểm Kim Long (16.4630, 107.5600) sẽ được nearest-insertion chèn vào index 1 (giữa act_1 và act_2)
+      await notifier.addActivity(
+        'itin_test',
+        0,
+        placeId: 'p_kimlong',
+        placeName: 'Chợ Kim Long',
+        latitude: 16.4630,
+        longitude: 107.5600,
+      );
+
+      final updatedDay = notifier.state.myItineraries.first.days.first;
+      final act1 = updatedDay.activities[0]; // act_1
+      final actMid = updatedDay.activities[1]; // p_kimlong (điểm mới)
+      final act2 = updatedDay.activities[2]; // act_2
+
+      // 1. startTime của điểm mới phải sau endTime của điểm liền trước (act_1)
+      expect(actMid.startTime.isAfter(act1.endTime), isTrue);
+      // 2. startTime của điểm liền sau (act_2) phải sau endTime của điểm mới (actMid)
+      expect(act2.startTime.isAfter(actMid.endTime), isTrue);
+      // 3. startTime của điểm mới KHÔNG bị gán bằng endTime của điểm cuối danh sách gốc
+      expect(actMid.startTime, isNot(equals(originalLastActivityEndTime)));
+
+      // Kiểm tra chính xác mốc thời gian OSRM leg 1: act1.endTime + 300 giây
+      expect(actMid.startTime, equals(act1.endTime.add(const Duration(seconds: 300))));
+      // Kiểm tra chính xác mốc thời gian OSRM leg 2: actMid.endTime + 400 giây
+      expect(act2.startTime, equals(actMid.endTime.add(const Duration(seconds: 400))));
+    });
+
+    test('10. addActivity chèn vào ĐẦU (bestIndex = 0): giữ nguyên mốc startTime đầu ngày của activity vốn là đầu ngày cũ', () async {
+      final itinerary = _buildTestItinerary();
+      final originalDayStart = itinerary.days.first.activities.first.startTime; // 08:00 AM
+      final osrm = MockOsrmWithLegDurations([300, 400, 800]);
+      final notifier = ItineraryNotifier(
+        aiRemoteService: MockAiSuccess(itinerary),
+        osrmRemoteService: osrm,
+      );
+      await notifier.saveItinerary(itinerary);
+
+      // Điểm Cầu Tràng Tiền (16.4720, 107.5900) nằm rất gần Đại Nội (16.4697, 107.5786) -> nearest-insertion chọn index 0
+      await notifier.addActivity(
+        'itin_test',
+        0,
+        placeId: 'p_trangtien',
+        placeName: 'Cầu Tràng Tiền',
+        latitude: 16.4720,
+        longitude: 107.5900,
+      );
+
+      final updatedDay = notifier.state.myItineraries.first.days.first;
+      final newFirstAct = updatedDay.activities[0]; // p_trangtien (điểm mới tại index 0)
+      final oldFirstAct = updatedDay.activities[1]; // act_1 (đầu ngày cũ, nay ở index 1)
+
+      // 1. Điểm mới tại index 0 thừa hưởng mốc giờ xuất phát đầu ngày gốc (08:00 AM)
+      expect(newFirstAct.placeId, equals('p_trangtien'));
+      expect(newFirstAct.startTime, equals(originalDayStart));
+
+      // 2. Điểm đầu ngày cũ (nay ở index 1) bị đẩy lùi bởi OSRM: newFirstAct.endTime + 300s
+      expect(oldFirstAct.id, equals('act_1'));
+      expect(oldFirstAct.startTime, equals(newFirstAct.endTime.add(const Duration(seconds: 300))));
+    });
   });
 }
