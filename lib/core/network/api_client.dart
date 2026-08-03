@@ -4,6 +4,7 @@ import 'package:codoky/core/config/app_config.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
 import 'package:codoky/core/logging/app_logger.dart';
 import 'package:codoky/core/network/network_exceptions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final dioProvider = Provider<Dio>((ref) {
   final baseUrl = AppConfig.apiBaseUrl.isNotEmpty
@@ -24,7 +25,15 @@ final dioProvider = Provider<Dio>((ref) {
 
   dio.interceptors.add(
     InterceptorsWrapper(
-      onRequest: (options, handler) {
+      onRequest: (options, handler) async {
+        try {
+          final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+        } catch (e) {
+          AppLogger.w('Failed to attach Firebase token: $e');
+        }
         AppLogger.i('🌐 HTTP REQUEST [${options.method}] => Path: ${options.uri}');
         return handler.next(options);
       },

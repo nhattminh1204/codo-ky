@@ -3,6 +3,11 @@
   "include": [
     "src"
   ],
+  "exclude": [
+    "**/*_test.ts",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
   "compilerOptions": {
     "module": "NodeNext",
     "noImplicitReturns": true,

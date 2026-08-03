@@ -1,6 +1,25 @@
 import { setGlobalOptions } from "firebase-functions";
 import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
+import * as admin from "firebase-admin";
+import { checkAndIncrementQuota } from "./quota";
+
+admin.initializeApp();
+
+// Authentication middleware helper
+async function verifyAuth(request: any): Promise<admin.auth.DecodedIdToken | null> {
+  const authHeader = request.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+  const token = authHeader.split("Bearer ")[1];
+  try {
+    return await admin.auth().verifyIdToken(token);
+  } catch (error) {
+    logger.error("Token verification failed", error);
+    return null;
+  }
+}
 
 setGlobalOptions({ maxInstances: 10, region: "asia-southeast1" });
 
@@ -36,8 +55,15 @@ export const generateItinerary = onRequest(
       return;
     }
 
+    // 0. Auth check
+    const decodedToken = await verifyAuth(request);
+    if (!decodedToken) {
+      response.status(401).json({ error: "Unauthorized. Vui lòng đăng nhập." });
+      return;
+    }
+    const userId = decodedToken.uid;
+
     // 1. Rate limiting check per user or IP
-    const userId = request.body?.userId || clientIp;
     if (!checkRateLimit(String(userId), 10, 60000)) {
       logger.warn("Rate limit exceeded", { userId });
       response.status(429).json({
@@ -53,6 +79,23 @@ export const generateItinerary = onRequest(
       if (!apiKey) {
         logger.error("Missing GEMINI_API_KEY environment variable");
         response.status(500).json({ error: "Hệ thống AI chưa được cấu hình API key." });
+        return;
+      }
+
+      // 2. Track daily quota in Firestore BEFORE calling Gemini API
+      let currentQuota = 0;
+      let quotaExceeded = false;
+      try {
+        const result = await checkAndIncrementQuota(admin.firestore());
+        currentQuota = result.currentQuota;
+        quotaExceeded = result.quotaExceeded;
+      } catch (counterErr) {
+        logger.error("Failed to update daily Gemini counter", counterErr);
+      }
+
+      if (quotaExceeded) {
+        logger.warn("Gemini daily quota exceeded 1000", { userId });
+        response.status(429).json({ error: "Quá giới hạn 1000 lượt gọi AI trong ngày. Vui lòng thử lại vào ngày mai." });
         return;
       }
 
@@ -104,29 +147,45 @@ Trả về DUY NHẤT một JSON object thuần túy theo đúng schema bên dư
 
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
-      const aiResponse = await fetch(geminiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 2048,
-            response_mime_type: "application/json",
-          },
-        }),
-      });
+      // Bounded retry with exponential backoff for 429/RESOURCE_EXHAUSTED
+      let aiResponse: Response | null = null;
+      const maxRetries = 2;
+      for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
+        logger.info(`Sending request to Gemini API (Attempt ${attempt}/${maxRetries + 1})`, { userId });
+        aiResponse = await fetch(geminiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 2048,
+              response_mime_type: "application/json",
+            },
+          }),
+        });
 
-      if (!aiResponse.ok) {
-        const errorText = await aiResponse.text();
-        logger.error("Gemini API error", { status: aiResponse.status, errorText });
-        if (aiResponse.status === 429) {
-          response.status(429).json({ error: "Hệ thống AI Gemini đang quá tải lượt gọi. Hạn mức sẽ tự động khôi phục sau 30 giây." });
+        if (aiResponse.ok) break;
+
+        if (aiResponse.status === 429 && attempt <= maxRetries) {
+          const delayMs = 1000 * Math.pow(2, attempt - 1);
+          logger.warn(`Gemini 429 Rate Limit encountered. Retrying attempt ${attempt} in ${delayMs}ms...`, { userId });
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        } else {
+          break;
+        }
+      }
+
+      if (!aiResponse || !aiResponse.ok) {
+        const errorText = aiResponse ? await aiResponse.text() : "No response";
+        logger.error("Gemini API error after retries", { status: aiResponse?.status, errorText });
+        if (aiResponse?.status === 429) {
+          response.status(429).json({ error: "Hệ thống AI Gemini đang quá tải lượt gọi. Hạn mức 1000 RPD sẽ tự động khôi phục." });
           return;
         }
-        response.status(500).json({ error: `Lỗi kết nối AI Service (${aiResponse.status})` });
+        response.status(500).json({ error: `Lỗi kết nối AI Service (${aiResponse?.status})` });
         return;
       }
 
@@ -152,7 +211,11 @@ Trả về DUY NHẤT một JSON object thuần túy theo đúng schema bên dư
       logger.info("generateItinerary success", {
         durationMs: Date.now() - startTime,
         daysCount: parsedData.days.length,
+        currentQuota,
       });
+
+      // Inject currentCount into the response for client to warn
+      parsedData.currentCount = currentQuota;
 
       response.status(200).json(parsedData);
     } catch (e: any) {
@@ -173,7 +236,14 @@ export const getOsrmRoute = onRequest(
   async (request, response) => {
     const startTime = Date.now();
     const clientIp = request.ip || request.headers["x-forwarded-for"] || "anonymous";
-    const userId = (request.query.userId || request.body?.userId || clientIp) as string;
+
+    // 0. Auth check
+    const decodedToken = await verifyAuth(request);
+    if (!decodedToken) {
+      response.status(401).json({ code: "Unauthorized", message: "Unauthorized. Vui lòng đăng nhập." });
+      return;
+    }
+    const userId = decodedToken.uid;
 
     logger.info("getOsrmRoute request received", { clientIp, userId, url: request.url });
 

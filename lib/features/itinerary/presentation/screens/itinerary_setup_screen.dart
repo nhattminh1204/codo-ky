@@ -82,6 +82,18 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
 
       if (!mounted) return;
       setState(() => _isGenerating = false);
+      
+      final currentQuota = ref.read(aiRemoteServiceProvider).currentQuota;
+      if (currentQuota >= 900) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚠️ Cảnh báo: Lượt tạo AI của hệ thống sắp hết ($currentQuota/1000)'),
+            backgroundColor: const Color(0xFFF59E0B),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+      
       context.push('/itinerary/result');
     } catch (e) {
       if (!mounted) return;

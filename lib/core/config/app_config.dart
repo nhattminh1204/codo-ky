@@ -10,7 +10,21 @@ class AppConfig {
   
   static String get environment => _getString('ENVIRONMENT', _activeEnvironment);
   static String get apiBaseUrl => _getString('API_BASE_URL');
-  static String get osrmBaseUrl => _getString('OSRM_BASE_URL', 'http://localhost:5000');
+  static String get osrmBaseUrl {
+    final url = _getString('OSRM_BASE_URL', 'http://localhost:5000');
+    final env = environment.toLowerCase();
+    final isProdOrStaging = env == 'production' || env == 'prod' || env == 'staging';
+    final isLocalhost = url.contains('localhost') || url.contains('127.0.0.1') || url.contains('10.0.2.2');
+    
+    if (isProdOrStaging && isLocalhost) {
+      AppLogger.e('🚨 CRITICAL CONFIG ERROR: Environment "$env" cannot use localhost for OSRM_BASE_URL ($url). Real self-hosted server domain is required.');
+      throw StateError(
+        'OSRM_BASE_URL configuration error: Production/Staging environment "$env" is illegally using localhost ("$url"). '
+        'Please set a valid production server domain (e.g., https://osrm.codoky.com) in .env.$env before building for release.',
+      );
+    }
+    return url;
+  }
   static String get googleMapsApiKey => _getString('GOOGLE_MAPS_API_KEY');
   static String get geminiApiKey => _getString('GEMINI_API_KEY');
   

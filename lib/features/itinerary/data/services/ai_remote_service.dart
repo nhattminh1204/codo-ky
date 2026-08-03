@@ -19,6 +19,9 @@ class AiApiException implements Exception {
 
 class AiRemoteService {
   final ApiClient _apiClient;
+  
+  // Stores the latest quota returned from the server
+  int currentQuota = 0;
 
   AiRemoteService({ApiClient? apiClient, Dio? dio})
       : _apiClient = apiClient ??
@@ -32,6 +35,49 @@ class AiRemoteService {
                     ),
                   ),
             );
+
+  /// Detect HTTP 429 Rate Limit or RESOURCE_EXHAUSTED errors
+  bool _isRateLimitError(dynamic e) {
+    if (e is DioException) {
+      if (e.response?.statusCode == 429) return true;
+      final str = e.response?.toString() ?? e.message ?? '';
+      if (str.contains('429') || str.contains('RESOURCE_EXHAUSTED')) return true;
+    }
+    if (e is NetworkExceptions) {
+      final msg = e.message.toLowerCase();
+      if (msg.contains('429') || msg.contains('rate limit') || msg.contains('quá tải')) return true;
+    }
+    if (e is AiApiException) {
+      if (e.statusCode == 429 || e.message.contains('429') || e.message.contains('quá tải')) return true;
+    }
+    final s = e.toString().toLowerCase();
+    return s.contains('429') || s.contains('resource_exhausted');
+  }
+
+  /// Perform POST request with exponential backoff retry for HTTP 429 / Rate limit errors
+  Future<dynamic> _postWithExponentialBackoff(
+    String url, {
+    dynamic data,
+    Options? options,
+    int maxRetries = 2,
+    int initialDelayMs = 1000,
+  }) async {
+    int attempt = 0;
+    while (true) {
+      attempt++;
+      try {
+        return await _apiClient.post(url, data: data, options: options);
+      } catch (e) {
+        if (_isRateLimitError(e) && attempt <= maxRetries) {
+          final delayMs = initialDelayMs * (1 << (attempt - 1)); // 1000ms, 2000ms
+          AppLogger.w('⚠️ Gemini API 429 Rate Limit (RESOURCE_EXHAUSTED). Attempt $attempt/$maxRetries failed. Retrying in ${delayMs}ms...');
+          await Future.delayed(Duration(milliseconds: delayMs));
+          continue;
+        }
+        rethrow;
+      }
+    }
+  }
 
   /// Generate AI Itinerary for Hue travel
   Future<ItineraryModel> generateItinerary({
@@ -66,7 +112,7 @@ class AiRemoteService {
 
     try {
       AppLogger.i('Calling Cloud Function AI Backend at $functionUrl...');
-      final cfResponseData = await _apiClient.post(
+      final cfResponseData = await _postWithExponentialBackoff(
         functionUrl,
         data: {
           'durationDays': durationDays,
@@ -82,116 +128,16 @@ class AiRemoteService {
         final Map<String, dynamic> decoded = cfResponseData is String
             ? json.decode(cfResponseData)
             : Map<String, dynamic>.from(cfResponseData as Map);
+            
+        if (decoded.containsKey('currentCount')) {
+          currentQuota = decoded['currentCount'] as int;
+          AppLogger.i('📊 [Gemini Quota Tracker] Server Count: $currentQuota / 1000 RPD');
+        }
+            
         return ItineraryModel.fromJson(decoded);
       }
-    } catch (e) {
-      AppLogger.w('Cloud Function call skipped or failed ($e). Falling back to direct Gemini API call...');
-    }
-
-    // 3. Fallback direct Gemini REST API call
-    final apiKey = AppConfig.geminiApiKey;
-    if (apiKey.trim().isEmpty || apiKey == 'YOUR_DEV_GEMINI_API_KEY') {
-      AppLogger.e('Thiếu cấu hình GEMINI_API_KEY');
-      throw AiApiException('Thiếu cấu hình GEMINI_API_KEY. Vui lòng cấu hình môi trường đúng cách.');
-    }
-
-    final prompt = '''
-Bạn là chuyên gia lập lộ trình du lịch Huế thông minh cho ứng dụng CodoKy.
-Hãy tạo một lộ trình du lịch Huế tối ưu dựa trên thông tin sau:
-- Số ngày: $durationDays ngày
-- Ngân sách dự kiến: ${budget.toInt()} VNĐ
-- Đối tượng đi cùng: $companion
-- Sở thích: ${interests.join(', ')}
-
-Danh sách một số địa điểm có sẵn tại Huế:
-${json.encode(samplePlaces)}
-
-YÊU CẦU BẮT BUỘC:
-- Tạo đúng $durationDays ngày (mỗi ngày có tiêu đề và danh sách các hoạt động "activities").
-- Ưu tiên chọn các địa điểm từ danh sách trên hoặc các địa điểm có thật nổi tiếng tại Huế.
-- Phân bổ thời gian hợp lý (sáng, trưa, chiều, tối).
-- Chỉ trả về duy nhất 1 JSON object thuần túy theo đúng định dạng sau, KHÔNG kèm markdown `json` hay giải thích:
-
-{
-  "title": "Lộ trình Du lịch Huế $durationDays ngày",
-  "description": "Mô tả ngắn gọn hấp dẫn về lịch trình...",
-  "duration_days": $durationDays,
-  "budget": ${budget.toInt()},
-  "interests": ${json.encode(interests)},
-  "days": [
-    {
-      "day_number": 1,
-      "title": "Ngày 1: Tiêu đề ngày...",
-      "description": "Mô tả ngày...",
-      "activities": [
-        {
-          "id": "p1",
-          "name": "Đại Nội Huế",
-          "description": "Tham quan Ngọ Môn...",
-          "place_id": "1",
-          "place_name": "Đại Nội Huế",
-          "latitude": 16.468,
-          "longitude": 107.578,
-          "start_time": "08:00",
-          "end_time": "11:00",
-          "type": "visit",
-          "estimated_cost": 200000,
-          "notes": "Ghi chú mẹo đi..."
-        }
-      ]
-    }
-  ]
-}
-''';
-
-    final url =
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=$apiKey';
-
-    final payload = {
-      'contents': [
-        {
-          'parts': [
-            {'text': prompt}
-          ]
-        }
-      ],
-      'generationConfig': {
-        'response_mime_type': 'application/json',
-      }
-    };
-
-    try {
-      final responseData = await _apiClient.post(url, data: payload);
-
-      if (responseData == null) {
-        throw AiApiException('Không nhận được phản hồi từ AI.');
-      }
-
-      final data = responseData as Map<String, dynamic>;
-      final candidates = data['candidates'] as List?;
-      if (candidates == null || candidates.isEmpty) {
-        throw AiApiException('Hệ thống AI không thể tạo lộ trình lúc này.');
-      }
-
-      final text = candidates.first['content']['parts'][0]['text']?.toString() ?? '';
-      if (text.trim().isEmpty) {
-        throw AiApiException('Dữ liệu AI trả về rỗng.');
-      }
-
-      // Clean JSON string if any surrounding text exists
-      String jsonStr = text.trim();
-      if (jsonStr.startsWith('```json')) {
-        jsonStr = jsonStr.substring(7);
-      } else if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.substring(3);
-      }
-      if (jsonStr.endsWith('```')) {
-        jsonStr = jsonStr.substring(0, jsonStr.length - 3);
-      }
-      jsonStr = jsonStr.trim();
-
-      final decoded = json.decode(jsonStr) as Map<String, dynamic>;
-      return ItineraryModel.fromJson(decoded);
+      
+      throw AiApiException('Không nhận được phản hồi từ AI.');
     } on NetworkExceptions catch (e) {
       AppLogger.e('Network exception calling AI API: ${e.message}', e);
       throw AiApiException(e.message);
