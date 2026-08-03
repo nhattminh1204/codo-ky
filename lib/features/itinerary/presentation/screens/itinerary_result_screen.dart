@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
+import 'package:codoky/features/itinerary/presentation/widgets/place_picker_bottom_sheet.dart';
 
 class ItineraryResultScreen extends ConsumerStatefulWidget {
   const ItineraryResultScreen({super.key});
@@ -319,10 +320,105 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                   child: Text('Không có hoạt động nào cho ngày này.', style: TextStyle(color: Color(0xFF64748B))),
                 ),
               ),
+
+            // 4. ADD ACTIVITY BUTTON FOR CURRENT DAY
+            if (itinerary.status != 'completed')
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 12),
+                child: InkWell(
+                  onTap: () => _openPlacePicker(context, itinerary.id, _activeDay),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFFF7A00).withValues(alpha: 0.5), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF7A00).withValues(alpha: 0.08),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.add_location_alt_rounded, color: Color(0xFFFF7A00), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Thêm điểm đến vào lộ trình',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFFF7A00),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  void _openPlacePicker(BuildContext context, String itineraryId, int dayIndex) async {
+    final selectedPlace = await showModalBottomSheet<dynamic>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const PlacePickerBottomSheet(),
+    );
+
+    if (selectedPlace == null || !context.mounted) return;
+
+    final String? placeId = selectedPlace['id']?.toString() ?? selectedPlace['place_id']?.toString();
+    final String? placeName = selectedPlace['name']?.toString() ?? selectedPlace['place_name']?.toString();
+    final rawLat = selectedPlace['latitude'] ?? selectedPlace['lat'];
+    final rawLng = selectedPlace['longitude'] ?? selectedPlace['lng'];
+
+    if (placeId == null || placeId.isEmpty || placeName == null || placeName.isEmpty || rawLat == null || rawLng == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Dữ liệu địa điểm không hợp lệ, vui lòng thử lại'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final double latitude = rawLat.toDouble();
+    final double longitude = rawLng.toDouble();
+
+    try {
+      final isLate = await ref.read(itineraryProvider.notifier).addActivity(
+        itineraryId,
+        dayIndex,
+        placeId: placeId,
+        placeName: placeName,
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      if (isLate && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('⚠️ Cảnh báo: Lịch trình vượt quá 22:00 do thêm địa điểm mới.'),
+          backgroundColor: Colors.orange,
+        ));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        final message = e.toString().replaceAll('Exception: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Không thể thêm địa điểm: $message'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    }
   }
 
   void _confirmDeleteActivity(BuildContext context, String itineraryId, int dayIndex, ItineraryActivityModel activity) {
