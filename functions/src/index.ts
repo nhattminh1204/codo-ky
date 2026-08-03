@@ -3,6 +3,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import { checkAndIncrementQuota } from "./quota";
+import { tryGetWeatherForecast, buildWeatherPromptSection } from "./weather";
 
 admin.initializeApp();
 
@@ -73,7 +74,23 @@ export const generateItinerary = onRequest(
     }
 
     try {
-      const { durationDays = 2, budget = 1500000, interests = ["di sản", "ẩm thực"], places = [] } = request.body || {};
+      const {
+        durationDays = 2,
+        budget = 1500000,
+        interests = ["di sản", "ẩm thực"],
+        places = [],
+        currentLocation,
+      } = request.body || {};
+
+      // Toạ độ người dùng: FE gửi { lat, lng } hoặc dùng mặc định trung tâm Huế
+      const userLat: number =
+        typeof currentLocation?.lat === "number" ? currentLocation.lat : 16.4637;
+      const userLng: number =
+        typeof currentLocation?.lng === "number" ? currentLocation.lng : 107.5909;
+
+      // Lấy dự báo thời tiết — graceful degradation: lỗi → null → bỏ qua
+      const weatherForecast = await tryGetWeatherForecast(userLat, userLng, durationDays);
+      const weatherPromptSection = buildWeatherPromptSection(weatherForecast);
 
       const apiKey = process.env.GEMINI_API_KEY || "AIzaSyDipy8Mfljw8yn-l5ftOQQscugUIGsv7X0";
       if (!apiKey) {
@@ -109,8 +126,9 @@ Hãy tạo một lộ trình du lịch Huế chi tiết tối ưu nhất dựa t
 - Số ngày: ${durationDays} ngày
 - Ngân sách ước tính: ${budget} VNĐ
 - Sở thích: ${Array.isArray(interests) ? interests.join(", ") : interests}
+- Vị trí xuất phát của người dùng: ${userLat}, ${userLng}
 - Danh sách địa điểm tham khảo tại Huế:
-${candidatePlacesText}
+${candidatePlacesText}${weatherPromptSection}
 
 YÊU CẦU ĐỊNH DẠNG:
 Trả về DUY NHẤT một JSON object thuần túy theo đúng schema bên dưới (không kèm markdown \`\`\`json, không có text giải thích trước hoặc sau):
