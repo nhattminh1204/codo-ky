@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
 import 'package:codoky/features/itinerary/presentation/screens/itinerary_result_screen.dart';
+import 'package:codoky/features/itinerary/presentation/widgets/place_picker_bottom_sheet.dart';
+import 'package:codoky/features/explore/presentation/providers/explore_provider.dart';
 import 'package:codoky/core/network/api_client.dart';
 import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +34,25 @@ class MockOsrmRemoteService extends OsrmRemoteService {
     String profile = 'driving',
   }) async {
     throw Exception('Mocked exception to skip routing calculation');
+  }
+}
+
+class MockExploreNotifier extends ExploreNotifier {
+  MockExploreNotifier() : super();
+
+  @override
+  Future<void> loadPlaces({bool refresh = false}) async {
+    state = state.copyWith(isLoading: false, allPlaces: [
+      {
+        'id': 'new_p',
+        'name': 'New P',
+        'latitude': 16.5,
+        'longitude': 107.6,
+        'category': 'attraction'
+      }
+    ], categories: [
+      {'id': 'all', 'name': 'Tất cả', 'count': 1}
+    ]);
   }
 }
 
@@ -110,6 +131,7 @@ void main() {
           AiRemoteService(apiClient: ApiClient(Dio())),
         ),
         osrmRemoteServiceProvider.overrideWithValue(MockOsrmRemoteService()),
+        exploreProvider.overrideWith((ref) => MockExploreNotifier()),
       ],
     );
 
@@ -173,5 +195,169 @@ void main() {
     expect(updatedActivities[0].id, 'act2');
     expect(updatedActivities[1].id, 'act3');
     expect(updatedActivities[2].id, 'act1');
+  });
+
+  testWidgets('ItineraryResultScreen calls addActivity when valid place is selected', (WidgetTester tester) async {
+    final activity1 = ItineraryActivityModel(
+      id: 'act1',
+      name: 'Chùa Thiên Mụ',
+      description: 'Chùa cổ kính',
+      placeId: 'p1',
+      placeName: 'Chùa Thiên Mụ',
+      latitude: 16.45,
+      longitude: 107.58,
+      startTime: DateTime(2026, 1, 1, 8, 0),
+      endTime: DateTime(2026, 1, 1, 10, 0),
+      type: 'visit',
+      status: 'active',
+    );
+    final itinerary = ItineraryModel(
+      id: 'it1',
+      title: 'Lộ trình test',
+      description: 'Test',
+      durationDays: 1,
+      budget: 1000000,
+      interests: const ['culture'],
+      status: 'active',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      days: [
+        ItineraryDayModel(
+          dayNumber: 1,
+          title: 'Ngày 1',
+          description: 'Ngày 1',
+          activities: [activity1],
+        ),
+      ],
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        aiRemoteServiceProvider.overrideWithValue(AiRemoteService(apiClient: ApiClient(Dio()))),
+        osrmRemoteServiceProvider.overrideWithValue(MockOsrmRemoteService()),
+        exploreProvider.overrideWith((ref) => MockExploreNotifier()),
+      ],
+    );
+    container.read(itineraryProvider.notifier).state = ItineraryState(
+      myItineraries: [itinerary],
+      isLoading: false,
+    );
+
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const ItineraryResultScreen(),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Thêm điểm đến vào lộ trình'), findsOneWidget);
+    await tester.tap(find.text('Thêm điểm đến vào lộ trình'));
+    await tester.pumpAndSettle();
+
+    final bottomSheetContext = tester.element(find.byType(PlacePickerBottomSheet));
+    Navigator.pop(bottomSheetContext, {
+      'id': 'new_p',
+      'name': 'New P',
+      'latitude': 16.5,
+      'longitude': 107.6,
+    });
+    await tester.pumpAndSettle();
+
+    final updatedState = container.read(itineraryProvider);
+    expect(updatedState.myItineraries.first.days[0].activities.length, 2);
+    expect(updatedState.myItineraries.first.days[0].activities.any((a) => a.placeId == 'new_p'), true);
+  });
+
+  testWidgets('ItineraryResultScreen shows SnackBar and does NOT call addActivity when latitude is missing', (WidgetTester tester) async {
+    final activity1 = ItineraryActivityModel(
+      id: 'act1',
+      name: 'Chùa Thiên Mụ',
+      description: 'Chùa cổ kính',
+      placeId: 'p1',
+      placeName: 'Chùa Thiên Mụ',
+      latitude: 16.45,
+      longitude: 107.58,
+      startTime: DateTime(2026, 1, 1, 8, 0),
+      endTime: DateTime(2026, 1, 1, 10, 0),
+      type: 'visit',
+      status: 'active',
+    );
+    final itinerary = ItineraryModel(
+      id: 'it1',
+      title: 'Lộ trình test',
+      description: 'Test',
+      durationDays: 1,
+      budget: 1000000,
+      interests: const ['culture'],
+      status: 'active',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      days: [
+        ItineraryDayModel(
+          dayNumber: 1,
+          title: 'Ngày 1',
+          description: 'Ngày 1',
+          activities: [activity1],
+        ),
+      ],
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        aiRemoteServiceProvider.overrideWithValue(AiRemoteService(apiClient: ApiClient(Dio()))),
+        osrmRemoteServiceProvider.overrideWithValue(MockOsrmRemoteService()),
+        exploreProvider.overrideWith((ref) => MockExploreNotifier()),
+      ],
+    );
+    container.read(itineraryProvider.notifier).state = ItineraryState(
+      myItineraries: [itinerary],
+      isLoading: false,
+    );
+
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const ItineraryResultScreen(),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Thêm điểm đến vào lộ trình'));
+    await tester.pumpAndSettle();
+
+    final bottomSheetContext = tester.element(find.byType(PlacePickerBottomSheet));
+    Navigator.pop(bottomSheetContext, {
+      'id': 'new_p',
+      'name': 'New P',
+      // latitude bị thiếu
+      'longitude': 107.6,
+    });
+    await tester.pump();
+
+    expect(find.text('Dữ liệu địa điểm không hợp lệ, vui lòng thử lại'), findsOneWidget);
+    
+    final updatedState = container.read(itineraryProvider);
+    expect(updatedState.myItineraries.first.days[0].activities.length, 1);
   });
 }
