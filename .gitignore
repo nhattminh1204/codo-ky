@@ -56,3 +56,6 @@ venv/
 
 # Local UI proof images (ignored by git)
 docs/images/
+
+# Local DevTools configuration
+devtools_options.yaml
