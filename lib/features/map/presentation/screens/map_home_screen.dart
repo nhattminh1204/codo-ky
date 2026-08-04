@@ -14,7 +14,10 @@ import 'package:codoky/core/logging/app_logger.dart';
 import 'package:codoky/core/services/audio/tts_service.dart';
 import 'package:codoky/core/services/location/location_service.dart';
 import 'package:codoky/features/map/data/datasources/cached_disk_tile_provider.dart';
+import 'package:codoky/features/map/data/datasources/hue_boundary_loader.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
+import 'package:codoky/features/map/presentation/providers/current_weather_provider.dart';
+import 'package:codoky/features/map/presentation/widgets/current_weather_chip.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
 import 'package:codoky/features/map/presentation/widgets/map_search_bar_widget.dart';
 import 'package:codoky/features/map/presentation/widgets/map_toolbar_widget.dart';
@@ -34,6 +37,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   final MapController _mapController = MapController();
   late final LocationService _locationService;
   late AnimationController _pulseController;
+  List<LatLng>? _hueBoundary;
 
   @override
   void initState() {
@@ -44,6 +48,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       vsync: this,
       duration: const Duration(milliseconds: 2200),
     )..repeat();
+
+    HueBoundaryLoader.loadBoundaryRing().then((ring) {
+      if (!mounted) return;
+      setState(() => _hueBoundary = ring);
+    });
 
     Future.microtask(() {
       ref.read(mapProvider.notifier).loadPlaces();
@@ -67,6 +76,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       if (res != null && mounted) {
         ref.read(mapProvider.notifier).setCurrentLocation(res.position);
         _animatedMapMove(res.position, 16.5);
+        // Fetch thời tiết hiện tại đúng 1 lần tại fix GPS chính xác đầu tiên.
+        // KHÔNG gắn vào onLocationUpdate stream — cache đã có trong Notifier.
+        if (!mounted) return;
+        ref.read(currentWeatherProvider.notifier)
+            .refreshIfNeeded(res.position);
       }
     } catch (e) {
       AppLogger.w('Location permission or fetch warning: $e');
@@ -541,6 +555,35 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   maxCacheAge: const Duration(days: 30),
                 ),
               ),
+              // Tầng overlay ranh giới Huế: mask nền (ngoài ranh giới) +
+              // viền nét đứt. Nằm DƯỚI lớp marker để không chặn hitTest.
+              if (_hueBoundary != null)
+                IgnorePointer(
+                  child: PolygonLayer(
+                    polygons: [
+                      Polygon(
+                        points: _worldMaskPolygon,
+                        holePointsList: [_hueBoundary!],
+                        color: _boundaryMaskColor(context),
+                        borderStrokeWidth: 0,
+                        disableHolesBorder: true,
+                      ),
+                    ],
+                  ),
+                ),
+              if (_hueBoundary != null)
+                IgnorePointer(
+                  child: PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: _hueBoundary!,
+                        strokeWidth: 3.0,
+                        color: _boundaryLineColor(context),
+                        pattern: StrokePattern.dashed(segments: [12, 10]),
+                      ),
+                    ],
+                  ),
+                ),
               if (state.alternativeRoutes.isNotEmpty)
                 PolylineLayer(
                   polylines: [
@@ -710,6 +753,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               right: 0,
               child: MapSearchBarWidget(),
             ),
+
+          // Chip thời tiết hiện tại — tự xê dịch theo trạng thái để không đè
+          // search bar (duyệt bản đồ, activeRoute == null) hay banner rẽ.
+          Positioned(
+            left: 14,
+            top: state.activeRoute == null ? 150 : 110,
+            child: const CurrentWeatherChip(),
+          ),
           Positioned(
             top: state.activeRoute != null ? 96 : 124,
             right: 14,
@@ -1355,6 +1406,54 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     );
   }
 
+
+  // ------------------------------------------------------------
+  // Mask ranh giới Huế: polygon nền phủ toàn cầu (toạ độ cố định, không phụ
+  // thuộc viewport) với ranh giới Huế được "khoét lỗ" + viền nét đứt.
+  // Phải nằm DƯỚI lớp marker để không chặn hitTest người dùng.
+  // ------------------------------------------------------------
+
+  /// Ring khổng lồ phủ toàn cầu (bao cả bản sao world khi wrap quanh kinh
+  /// tuyến 180°) để mask không bao giờ lộ viền dù zoom out tối đa.
+  static final List<LatLng> _worldMaskPolygon = _buildWorldMaskPolygon();
+
+  static List<LatLng> _buildWorldMaskPolygon() {
+    // Phủ ±7200° kinh độ (= 20 bản sao thế giới) để mask luôn phủ kín viewport
+    // dù zoom out tối đa (zoom 0 hiển thị tới ~5 bản sao world) hay pan xa.
+    const double lonEdge = 7200.0;
+    const double northLat = 89.9;
+    const double southLat = -89.9;
+    const int steps = 72;
+    final points = <LatLng>[];
+    for (int i = 0; i <= steps; i++) {
+      points.add(LatLng(northLat, -lonEdge + i * (lonEdge * 2) / steps));
+    }
+    for (int i = 0; i <= steps; i++) {
+      points.add(LatLng(northLat - (northLat - southLat) * i / steps, lonEdge));
+    }
+    for (int i = 0; i <= steps; i++) {
+      points.add(LatLng(southLat, lonEdge - i * (lonEdge * 2) / steps));
+    }
+    for (int i = 0; i <= steps; i++) {
+      points.add(LatLng(southLat + (northLat - southLat) * i / steps, -lonEdge));
+    }
+    return points;
+  }
+
+  /// Màu overlay ngoài ranh giới: trắng/xám alpha ~0.5 (sáng) hoặc tối nhẹ
+  /// (bản đồ dark) — phần trong Huế giữ nguyên trong suốt.
+  Color _boundaryMaskColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.black.withValues(alpha: 0.40)
+        : Colors.white.withValues(alpha: 0.55);
+  }
+
+  /// Màu viền nét đứt theo ranh giới — tương phản tốt trên cả 2 nền tile.
+  Color _boundaryLineColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFFCBD5E1)
+        : const Color(0xFF334155);
+  }
 
   List<Marker> _buildMarkers(List<dynamic> places, dynamic selectedPlace) {
     final markers = <Marker>[];
