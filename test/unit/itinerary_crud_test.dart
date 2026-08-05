@@ -1,11 +1,15 @@
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mockito/mockito.dart';
 import 'package:codoky/core/network/api_client.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
+import 'package:codoky/features/itinerary/data/services/itinerary_firestore_service.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
 import 'package:codoky/features/map/data/datasources/osrm_remote_service.dart';
 import 'package:codoky/features/map/data/models/osrm_route_model.dart';
+import '../mocks.mocks.dart';
 
 class MockAiSuccess extends AiRemoteService {
   final ItineraryModel result;
@@ -48,6 +52,32 @@ class MockOsrmWithLegDurations implements OsrmRemoteService {
       durationSeconds: legDurations.fold(0, (a, b) => a + b),
       legDurations: legDurations,
     );
+  }
+}
+
+class MockItineraryFirestoreService extends ItineraryFirestoreService {
+  int saveCallCount = 0;
+  int getCallCount = 0;
+  String? lastUserId;
+  final List<String> savedIds = [];
+  Object? errorToThrow;
+
+  MockItineraryFirestoreService() : super(firestore: FakeFirebaseFirestore());
+
+  @override
+  Future<void> saveItinerary(ItineraryModel itinerary, String userId) async {
+    saveCallCount++;
+    lastUserId = userId;
+    savedIds.add(itinerary.id);
+    if (errorToThrow != null) {
+      throw errorToThrow!;
+    }
+  }
+
+  @override
+  Future<List<ItineraryModel>> getMyItineraries(String userId) async {
+    getCallCount++;
+    return [];
   }
 }
 
@@ -351,6 +381,111 @@ void main() {
       // 2. Điểm đầu ngày cũ (nay ở index 1) bị đẩy lùi bởi OSRM: newFirstAct.endTime + 300s
       expect(oldFirstAct.id, equals('act_1'));
       expect(oldFirstAct.startTime, equals(newFirstAct.endTime.add(const Duration(seconds: 300))));
+    });
+
+    test('11. saveItinerary có uid → gọi Firestore đúng 1 lần, trả savedToCloud = true', () async {
+      final auth = MockFirebaseAuth();
+      final mockUser = MockUser();
+      when(mockUser.uid).thenReturn('user_A');
+      when(auth.currentUser).thenReturn(mockUser);
+      final firestore = MockItineraryFirestoreService();
+      final notifier = ItineraryNotifier(
+        firestoreService: firestore,
+        auth: auth,
+      );
+
+      final saved = await notifier.saveItinerary(_buildTestItinerary());
+
+      expect(saved, isTrue);
+      expect(firestore.saveCallCount, equals(1));
+      expect(firestore.lastUserId, equals('user_A'));
+      expect(firestore.savedIds, contains('itin_test'));
+      expect(notifier.state.myItineraries.length, equals(1));
+    });
+
+    test('12. saveItinerary uid null (guest) → KHÔNG gọi Firestore, trả savedToCloud = false', () async {
+      final auth = MockFirebaseAuth();
+      when(auth.currentUser).thenReturn(null);
+      final firestore = MockItineraryFirestoreService();
+      final notifier = ItineraryNotifier(
+        firestoreService: firestore,
+        auth: auth,
+      );
+
+      final saved = await notifier.saveItinerary(_buildTestItinerary());
+
+      expect(saved, isFalse);
+      expect(firestore.saveCallCount, equals(0));
+      expect(notifier.state.myItineraries.length, equals(1));
+    });
+
+    test('13. reorderActivity trên itinerary đã có trong myItineraries + có uid → Firestore được gọi đúng 1 lần sau đó', () async {
+      final itinerary = _buildTestItinerary();
+      final osrm = MockOsrmWithLegDurations([600, 1200]);
+      final auth = MockFirebaseAuth();
+      final mockUser = MockUser();
+      when(mockUser.uid).thenReturn('user_A');
+      when(auth.currentUser).thenReturn(mockUser);
+      final firestore = MockItineraryFirestoreService();
+      final notifier = ItineraryNotifier(
+        aiRemoteService: MockAiSuccess(itinerary),
+        osrmRemoteService: osrm,
+        firestoreService: firestore,
+        auth: auth,
+      );
+      await notifier.saveItinerary(itinerary);
+      expect(firestore.saveCallCount, equals(1));
+
+      final isLate = await notifier.reorderActivity('itin_test', 0, 0, 2);
+
+      expect(isLate, equals(false));
+      expect(osrm.callCount, equals(1));
+      expect(firestore.saveCallCount, equals(2));
+      expect(firestore.savedIds.length, equals(2));
+      // State local vẫn được cập nhật đúng thứ tự act_2, act_3, act_1
+      final day = notifier.state.myItineraries.first.days.first;
+      expect(day.activities[0].id, equals('act_2'));
+      expect(day.activities[1].id, equals('act_3'));
+      expect(day.activities[2].id, equals('act_1'));
+    });
+
+    test('14. Firestore sync lỗi → reorderActivity vẫn trả về isLate đúng, KHÔNG throw ra ngoài', () async {
+      final itinerary = _buildTestItinerary();
+      final osrm = MockOsrmWithLegDurations([600, 1200]);
+      final auth = MockFirebaseAuth();
+      final mockUser = MockUser();
+      when(mockUser.uid).thenReturn('user_A');
+      when(auth.currentUser).thenReturn(mockUser);
+      final firestore = MockItineraryFirestoreService();
+      final notifier = ItineraryNotifier(
+        aiRemoteService: MockAiSuccess(itinerary),
+        osrmRemoteService: osrm,
+        firestoreService: firestore,
+        auth: auth,
+      );
+      await notifier.saveItinerary(itinerary);
+      expect(firestore.saveCallCount, equals(1));
+
+      // Từ giờ mọi sync sẽ lỗi (mất mạng)
+      firestore.errorToThrow = Exception('mất mạng');
+
+      // Gọi sync lỗi nhưng KHÔNG được có exception nào lọt ra ngoài
+      bool threw = false;
+      try {
+        final isLate = await notifier.reorderActivity('itin_test', 0, 0, 2);
+        expect(isLate, equals(false));
+      } catch (_) {
+        threw = true;
+      }
+      expect(threw, isFalse);
+      expect(osrm.callCount, equals(1));
+      expect(firestore.saveCallCount, equals(2));
+
+      // State local vẫn được cập nhật dù sync lỗi (không rollback)
+      final day = notifier.state.myItineraries.first.days.first;
+      expect(day.activities[0].id, equals('act_2'));
+      expect(day.activities[1].id, equals('act_3'));
+      expect(day.activities[2].id, equals('act_1'));
     });
   });
 }

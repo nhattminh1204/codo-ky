@@ -1,9 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/auth/data/models/user_model.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/profile/presentation/screens/profile_home_screen.dart';
+
+Widget _wrap({required List<Override> overrides, required Widget home}) {
+  return ProviderScope(
+    overrides: overrides,
+    child: MaterialApp(
+      locale: const Locale('vi'),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Material(child: home),
+    ),
+  );
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +32,7 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(1080, 2400));
 
       await tester.pumpWidget(
-        ProviderScope(
+        _wrap(
           overrides: [
             authProvider.overrideWith((ref) => AuthNotifierMock(const AuthState(
               isAuthenticated: false,
@@ -21,9 +40,7 @@ void main() {
               user: null,
             ))),
           ],
-          child: const MaterialApp(
-            home: Material(child: ProfileHomeScreen()),
-          ),
+          home: const ProfileHomeScreen(),
         ),
       );
 
@@ -53,7 +70,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ProviderScope(
+        _wrap(
           overrides: [
             authProvider.overrideWith((ref) => AuthNotifierMock(AuthState(
               isAuthenticated: true,
@@ -61,9 +78,7 @@ void main() {
               user: user,
             ))),
           ],
-          child: const MaterialApp(
-            home: Material(child: ProfileHomeScreen()),
-          ),
+          home: const ProfileHomeScreen(),
         ),
       );
 
