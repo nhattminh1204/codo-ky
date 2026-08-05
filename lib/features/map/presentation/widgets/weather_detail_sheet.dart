@@ -517,110 +517,180 @@ class _SheetBody extends ConsumerWidget {
   }
 
   // ── 4. Stats Grid ───────────────────────────────────────────────────────────
+  // ── 4. Stats Grid (Bento Glass Style) ─────────────────────────────────────
   Widget _buildStatsGrid(
       WeatherDetailResult d, bool isDark, Color cardColor) {
+    final humidity = d.current.humidity.round();
+    final windSpeed = d.windSpeed;
+    final uvIndex = d.uvIndex;
+    final aqi = d.aqi ?? 65;
+
+    // Status strings
+    final humidityStatus = humidity > 70
+        ? 'Nhiều ẩm'
+        : (humidity < 45 ? 'Khô ráo' : 'Dễ chịu');
+    final windStatus = windSpeed < 5.0
+        ? 'Gió nhẹ'
+        : (windSpeed < 15.0 ? 'Gió vừa' : 'Gió mạnh');
+    final aqiStatus = aqi <= 50
+        ? 'Tốt'
+        : (aqi <= 100 ? 'Trung bình' : 'Kém');
+    final aqiColor = aqi <= 50
+        ? const Color(0xFF10B981)
+        : (aqi <= 100 ? const Color(0xFFF59E0B) : const Color(0xFFEF4444));
+
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
-      childAspectRatio: 2.35,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.75,
       children: [
-        _statCard(
+        // 1. Độ ẩm (Humidity)
+        _bentoStatCard(
           icon: Icons.water_drop_rounded,
           iconColor: const Color(0xFF0EA5E9),
           label: l10n.weatherHumidity,
-          value: '${d.current.humidity.round()}%',
+          value: '$humidity%',
+          statusTag: humidityStatus,
+          progressValue: (humidity / 100.0).clamp(0.0, 1.0),
           isDark: isDark,
-          cardColor: cardColor,
         ),
-        _statCard(
+        // 2. Tốc độ gió (Wind)
+        _bentoStatCard(
           icon: Icons.air_rounded,
           iconColor: const Color(0xFF64748B),
           label: l10n.weatherWind,
-          value: l10n.weatherWindUnit(d.windSpeed),
+          value: l10n.weatherWindUnit(windSpeed),
+          statusTag: windStatus,
+          progressValue: (windSpeed / 30.0).clamp(0.0, 1.0),
           isDark: isDark,
-          cardColor: cardColor,
         ),
-        _statCard(
+        // 3. Chỉ số UV
+        _bentoStatCard(
           icon: Icons.wb_sunny_rounded,
           iconColor: const Color(0xFFF59E0B),
           label: l10n.weatherUvIndex,
-          value: _uvLabel(d.uvIndex),
+          value: _uvLabel(uvIndex),
+          statusTag: 'UV ${uvIndex.toStringAsFixed(1)}',
+          progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
           isDark: isDark,
-          cardColor: cardColor,
         ),
-        _statCard(
+        // 4. Chất lượng không khí (AQI)
+        _bentoStatCard(
           icon: Icons.eco_rounded,
-          iconColor: const Color(0xFF10B981),
+          iconColor: aqiColor,
           label: l10n.weatherAirQuality,
-          value: d.aqi != null ? l10n.weatherAqiLabel(d.aqi!) : 'AQI 45 (Tốt)',
+          value: 'AQI $aqi',
+          statusTag: aqiStatus,
+          progressValue: (aqi / 200.0).clamp(0.0, 1.0),
           isDark: isDark,
-          cardColor: cardColor,
         ),
       ],
     );
   }
 
-  Widget _statCard({
+  Widget _bentoStatCard({
     required IconData icon,
     required Color iconColor,
     required String label,
     required String value,
+    required String statusTag,
+    required double progressValue,
     required bool isDark,
-    required Color cardColor,
   }) {
+    final bgColor = isDark
+        ? const Color(0xFF1E293B).withValues(alpha: 0.85)
+        : Colors.white.withValues(alpha: 0.92);
+    final borderColor = isDark
+        ? iconColor.withValues(alpha: 0.3)
+        : iconColor.withValues(alpha: 0.2);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
       decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(14),
+        color: bgColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: iconColor.withValues(alpha: isDark ? 0.12 : 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 16, color: iconColor),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
+          // Header: Icon + Label
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(5.5),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Icon(icon, size: 15, color: iconColor),
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 10.5,
-                    color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white60 : const Color(0xFF64748B),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
+              ),
+            ],
+          ),
+          // Value + Status Badge
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  statusTag,
                   style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: iconColor,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ],
+              ),
+            ],
+          ),
+          // Mini Gauge Progress Bar
+          SizedBox(
+            height: 3.5,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                value: progressValue,
+                backgroundColor:
+                    isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                valueColor: AlwaysStoppedAnimation<Color>(iconColor),
+              ),
             ),
           ),
         ],

@@ -313,9 +313,11 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
 
     // 3. Create new ItineraryActivityModel with UUID & default 1-hour duration
     final newId = const Uuid().v4();
+    final dayDate = itinerary.createdAt.add(Duration(days: day.dayNumber > 0 ? day.dayNumber - 1 : 0));
+    final DateTime defaultMorning = DateTime(dayDate.year, dayDate.month, dayDate.day, 8, 0);
     final DateTime newStartTime = (bestIndex == 0 && activities.isNotEmpty)
         ? activities.first.startTime
-        : DateTime.now();
+        : (activities.isEmpty ? defaultMorning : DateTime.now());
     final DateTime newEndTime = newStartTime.add(const Duration(hours: 1));
 
     final newActivity = ItineraryActivityModel(
