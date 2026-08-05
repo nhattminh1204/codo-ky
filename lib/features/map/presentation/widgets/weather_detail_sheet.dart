@@ -22,12 +22,6 @@ String _fmtShortDay(DateTime dt) {
   return '${days[dt.weekday % 7]}, ${dt.day}/${dt.month}';
 }
 
-/// Cấu trúc phân vùng mốc cho thanh Progress Bar
-class _ZoneSegment {
-  final double flex;
-  final Color color;
-  const _ZoneSegment(this.flex, this.color);
-}
 
 /// Dynamic Theme Palette tùy chỉnh màu gradient theo trạng thái thời tiết Huế.
 class _WeatherThemeConfig {
@@ -534,10 +528,11 @@ class _SheetBody extends ConsumerWidget {
     final uvIndex = d.uvIndex;
     final aqi = d.aqi ?? 65;
 
-    // Base colors for zone bars
-    final greenZoneColor = (isDark ? const Color(0xFF34D399) : const Color(0xFF059669)).withValues(alpha: 0.22);
-    final amberZoneColor = (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706)).withValues(alpha: 0.22);
-    final redZoneColor = (isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626)).withValues(alpha: 0.22);
+    // Multi-stop rainbow spectrum gradient color definitions
+    final greenColor = isDark ? const Color(0xFF34D399) : const Color(0xFF10B981);
+    final amberColor = isDark ? const Color(0xFFFBBF24) : const Color(0xFFF59E0B);
+    final orangeColor = isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C);
+    final redColor = isDark ? const Color(0xFFF87171) : const Color(0xFFEF4444);
 
     // Helper for semantic color palette based on level (0 = Green, 1 = Amber, 2 = Red)
     Color getSemanticColor(int level) {
@@ -564,7 +559,7 @@ class _SheetBody extends ConsumerWidget {
       }
     }
 
-    // 1. Độ ẩm (Humidity) - Thang 0-100% (4 Vùng: Đỏ 0-40% -> Xanh 40-70% -> Vàng 70-85% -> Đỏ 85-100%)
+    // 1. Độ ẩm (Humidity) - Thang 0-100% (Gradient 4 mốc: Đỏ 0-40% -> Xanh 40-70% -> Vàng 70-85% -> Đỏ 85-100%)
     final int humidityLevel = (humidity > 85 || humidity < 40)
         ? 2
         : (humidity > 70 ? 1 : 0);
@@ -581,7 +576,7 @@ class _SheetBody extends ConsumerWidget {
                 ? l10n.insightHumidityModerate
                 : l10n.insightHumidityGood));
 
-    // 2. Tốc độ gió (Wind) - Reference Max: 40 km/h (3 Vùng)
+    // 2. Tốc độ gió (Wind) - Reference Max: 40 km/h
     final int windLevel = windSpeed > 25.0 ? 2 : (windSpeed >= 12.0 ? 1 : 0);
     final String windStatus = windSpeed > 25.0
         ? l10n.statusWindHigh
@@ -592,7 +587,7 @@ class _SheetBody extends ConsumerWidget {
             ? l10n.insightWindModerate
             : l10n.insightWindGood);
 
-    // 3. Chỉ số UV - Reference Max: 11 (3 Vùng)
+    // 3. Chỉ số UV - Reference Max: 11
     final int uvLevel = uvIndex >= 7.0 ? 2 : (uvIndex >= 3.0 ? 1 : 0);
     final String uvStatus = uvIndex >= 7.0
         ? l10n.statusUvHigh
@@ -601,7 +596,7 @@ class _SheetBody extends ConsumerWidget {
         ? l10n.insightUvHigh
         : (uvIndex >= 3.0 ? l10n.insightUvModerate : l10n.insightUvGood);
 
-    // 4. Chất lượng không khí (AQI) - Reference Max: 200 (3 Vùng)
+    // 4. Chất lượng không khí (AQI) - Reference Max: 200
     final int aqiLevel = aqi > 100 ? 2 : (aqi > 50 ? 1 : 0);
     final String aqiStatus = aqi > 100
         ? l10n.statusAqiUnhealthy
@@ -618,7 +613,7 @@ class _SheetBody extends ConsumerWidget {
       crossAxisSpacing: 12,
       childAspectRatio: 1.38,
       children: [
-        // 1. Độ ẩm (4 vùng: Đỏ 0-40% -> Xanh 40-70% -> Vàng 70-85% -> Đỏ 85-100%)
+        // 1. Độ ẩm (Dải màu cầu vồng 4 mốc: Đỏ -> Xanh -> Vàng -> Đỏ)
         _bentoStatCard(
           icon: Icons.water_drop_rounded,
           accentColor: getSemanticColor(humidityLevel),
@@ -629,14 +624,10 @@ class _SheetBody extends ConsumerWidget {
           insightText: humidityInsight,
           progressValue: (humidity / 100.0).clamp(0.0, 1.0),
           isDark: isDark,
-          zoneSegments: [
-            _ZoneSegment(0.40, redZoneColor),
-            _ZoneSegment(0.30, greenZoneColor),
-            _ZoneSegment(0.15, amberZoneColor),
-            _ZoneSegment(0.15, redZoneColor),
-          ],
+          gradientColors: [redColor, greenColor, amberColor, redColor],
+          gradientStops: const [0.0, 0.40, 0.70, 1.0],
         ),
-        // 2. Tốc độ gió (3 vùng)
+        // 2. Tốc độ gió (Dải màu cầu vồng 3 mốc)
         _bentoStatCard(
           icon: Icons.air_rounded,
           accentColor: getSemanticColor(windLevel),
@@ -647,13 +638,10 @@ class _SheetBody extends ConsumerWidget {
           insightText: windInsight,
           progressValue: (windSpeed / 40.0).clamp(0.0, 1.0),
           isDark: isDark,
-          zoneSegments: [
-            _ZoneSegment(0.30, greenZoneColor),
-            _ZoneSegment(0.325, amberZoneColor),
-            _ZoneSegment(0.375, redZoneColor),
-          ],
+          gradientColors: [greenColor, amberColor, redColor],
+          gradientStops: const [0.0, 0.40, 1.0],
         ),
-        // 3. Chỉ số UV (3 vùng)
+        // 3. Chỉ số UV (Dải màu cầu vồng 4 mốc)
         _bentoStatCard(
           icon: Icons.wb_sunny_rounded,
           accentColor: getSemanticColor(uvLevel),
@@ -664,13 +652,10 @@ class _SheetBody extends ConsumerWidget {
           insightText: uvInsight,
           progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
           isDark: isDark,
-          zoneSegments: [
-            _ZoneSegment(0.27, greenZoneColor),
-            _ZoneSegment(0.36, amberZoneColor),
-            _ZoneSegment(0.37, redZoneColor),
-          ],
+          gradientColors: [greenColor, amberColor, orangeColor, redColor],
+          gradientStops: const [0.0, 0.30, 0.65, 1.0],
         ),
-        // 4. Chất lượng không khí (3 vùng)
+        // 4. Chất lượng không khí (Dải màu cầu vồng 3 mốc)
         _bentoStatCard(
           icon: Icons.eco_rounded,
           accentColor: getSemanticColor(aqiLevel),
@@ -681,11 +666,8 @@ class _SheetBody extends ConsumerWidget {
           insightText: aqiInsight,
           progressValue: (aqi / 200.0).clamp(0.0, 1.0),
           isDark: isDark,
-          zoneSegments: [
-            _ZoneSegment(0.25, greenZoneColor),
-            _ZoneSegment(0.25, amberZoneColor),
-            _ZoneSegment(0.50, redZoneColor),
-          ],
+          gradientColors: [greenColor, amberColor, redColor],
+          gradientStops: const [0.0, 0.35, 1.0],
         ),
       ],
     );
@@ -701,7 +683,8 @@ class _SheetBody extends ConsumerWidget {
     required String insightText,
     required double progressValue,
     required bool isDark,
-    required List<_ZoneSegment> zoneSegments,
+    required List<Color> gradientColors,
+    required List<double> gradientStops,
   }) {
     final bgColor = isDark
         ? const Color(0xFF1E293B).withValues(alpha: 0.85)
@@ -757,7 +740,7 @@ class _SheetBody extends ConsumerWidget {
                 ],
               ),
 
-              // TẦNG 2 & TẦNG 3: Số liệu chính + Status Subtitle 바로 dưới
+              // TẦNG 2 & TẦNG 3: Số liệu chính + Status Subtitle ngay dưới
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -786,35 +769,65 @@ class _SheetBody extends ConsumerWidget {
                 ],
               ),
 
-              // PROGRESS BAR PHÂN VÙNG MỐC (Linh hoạt N vùng tùy chỉnh cho từng chỉ số)
-              Stack(
-                children: [
-                  SizedBox(
-                    height: 4,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(2),
-                      child: Row(
-                        children: zoneSegments.map((seg) {
-                          return Expanded(
-                            flex: (seg.flex * 1000).round(),
-                            child: Container(color: seg.color),
-                          );
-                        }).toList(),
-                      ),
+              // PROGRESS BAR CẦU VỒNG CHUYỂN MÀU MƯỢT + INDICATOR THUMB PILL
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final trackWidth = constraints.maxWidth;
+                  final thumbPos = (trackWidth * progressValue).clamp(0.0, trackWidth - 6.0);
+
+                  return SizedBox(
+                    height: 8,
+                    child: Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        // Dải màu cầu vồng nền mờ (Màu mờ phía sau)
+                        Container(
+                          height: 4,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            gradient: LinearGradient(
+                              colors: gradientColors.map((c) => c.withValues(alpha: 0.25)).toList(),
+                              stops: gradientStops,
+                            ),
+                          ),
+                        ),
+                        // Dải màu cầu vồng rực rỡ phần đã đạt tới (Progress Fill)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(2),
+                          child: Container(
+                            width: thumbPos + 3.0,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: gradientColors,
+                                stops: gradientStops,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Vạch/Chấm Indicator Thumb Pill nổi tại vị trí giá trị hiện tại
+                        Positioned(
+                          left: thumbPos,
+                          child: Container(
+                            width: 6,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: accentColor,
+                              borderRadius: BorderRadius.circular(3),
+                              border: Border.all(color: Colors.white, width: 1.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: accentColor.withValues(alpha: 0.6),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    height: 4,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(2),
-                      child: LinearProgressIndicator(
-                        value: progressValue,
-                        backgroundColor: Colors.transparent,
-                        valueColor: AlwaysStoppedAnimation<Color>(accentColor),
-                      ),
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
 
               // DÒNG GỢI Ý HÀNH ĐỘNG DU LỊCH HUẾ (Contextual Insight)
