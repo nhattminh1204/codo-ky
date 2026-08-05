@@ -220,25 +220,6 @@ class _SheetBody extends ConsumerWidget {
                   error: (e, st) => _buildErrorChip(isDark),
                 ),
                 const SizedBox(height: 24),
-
-                // Nút đóng sheet
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                    ),
-                    label: Text(
-                      l10n.weatherClose,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -794,11 +775,9 @@ class _SheetBody extends ConsumerWidget {
     required List<Color> gradientColors,
     required List<double> gradientStops,
   }) {
-    // Nền cơ bản + tint nhẹ theo màu accent (ngựy hiểm cao → màu đậu lạt)
     final baseBg = isDark
         ? const Color(0xFF1E293B)
         : Colors.white;
-    final tintBg = accentColor.withValues(alpha: isDark ? 0.08 : 0.05);
     final borderColor = accentColor.withValues(alpha: isDark ? 0.28 : 0.20);
 
     return _PressableCard(
@@ -820,153 +799,140 @@ class _SheetBody extends ConsumerWidget {
                 ),
               ],
             ),
-            child: Stack(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Tint nền nhẹ theo màu semantic
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(17),
-                      color: tintBg,
+                // Tầng 1: Icon + Label
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: iconBgColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(icon, size: 16, color: accentColor),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white60 : const Color(0xFF475569),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Tầng 2: Số liệu chính
+                Center(
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22.0,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      letterSpacing: -0.8,
+                      height: 1.0,
                     ),
                   ),
                 ),
-                Column(
+
+                // Tầng 3: Status pill chip màu semantic
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      statusSubtitle,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: accentColor,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+
+                // Tầng 4: Progress bar gradient
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final trackWidth = constraints.maxWidth;
+                    final fillWidth = (trackWidth * progressValue).clamp(0.0, trackWidth);
+
+                    return SizedBox(
+                      height: 5,
+                      child: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Container(
+                            height: 5,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(3),
+                              gradient: LinearGradient(
+                                colors: gradientColors.map((c) => c.withValues(alpha: 0.20)).toList(),
+                                stops: gradientStops,
+                              ),
+                            ),
+                          ),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: Container(
+                              width: fillWidth,
+                              height: 5,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: gradientColors,
+                                  stops: gradientStops,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+
+                // Tầng 5: Insight text
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Tầng 1: Icon + Label
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: iconBgColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(icon, size: 16, color: accentColor),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            label,
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white60 : const Color(0xFF475569),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1),
+                      child: Icon(
+                        Icons.tips_and_updates_rounded,
+                        size: 10,
+                        color: accentColor.withValues(alpha: 0.65),
+                      ),
                     ),
-
-                    // Tầng 2: Số liệu chính
-                    Center(
+                    const SizedBox(width: 4),
+                    Expanded(
                       child: Text(
-                        value,
-                        textAlign: TextAlign.center,
+                        insightText,
                         style: TextStyle(
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
-                          letterSpacing: -0.8,
-                          height: 1.0,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                          height: 1.3,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-
-                    // Tầng 3: Status pill chip màu semantic
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          statusSubtitle,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: accentColor,
-                            height: 1.2,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-
-                    // Tầng 4: Progress bar gradient
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final trackWidth = constraints.maxWidth;
-                        final fillWidth = (trackWidth * progressValue).clamp(0.0, trackWidth);
-
-                        return SizedBox(
-                          height: 5,
-                          child: Stack(
-                            alignment: Alignment.centerLeft,
-                            children: [
-                              Container(
-                                height: 5,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(3),
-                                  gradient: LinearGradient(
-                                    colors: gradientColors.map((c) => c.withValues(alpha: 0.20)).toList(),
-                                    stops: gradientStops,
-                                  ),
-                                ),
-                              ),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(3),
-                                child: Container(
-                                  width: fillWidth,
-                                  height: 5,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: gradientColors,
-                                      stops: gradientStops,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-
-                    // Tầng 5: Insight text (sạch hơn, không in nghiêng)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 1),
-                          child: Icon(
-                            Icons.tips_and_updates_rounded,
-                            size: 10,
-                            color: accentColor.withValues(alpha: 0.65),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            insightText,
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w500,
-                              color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                              height: 1.3,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
