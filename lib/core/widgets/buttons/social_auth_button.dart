@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 enum SocialType { google, apple, phone }
 
@@ -86,9 +87,10 @@ class _SocialAuthButtonState extends State<SocialAuthButton> with SingleTickerPr
     final Color textColor;
     final Border? border;
     final List<BoxShadow> shadows;
+    final l10n = context.l10n;
 
     if (isGoogle) {
-      label = 'Tiếp tục với Google';
+      label = l10n.continueWithGoogle;
       backgroundColor = Colors.white;
       textColor = const Color(0xFF2C2C2C);
       border = Border.all(color: Colors.black.withValues(alpha: 0.08), width: 1);
@@ -100,7 +102,7 @@ class _SocialAuthButtonState extends State<SocialAuthButton> with SingleTickerPr
         ),
       ];
     } else if (isApple) {
-      label = 'Tiếp tục với Apple';
+      label = l10n.continueWithApple;
       backgroundColor = const Color(0xFF000000);
       textColor = Colors.white;
       border = null;
@@ -112,7 +114,7 @@ class _SocialAuthButtonState extends State<SocialAuthButton> with SingleTickerPr
         ),
       ];
     } else {
-      label = 'Tiếp tục với Số điện thoại';
+      label = l10n.continueWithPhone;
       backgroundColor = const Color(0xFFFFFDF9);
       textColor = const Color(0xFF3D352E);
       border = Border.all(color: const Color(0xFFC89B3C).withValues(alpha: 0.40), width: 1.2);

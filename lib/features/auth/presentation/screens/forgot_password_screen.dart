@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/utils/validators/validators.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
 import 'package:codoky/core/widgets/cards/app_card.dart';
@@ -33,11 +34,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     if (!mounted) return;
 
     final authState = ref.read(authProvider);
+    final l10n = context.l10n;
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư của bạn!'),
+        SnackBar(
+          content: Text(l10n.resetEmailSent),
           backgroundColor: AppColors.success,
         ),
       );
@@ -55,11 +57,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: AppColors.bgLight,
       appBar: AppBar(
-        title: const Text('Quên mật khẩu'),
+        title: Text(l10n.forgotPasswordTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -84,7 +87,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Đặt lại mật khẩu',
+                    l10n.resetPassword,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
@@ -92,27 +95,27 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  const Text(
-                    'Nhập email đã đăng ký tài khoản CodoKy của bạn để nhận liên kết khôi phục mật khẩu.',
+                  Text(
+                    l10n.forgotPasswordSubtitle,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
                   TextInput(
                     controller: _emailController,
-                    label: 'Email đăng ký',
-                    hint: 'Nhập địa chỉ email của bạn',
+                    label: l10n.emailRegistered,
+                    hint: l10n.emailHint,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: const Icon(Icons.email_outlined),
-                    validator: Validators.email,
+                    validator: (v) => Validators.email(v, l10n),
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _handleResetPassword(),
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
                   PrimaryButton(
-                    text: 'Gửi yêu cầu khôi phục',
+                    text: l10n.sendResetRequest,
                     useGradient: true,
                     isLoading: authState.isLoading,
                     onPressed: _handleResetPassword,

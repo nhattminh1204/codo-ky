@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/providers/theme_provider.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
@@ -45,7 +46,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Hồ sơ cá nhân', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: Text(context.l10n.profileTitle, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -107,6 +108,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   // STATE (c): UNAUTHENTICATED GUEST STATE UI
   // ==========================================
   Widget _buildGuestState(BuildContext context) {
+    final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return GlassScaffold(
       backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
@@ -114,7 +116,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Hồ sơ cá nhân',
+          l10n.profileTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -150,16 +152,16 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Khách ghé thăm',
+                    l10n.guestWelcome,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Đăng nhập để lưu hành trình & nhận thưởng',
-                    style: TextStyle(
+                  Text(
+                    l10n.guestSubtitle,
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: AppColors.textSecondary,
@@ -173,14 +175,14 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _buildGuestFeatureItem(Icons.bookmark_outline_rounded, 'Lưu lại các địa điểm và nhà hàng yêu thích ở Huế'),
-                  _buildGuestFeatureItem(Icons.map_outlined, 'Lên lịch trình bằng công cụ AI tự động'),
-                  _buildGuestFeatureItem(Icons.workspace_premium_outlined, 'Tích điểm thành viên, nhận ưu đãi độc quyền'),
+                  _buildGuestFeatureItem(Icons.bookmark_outline_rounded, l10n.guestFeature1),
+                  _buildGuestFeatureItem(Icons.map_outlined, l10n.guestFeature2),
+                  _buildGuestFeatureItem(Icons.workspace_premium_outlined, l10n.guestFeature3),
                   const SizedBox(height: 16),
                   GlassButton.custom(
                     width: double.infinity,
                     onTap: () => context.push('/login'),
-                    child: const Text('Đăng nhập / Đăng ký', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(l10n.loginRegister, style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -220,9 +222,10 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   ) {
     final bool isGoldMember = user.isGold;
     final int userPoints = user.rewardPoints;
+    final l10n = context.l10n;
 
-    final userName = user.name.trim().isNotEmpty ? user.name : 'Người dùng CodoKy';
-    final userEmail = user.email.trim().isNotEmpty ? user.email : 'Chưa cập nhật email';
+    final userName = user.name.trim().isNotEmpty ? user.name : l10n.defaultUserName;
+    final userEmail = user.email.trim().isNotEmpty ? user.email : l10n.noEmailYet;
     final userPhone = user.phone;
     final joinedDate = '${user.createdAt.day.toString().padLeft(2, '0')}/${user.createdAt.month.toString().padLeft(2, '0')}/${user.createdAt.year}';
 
@@ -234,7 +237,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Hồ sơ cá nhân',
+          l10n.profileTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -295,7 +298,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                               ),
                               const SizedBox(width: 3),
                               Text(
-                                isGoldMember ? 'Thành viên Vàng' : 'Thành viên Thường',
+                                isGoldMember ? l10n.goldMember : l10n.regularMember,
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.bold,
@@ -371,8 +374,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     Expanded(
                       child: _buildStatItem(
                         context,
-                        value: 'Lịch trình',
-                        label: 'Đã lưu',
+                        value: l10n.statItinerary,
+                        label: l10n.statSaved,
                         valueColor: AppColors.primary,
                         onTap: () => context.push('/itinerary/saved'),
                       ),
@@ -381,8 +384,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     Expanded(
                       child: _buildStatItem(
                         context,
-                        value: 'Đánh giá',
-                        label: 'Của tôi',
+                        value: l10n.statReviews,
+                        label: l10n.statOfMine,
                         valueColor: AppColors.secondary,
                         onTap: () => context.push('/reviews/my'),
                       ),
@@ -392,7 +395,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       child: _buildStatItem(
                         context,
                         value: '$userPoints',
-                        label: 'Điểm thưởng',
+                        label: l10n.statPoints,
                         valueColor: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
@@ -404,29 +407,29 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
 
             // SECTION 1: HÀNH TRÌNH
             GlassGroupedSection(
-              header: const Padding(
-                padding: EdgeInsets.only(left: 16, bottom: 8),
-                child: Text('HÀNH TRÌNH & DỮ LIỆU', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+              header: Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 8),
+                child: Text(l10n.journeyData, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
               ),
               children: [
                 GlassListTile(
                   leading: const Icon(Icons.map_outlined, color: AppColors.primary),
-                  title: const Text('Lịch trình của tôi', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('Các chuyến đi đã lưu trữ'),
+                  title: Text(l10n.myItineraries, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(l10n.mySavedTripsSubtitle),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('/itinerary/saved'),
                 ),
                 GlassListTile(
                   leading: const Icon(Icons.rate_review_outlined, color: AppColors.primary),
-                  title: const Text('Đánh giá của tôi', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('Nhận xét & review địa điểm'),
+                  title: Text(l10n.myReviews, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(l10n.myReviewsSubtitle),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('/reviews/my'),
                 ),
                 GlassListTile(
                   leading: const Icon(Icons.bookmark_outline_rounded, color: AppColors.primary),
-                  title: const Text('Địa điểm đã lưu', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('Xem lại các điểm check-in yêu thích'),
+                  title: Text(l10n.savedPlaces, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(l10n.savedPlacesSubtitle),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('/search'),
                 ),
@@ -436,23 +439,23 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
 
             // SECTION 2: THÔNG TIN CHI TIẾT
             GlassGroupedSection(
-              header: const Padding(
-                padding: EdgeInsets.only(left: 16, bottom: 8),
-                child: Text('THÔNG TIN CÁ NHÂN', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+              header: Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 8),
+                child: Text(l10n.personalInfoHeader, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
               ),
               children: [
                 GlassListTile(
                   leading: const Icon(Icons.phone_outlined),
-                  title: const Text('Số điện thoại'),
-                  subtitle: Text(userPhone.isNotEmpty ? userPhone : 'Chưa cập nhật', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(l10n.phoneNumber),
+                  subtitle: Text(userPhone.isNotEmpty ? userPhone : l10n.notUpdated, style: const TextStyle(fontWeight: FontWeight.bold)),
                   trailing: GestureDetector(
                     onTap: () => context.push('/profile/edit'),
-                    child: const Text('Sửa', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                    child: Text(l10n.edit, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
                   ),
                 ),
                 GlassListTile(
                   leading: const Icon(Icons.calendar_today_outlined),
-                  title: const Text('Ngày tham gia'),
+                  title: Text(l10n.joinedDate),
                   subtitle: Text(joinedDate, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
@@ -461,24 +464,24 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
 
             // SECTION 3: GIAO DIỆN & CÀI ĐẶT
             GlassGroupedSection(
-              header: const Padding(
-                padding: EdgeInsets.only(left: 16, bottom: 8),
-                child: Text('GIAO DIỆN & CÀI ĐẶT', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+              header: Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 8),
+                child: Text(l10n.appearanceSettings, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
               ),
               children: [
                 Consumer(
                   builder: (context, ref, child) {
                     final currentMode = ref.watch(themeProvider);
-                    String modeLabel = 'Theo hệ thống 📱';
+                    String modeLabel = l10n.systemMode;
                     if (currentMode == ThemeMode.light) {
-                      modeLabel = 'Giao diện sáng ☀️';
+                      modeLabel = l10n.lightMode;
                     } else if (currentMode == ThemeMode.dark) {
-                      modeLabel = 'Đêm Hoàng Thành (Dark Mode) 🌙';
+                      modeLabel = l10n.darkModeTheme;
                     }
 
                     return GlassListTile(
                       leading: const Icon(Icons.palette_outlined),
-                      title: const Text('Giao diện ứng dụng'),
+                      title: Text(l10n.themeSheetTitle),
                       subtitle: Text(modeLabel),
                       trailing: const Icon(Icons.chevron_right_rounded),
                       onTap: () => _showThemeSelectionSheet(context, ref),
@@ -497,12 +500,12 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   GlassButton.custom(
                     width: double.infinity,
                     onTap: () => context.push('/profile/edit'),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.edit_outlined, size: 18),
-                        SizedBox(width: 8),
-                        Text('Chỉnh sửa hồ sơ', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Icon(Icons.edit_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Text(l10n.editProfile, style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -511,12 +514,12 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     width: double.infinity,
                     onTap: () => _confirmSignOut(context, ref),
                     settings: LiquidGlassSettings(glassColor: AppColors.error.withValues(alpha: 0.2)),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.logout_rounded, size: 18, color: AppColors.error),
-                        SizedBox(width: 8),
-                        Text('Đăng xuất', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.error)),
+                        const Icon(Icons.logout_rounded, size: 18, color: AppColors.error),
+                        const SizedBox(width: 8),
+                        Text(l10n.logout, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.error)),
                       ],
                     ),
                   ),
@@ -564,17 +567,18 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }
 
   void _confirmSignOut(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
-        title: const Text('Đăng xuất tài khoản?'),
-        content: const Text('Bạn có chắc muốn đăng xuất khỏi ứng dụng CodoKy?'),
+        title: Text(l10n.logoutConfirmTitle),
+        content: Text(l10n.logoutConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -582,7 +586,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               await ref.read(authProvider.notifier).logout();
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Đăng xuất'),
+            child: Text(l10n.logout),
           ),
         ],
       ),
@@ -590,6 +594,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }
 
   void _showThemeSelectionSheet(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final currentTheme = ref.read(themeProvider);
 
     showModalBottomSheet(
@@ -609,7 +614,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Giao diện ứng dụng',
+                    l10n.themeSheetTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
@@ -625,8 +630,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               _buildThemeOptionTile(
                 ctx,
                 ref,
-                title: 'Giao diện sáng',
-                subtitle: 'Nền Kem Đất Nung sang trọng',
+                title: l10n.themeLightTitle,
+                subtitle: l10n.themeLightSubtitle,
                 icon: Icons.wb_sunny_outlined,
                 mode: ThemeMode.light,
                 isSelected: currentTheme == ThemeMode.light,
@@ -634,8 +639,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               _buildThemeOptionTile(
                 ctx,
                 ref,
-                title: 'Chế độ tối (Đêm Hoàng Thành)',
-                subtitle: 'Dịu mắt ban đêm',
+                title: l10n.themeDarkTitle,
+                subtitle: l10n.themeDarkSubtitle,
                 icon: Icons.nightlight_round,
                 mode: ThemeMode.dark,
                 isSelected: currentTheme == ThemeMode.dark,
@@ -643,8 +648,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               _buildThemeOptionTile(
                 ctx,
                 ref,
-                title: 'Theo cài đặt hệ thống',
-                subtitle: 'Tự động đồng bộ theo thiết bị',
+                title: l10n.themeSystemTitle,
+                subtitle: l10n.themeSystemSubtitle,
                 icon: Icons.settings_brightness_outlined,
                 mode: ThemeMode.system,
                 isSelected: currentTheme == ThemeMode.system,

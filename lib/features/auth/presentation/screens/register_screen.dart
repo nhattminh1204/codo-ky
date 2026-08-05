@@ -7,6 +7,7 @@ import 'package:codoky/core/widgets/buttons/primary_button.dart';
 import 'package:codoky/core/widgets/buttons/social_auth_button.dart';
 import 'package:codoky/core/widgets/inputs/text_input.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -84,8 +85,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Future<void> _handleAppleLogin() async {
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đăng nhập Apple trên Android cần cấu hình Service ID trên Apple Developer Portal.'),
+        SnackBar(
+          content: Text(context.l10n.appleAndroidWarning),
         ),
       );
       return;
@@ -113,10 +114,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Đăng ký tài khoản'),
+        title: Text(l10n.registerAppBar),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -128,7 +130,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Tạo tài khoản mới',
+                  l10n.createNewAccount,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
@@ -136,7 +138,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Bắt đầu hành trình khám phá Huế cùng CodoKy',
+                  l10n.registerSubtitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey.shade600,
                       ),
@@ -146,10 +148,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 // Name
                 TextInput(
                   controller: _nameController,
-                  label: 'Họ và tên',
-                  hint: 'Nhập họ và tên của bạn',
+                  label: l10n.fullName,
+                  hint: l10n.fullNameHint,
                   prefixIcon: const Icon(Icons.person_outline),
-                  validator: (v) => Validators.required(v, fieldName: 'Họ và tên'),
+                  validator: (v) => Validators.required(v, fieldName: l10n.fullName, l10n: l10n),
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
@@ -157,11 +159,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 // Email
                 TextInput(
                   controller: _emailController,
-                  label: 'Email',
-                  hint: 'Nhập địa chỉ email',
+                  label: l10n.email,
+                  hint: l10n.emailAddressHint,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(Icons.email_outlined),
-                  validator: Validators.email,
+                  validator: (v) => Validators.email(v, l10n),
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
@@ -169,11 +171,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 // Phone
                 TextInput(
                   controller: _phoneController,
-                  label: 'Số điện thoại',
-                  hint: 'Nhập số điện thoại (VD: 0912345678)',
+                  label: l10n.phoneNumber,
+                  hint: l10n.phoneHint,
                   keyboardType: TextInputType.phone,
                   prefixIcon: const Icon(Icons.phone_outlined),
-                  validator: Validators.phone,
+                  validator: (v) => Validators.phone(v, l10n),
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
@@ -181,11 +183,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 // Password
                 TextInput(
                   controller: _passwordController,
-                  label: 'Mật khẩu',
-                  hint: 'Nhập mật khẩu (tối thiểu 8 ký tự)',
+                  label: l10n.password,
+                  hint: l10n.passwordHint,
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock_outline),
-                  validator: (v) => Validators.password(v, minLength: 8),
+                  validator: (v) => Validators.password(v, minLength: 8, l10n: l10n),
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
@@ -193,11 +195,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 // Confirm Password
                 TextInput(
                   controller: _confirmPasswordController,
-                  label: 'Xác nhận mật khẩu',
-                  hint: 'Nhập lại mật khẩu',
+                  label: l10n.confirmPassword,
+                  hint: l10n.confirmPasswordHint,
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock_reset_outlined),
-                  validator: (v) => Validators.confirmPassword(v, _passwordController.text),
+                  validator: (v) => Validators.confirmPassword(v, _passwordController.text, l10n),
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _handleRegister(),
                 ),
@@ -205,7 +207,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                 // Submit Button
                 PrimaryButton(
-                  text: 'Đăng ký',
+                  text: l10n.signUp,
                   isLoading: authState.isLoading,
                   onPressed: _handleRegister,
                   backgroundColor: AppColors.primary,
@@ -219,7 +221,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Hoặc đăng ký với',
+                        l10n.orRegisterWith,
                         style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                       ),
                     ),
@@ -247,14 +249,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Đã có tài khoản? ',
+                      l10n.alreadyHaveAccount,
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                     GestureDetector(
                       onTap: () => context.pop(),
-                      child: const Text(
-                        'Đăng nhập ngay',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.loginNow,
+                        style: const TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),

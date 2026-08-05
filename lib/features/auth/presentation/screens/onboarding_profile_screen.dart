@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 
@@ -15,15 +16,15 @@ class OnboardingProfileScreen extends ConsumerStatefulWidget {
 class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScreen> {
   final List<String> _selectedPreferences = [];
 
-  final List<Map<String, String>> _categories = const [
-    {'id': 'food', 'label': 'Ẩm thực Huế', 'icon': '🍜', 'desc': 'Cơm hến, Bún bò, Bánh lọc, Trà cung đình'},
-    {'id': 'history', 'label': 'Lịch sử & Di sản', 'icon': '🏰', 'desc': 'Đại Nội, Lăng tẩm các vua Nguyễn'},
-    {'id': 'temple', 'label': 'Tâm linh & Chùa', 'icon': '⛩️', 'desc': 'Chùa Thiên Mụ, Chùa Từ Đàm, Thiền viện'},
-    {'id': 'nature', 'label': 'Thiên nhiên & Cảnh quan', 'icon': '🌿', 'desc': 'Sông Hương, Núi Ngự Bình, Đồi Vọng Cảnh'},
-    {'id': 'cafe', 'label': 'Đời sống & Cafe', 'icon': '☕', 'desc': 'Quán cafe góc phố, Trà chiều Huế'},
-    {'id': 'shopping', 'label': 'Mua sắm & Phố đêm', 'icon': '🛍️', 'desc': 'Chợ Đông Ba, Phố đi bộ Nguyễn Đình Chiểu'},
-    {'id': 'culture', 'label': 'Nghệ thuật & Nhã nhạc', 'icon': '🎶', 'desc': 'Ca Huế trên sông Hương, Làng nghề truyền thống'},
-  ];
+  List<Map<String, String>> _categories(AppLocalizations l10n) => [
+        {'id': 'food', 'label': l10n.onboardingCatFoodLabel, 'icon': '🍜', 'desc': l10n.onboardingCatFoodDesc},
+        {'id': 'history', 'label': l10n.onboardingCatHistoryLabel, 'icon': '🏰', 'desc': l10n.onboardingCatHistoryDesc},
+        {'id': 'temple', 'label': l10n.onboardingCatSpiritualLabel, 'icon': '⛩️', 'desc': l10n.onboardingCatSpiritualDesc},
+        {'id': 'nature', 'label': l10n.onboardingCatNatureLabel, 'icon': '🌿', 'desc': l10n.onboardingCatNatureDesc},
+        {'id': 'cafe', 'label': l10n.onboardingCatCafeLabel, 'icon': '☕', 'desc': l10n.onboardingCatCafeDesc},
+        {'id': 'shopping', 'label': l10n.onboardingCatShoppingLabel, 'icon': '🛍️', 'desc': l10n.onboardingCatShoppingDesc},
+        {'id': 'culture', 'label': l10n.onboardingCatArtLabel, 'icon': '🎶', 'desc': l10n.onboardingCatArtDesc},
+      ];
 
   void _togglePreference(String id) {
     setState(() {
@@ -38,8 +39,8 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
   Future<void> _handleSave() async {
     if (_selectedPreferences.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn ít nhất 1 sở thích để AI gợi ý lịch trình tốt nhất cho bạn!'),
+        SnackBar(
+          content: Text(context.l10n.selectAtLeastOnePreference),
         ),
       );
       return;
@@ -54,7 +55,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
       final authState = ref.read(authProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authState.error ?? 'Không thể lưu sở thích.'),
+          content: Text(authState.error ?? context.l10n.cantSavePreferences),
           backgroundColor: Colors.red.shade700,
         ),
       );
@@ -64,15 +65,17 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final l10n = context.l10n;
+    final categories = _categories(l10n);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sở thích du lịch'),
+        title: Text(l10n.travelPreferences),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: () => context.go('/map'),
-            child: const Text('Bỏ qua'),
+            child: Text(l10n.skip),
           ),
         ],
       ),
@@ -86,7 +89,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bạn yêu thích trải nghiệm nào ở Huế?',
+                      l10n.whichExperience,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
@@ -94,7 +97,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Chọn các chủ đề bạn quan tâm để CodoKy AI cá nhân hóa lịch trình cho riêng bạn.',
+                      l10n.preferencesSubtitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.grey.shade600,
                           ),
@@ -104,10 +107,10 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                     ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _categories.length,
+                      itemCount: categories.length,
                       separatorBuilder: (context, index) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
-                        final cat = _categories[index];
+                        final cat = categories[index];
                         final isSelected = _selectedPreferences.contains(cat['id']);
 
                         return InkWell(
@@ -189,7 +192,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: PrimaryButton(
-                text: 'Lưu & Khám phá ngay (${_selectedPreferences.length})',
+                text: l10n.saveAndExplore(_selectedPreferences.length),
                 isLoading: authState.isLoading,
                 onPressed: _handleSave,
                 backgroundColor: AppColors.primary,

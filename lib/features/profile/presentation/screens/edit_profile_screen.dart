@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/utils/validators/validators.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
@@ -25,14 +26,35 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late List<String> _selectedPreferences;
 
   final List<Map<String, String>> _categories = const [
-    {'id': 'food', 'label': 'Ẩm thực Huế', 'icon': '🍜'},
-    {'id': 'history', 'label': 'Lịch sử & Di sản', 'icon': '🏰'},
-    {'id': 'temple', 'label': 'Tâm linh & Chùa', 'icon': '⛩️'},
-    {'id': 'nature', 'label': 'Thiên nhiên & Cảnh quan', 'icon': '🌿'},
-    {'id': 'cafe', 'label': 'Đời sống & Cafe', 'icon': '☕'},
-    {'id': 'shopping', 'label': 'Mua sắm & Phố đêm', 'icon': '🛍️'},
-    {'id': 'culture', 'label': 'Nghệ thuật & Nhã nhạc', 'icon': '🎶'},
+    {'id': 'food', 'icon': '🍜'},
+    {'id': 'history', 'icon': '🏰'},
+    {'id': 'temple', 'icon': '⛩️'},
+    {'id': 'nature', 'icon': '🌿'},
+    {'id': 'cafe', 'icon': '☕'},
+    {'id': 'shopping', 'icon': '🛍️'},
+    {'id': 'culture', 'icon': '🎶'},
   ];
+
+  String _categoryLabel(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'food':
+        return l10n.onboardingCatFoodLabel;
+      case 'history':
+        return l10n.onboardingCatHistoryLabel;
+      case 'temple':
+        return l10n.onboardingCatSpiritualLabel;
+      case 'nature':
+        return l10n.onboardingCatNatureLabel;
+      case 'cafe':
+        return l10n.onboardingCatCafeLabel;
+      case 'shopping':
+        return l10n.onboardingCatShoppingLabel;
+      case 'culture':
+        return l10n.onboardingCatArtLabel;
+      default:
+        return id;
+    }
+  }
 
   @override
   void initState() {
@@ -63,6 +85,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   Future<void> _handleSave() async {
+    final l10n = context.l10n;
     if (!_formKey.currentState!.validate()) return;
 
     final avatarText = _avatarController.text.trim();
@@ -78,8 +101,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     if (profileSuccess && prefSuccess) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã cập nhật thông tin hồ sơ và sở thích thành công!'),
+        SnackBar(
+          content: Text(l10n.updateProfileSuccess),
           backgroundColor: AppColors.success,
         ),
       );
@@ -88,7 +111,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       final authState = ref.read(authProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authState.error ?? 'Cập nhật hồ sơ thất bại.'),
+          content: Text(authState.error ?? l10n.updateProfileFailed),
           backgroundColor: AppColors.error,
         ),
       );
@@ -99,10 +122,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chỉnh sửa hồ sơ'),
+        title: Text(l10n.editProfile),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -156,33 +180,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 AppCard(
                   child: Column(
                     children: [
-                      const SectionHeader(
-                        title: 'Thông tin cá nhân',
+                      SectionHeader(
+                        title: l10n.personalInfo,
                         icon: Icons.person_outline,
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       TextInput(
                         controller: _nameController,
-                        label: 'Họ và tên',
-                        hint: 'Nhập họ và tên mới',
+                        label: l10n.fullName,
+                        hint: l10n.fullNameHint,
                         prefixIcon: const Icon(Icons.person_outline),
-                        validator: (v) => Validators.required(v, fieldName: 'Họ và tên'),
+                        validator: (v) => Validators.required(v, fieldName: l10n.fullName, l10n: l10n),
                         textInputAction: TextInputAction.next,
                       ),
                       const SizedBox(height: AppSpacing.md),
                       TextInput(
                         controller: _phoneController,
-                        label: 'Số điện thoại',
-                        hint: 'Nhập số điện thoại mới',
+                        label: l10n.phoneNumber,
+                        hint: l10n.phoneNewHint,
                         keyboardType: TextInputType.phone,
                         prefixIcon: const Icon(Icons.phone_outlined),
-                        validator: Validators.phone,
+                        validator: (v) => Validators.phone(v, l10n),
                         textInputAction: TextInputAction.next,
                       ),
                       const SizedBox(height: AppSpacing.md),
                       TextInput(
                         controller: _avatarController,
-                        label: 'Đường dẫn ảnh đại diện (Avatar URL)',
+                        label: l10n.avatarUrlLabel,
                         hint: 'https://example.com/avatar.jpg',
                         keyboardType: TextInputType.url,
                         prefixIcon: const Icon(Icons.image_outlined),
@@ -198,9 +222,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SectionHeader(
-                        title: 'Sở thích du lịch cá nhân',
-                        subtitle: 'Chọn các chủ đề để AI gợi ý lịch trình chính xác:',
+                      SectionHeader(
+                        title: l10n.personalInterests,
+                        subtitle: l10n.interestsSubtitle,
                         icon: Icons.favorite_outline,
                       ),
                       const SizedBox(height: AppSpacing.sm),
@@ -211,7 +235,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           final id = cat['id']!;
                           final isSelected = _selectedPreferences.contains(id);
                           return AppChip(
-                            label: '${cat['icon']} ${cat['label']}',
+                            label: '${cat['icon']} ${_categoryLabel(id, l10n)}',
                             isSelected: isSelected,
                             onTap: () => _togglePreference(id),
                           );
@@ -223,7 +247,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 const SizedBox(height: AppSpacing.xl),
 
                 PrimaryButton(
-                  text: 'Lưu thay đổi',
+                  text: l10n.saveChanges,
                   useGradient: true,
                   isLoading: authState.isLoading,
                   onPressed: _handleSave,

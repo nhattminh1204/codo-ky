@@ -2,8 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:codoky/core/widgets/buttons/social_auth_button.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
+import 'package:codoky/core/config/localization/locale_provider.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/auth/presentation/widgets/hue_background_art.dart';
 import 'package:codoky/features/auth/presentation/widgets/hue_brand_logo.dart';
@@ -27,7 +28,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
   late Animation<double> _buttonsFadeAnim;
   late Animation<Offset> _buttonsSlideAnim;
   bool _isInitialized = false;
-  String _currentLang = 'VI';
 
   @override
   void initState() {
@@ -144,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Đăng nhập Apple trên Android cần cấu hình Service ID trên Apple Developer Portal.'),
+          content: Text(context.l10n.appleAndroidWarning),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -174,9 +174,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
   }
 
   void _toggleLanguage() {
-    setState(() {
-      _currentLang = _currentLang == 'VI' ? 'EN' : 'VI';
-    });
+    final current = ref.read(localeProvider);
+    ref.read(localeProvider.notifier).setLocale(
+          current.languageCode == 'vi' ? const Locale('en') : const Locale('vi'),
+        );
   }
 
   @override
@@ -187,6 +188,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
     }
 
     final authState = ref.watch(authProvider);
+    final l10n = context.l10n;
+    final isVi = ref.watch(localeProvider).languageCode == 'vi';
 
     return GlassScaffold(
       background: const HueBackgroundArt(),
@@ -237,7 +240,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
-                                    color: _currentLang == 'VI'
+                                    color: isVi
                                         ? const Color(0xFF8B1522)
                                         : const Color(0xFF756E65),
                                   ),
@@ -254,7 +257,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
-                                    color: _currentLang == 'EN'
+                                    color: !isVi
                                         ? const Color(0xFF8B1522)
                                         : const Color(0xFF756E65),
                                   ),
@@ -291,13 +294,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                               child: FadeTransition(
                                 opacity: _titleFadeAnim,
                                 child: Text(
-                                  'Chào mừng tới CodoKy',
+                                  l10n.welcomeTitle,
                                   textAlign: TextAlign.center,
-                                  style: GoogleFonts.playfairDisplay(
+                                  style: const TextStyle(
                                     fontSize: 30,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: -0.4,
-                                    color: const Color(0xFF8B1522),
+                                    color: Color(0xFF8B1522),
                                   ),
                                 ),
                               ),
@@ -346,10 +349,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                               position: _subtitleSlideAnim,
                               child: FadeTransition(
                                 opacity: _subtitleFadeAnim,
-                                child: const Text(
-                                  'Khám phá di sản • Văn hóa • Ẩm thực Huế',
+                                child: Text(
+                                  l10n.welcomeSubtitle,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 15.5,
                                     fontWeight: FontWeight.w700, // Maximum legibility & contrast
                                     color: Color(0xFF6B1D28), // Dark Vermilion Crimson
@@ -410,7 +413,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                           child: Text.rich(
                                             textAlign: TextAlign.center,
                                             TextSpan(
-                                              text: 'Bằng việc tiếp tục, bạn đồng ý với ',
+                                              text: l10n.termsPrefix,
                                               style: const TextStyle(
                                                 fontSize: 12.5,
                                                 fontWeight: FontWeight.w500,
@@ -419,21 +422,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                               ),
                                               children: [
                                                 TextSpan(
-                                                  text: 'Điều khoản dịch vụ',
-                                                  style: TextStyle(
-                                                    color: const Color(0xFF8B1522),
+                                                  text: l10n.termsOfService,
+                                                  style: const TextStyle(
+                                                    color: Color(0xFF8B1522),
                                                     fontWeight: FontWeight.w800,
                                                   ),
                                                 ),
                                                 const TextSpan(text: ' &\n'),
                                                 TextSpan(
-                                                  text: 'Chính sách bảo mật',
-                                                  style: TextStyle(
-                                                    color: const Color(0xFF8B1522),
+                                                  text: l10n.privacyPolicy,
+                                                  style: const TextStyle(
+                                                    color: Color(0xFF8B1522),
                                                     fontWeight: FontWeight.w800,
                                                   ),
                                                 ),
-                                                const TextSpan(text: ' của CodoKy.'),
+                                                TextSpan(text: l10n.termsSuffix),
                                               ],
                                             ),
                                           ),

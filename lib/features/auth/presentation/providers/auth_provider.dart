@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:codoky/core/logging/app_logger.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
+import 'package:codoky/core/config/localization/locale_provider.dart';
 import 'package:codoky/features/auth/data/models/user_model.dart';
 
 class AuthState {
@@ -41,9 +44,13 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier() : super(const AuthState()) {
+  AuthNotifier([Ref? ref]) : _ref = ref, super(const AuthState()) {
     _initAuthListener();
   }
+
+  final Ref? _ref;
+
+  AppLocalizations get _t => AppLocalizations(_ref?.read(localeProvider) ?? const Locale('vi'));
 
   void _initAuthListener() {
     try {
@@ -82,7 +89,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return prefix[0].toUpperCase() + prefix.substring(1);
       }
     }
-    return 'Người dùng CodoKy';
+    return _t.defaultUserName;
   }
 
   Future<UserModel> _fetchOrSyncUser(User fbUser, [String? fallbackName, String? fallbackPhone]) async {
@@ -141,7 +148,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         AppLogger.i('Đăng nhập thành công: ${fbUser.email}');
         return true;
       }
-      throw Exception('Không lấy được thông tin tài khoản');
+      throw Exception(_t.authErrorAccountFetch);
     } on FirebaseAuthException catch (e) {
       final msg = _mapFirebaseAuthError(e);
       AppLogger.e('Lỗi đăng nhập Firebase: ${e.code}', e);
@@ -149,7 +156,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return false;
     } catch (e) {
       AppLogger.e('Lỗi đăng nhập không xác định', e);
-      state = state.copyWith(isLoading: false, error: 'Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.');
+      state = state.copyWith(isLoading: false, error: _t.authErrorLoginFailed);
       return false;
     }
   }
@@ -192,7 +199,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         AppLogger.i('Đăng ký tài khoản thành công: ${fbUser.email}');
         return true;
       }
-      throw Exception('Không thể tạo tài khoản');
+      throw Exception(_t.authErrorRegisterFailed);
     } on FirebaseAuthException catch (e) {
       final msg = _mapFirebaseAuthError(e);
       AppLogger.e('Lỗi đăng ký Firebase: ${e.code}', e);
@@ -200,7 +207,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return false;
     } catch (e) {
       AppLogger.e('Lỗi đăng ký không xác định', e);
-      state = state.copyWith(isLoading: false, error: 'Đăng ký thất bại. Vui lòng thử lại sau.');
+      state = state.copyWith(isLoading: false, error: _t.authErrorRegisterGeneric);
       return false;
     }
   }
@@ -219,7 +226,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return false;
     } catch (e) {
       AppLogger.e('Lỗi quên mật khẩu', e);
-      state = state.copyWith(isLoading: false, error: 'Không thể gửi email đặt lại mật khẩu.');
+      state = state.copyWith(isLoading: false, error: _t.authErrorResetEmail);
       return false;
     }
   }
@@ -291,7 +298,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       AppLogger.w('Google Sign-In UnimplementedError on current platform: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'Đăng nhập Google chưa được hỗ trợ trên nền tảng này. Vui lòng đăng nhập bằng Email/Mật khẩu.',
+        error: _t.authErrorGoogleUnsupported,
       );
       return false;
     } on FirebaseAuthException catch (e, stack) {
@@ -316,8 +323,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       AppLogger.e('=== [EXACT GOOGLE SIGN-IN ERROR] ===\nRuntimeType: ${e.runtimeType}\nError string: $e\nStack trace:\n$stack\n====================================', e, stack);
       final rawError = e.toString().trim();
       final displayError = (rawError == 'Error' || rawError.isEmpty)
-          ? 'Không thể hoàn tất xác thực Google. Vui lòng thử lại sau.'
-          : 'Đăng nhập bằng Google không thành công. Lỗi: $rawError';
+          ? _t.authErrorGoogleGeneric
+          : _t.authErrorGoogleDetail(rawError);
       state = state.copyWith(isLoading: false, error: displayError);
       return false;
     }
@@ -359,7 +366,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return false;
     } catch (e) {
       AppLogger.e('Lỗi Apple Sign In', e);
-      state = state.copyWith(isLoading: false, error: 'Đăng nhập bằng Apple không thành công.');
+      state = state.copyWith(isLoading: false, error: _t.authErrorApple);
       return false;
     }
   }
@@ -387,7 +394,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return true;
     } catch (e) {
       AppLogger.e('Lỗi lưu sở thích', e);
-      state = state.copyWith(isLoading: false, error: 'Không thể lưu sở thích.');
+      state = state.copyWith(isLoading: false, error: _t.authErrorSavePreferences);
       return false;
     }
   }
@@ -427,7 +434,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return true;
     } catch (e) {
       AppLogger.e('Lỗi cập nhật hồ sơ', e);
-      state = state.copyWith(isLoading: false, error: 'Cập nhật hồ sơ thất bại.');
+      state = state.copyWith(isLoading: false, error: _t.authErrorUpdateProfile);
       return false;
     }
   }
@@ -469,12 +476,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (e.code == 'requires-recent-login') {
         state = state.copyWith(
           isLoading: false,
-          error: 'Vì lý do bảo mật, vui lòng đăng xuất và đăng nhập lại trước khi xóa tài khoản.',
+          error: _t.authErrorRecentLogin,
         );
       } else {
         state = state.copyWith(
           isLoading: false,
-          error: 'Không thể xóa tài khoản: ${_mapFirebaseAuthError(e)}',
+          error: _t.cannotDeleteAccount(_mapFirebaseAuthError(e)),
         );
       }
       return false;
@@ -482,7 +489,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       AppLogger.e('Lỗi xóa tài khoản', e);
       state = state.copyWith(
         isLoading: false,
-        error: 'Xóa tài khoản thất bại. Vui lòng thử lại sau.',
+        error: _t.authErrorDeleteGeneric,
       );
       return false;
     }
@@ -495,43 +502,43 @@ class AuthNotifier extends StateNotifier<AuthState> {
   String _mapFirebaseAuthError(FirebaseAuthException e) {
     final code = e.code.toLowerCase();
     if (code.contains('api-key-not-valid') || code.contains('invalid-api-key')) {
-      return 'Lỗi Firebase: FIREBASE_API_KEY chưa hợp lệ (API_KEY_INVALID). Vui lòng dán API Key thật từ Firebase Console vào file .env.dev.';
+      return _t.authErrorApiKeyInvalid;
     }
     if (code.contains('operation-not-allowed')) {
-      return 'Lỗi Firebase: Đăng nhập Google chưa được bật (Enable) trong Firebase Console > Authentication > Sign-in method.';
+      return _t.authErrorOperationNotAllowed;
     }
     if (code.contains('unauthorized-domain')) {
-      return 'Lỗi Firebase: Domain hiện tại chưa được thêm vào Authorized Domains (Firebase Console > Authentication > Settings).';
+      return _t.authErrorUnauthorizedDomain;
     }
 
     switch (e.code) {
       case 'user-not-found':
-        return 'Tài khoản email này chưa được đăng ký.';
+        return _t.authErrorUserNotFound;
       case 'wrong-password':
       case 'invalid-credential':
-        return 'Mật khẩu hoặc thông tin đăng nhập không chính xác.';
+        return _t.authErrorWrongPassword;
       case 'email-already-in-use':
-        return 'Địa chỉ email này đã được đăng ký tài khoản khác.';
+        return _t.authErrorEmailInUse;
       case 'invalid-email':
-        return 'Địa chỉ email không đúng định dạng.';
+        return _t.authErrorInvalidEmail;
       case 'weak-password':
-        return 'Mật khẩu quá yếu (tối thiểu 8 ký tự).';
+        return _t.authErrorWeakPassword;
       case 'user-disabled':
-        return 'Tài khoản này đã bị tạm khóa.';
+        return _t.authErrorUserDisabled;
       case 'too-many-requests':
-        return 'Thử quá nhiều lần thất bại. Vui lòng thử lại sau ít phút.';
+        return _t.authErrorTooManyRequests;
       case 'network-request-failed':
-        return 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối Internet.';
+        return _t.authErrorNetwork;
       default:
         final msg = e.message;
         if (msg == null || msg.isEmpty || msg == 'Error') {
-          return 'Lỗi xác thực Firebase [${e.code}]. Vui lòng kiểm tra lại cấu hình Firebase.';
+          return _t.authErrorFirebaseConfig(e.code);
         }
-        return '[${e.code}] $msg';
+        return _t.authErrorFirebaseRaw(e.code, msg);
     }
   }
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier();
+  return AuthNotifier(ref);
 });
