@@ -334,6 +334,8 @@ class _WeatherBadge extends ConsumerWidget {
     return weatherState.currentWeather.maybeWhen(
       data: (w) => GestureDetector(
         onTap: () {
+          // Mutual exclusion: Hạ Bảng chi tiết địa điểm (MapBottomSheet) nếu đang mở
+          ref.read(mapProvider.notifier).clearSelection();
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,

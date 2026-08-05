@@ -8,7 +8,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/config/localization/app_localizations.dart';
-import 'package:codoky/core/theme/motion.dart';
 import 'package:codoky/core/utils/helpers/app_snackbar.dart';
 import 'package:vibration/vibration.dart';
 import 'package:codoky/core/logging/app_logger.dart';
@@ -1480,6 +1479,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
+                // Mutual exclusion: Hạ Bảng Thời Tiết (WeatherDetailSheet) nếu đang mở
+                Navigator.of(context).maybePop();
                 if (_previousCameraCenter == null) {
                   _previousCameraCenter = _mapController.camera.center;
                   _previousCameraZoom = _mapController.camera.zoom;
