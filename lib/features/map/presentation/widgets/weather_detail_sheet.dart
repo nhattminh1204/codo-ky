@@ -7,6 +7,7 @@ import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/services/weather/weather_forecast_model.dart';
 import 'package:codoky/features/map/presentation/providers/current_weather_provider.dart';
 import 'package:codoky/features/map/presentation/providers/weather_detail_provider.dart';
+import 'package:codoky/core/widgets/weather/weather_icon_widget.dart';
 
 /// Format giờ nhanh dạng HH:mm
 String _fmtHHmm(DateTime dt) {
@@ -308,9 +309,9 @@ class _SheetBody extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          w.weatherIcon,
-          style: const TextStyle(fontSize: 54),
+        WeatherIconWidget(
+          weatherCode: w.weatherCode,
+          size: 58,
         ),
         const SizedBox(width: 14),
         Column(
@@ -912,7 +913,7 @@ class _SheetBody extends ConsumerWidget {
                   : (isDark ? Colors.white60 : const Color(0xFF64748B)),
             ),
           ),
-          Text(h.weatherIcon, style: const TextStyle(fontSize: 22)),
+          WeatherIconWidget(weatherCode: h.weatherCode, size: 26),
           Text(
             '${h.temperature.round()}°',
             style: TextStyle(
@@ -988,7 +989,7 @@ class _SheetBody extends ConsumerWidget {
               ),
             ),
           ),
-          Text(d.weatherIcon, style: const TextStyle(fontSize: 22)),
+          WeatherIconWidget(weatherCode: d.weatherCode, size: 26),
           const SizedBox(width: 12),
           Text(
             '${d.tempMin.round()}°~${d.tempMax.round()}°',
