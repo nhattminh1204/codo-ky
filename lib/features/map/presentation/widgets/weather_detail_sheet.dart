@@ -115,7 +115,7 @@ class _WeatherDetailSheetState extends ConsumerState<WeatherDetailSheet> {
   }
 }
 
-class _SheetBody extends ConsumerWidget {
+class _SheetBody extends ConsumerStatefulWidget {
   final ScrollController scrollController;
   final bool isDark;
   final AppLocalizations l10n;
@@ -127,7 +127,18 @@ class _SheetBody extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SheetBody> createState() => _SheetBodyState();
+}
+
+class _SheetBodyState extends ConsumerState<_SheetBody> {
+  int _selectedDayOffset = 0;
+
+  bool get isDark => widget.isDark;
+  AppLocalizations get l10n => widget.l10n;
+  ScrollController get scrollController => widget.scrollController;
+
+  @override
+  Widget build(BuildContext context) {
     final currentState = ref.watch(currentWeatherProvider);
     final detailState = ref.watch(weatherDetailProvider);
 
@@ -201,12 +212,19 @@ class _SheetBody extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // 5. Hourly Forecast (24h Slider)
+                // 5. Hourly Forecast — Chọn ngày
                 _buildSectionTitle(l10n.weatherHourlyForecast, isDark),
                 const SizedBox(height: 10),
                 detailState.detail.when(
-                  data: (d) => _buildHourlyRow(d.hourly, isDark, themeConfig.cardBg),
-                  loading: () => _buildShimmer(height: 118, isDark: isDark),
+                  data: (d) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildDaySelector(d.hourly),
+                      const SizedBox(height: 10),
+                      _buildHourlyRow(d.hourly, isDark, themeConfig.cardBg, _selectedDayOffset),
+                    ],
+                  ),
+                  loading: () => _buildShimmer(height: 150, isDark: isDark),
                   error: (e, st) => _buildErrorChip(isDark),
                 ),
                 const SizedBox(height: 24),
@@ -945,14 +963,92 @@ class _SheetBody extends ConsumerWidget {
   }
 
 
-  // ── 5. Hourly Row (24h Slider) ───────────────────────────────────────────────
-  Widget _buildHourlyRow(
-      List<HourlyWeather> hourly, bool isDark, Color cardColor) {
+  // ── Day Selector Chips ───────────────────────────────────────────────────────
+  Widget _buildDaySelector(List<HourlyWeather> hourly) {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Tính các ngày có trong data (tối đa 3 ngày: Hôm nay, Ngày mai, Ngày kia)
+    final availableDays = <int>[];
+    for (int offset = 0; offset <= 2; offset++) {
+      final targetDay = today.add(Duration(days: offset));
+      final hasData = hourly.any((h) {
+        final d = DateTime(h.time.year, h.time.month, h.time.day);
+        return d == targetDay;
+      });
+      if (hasData) availableDays.add(offset);
+    }
+
+    return Row(
+      children: availableDays.map((offset) {
+        final isSelected = offset == _selectedDayOffset;
+        final label = offset == 0
+            ? 'Hôm nay'
+            : offset == 1
+                ? 'Ngày mai'
+                : 'Ngày kia';
+
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: GestureDetector(
+            onTap: () => setState(() => _selectedDayOffset = offset),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF2563EB) // Royal Blue
+                    : (isDark
+                        ? Colors.white.withValues(alpha: 0.10)
+                        : const Color(0xFF94A3B8).withValues(alpha: 0.12)),
+                borderRadius: BorderRadius.circular(20),
+                border: isSelected
+                    ? null
+                    : Border.all(
+                        color: isDark
+                            ? Colors.white24
+                            : const Color(0xFFCBD5E1),
+                        width: 1,
+                      ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: const Color(0xFF2563EB).withValues(alpha: 0.30),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? Colors.white
+                      : (isDark ? Colors.white60 : const Color(0xFF475569)),
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ── 5. Hourly Row (Slider theo ngày) ─────────────────────────────────────────
+  Widget _buildHourlyRow(
+      List<HourlyWeather> hourly, bool isDark, Color cardColor, int dayOffset) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final targetDay = today.add(Duration(days: dayOffset));
+
     final filtered = hourly
         .where((h) {
-          final diff = h.time.difference(now).inMinutes;
-          return diff >= -30 && diff <= 24 * 60;
+          final hDay = DateTime(h.time.year, h.time.month, h.time.day);
+          return hDay == targetDay;
         })
         .toList();
 
