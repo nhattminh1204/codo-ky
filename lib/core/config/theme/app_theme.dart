@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 export 'package:codoky/core/theme/motion.dart';
 
 class AppColors {
@@ -135,21 +134,18 @@ class AppRadius {
 }
 
 class AppTheme {
-  static const String fontFamily = '.SF Pro Text';
+  static const String fontFamily = 'BeVietnamPro';
   static const List<String> fontFamilyFallback = [
-    '.SF Pro Display',
-    'SF Pro Text',
-    'SF Pro Display',
-    'San Francisco',
-    '-apple-system',
-    'BlinkMacSystemFont',
+    'BeVietnamPro',
     'Inter',
     'Roboto',
+    '.SF Pro Text',
+    'San Francisco',
   ];
 
   static ThemeData get lightTheme {
-    final bodyTextTheme = GoogleFonts.interTextTheme();
-    final titleTextTheme = GoogleFonts.interTextTheme();
+    final bodyTextTheme = ThemeData.light().textTheme.apply(fontFamily: fontFamily);
+    final titleTextTheme = ThemeData.light().textTheme.apply(fontFamily: fontFamily);
 
     return ThemeData(
       useMaterial3: true,
@@ -186,7 +182,7 @@ class AppTheme {
         scrolledUnderElevation: 1,
         centerTitle: true,
         iconTheme: const IconThemeData(color: AppColors.primary),
-        titleTextStyle: GoogleFonts.plusJakartaSans(
+        titleTextStyle: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
           color: AppColors.primary,
@@ -207,7 +203,7 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -219,7 +215,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -231,7 +227,7 @@ class AppTheme {
           side: const BorderSide(color: AppColors.primary, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -266,8 +262,8 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
-    final bodyTextTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
-    final titleTextTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
+    final bodyTextTheme = ThemeData.dark().textTheme.apply(fontFamily: fontFamily);
+    final titleTextTheme = ThemeData.dark().textTheme.apply(fontFamily: fontFamily);
 
     return ThemeData(
       useMaterial3: true,
@@ -304,7 +300,7 @@ class AppTheme {
         scrolledUnderElevation: 1,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: GoogleFonts.plusJakartaSans(
+        titleTextStyle: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.white,
@@ -325,7 +321,7 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -337,7 +333,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -349,7 +345,7 @@ class AppTheme {
           side: const BorderSide(color: AppColors.secondary, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),

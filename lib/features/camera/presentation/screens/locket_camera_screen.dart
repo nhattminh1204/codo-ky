@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/config/localization/app_localizations.dart';
 import '../../../../core/theme/motion.dart';
 
 /// 📸 Màn hình Chụp Ảnh Quét Di Sản phong cách Locket UI 2026
@@ -124,7 +125,7 @@ class _LocketCameraScreenState extends State<LocketCameraScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Không thể chụp ảnh: $e')),
+          SnackBar(content: Text(context.l10n.cameraCaptureError('$e'))),
         );
       }
     }
@@ -252,28 +253,28 @@ class _LocketCameraScreenState extends State<LocketCameraScreen>
                                   child: Stack(
                                     alignment: Alignment.center,
                                     children: [
-                                      const Column(
+                                      Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.add_a_photo_rounded,
                                             size: 56,
                                             color: Color(0xFF2DBAC6),
                                           ),
-                                          SizedBox(height: 12),
+                                          const SizedBox(height: 12),
                                           Text(
-                                            'Chạm để tải ảnh di sản quét AI',
-                                            style: TextStyle(
+                                            context.l10n.cameraTapHint,
+                                            style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 13,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          SizedBox(height: 4),
+                                          const SizedBox(height: 4),
                                           Text(
-                                            '(Chế độ Dev Windows / Thư viện)',
-                                            style: TextStyle(
+                                            context.l10n.cameraDevHint,
+                                            style: const TextStyle(
                                               color: Colors.white54,
                                               fontSize: 11,
                                             ),
@@ -322,10 +323,10 @@ class _LocketCameraScreenState extends State<LocketCameraScreen>
                             if (_isAnalyzing)
                               Container(
                                 color: Colors.black.withValues(alpha: 0.65),
-                                child: const Column(
+                                child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 44,
                                       height: 44,
                                       child: CircularProgressIndicator(
@@ -333,10 +334,10 @@ class _LocketCameraScreenState extends State<LocketCameraScreen>
                                         color: Color(0xFF2DBAC6),
                                       ),
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     Text(
-                                      'AI Gemini đang phân tích di sản...',
-                                      style: TextStyle(
+                                      context.l10n.cameraAnalyzing,
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -444,9 +445,8 @@ class _LocketCameraScreenState extends State<LocketCameraScreen>
                     onTap: () {
                       if (_capturedImage != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                '✨ Đã lưu vào bộ sưu tập hành trình Huế của bạn!'),
+                          SnackBar(
+                            content: Text(context.l10n.cameraSaved),
                           ),
                         );
                       } else {
@@ -475,13 +475,14 @@ class _LocketCameraScreenState extends State<LocketCameraScreen>
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text(
-                                  'Đã chia sẻ bài viết ${_landmarkName ?? "di sản Huế"}!')),
+                              content: Text(context
+                                  .l10n
+                                  .cameraShared(_landmarkName ?? context.l10n.heritageHue))),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Vui lòng chụp ảnh để quét AI')),
+                          SnackBar(
+                              content: Text(context.l10n.cameraNoPhoto)),
                         );
                       }
                     },

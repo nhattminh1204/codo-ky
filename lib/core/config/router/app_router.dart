@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animations/animations.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 // Shared Global Screens
 import 'package:codoky/shared/screens/splash_screen.dart';
@@ -341,7 +342,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
-        child: Text('Không tìm thấy trang: ${state.uri}'),
+        child: Text('${context.l10n.routeNotFound}${state.uri}'),
       ),
     ),
   );

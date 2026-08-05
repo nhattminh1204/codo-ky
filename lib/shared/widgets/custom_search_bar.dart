@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class CustomSearchBar extends StatelessWidget {
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onFilterTap;
-  final String hintText;
+  final String? hintText;
 
   const CustomSearchBar({
     super.key,
     this.controller,
     this.onChanged,
     this.onFilterTap,
-    this.hintText = 'Tìm kiếm địa điểm, món ăn...',
+    this.hintText,
   });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedHint = hintText ?? context.l10n.searchPlacesHint;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -28,7 +30,7 @@ class CustomSearchBar extends StatelessWidget {
         onChanged: onChanged,
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
-          hintText: hintText,
+          hintText: resolvedHint,
           hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13.5),
           prefixIcon: const Icon(Icons.search, color: AppColors.primary),
           suffixIcon: Row(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -121,9 +122,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                     const SizedBox(height: 20),
 
                     // App Title
-                    const Text(
-                      'CodoKy',
-                      style: TextStyle(
+                    Text(
+                      context.l10n.appName,
+                      style: const TextStyle(
                         fontSize: 38,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
@@ -142,9 +143,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Text(
-                        'DU LỊCH & KHÁM PHÁ CỐ ĐÔ HUẾ',
-                        style: TextStyle(
+                      child: Text(
+                        context.l10n.splashTagline,
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,

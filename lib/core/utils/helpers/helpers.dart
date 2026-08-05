@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class Helpers {
   static String formatCurrency(double amount, {String currency = 'VND'}) {
@@ -39,11 +41,12 @@ class Helpers {
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  static String getGreeting() {
+  static String getGreeting([Locale? locale]) {
+    final t = AppLocalizations(locale ?? const Locale('vi'));
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Chào buổi sáng';
-    if (hour < 18) return 'Chào buổi chiều';
-    return 'Chào buổi tối';
+    if (hour < 12) return t.greetingMorning;
+    if (hour < 18) return t.greetingAfternoon;
+    return t.greetingEvening;
   }
 
   static String truncate(String text, int maxLength, {String suffix = '...'}) {

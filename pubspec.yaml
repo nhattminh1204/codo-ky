@@ -67,3 +67,10 @@ flutter:
     - assets/data/
     - assets/images/
     - lib/l10n/
+  fonts:
+    - family: BeVietnamPro
+      fonts:
+        - asset: BeVietnamPro_regular_7137b7b25895e70fcb54f9459a4fbc520288ee1c5d1433a6b6ef7e46fe80f41c.ttf
+          weight: 400
+        - asset: BeVietnamPro_700_9349ce8e551cd214fbfcabb8b758e9cef74da57d5fb61678058909a60c916bb0.ttf
+          weight: 700

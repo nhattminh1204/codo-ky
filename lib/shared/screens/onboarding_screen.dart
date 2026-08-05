@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -15,20 +16,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<Map<String, dynamic>> _onboardingPages = const [
     {
-      'title': 'Bản Đồ Cố Đồ Huế Thông Minh 🗺️',
-      'subtitle': 'Khám phá hơn 100+ lăng tẩm, Đại Nội, chùa chiền & quán cafe muối nổi tiếng hoàn toàn miễn phí.',
       'icon': Icons.map_rounded,
       'gradient': [Color(0xFFFF5E62), Color(0xFFFF9966)],
     },
     {
-      'title': 'Trợ Lý Lập Lịch Trình AI 🤖',
-      'subtitle': 'Tự động tạo lộ trình di sản & ẩm thực cá nhân hóa theo sở thích cá nhân chỉ trong 5 giây.',
       'icon': Icons.auto_awesome_rounded,
       'gradient': [Color(0xFFFF7A00), Color(0xFFFFB800)],
     },
     {
-      'title': 'Trải Nghiệm & Tích Điểm VIP 👑',
-      'subtitle': 'Lưu địa điểm yêu thích, viết đánh giá du khách và thăng hạng nhận ưu đãi Thành viên Vàng.',
       'icon': Icons.workspace_premium_rounded,
       'gradient': [Color(0xFF9333EA), Color(0xFFC084FC)],
     },
@@ -53,6 +48,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final titles = [l10n.onboardingTitle1, l10n.onboardingTitle2, l10n.onboardingTitle3];
+    final subtitles = [l10n.onboardingSubtitle1, l10n.onboardingSubtitle2, l10n.onboardingSubtitle3];
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
@@ -66,8 +64,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   TextButton(
                     onPressed: () => context.go('/login'),
-                    child: const Text(
-                      'Bỏ qua',
+                    child: Text(
+                      l10n.skip,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -125,7 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                         // Title
                         Text(
-                          item['title'] as String,
+                          titles[index],
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
@@ -140,7 +138,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            item['subtitle'] as String,
+                            subtitles[index],
                             style: const TextStyle(
                               fontSize: 13.5,
                               color: Color(0xFF64748B),
@@ -209,7 +207,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              _currentPage == _onboardingPages.length - 1 ? 'Bắt đầu ngay' : 'Tiếp tục',
+                              _currentPage == _onboardingPages.length - 1 ? l10n.getStarted : l10n.continueLabel,
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,

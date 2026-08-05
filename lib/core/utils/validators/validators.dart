@@ -1,76 +1,86 @@
+import 'dart:ui';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/utils/extensions/extensions.dart';
 
 class Validators {
-  static String? email(String? value) {
+  static String? email(String? value, [AppLocalizations? l10n]) {
+    final t = l10n ?? AppLocalizations(const Locale('vi'));
     if (value == null || value.trim().isEmpty) {
-      return 'Vui lòng nhập địa chỉ email';
+      return t.validEmailRequired;
     }
     if (!value.trim().isValidEmail()) {
-      return 'Email không đúng định dạng';
+      return t.validEmailInvalid;
     }
     return null;
   }
 
-  static String? password(String? value, {int minLength = 8}) {
+  static String? password(String? value, {int minLength = 8, AppLocalizations? l10n}) {
+    final t = l10n ?? AppLocalizations(const Locale('vi'));
     if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập mật khẩu';
+      return t.validPasswordRequired;
     }
     if (value.length < minLength) {
-      return 'Mật khẩu phải có tối thiểu $minLength ký tự';
+      return t.validPasswordMinLength(minLength);
     }
     return null;
   }
 
-  static String? confirmPassword(String? value, String? password) {
+  static String? confirmPassword(String? value, String? password, [AppLocalizations? l10n]) {
+    final t = l10n ?? AppLocalizations(const Locale('vi'));
     if (value == null || value.isEmpty) {
-      return 'Vui lòng xác nhận lại mật khẩu';
+      return t.validConfirmPasswordRequired;
     }
     if (value != password) {
-      return 'Mật khẩu xác nhận không khớp';
+      return t.validConfirmPasswordMismatch;
     }
     return null;
   }
 
-  static String? required(String? value, {String fieldName = 'Trường này'}) {
+  static String? required(String? value, {String fieldName = 'Trường này', AppLocalizations? l10n}) {
+    final t = l10n ?? AppLocalizations(const Locale('vi'));
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName không được để trống';
+      return t.validFieldRequired(fieldName);
     }
     return null;
   }
 
-  static String? phone(String? value) {
+  static String? phone(String? value, [AppLocalizations? l10n]) {
+    final t = l10n ?? AppLocalizations(const Locale('vi'));
     if (value == null || value.trim().isEmpty) {
-      return 'Vui lòng nhập số điện thoại';
+      return t.validPhoneRequired;
     }
     if (!value.trim().isValidPhoneNumber()) {
-      return 'Số điện thoại không hợp lệ (VD: 0912345678)';
+      return t.validPhoneInvalid;
     }
     return null;
   }
 
-  static String? minLength(String? value, int minLength, {String fieldName = 'Trường này'}) {
+  static String? minLength(String? value, int minLength, {String fieldName = 'Trường này', AppLocalizations? l10n}) {
+    final t = l10n ?? AppLocalizations(const Locale('vi'));
     if (value == null || value.isEmpty) {
-      return '$fieldName không được để trống';
+      return t.validFieldRequired(fieldName);
     }
     if (value.length < minLength) {
-      return '$fieldName phải có ít nhất $minLength ký tự';
+      return t.validFieldMinLength(fieldName, minLength);
     }
     return null;
   }
 
-  static String? maxLength(String? value, int maxLength, {String fieldName = 'Trường này'}) {
+  static String? maxLength(String? value, int maxLength, {String fieldName = 'Trường này', AppLocalizations? l10n}) {
+    final t = l10n ?? AppLocalizations(const Locale('vi'));
     if (value != null && value.length > maxLength) {
-      return '$fieldName không được vượt quá $maxLength ký tự';
+      return t.validFieldMaxLength(fieldName, maxLength);
     }
     return null;
   }
 
-  static String? rating(double? value) {
+  static String? rating(double? value, [AppLocalizations? l10n]) {
+    final t = l10n ?? AppLocalizations(const Locale('vi'));
     if (value == null) {
-      return 'Vui lòng chọn số sao đánh giá';
+      return t.validRatingRequired;
     }
     if (value < 1 || value > 5) {
-      return 'Đánh giá phải từ 1 đến 5 sao';
+      return t.validRatingRange;
     }
     return null;
   }

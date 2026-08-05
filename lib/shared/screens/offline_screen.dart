@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class OfflineScreen extends StatelessWidget {
   const OfflineScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mất kết nối'),
+        title: Text(l10n.offlineTitle),
       ),
-      body: const Center(
-        child: Text('TODO: Mất kết nối (Offline)'),
+      body: Center(
+        child: Text(l10n.offlineTodo),
       ),
     );
   }

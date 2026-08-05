@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class _NavItemData {
   final IconData icon;
@@ -64,12 +65,12 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     final activeColumn = _getActiveTabColumn(selectedIndex);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final navTabs = const [
-      _NavItemData(icon: Icons.map_outlined, selectedIcon: Icons.map_rounded, label: 'Bản đồ', route: '/map', branchIndex: 0),
-      _NavItemData(icon: Icons.explore_outlined, selectedIcon: Icons.explore_rounded, label: 'Khám phá', route: '/explore', branchIndex: 1),
-      _NavItemData(icon: Icons.camera_alt_outlined, selectedIcon: Icons.camera_alt_rounded, label: 'Camera', route: '/camera', branchIndex: 2),
-      _NavItemData(icon: Icons.calendar_today_outlined, selectedIcon: Icons.calendar_today_rounded, label: 'Lịch trình', route: '/itinerary', branchIndex: 3, hasBadge: true),
-      _NavItemData(icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded, label: 'Hồ sơ', route: '/profile', branchIndex: 4),
+    final navTabs = [
+      _NavItemData(icon: Icons.map_outlined, selectedIcon: Icons.map_rounded, label: context.l10n.navMap, route: '/map', branchIndex: 0),
+      _NavItemData(icon: Icons.explore_outlined, selectedIcon: Icons.explore_rounded, label: context.l10n.navExplore, route: '/explore', branchIndex: 1),
+      _NavItemData(icon: Icons.camera_alt_outlined, selectedIcon: Icons.camera_alt_rounded, label: context.l10n.navCamera, route: '/camera', branchIndex: 2),
+      _NavItemData(icon: Icons.calendar_today_outlined, selectedIcon: Icons.calendar_today_rounded, label: context.l10n.navItinerary, route: '/itinerary', branchIndex: 3, hasBadge: true),
+      _NavItemData(icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded, label: context.l10n.navProfile, route: '/profile', branchIndex: 4),
     ];
 
     const double navHeight = 52;

@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/config/router/app_router.dart';
 import 'core/config/theme/app_theme.dart';
 import 'core/config/localization/app_localizations.dart';
+import 'core/config/localization/locale_provider.dart';
 import 'core/config/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart';
 
@@ -27,12 +28,14 @@ class CodoKyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: AppConstants.appName,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      locale: locale,
       routerConfig: router,
       scrollBehavior: const AppScrollBehavior(),
       localizationsDelegates: const [

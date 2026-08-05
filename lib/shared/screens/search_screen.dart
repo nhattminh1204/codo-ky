@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -52,6 +53,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final allPlaces = mapState.allPlaces;
 
     final query = _searchController.text.trim().toLowerCase();
+    final l10n = context.l10n;
 
     final searchResults = query.isEmpty
         ? <Map<String, dynamic>>[]
@@ -82,7 +84,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           focusNode: _focusNode,
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
-            hintText: 'Tìm địa điểm, quán ăn, di tích Huế...',
+            hintText: l10n.searchHint,
             hintStyle: const TextStyle(fontSize: 13.5, color: Color(0xFF94A3B8)),
             border: InputBorder.none,
             suffixIcon: query.isNotEmpty
@@ -106,7 +108,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       const Icon(Icons.search_off_rounded, size: 54, color: Color(0xFFCBD5E1)),
                       const SizedBox(height: 12),
                       Text(
-                        'Không tìm thấy địa điểm nào khớp với "$query"',
+                        l10n.noResultsFor(query),
                         style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                       ),
                     ],
@@ -118,8 +120,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   itemBuilder: (context, index) {
                     final item = searchResults[index];
                     final id = item['id']?.toString() ?? '$index';
-                    final name = item['name']?.toString() ?? 'Địa điểm Huế';
-                    final address = item['address']?.toString() ?? 'Thừa Thiên Huế';
+                    final name = item['name']?.toString() ?? l10n.fallbackPlaceName;
+                    final address = item['address']?.toString() ?? l10n.fallbackAddress;
                     final rating = double.tryParse(item['rating']?.toString() ?? '4.8') ?? 4.8;
 
                     return Padding(
@@ -183,9 +185,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'TÌM KIẾM GẦN ĐÂY',
-                        style: TextStyle(
+                      Text(
+                        l10n.recentSearches,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF64748B),
@@ -195,12 +197,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       GestureDetector(
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Đã xóa lịch sử tìm kiếm.')),
+                            SnackBar(content: Text(l10n.searchCleared)),
                           );
                         },
-                        child: const Text(
-                          'Xóa tất cả',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
+                        child: Text(
+                          l10n.clearAll,
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
                         ),
                       ),
                     ],
@@ -225,9 +227,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   const SizedBox(height: AppSpacing.lg),
 
                   // Từ khóa Hot được tìm nhiều
-                  const Text(
-                    'TỪ KHÓA ĐƯỢC TÌM NHIỀU 🔥',
-                    style: TextStyle(
+                  Text(
+                    l10n.popularKeywords,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF64748B),

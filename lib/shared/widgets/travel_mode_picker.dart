@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 /// Enum định nghĩa các phương tiện di chuyển
 enum TravelMode {
@@ -154,14 +155,14 @@ class _TravelModePickerState extends State<TravelModePicker> {
     }
   }
 
-  String _getModeTooltip(TravelMode mode) {
+  String _getModeTooltip(TravelMode mode, AppLocalizations l10n) {
     switch (mode) {
       case TravelMode.walking:
-        return 'Đi bộ';
+        return l10n.travelWalking;
       case TravelMode.motorbike:
-        return 'Xe máy';
+        return l10n.travelMotorbike;
       case TravelMode.driving:
-        return 'Ô tô';
+        return l10n.travelDriving;
     }
   }
 
@@ -229,7 +230,7 @@ class _TravelModePickerState extends State<TravelModePicker> {
                           onTap: () => _selectModeIndex(index),
                           behavior: HitTestBehavior.opaque,
                           child: Tooltip(
-                            message: _getModeTooltip(mode),
+message: _getModeTooltip(mode, context.l10n),
                             child: Center(
                               child: AnimatedColorIcon(
                                 icon: _getModeIcon(mode),
@@ -324,7 +325,7 @@ class _TravelModePickerState extends State<TravelModePicker> {
                     behavior: HitTestBehavior.opaque,
                     child: Center(
                       child: Tooltip(
-                        message: _getModeTooltip(mode),
+                        message: _getModeTooltip(mode, context.l10n),
                         child: AnimatedScale(
                           scale: isSelected ? 1.15 : 0.85,
                           duration: const Duration(milliseconds: 150),
