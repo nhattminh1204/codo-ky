@@ -610,5 +610,18 @@
   "travelAdvisorBringUmbrella": "Nên mang ô/dù",
   "travelAdvisorSunProtection": "Đội nón / Chống nắng",
   "travelAdvisorIndoorPriority": "Ưu tiên điểm trong nhà",
-  "travelAdvisorOutdoorIdeal": "Lý tưởng tham quan ngoài trời"
+  "travelAdvisorOutdoorIdeal": "Lý tưởng tham quan ngoài trời",
+  "insightHumidityGood": "Mát mẻ, lý tưởng dạo quanh Đại Nội & phố cổ",
+  "insightHumidityModerate": "Khá ẩm, có thể cảm thấy hơi nồng khi đi bộ",
+  "insightHumidityHigh": "Thời tiết oi nồng, nên mặc đồ thoáng mát",
+  "insightHumidityLow": "Gió Lào hanh khô, nên bổ sung nhiều nước",
+  "insightWindGood": "Gió êm, rất thích hợp đi thuyền Rồng Sông Hương",
+  "insightWindModerate": "Gió lộng thoáng mát khi tham quan Chùa Thiên Mụ",
+  "insightWindHigh": "Gió lớn, cẩn thận khi di chuyển qua cầu Tràng Tiền",
+  "insightUvGood": "An toàn cho da, tha hồ chụp ảnh ngoài trời",
+  "insightUvModerate": "Nắng vừa, nên mang nón lá khi đi các Lăng tẩm",
+  "insightUvHigh": "Nắng gắt, cần đội nón & bôi kem chống nắng",
+  "insightAqiGood": "Khí trời Cố đô trong lành, thích hợp dạo chơi",
+  "insightAqiModerate": "Không khí chấp nhận được, thoải mái ra ngoài",
+  "insightAqiUnhealthy": "Nên đeo khẩu trang khi di chuyển bằng xe máy"
 }

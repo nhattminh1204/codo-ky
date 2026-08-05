@@ -517,7 +517,7 @@ class _SheetBody extends ConsumerWidget {
   }
 
   // ── 4. Stats Grid ───────────────────────────────────────────────────────────
-  // ── 4. Stats Grid (Bento Glass Style) ─────────────────────────────────────
+  // ── 4. Stats Grid (3-Tier Bento Glass Style) ──────────────────────────────
   Widget _buildStatsGrid(
       WeatherDetailResult d, bool isDark, Color cardColor) {
     final humidity = d.current.humidity.round();
@@ -525,19 +525,76 @@ class _SheetBody extends ConsumerWidget {
     final uvIndex = d.uvIndex;
     final aqi = d.aqi ?? 65;
 
-    // Status strings
-    final humidityStatus = humidity > 70
-        ? 'Nhiều ẩm'
-        : (humidity < 45 ? 'Khô ráo' : 'Dễ chịu');
-    final windStatus = windSpeed < 5.0
-        ? 'Gió nhẹ'
-        : (windSpeed < 15.0 ? 'Gió vừa' : 'Gió mạnh');
-    final aqiStatus = aqi <= 50
-        ? 'Tốt'
-        : (aqi <= 100 ? 'Trung bình' : 'Kém');
-    final aqiColor = aqi <= 50
-        ? const Color(0xFF10B981)
-        : (aqi <= 100 ? const Color(0xFFF59E0B) : const Color(0xFFEF4444));
+    // Helper for semantic color palette based on level (0 = Green, 1 = Amber, 2 = Red)
+    Color getSemanticColor(int level) {
+      if (isDark) {
+        if (level == 0) return const Color(0xFF34D399); // Emerald
+        if (level == 1) return const Color(0xFFFBBF24); // Amber
+        return const Color(0xFFF87171); // Crimson
+      } else {
+        if (level == 0) return const Color(0xFF059669); // Emerald
+        if (level == 1) return const Color(0xFFD97706); // Amber
+        return const Color(0xFFDC2626); // Crimson
+      }
+    }
+
+    Color getIconBgColor(int level) {
+      if (isDark) {
+        if (level == 0) return const Color(0xFF064E3B);
+        if (level == 1) return const Color(0xFF451A03);
+        return const Color(0xFF450A0A);
+      } else {
+        if (level == 0) return const Color(0xFFD1FAE5);
+        if (level == 1) return const Color(0xFFFEF3C7);
+        return const Color(0xFFFEE2E2);
+      }
+    }
+
+    // 1. Độ ẩm (Humidity) - Thang 0-100%
+    final int humidityLevel = (humidity > 85 || humidity < 40)
+        ? 2
+        : (humidity > 70 ? 1 : 0);
+    final String humidityStatus = humidity > 85
+        ? 'Oi nồng & Nồm ẩm'
+        : (humidity < 40
+            ? 'Khô nóng (Gió Lào)'
+            : (humidity > 70 ? 'Độ ẩm hơi cao' : 'Khô ráo dễ chịu'));
+    final String humidityInsight = humidity > 85
+        ? l10n.insightHumidityHigh
+        : (humidity < 40
+            ? l10n.insightHumidityLow
+            : (humidity > 70
+                ? l10n.insightHumidityModerate
+                : l10n.insightHumidityGood));
+
+    // 2. Tốc độ gió (Wind) - Reference Max: 40 km/h
+    final int windLevel = windSpeed > 25.0 ? 2 : (windSpeed >= 12.0 ? 1 : 0);
+    final String windStatus = windSpeed > 25.0
+        ? 'Gió mạnh / Giông'
+        : (windSpeed >= 12.0 ? 'Gió vừa' : 'Gió nhẹ');
+    final String windInsight = windSpeed > 25.0
+        ? l10n.insightWindHigh
+        : (windSpeed >= 12.0
+            ? l10n.insightWindModerate
+            : l10n.insightWindGood);
+
+    // 3. Chỉ số UV - Reference Max: 11
+    final int uvLevel = uvIndex >= 7.0 ? 2 : (uvIndex >= 3.0 ? 1 : 0);
+    final String uvStatus = uvIndex >= 7.0
+        ? 'UV Rất cao'
+        : (uvIndex >= 3.0 ? 'UV Trung bình' : 'UV Thấp');
+    final String uvInsight = uvIndex >= 7.0
+        ? l10n.insightUvHigh
+        : (uvIndex >= 3.0 ? l10n.insightUvModerate : l10n.insightUvGood);
+
+    // 4. Chất lượng không khí (AQI) - Reference Max: 200
+    final int aqiLevel = aqi > 100 ? 2 : (aqi > 50 ? 1 : 0);
+    final String aqiStatus = aqi > 100
+        ? 'Kém / Khói bụi'
+        : (aqi > 50 ? 'Trung bình' : 'Tốt');
+    final String aqiInsight = aqi > 100
+        ? l10n.insightAqiUnhealthy
+        : (aqi > 50 ? l10n.insightAqiModerate : l10n.insightAqiGood);
 
     return GridView.count(
       crossAxisCount: 2,
@@ -545,47 +602,59 @@ class _SheetBody extends ConsumerWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.75,
+      childAspectRatio: 1.38,
       children: [
-        // 1. Độ ẩm (Humidity)
+        // 1. Độ ẩm
         _bentoStatCard(
           icon: Icons.water_drop_rounded,
-          iconColor: const Color(0xFF0EA5E9),
+          accentColor: getSemanticColor(humidityLevel),
+          iconBgColor: getIconBgColor(humidityLevel),
           label: l10n.weatherHumidity,
           value: '$humidity%',
-          statusTag: humidityStatus,
+          statusSubtitle: humidityStatus,
+          insightText: humidityInsight,
           progressValue: (humidity / 100.0).clamp(0.0, 1.0),
           isDark: isDark,
+          zoneSegments: const [0.40, 0.45, 0.15],
         ),
-        // 2. Tốc độ gió (Wind)
+        // 2. Tốc độ gió
         _bentoStatCard(
           icon: Icons.air_rounded,
-          iconColor: const Color(0xFF64748B),
+          accentColor: getSemanticColor(windLevel),
+          iconBgColor: getIconBgColor(windLevel),
           label: l10n.weatherWind,
           value: l10n.weatherWindUnit(windSpeed),
-          statusTag: windStatus,
-          progressValue: (windSpeed / 30.0).clamp(0.0, 1.0),
+          statusSubtitle: windStatus,
+          insightText: windInsight,
+          progressValue: (windSpeed / 40.0).clamp(0.0, 1.0),
           isDark: isDark,
+          zoneSegments: const [0.30, 0.325, 0.375],
         ),
         // 3. Chỉ số UV
         _bentoStatCard(
           icon: Icons.wb_sunny_rounded,
-          iconColor: const Color(0xFFF59E0B),
+          accentColor: getSemanticColor(uvLevel),
+          iconBgColor: getIconBgColor(uvLevel),
           label: l10n.weatherUvIndex,
-          value: _uvLabel(uvIndex),
-          statusTag: 'UV ${uvIndex.toStringAsFixed(1)}',
+          value: 'UV ${uvIndex.toStringAsFixed(1)}',
+          statusSubtitle: uvStatus,
+          insightText: uvInsight,
           progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
           isDark: isDark,
+          zoneSegments: const [0.27, 0.36, 0.37],
         ),
-        // 4. Chất lượng không khí (AQI)
+        // 4. Chất lượng không khí
         _bentoStatCard(
           icon: Icons.eco_rounded,
-          iconColor: aqiColor,
+          accentColor: getSemanticColor(aqiLevel),
+          iconBgColor: getIconBgColor(aqiLevel),
           label: l10n.weatherAirQuality,
           value: 'AQI $aqi',
-          statusTag: aqiStatus,
+          statusSubtitle: aqiStatus,
+          insightText: aqiInsight,
           progressValue: (aqi / 200.0).clamp(0.0, 1.0),
           isDark: isDark,
+          zoneSegments: const [0.25, 0.25, 0.50],
         ),
       ],
     );
@@ -593,31 +662,32 @@ class _SheetBody extends ConsumerWidget {
 
   Widget _bentoStatCard({
     required IconData icon,
-    required Color iconColor,
+    required Color accentColor,
+    required Color iconBgColor,
     required String label,
     required String value,
-    required String statusTag,
+    required String statusSubtitle,
+    required String insightText,
     required double progressValue,
     required bool isDark,
+    required List<double> zoneSegments,
   }) {
     final bgColor = isDark
         ? const Color(0xFF1E293B).withValues(alpha: 0.85)
-        : Colors.white.withValues(alpha: 0.92);
-    final borderColor = isDark
-        ? iconColor.withValues(alpha: 0.3)
-        : iconColor.withValues(alpha: 0.2);
+        : Colors.white.withValues(alpha: 0.90);
+    final borderColor = accentColor.withValues(alpha: 0.12);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: borderColor, width: 1.2),
+        border: Border.all(color: borderColor, width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: iconColor.withValues(alpha: isDark ? 0.12 : 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -625,16 +695,16 @@ class _SheetBody extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Header: Icon + Label
+          // TẦNG 1: Icon container + Label
           Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(5.5),
                 decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
+                  color: iconBgColor,
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(icon, size: 15, color: iconColor),
+                child: Icon(icon, size: 15, color: accentColor),
               ),
               const SizedBox(width: 7),
               Expanded(
@@ -651,47 +721,101 @@ class _SheetBody extends ConsumerWidget {
               ),
             ],
           ),
-          // Value + Status Badge
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+
+          // TẦNG 2 & TẦNG 3: Số liệu chính + Status Subtitle 바로 dưới
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 15.5,
+                  fontSize: 18.5,
                   fontWeight: FontWeight.w800,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  letterSpacing: -0.2,
+                  letterSpacing: -0.3,
+                  height: 1.1,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(height: 2),
+              Text(
+                statusSubtitle,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: accentColor,
+                  height: 1.1,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+
+          // PROGRESS BAR PHÂN VÙNG MỐC
+          Stack(
+            children: [
+              SizedBox(
+                height: 4,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: (zoneSegments[0] * 1000).round(),
+                        child: Container(color: (isDark ? const Color(0xFF34D399) : const Color(0xFF059669)).withValues(alpha: 0.2)),
+                      ),
+                      const SizedBox(width: 1),
+                      Expanded(
+                        flex: (zoneSegments[1] * 1000).round(),
+                        child: Container(color: (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706)).withValues(alpha: 0.2)),
+                      ),
+                      const SizedBox(width: 1),
+                      Expanded(
+                        flex: (zoneSegments[2] * 1000).round(),
+                        child: Container(color: (isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626)).withValues(alpha: 0.2)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 4,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    value: progressValue,
+                    backgroundColor: Colors.transparent,
+                    valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // DÒNG GỢI Ý HÀNH ĐỘNG DU LỊCH HUẾ (Contextual Insight)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.lightbulb_outline_rounded,
+                size: 11,
+                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+              ),
+              const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  statusTag,
+                  insightText,
                   style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w600,
-                    color: iconColor,
+                    fontSize: 10,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white54 : const Color(0xFF64748B),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
-          ),
-          // Mini Gauge Progress Bar
-          SizedBox(
-            height: 3.5,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(2),
-              child: LinearProgressIndicator(
-                value: progressValue,
-                backgroundColor:
-                    isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                valueColor: AlwaysStoppedAnimation<Color>(iconColor),
-              ),
-            ),
           ),
         ],
       ),
@@ -883,14 +1007,6 @@ class _SheetBody extends ConsumerWidget {
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
-  String _uvLabel(double uv) {
-    if (uv < 3) return l10n.weatherUvLow;
-    if (uv < 6) return l10n.weatherUvModerate;
-    if (uv < 8) return l10n.weatherUvHigh;
-    if (uv < 11) return l10n.weatherUvVeryHigh;
-    return l10n.weatherUvExtreme;
-  }
-
   Color _rainColor(int prob) {
     if (prob <= 30) return const Color(0xFF10B981);
     if (prob <= 60) return const Color(0xFFF59E0B);

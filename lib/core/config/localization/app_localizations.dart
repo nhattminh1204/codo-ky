@@ -756,6 +756,21 @@ class AppLocalizations {
   String get travelAdvisorSunProtection => _t('Đội nón / Chống nắng', 'Sun protection needed');
   String get travelAdvisorIndoorPriority => _t('Ưu tiên điểm trong nhà', 'Indoor spots recommended');
   String get travelAdvisorOutdoorIdeal => _t('Lý tưởng tham quan ngoài trời', 'Great for outdoor sightseeing');
+
+  // Insights
+  String get insightHumidityGood => _t('Mát mẻ, lý tưởng dạo quanh Đại Nội & phố cổ', 'Pleasant & cool, ideal for Citadel & Old Town walks');
+  String get insightHumidityModerate => _t('Khá ẩm, có thể cảm thấy hơi nồng khi đi bộ', 'Slightly humid, might feel a bit warm while walking');
+  String get insightHumidityHigh => _t('Thời tiết oi nồng, nên mặc đồ thoáng mát', 'Hot & humid, wear lightweight cotton clothes');
+  String get insightHumidityLow => _t('Gió Lào hanh khô, nên bổ sung nhiều nước', 'Dry Foehn wind, drink plenty of water');
+  String get insightWindGood => _t('Gió êm, rất thích hợp đi thuyền Rồng Sông Hương', 'Calm breeze, perfect for Perfume River Dragon Boat');
+  String get insightWindModerate => _t('Gió lộng thoáng mát khi tham quan Chùa Thiên Mụ', 'Breezy & fresh around Thien Mu Pagoda');
+  String get insightWindHigh => _t('Gió lớn, cẩn thận khi di chuyển qua cầu Tràng Tiền', 'Strong wind, stay cautious on Trang Tien Bridge');
+  String get insightUvGood => _t('An toàn cho da, tha hồ chụp ảnh ngoài trời', 'Safe for skin, enjoy taking outdoor photos');
+  String get insightUvModerate => _t('Nắng vừa, nên mang nón lá khi đi các Lăng tẩm', 'Moderate sun, wear a conical hat at Royal Tombs');
+  String get insightUvHigh => _t('Nắng gắt, cần đội nón & bôi kem chống nắng', 'Strong UV, wear hat & apply sunscreen');
+  String get insightAqiGood => _t('Khí trời Cố đô trong lành, thích hợp dạo chơi', 'Fresh Imperial air, great for sightseeing');
+  String get insightAqiModerate => _t('Không khí chấp nhận được, thoải mái ra ngoài', 'Acceptable air, comfortable for outdoor activities');
+  String get insightAqiUnhealthy => _t('Nên đeo khẩu trang khi di chuyển bằng xe máy', 'Wear a mask while traveling by motorbike');
 }
 
 extension AppLocalizationsContextX on BuildContext {

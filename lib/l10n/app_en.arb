@@ -610,5 +610,18 @@
   "travelAdvisorBringUmbrella": "Bring umbrella",
   "travelAdvisorSunProtection": "Sun protection needed",
   "travelAdvisorIndoorPriority": "Indoor spots recommended",
-  "travelAdvisorOutdoorIdeal": "Great for outdoor sightseeing"
+  "travelAdvisorOutdoorIdeal": "Great for outdoor sightseeing",
+  "insightHumidityGood": "Pleasant & cool, ideal for Citadel & Old Town walks",
+  "insightHumidityModerate": "Slightly humid, might feel a bit warm while walking",
+  "insightHumidityHigh": "Hot & humid, wear lightweight cotton clothes",
+  "insightHumidityLow": "Dry Foehn wind, drink plenty of water",
+  "insightWindGood": "Calm breeze, perfect for Perfume River Dragon Boat",
+  "insightWindModerate": "Breezy & fresh around Thien Mu Pagoda",
+  "insightWindHigh": "Strong wind, stay cautious on Trang Tien Bridge",
+  "insightUvGood": "Safe for skin, enjoy taking outdoor photos",
+  "insightUvModerate": "Moderate sun, wear a conical hat at Royal Tombs",
+  "insightUvHigh": "Strong UV, wear hat & apply sunscreen",
+  "insightAqiGood": "Fresh Imperial air, great for sightseeing",
+  "insightAqiModerate": "Acceptable air, comfortable for outdoor activities",
+  "insightAqiUnhealthy": "Wear a mask while traveling by motorbike"
 }
