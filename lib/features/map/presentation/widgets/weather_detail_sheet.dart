@@ -883,58 +883,39 @@ class _SheetBody extends ConsumerWidget {
                 ),
               ),
 
-              // PROGRESS BAR CẦU VỒNG CHUYỂN MÀU MƯỢT + INDICATOR THUMB PILL
+              // PROGRESS BAR CẦU VỒNG CHUYỂN MÀU MƯỢT (clean — không thumb)
               LayoutBuilder(
                 builder: (context, constraints) {
                   final trackWidth = constraints.maxWidth;
-                  final thumbPos = (trackWidth * progressValue).clamp(0.0, trackWidth - 6.0);
+                  final fillWidth = (trackWidth * progressValue).clamp(0.0, trackWidth);
 
                   return SizedBox(
-                    height: 8,
+                    height: 5,
                     child: Stack(
                       alignment: Alignment.centerLeft,
                       children: [
-                        // Dải màu cầu vồng nền mờ (Màu mờ phía sau)
+                        // Nền mờ toàn bộ dải màu cầu vồng
                         Container(
-                          height: 4,
+                          height: 5,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(3),
                             gradient: LinearGradient(
-                              colors: gradientColors.map((c) => c.withValues(alpha: 0.25)).toList(),
+                              colors: gradientColors.map((c) => c.withValues(alpha: 0.22)).toList(),
                               stops: gradientStops,
                             ),
                           ),
                         ),
-                        // Dải màu cầu vồng rực rỡ phần đã đạt tới (Progress Fill)
+                        // Phần fill rực rỡ tới vị trí giá trị hiện tại
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(2),
+                          borderRadius: BorderRadius.circular(3),
                           child: Container(
-                            width: thumbPos + 3.0,
-                            height: 4,
+                            width: fillWidth,
+                            height: 5,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: gradientColors,
                                 stops: gradientStops,
                               ),
-                            ),
-                          ),
-                        ),
-                        // Vạch/Chấm Indicator Thumb Pill nổi tại vị trí giá trị hiện tại
-                        Positioned(
-                          left: thumbPos,
-                          child: Container(
-                            width: 6,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: accentColor,
-                              borderRadius: BorderRadius.circular(3),
-                              border: Border.all(color: Colors.white, width: 1.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: accentColor.withValues(alpha: 0.6),
-                                  blurRadius: 4,
-                                ),
-                              ],
                             ),
                           ),
                         ),
