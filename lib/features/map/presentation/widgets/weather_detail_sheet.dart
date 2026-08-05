@@ -312,6 +312,7 @@ class _SheetBody extends ConsumerWidget {
         WeatherIconWidget(
           weatherCode: w.weatherCode,
           size: 58,
+          timestamp: DateTime.now(),
         ),
         const SizedBox(width: 14),
         Column(
@@ -913,7 +914,11 @@ class _SheetBody extends ConsumerWidget {
                   : (isDark ? Colors.white60 : const Color(0xFF64748B)),
             ),
           ),
-          WeatherIconWidget(weatherCode: h.weatherCode, size: 26),
+          WeatherIconWidget(
+            weatherCode: h.weatherCode,
+            size: 26,
+            timestamp: h.time,
+          ),
           Text(
             '${h.temperature.round()}°',
             style: TextStyle(
@@ -989,7 +994,11 @@ class _SheetBody extends ConsumerWidget {
               ),
             ),
           ),
-          WeatherIconWidget(weatherCode: d.weatherCode, size: 26),
+          WeatherIconWidget(
+            weatherCode: d.weatherCode,
+            size: 26,
+            isNight: false,
+          ),
           const SizedBox(width: 12),
           Text(
             '${d.tempMin.round()}°~${d.tempMax.round()}°',

@@ -33,6 +33,16 @@ void main() async {
     AppLogger.e('Error initializing AppConfig: $e');
   }
 
+  // Register Meteocons MIT License
+  LicenseRegistry.addLicense(() async* {
+    yield const LicenseEntryWithLineBreaks(
+      ['meteocons'],
+      '''Meteocons Weather Icons
+Copyright (c) Bas Milius (https://github.com/basmilius/weather-icons)
+Licensed under the MIT License.''',
+    );
+  });
+
   // Initialize Firebase Core with DefaultFirebaseOptions
   try {
     await Firebase.initializeApp(
