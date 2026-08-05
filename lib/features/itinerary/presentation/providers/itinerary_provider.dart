@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:codoky/core/logging/app_logger.dart';
 import 'package:codoky/core/network/api_client.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
+import 'package:codoky/features/itinerary/data/services/itinerary_firestore_service.dart';
 import 'package:codoky/features/map/data/datasources/osrm_remote_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
@@ -45,23 +49,36 @@ class ItineraryState {
 class ItineraryNotifier extends StateNotifier<ItineraryState> {
   final AiRemoteService _aiRemoteService;
   final OsrmRemoteService? _osrmRemoteService;
+  final ItineraryFirestoreService? _firestoreService;
+  final FirebaseAuth? _auth;
 
   ItineraryNotifier({
     AiRemoteService? aiRemoteService,
     OsrmRemoteService? osrmRemoteService,
+    ItineraryFirestoreService? firestoreService,
+    FirebaseAuth? auth,
   })  : _aiRemoteService = aiRemoteService ?? AiRemoteService(),
         // ignore: prefer_initializing_formals
         _osrmRemoteService = osrmRemoteService,
+        // ignore: prefer_initializing_formals
+        _firestoreService = firestoreService,
+        // ignore: prefer_initializing_formals
+        _auth = auth,
         super(const ItineraryState());
 
   Future<void> loadMyItineraries() async {
     state = state.copyWith(isLoading: true, error: null);
 
+    final uid = _auth?.currentUser?.uid;
+    final service = _firestoreService;
+    if (uid == null || service == null) {
+      state = state.copyWith(isLoading: false, myItineraries: const []);
+      return;
+    }
+
     try {
-      await Future.delayed(const Duration(milliseconds: 200));
-      state = state.copyWith(
-        isLoading: false,
-      );
+      final mine = await service.getMyItineraries(uid);
+      state = state.copyWith(isLoading: false, myItineraries: mine);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -97,10 +114,47 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
     }
   }
 
-  Future<void> saveItinerary(ItineraryModel itinerary) async {
+  /// Lưu lộ trình vào state local và đồng bộ lên Firestore (nếu có user đăng nhập).
+  ///
+  /// Trả về `savedToCloud = true` nếu ghi Firestore thành công, `false` nếu guest
+  /// hoặc ghi cloud lỗi. State local luôn được giữ — lỗi cloud không throw.
+  Future<bool> saveItinerary(ItineraryModel itinerary) async {
     state = state.copyWith(
       myItineraries: [...state.myItineraries, itinerary],
     );
+
+    final uid = _auth?.currentUser?.uid;
+    final service = _firestoreService;
+    if (uid == null || service == null) return false;
+
+    try {
+      await service.saveItinerary(itinerary, uid);
+      return true;
+    } catch (e) {
+      AppLogger.w('Không thể lưu lộ trình ${itinerary.id} lên Firestore: $e');
+      return false;
+    }
+  }
+
+  /// Đồng bộ ngầm itinerary lên Firestore sau mỗi thao tác CRUD.
+  ///
+  /// Chỉ sync khi itinerary đã từng được lưu (đang nằm trong `myItineraries`) và
+  /// có user đăng nhập. Mọi lỗi sync đều được nuốt (chỉ log warning) để không làm
+  /// hỏng kết quả trả về hay state local — bản ghi sẽ tự đồng bộ lại ở lần CRUD
+  /// sau nhờ `.set(merge: true)`.
+  Future<void> _syncItineraryIfSaved(ItineraryModel updated) async {
+    final uid = _auth?.currentUser?.uid;
+    final service = _firestoreService;
+    if (uid == null || service == null) return;
+
+    final isSaved = state.myItineraries.any((it) => it.id == updated.id);
+    if (!isSaved) return;
+
+    try {
+      await service.saveItinerary(updated, uid);
+    } catch (e) {
+      AppLogger.w('Auto-sync itinerary ${updated.id} thất bại (giữ nguyên local): $e');
+    }
   }
 
   Future<bool> reorderActivity(String itineraryId, int dayIndex, int oldIndex, int newIndex) async {
@@ -141,7 +195,9 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
       updatedList[iterIndex] = updatedItinerary;
       state = state.copyWith(myItineraries: updatedList);
     }
-    
+
+    await _syncItineraryIfSaved(updatedItinerary);
+
     return _checkIsLate(finalDay);
   }
 
@@ -182,6 +238,8 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
       updatedList[iterIndex] = updatedItinerary;
       state = state.copyWith(myItineraries: updatedList);
     }
+
+    await _syncItineraryIfSaved(updatedItinerary);
 
     return _checkIsLate(finalDay);
   }
@@ -294,6 +352,8 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
       state = state.copyWith(myItineraries: updatedList);
     }
 
+    await _syncItineraryIfSaved(updatedItinerary);
+
     return _checkIsLate(finalDay);
   }
 
@@ -345,5 +405,7 @@ final itineraryProvider = StateNotifierProvider<ItineraryNotifier, ItineraryStat
   return ItineraryNotifier(
     aiRemoteService: aiService,
     osrmRemoteService: osrmService,
+    firestoreService: ItineraryFirestoreService(firestore: FirebaseFirestore.instance),
+    auth: FirebaseAuth.instance,
   );
 });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
 import 'package:codoky/features/itinerary/presentation/providers/weather_provider.dart';
@@ -21,6 +22,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final itineraryState = ref.watch(itineraryProvider);
     final itinerary = itineraryState.aiSuggestions.isNotEmpty
         ? itineraryState.aiSuggestions.first
@@ -30,7 +32,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
       return Scaffold(
         backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppBar(
-          title: const Text('Lịch trình AI Huế', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          title: Text(l10n.aiItineraryTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           backgroundColor: Colors.white,
           elevation: 0,
         ),
@@ -42,15 +44,15 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
               children: [
                 const Icon(Icons.auto_awesome_rounded, size: 64, color: Color(0xFFFF7A00)),
                 const SizedBox(height: 16),
-                const Text(
-                  'Chưa có lộ trình AI nào được khởi tạo.',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+                Text(
+                  l10n.noItineraryYet,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Hãy thiết lập nhu cầu du lịch để AI đề xuất lịch trình tối ưu nhất.',
+                Text(
+                  l10n.noItineraryDesc,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -60,7 +62,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text('Tạo Lộ Trình Ngay ✨', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                  child: Text(l10n.createItineraryNow, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ],
             ),
@@ -80,9 +82,9 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
-          'Lịch trình AI Huế ✨',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+        title: Text(
+          l10n.aiItineraryTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
         ),
         centerTitle: true,
         elevation: 0,
@@ -110,7 +112,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
               }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(_isSaved ? 'Đã lưu lịch trình vào danh sách của bạn!' : 'Đã bỏ lưu lịch trình.'),
+                  content: Text(_isSaved ? l10n.itinerarySavedSnackbar : l10n.itineraryUnsavedSnackbar),
                 ),
               );
             },
@@ -154,9 +156,9 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
-                            '🌸 Lịch trình Gemini AI',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                          child: Text(
+                            l10n.geminiBadge,
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                         ),
                         const Row(
@@ -183,11 +185,11 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        _buildTripBadge('${itinerary.durationDays} Ngày'),
+                        _buildTripBadge(l10n.durationDaysLabel(itinerary.durationDays)),
                         const SizedBox(width: 8),
-                        _buildTripBadge('$totalStops Điểm dừng'),
+                        _buildTripBadge(l10n.stopsCount(totalStops)),
                         const SizedBox(width: 8),
-                        _buildTripBadge('${(itinerary.budget / 1000).toInt()}k VNĐ'),
+                        _buildTripBadge(l10n.budgetLabel((itinerary.budget / 1000).toInt())),
                       ],
                     ),
                   ],
@@ -227,7 +229,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                             ],
                           ),
                           child: Text(
-                            'Ngày ${day.dayNumber}',
+                            l10n.dayTab(day.dayNumber),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -292,7 +294,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                   itemCount: currentDay.activities.length,
                   onReorderItem: (oldIndex, newIndex) async {
                     if (itinerary.status == 'completed') {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không thể sửa lộ trình đã hoàn thành.')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.cantModifyCompletedItinerary)));
                       return;
                     }
                     // onReorderItem đã tự điều chỉnh newIndex — không cần newIndex -= 1
@@ -304,14 +306,14 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                         newIndex,
                       );
                       if (isLate && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('⚠️ Cảnh báo: Lịch trình vượt quá 22:00 do thay đổi.'),
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(l10n.lateWarning),
                           backgroundColor: Colors.orange,
                         ));
                       }
                     } catch (e) {
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.errorWith(e.toString().replaceAll('Exception: ', '')))));
                       }
                     }
                   },
@@ -331,10 +333,10 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                 ),
               )
             else
-              const Padding(
-                padding: EdgeInsets.all(AppSpacing.lg),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Center(
-                  child: Text('Không có hoạt động nào cho ngày này.', style: TextStyle(color: Color(0xFF64748B))),
+                  child: Text(l10n.noActivitiesForDay, style: const TextStyle(color: Color(0xFF64748B))),
                 ),
               ),
 
@@ -361,12 +363,12 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.add_location_alt_rounded, color: Color(0xFFFF7A00), size: 20),
-                        SizedBox(width: 8),
+                      children: [
+                        const Icon(Icons.add_location_alt_rounded, color: Color(0xFFFF7A00), size: 20),
+                        const SizedBox(width: 8),
                         Text(
-                          'Thêm điểm đến vào lộ trình',
-                          style: TextStyle(
+                          l10n.addPlaceToItinerary,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFFFF7A00),
@@ -384,6 +386,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
   }
 
   void _openPlacePicker(BuildContext context, String itineraryId, int dayIndex) async {
+    final l10n = context.l10n;
     final selectedPlace = await showModalBottomSheet<dynamic>(
       context: context,
       isScrollControlled: true,
@@ -400,8 +403,8 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
 
     if (placeId == null || placeId.isEmpty || placeName == null || placeName.isEmpty || rawLat == null || rawLng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Dữ liệu địa điểm không hợp lệ, vui lòng thử lại'),
+        SnackBar(
+          content: Text(l10n.invalidPlaceData),
           backgroundColor: Colors.red,
         ),
       );
@@ -422,8 +425,8 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
       );
 
       if (isLate && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('⚠️ Cảnh báo: Lịch trình vượt quá 22:00 do thêm địa điểm mới.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(l10n.lateWarningAdd),
           backgroundColor: Colors.orange,
         ));
       }
@@ -431,7 +434,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
       if (context.mounted) {
         final message = e.toString().replaceAll('Exception: ', '');
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Không thể thêm địa điểm: $message'),
+          content: Text(l10n.cantAddPlace(message)),
           backgroundColor: Colors.red,
         ));
       }
@@ -439,15 +442,16 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
   }
 
   void _confirmDeleteActivity(BuildContext context, String itineraryId, int dayIndex, ItineraryActivityModel activity) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa "${activity.name}" khỏi lộ trình ngày này?'),
+        title: Text(l10n.deleteConfirmTitle),
+        content: Text(l10n.deleteConfirmMessage(activity.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Hủy'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -456,8 +460,8 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
               try {
                 final isLate = await ref.read(itineraryProvider.notifier).removeActivity(itineraryId, dayIndex, activity.id);
                 if (isLate && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('⚠️ Cảnh báo: Lịch trình vượt quá 22:00 do thay đổi.'),
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(l10n.lateWarning),
                     backgroundColor: Colors.orange,
                   ));
                 }
@@ -465,13 +469,13 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                 if (context.mounted) {
                   final message = e.toString().replaceAll('Exception: ', '');
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Không thể xóa hoạt động: $message'),
+                    content: Text(l10n.cantDeleteActivity(message)),
                     backgroundColor: Colors.red,
                   ));
                 }
               }
             },
-            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+            child: Text(l10n.delete, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -500,6 +504,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
     required bool isLast,
     VoidCallback? onDelete,
   }) {
+    final l10n = context.l10n;
     final startTimeStr =
         '${activity.startTime.hour.toString().padLeft(2, '0')}:${activity.startTime.minute.toString().padLeft(2, '0')}';
     final endTimeStr =
@@ -507,8 +512,8 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
     final timeRange = '$startTimeStr - $endTimeStr';
 
     final categoryTag = activity.type.toLowerCase().contains('restaurant') || activity.type.toLowerCase().contains('eat') || activity.type.toLowerCase().contains('food')
-        ? '🍜 Ẩm thực'
-        : (activity.type.toLowerCase().contains('temple') ? '⛩️ Tâm linh' : '🏰 Di sản');
+        ? '🍜 ${l10n.categoryFoodShort}'
+        : (activity.type.toLowerCase().contains('temple') ? '⛩️ ${l10n.categorySpiritualShort}' : '🏰 ${l10n.categoryHeritageShort}');
 
     final image = 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=400&auto=format&fit=crop&q=80';
 
@@ -614,7 +619,7 @@ class _ItineraryResultScreenState extends ConsumerState<ItineraryResultScreen> {
                                   style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
                                 ),
                                 Text(
-                                  activity.description.isNotEmpty ? activity.description : 'Điểm tham quan Huế',
+                                  activity.description.isNotEmpty ? activity.description : l10n.fallbackPlaceName,
                                   style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,

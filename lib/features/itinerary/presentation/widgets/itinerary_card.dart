@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/core/utils/helpers/helpers.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class ItineraryCard extends StatelessWidget {
   final ItineraryModel itinerary;
@@ -16,6 +17,7 @@ class ItineraryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -102,7 +104,7 @@ class ItineraryCard extends StatelessWidget {
                     children: [
                       _InfoChip(
                         icon: Icons.calendar_today,
-                        label: '${itinerary.durationDays} ngày',
+                        label: l10n.durationDays(itinerary.durationDays),
                       ),
                       const SizedBox(width: 12),
                       _InfoChip(
@@ -113,7 +115,7 @@ class ItineraryCard extends StatelessWidget {
                       if (itinerary.reviewCount > 0)
                         _InfoChip(
                           icon: Icons.reviews,
-                          label: '${itinerary.reviewCount} đánh giá',
+                          label: l10n.reviewCountLabel(itinerary.reviewCount),
                         ),
                     ],
                   ),

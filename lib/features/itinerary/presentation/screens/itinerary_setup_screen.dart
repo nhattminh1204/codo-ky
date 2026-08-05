@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
 
 class ItinerarySetupScreen extends ConsumerStatefulWidget {
@@ -18,34 +19,10 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
   final List<String> _selectedStyles = ['heritage', 'food', 'photo'];
   bool _isGenerating = false;
 
-  final List<Map<String, dynamic>> _durations = const [
-    {'id': '1d', 'label': '1 Ngày (Nhanh)'},
-    {'id': '2d1n', 'label': '2 Ngày 1 Đêm'},
-    {'id': '3d2n', 'label': '3 Ngày 2 Đêm (Khuyên dùng)'},
-    {'id': '4d3n', 'label': '4 Ngày 3 Đêm (Trọn vẹn)'},
-  ];
-
-  final List<Map<String, dynamic>> _companions = const [
-    {'id': 'solo', 'label': 'Một mình 🎒'},
-    {'id': 'couple', 'label': 'Cặp đôi 👩‍❤️‍👨'},
-    {'id': 'family', 'label': 'Gia đình 👨‍👩‍👧‍👦'},
-    {'id': 'friends', 'label': 'Nhóm bạn 🚗'},
-  ];
-
-  final List<Map<String, dynamic>> _styles = const [
-    {'id': 'heritage', 'label': '🏰 Di sản & Lịch sử'},
-    {'id': 'food', 'label': '🍜 Ẩm thực Cố đô'},
-    {'id': 'chill', 'label': '☕ Chill & Cafe muối'},
-    {'id': 'temple', 'label': '⛩️ Tâm linh & Chùa cổ'},
-    {'id': 'photo', 'label': '📸 Check-in sống ảo'},
-    {'id': 'nature', 'label': '🌿 Sông Hương & Thiên nhiên'},
-  ];
-
-  final List<Map<String, dynamic>> _budgets = const [
-    {'id': 'saver', 'label': 'Tiết kiệm 💡', 'desc': '~ 300k - 500k/ngày'},
-    {'id': 'standard', 'label': 'Tiêu chuẩn ⭐', 'desc': '~ 600k - 1tr/ngày'},
-    {'id': 'luxury', 'label': 'Thoải mái VIP 💎', 'desc': '> 1.2tr/ngày'},
-  ];
+  final _durationIds = const ['1d', '2d1n', '3d2n', '4d3n'];
+  final _companionIds = const ['solo', 'couple', 'family', 'friends'];
+  final _styleIds = const ['heritage', 'food', 'chill', 'temple', 'photo', 'nature'];
+  final _budgetIds = const ['saver', 'standard', 'luxury'];
 
   void _toggleStyle(String id) {
     setState(() {
@@ -58,6 +35,7 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
   }
 
   Future<void> _handleGenerate() async {
+    final l10n = context.l10n;
     setState(() => _isGenerating = true);
 
     int days = 3;
@@ -87,7 +65,7 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
       if (currentQuota >= 900) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('⚠️ Cảnh báo: Lượt tạo AI của hệ thống sắp hết ($currentQuota/1000)'),
+            content: Text(l10n.quotaWarning(currentQuota)),
             backgroundColor: const Color(0xFFF59E0B),
             duration: const Duration(seconds: 4),
           ),
@@ -109,14 +87,80 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
     }
   }
 
+  String _durationLabel(String id, AppLocalizations l10n) {
+    switch (id) {
+      case '1d':
+        return l10n.duration1d;
+      case '2d1n':
+        return l10n.duration2d;
+      case '4d3n':
+        return l10n.duration4d;
+      default:
+        return l10n.duration3d;
+    }
+  }
+
+  String _companionLabel(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'solo':
+        return l10n.companionSolo;
+      case 'family':
+        return l10n.companionFamily;
+      case 'friends':
+        return l10n.companionFriends;
+      default:
+        return l10n.companionCouple;
+    }
+  }
+
+  String _styleLabel(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'food':
+        return l10n.styleFood;
+      case 'chill':
+        return l10n.styleChill;
+      case 'temple':
+        return l10n.styleSpiritual;
+      case 'photo':
+        return l10n.styleCheckin;
+      case 'nature':
+        return l10n.styleNature;
+      default:
+        return l10n.styleHeritage;
+    }
+  }
+
+  String _budgetLabel(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'saver':
+        return l10n.budgetSaving;
+      case 'luxury':
+        return l10n.budgetVip;
+      default:
+        return l10n.budgetStandard;
+    }
+  }
+
+  String _budgetDesc(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'saver':
+        return l10n.budgetSavingDesc;
+      case 'luxury':
+        return l10n.budgetVipDesc;
+      default:
+        return l10n.budgetStandardDesc;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
-          'Thiết lập lịch trình AI',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+        title: Text(
+          l10n.aiSetupTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
         ),
         centerTitle: true,
         elevation: 0,
@@ -168,7 +212,7 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Chỉ mất 5 giây để AI thiết kế chuyến đi Huế hoàn hảo dựa trên thời gian, ngân sách và sở thích riêng của bạn.',
+                    l10n.heroSubtitle,
                     style: TextStyle(fontSize: 12.5, color: Colors.white.withValues(alpha: 0.9), height: 1.4),
                   ),
                 ],
@@ -182,18 +226,18 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Option 1: Thời lượng
-                  const Text(
-                    '1. BẠN SẼ NGHỈ DƯỠNG Ở HUẾ BAO LÂU?',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
+                  Text(
+                    l10n.sectionDuration,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: _durations.map((d) {
-                      final isSelected = _selectedDuration == d['id'];
+                    children: _durationIds.map((id) {
+                      final isSelected = _selectedDuration == id;
                       return GestureDetector(
-                        onTap: () => setState(() => _selectedDuration = d['id']!),
+                        onTap: () => setState(() => _selectedDuration = id),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                           decoration: BoxDecoration(
@@ -204,7 +248,7 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                             ),
                           ),
                           child: Text(
-                            d['label']!,
+                            _durationLabel(id, l10n),
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.bold,
@@ -218,18 +262,18 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                   const SizedBox(height: AppSpacing.lg),
 
                   // Option 2: Đi cùng ai
-                  const Text(
-                    '2. BẠN CHUYẾN ĐI NÀY CÙNG AI?',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
+                  Text(
+                    l10n.sectionCompanion,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: _companions.map((c) {
-                      final isSelected = _selectedCompanion == c['id'];
+                    children: _companionIds.map((id) {
+                      final isSelected = _selectedCompanion == id;
                       return GestureDetector(
-                        onTap: () => setState(() => _selectedCompanion = c['id']!),
+                        onTap: () => setState(() => _selectedCompanion = id),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                           decoration: BoxDecoration(
@@ -240,7 +284,7 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                             ),
                           ),
                           child: Text(
-                            c['label']!,
+                            _companionLabel(id, l10n),
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.bold,
@@ -254,18 +298,18 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                   const SizedBox(height: AppSpacing.lg),
 
                   // Option 3: Phong cách du lịch
-                  const Text(
-                    '3. PHONG CÁCH DU LỊCH YÊU THÍCH (CHỌN NHIỀU)',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
+                  Text(
+                    l10n.sectionStyle,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: _styles.map((s) {
-                      final isSelected = _selectedStyles.contains(s['id']);
+                    children: _styleIds.map((id) {
+                      final isSelected = _selectedStyles.contains(id);
                       return GestureDetector(
-                        onTap: () => _toggleStyle(s['id']!),
+                        onTap: () => _toggleStyle(id),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
@@ -277,7 +321,7 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                             ),
                           ),
                           child: Text(
-                            s['label']!,
+                            _styleLabel(id, l10n),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -291,18 +335,18 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                   const SizedBox(height: AppSpacing.lg),
 
                   // Option 4: Ngân sách
-                  const Text(
-                    '4. DỰ TRÙ NGÂN SÁCH CHI TIÊU',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
+                  Text(
+                    l10n.sectionBudget,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
                   ),
                   const SizedBox(height: 8),
                   Column(
-                    children: _budgets.map((b) {
-                      final isSelected = _selectedBudget == b['id'];
+                    children: _budgetIds.map((id) {
+                      final isSelected = _selectedBudget == id;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: GestureDetector(
-                          onTap: () => setState(() => _selectedBudget = b['id']!),
+                          onTap: () => setState(() => _selectedBudget = id),
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -326,11 +370,11 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        b['label']!,
+                                        _budgetLabel(id, l10n),
                                         style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
                                       ),
                                       Text(
-                                        b['desc']!,
+                                        _budgetDesc(id, l10n),
                                         style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
                                       ),
                                     ],
@@ -372,26 +416,26 @@ class _ItinerarySetupScreenState extends ConsumerState<ItinerarySetupScreen> {
                         borderRadius: BorderRadius.circular(16),
                         child: Center(
                           child: _isGenerating
-                              ? const Row(
+                              ? Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation(Colors.white)),
                                     ),
-                                    SizedBox(width: 10),
-                                    Text('AI đang lập lịch trình...', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                                    const SizedBox(width: 10),
+                                    Text(l10n.aiGenerating, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
                                   ],
                                 )
-                              : const Row(
+                              : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.auto_awesome_rounded, size: 22, color: Colors.white),
-                                    SizedBox(width: 8),
+                                    const Icon(Icons.auto_awesome_rounded, size: 22, color: Colors.white),
+                                    const SizedBox(width: 8),
                                     Text(
-                                      'Tạo Lịch Trình Tự Động AI',
-                                      style: TextStyle(
+                                      l10n.createAiItinerary,
+                                      style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class ItineraryStopDetailScreen extends StatelessWidget {
   final String id;
@@ -20,12 +21,13 @@ class ItineraryStopDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
-          'Chi tiết điểm dừng',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+        title: Text(
+          l10n.stopDetailTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
         ),
         centerTitle: true,
         elevation: 0,
@@ -64,9 +66,9 @@ class ItineraryStopDetailScreen extends StatelessWidget {
                       color: const Color(0xFFFF7A00),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      '⏱️ Thời gian khuyên dùng: 2.5 Giờ',
-                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.white),
+                    child: Text(
+                      l10n.recommendedTime('2.5'),
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                   ),
                 ),
@@ -104,16 +106,16 @@ class ItineraryStopDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0xFFFFEAD8)),
                     ),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lightbulb_outline_rounded, color: Color(0xFFFF7A00), size: 20),
-                            SizedBox(width: 8),
+                            const Icon(Icons.lightbulb_outline_rounded, color: Color(0xFFFF7A00), size: 20),
+                            const SizedBox(width: 8),
                             Text(
-                              'GỢI Ý TỪ TRỢ LÝ AI',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                              l10n.aiTipsHeader,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
                             ),
                           ],
                         ),
@@ -142,7 +144,7 @@ class ItineraryStopDetailScreen extends StatelessWidget {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
                           icon: const Icon(Icons.near_me_rounded, size: 18),
-                          label: const Text('Chỉ đường GPS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          label: Text(l10n.startGpsNavigation, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                         ),
                       ),
                     ],

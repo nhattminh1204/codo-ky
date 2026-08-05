@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
 import 'package:codoky/core/widgets/inputs/text_input.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
 
 class AISuggestionDialog extends ConsumerStatefulWidget {
@@ -27,14 +28,32 @@ class _AISuggestionDialogState extends ConsumerState<AISuggestionDialog> {
     'Mạo hiểm',
   ];
 
+  String _interestLabel(String value, AppLocalizations l10n) {
+    switch (value) {
+      case 'Ăn uống':
+        return l10n.interestFood;
+      case 'Văn hóa - Lịch sử':
+        return l10n.interestCulture;
+      case 'Thiền - Tâm linh':
+        return l10n.interestSpiritual;
+      case 'Nghỉ dưỡng':
+        return l10n.interestRelax;
+      case 'Check-in sống ảo':
+        return l10n.interestCheckin;
+      default:
+        return l10n.interestAdventure;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
       title: Row(
         children: [
           const Icon(Icons.auto_awesome, color: Colors.purple),
           const SizedBox(width: 12),
-          const Text('AI Tạo lộ trình'),
+          Text(l10n.aiCreateItinerary),
         ],
       ),
       content: Form(
@@ -45,14 +64,14 @@ class _AISuggestionDialogState extends ConsumerState<AISuggestionDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Nhập thông tin để AI đề xuất lộ trình phù hợp nhất cho bạn',
+                l10n.aiSuggestionDialogSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 24),
               // Duration
-              Text('Số ngày:', style: Theme.of(context).textTheme.labelMedium),
+              Text(l10n.daysLabel, style: Theme.of(context).textTheme.labelMedium),
               const SizedBox(height: 8),
               Row(
                 children: [1, 2, 3, 4, 5].map((day) {
@@ -60,7 +79,7 @@ class _AISuggestionDialogState extends ConsumerState<AISuggestionDialog> {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
-                        label: Text('$day ngày'),
+                        label: Text(l10n.daysCount(day)),
                         selected: _durationDays == day,
                         onSelected: (_) => setState(() => _durationDays = day),
                       ),
@@ -70,18 +89,18 @@ class _AISuggestionDialogState extends ConsumerState<AISuggestionDialog> {
               ),
               const SizedBox(height: 24),
               // Budget
-              Text('Ngân sách dự kiến:', style: Theme.of(context).textTheme.labelMedium),
+              Text(l10n.budgetLabelText, style: Theme.of(context).textTheme.labelMedium),
               const SizedBox(height: 8),
               TextInput(
                 controller: TextEditingController(text: _budget.toStringAsFixed(0)),
                 label: 'VNĐ',
                 keyboardType: TextInputType.number,
-                validator: (v) => v == null || v.isEmpty ? 'Nhập ngân sách' : null,
+                validator: (v) => v == null || v.isEmpty ? l10n.budgetHint : null,
                 onChanged: (v) => _budget = double.tryParse(v) ?? 0,
               ),
               const SizedBox(height: 24),
               // Interests
-              Text('Sở thích:', style: Theme.of(context).textTheme.labelMedium),
+              Text(l10n.interestsLabel, style: Theme.of(context).textTheme.labelMedium),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -89,7 +108,7 @@ class _AISuggestionDialogState extends ConsumerState<AISuggestionDialog> {
                 children: _allInterests.map((interest) {
                   final isSelected = _selectedInterests.contains(interest);
                   return FilterChip(
-                    label: Text(interest),
+                    label: Text(_interestLabel(interest, l10n)),
                     selected: isSelected,
                     onSelected: (selected) {
                       setState(() {
@@ -110,10 +129,10 @@ class _AISuggestionDialogState extends ConsumerState<AISuggestionDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Hủy'),
+          child: Text(l10n.cancel),
         ),
         PrimaryButton(
-          text: 'Tạo lộ trình',
+          text: l10n.createItinerary,
           isLoading: _isGenerating,
           onPressed: _isGenerating ? null : _generateItinerary,
         ),
@@ -124,6 +143,7 @@ class _AISuggestionDialogState extends ConsumerState<AISuggestionDialog> {
   Future<void> _generateItinerary() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isGenerating = true);
+      final l10n = context.l10n;
 
       try {
         await ref.read(itineraryProvider.notifier).generateAISuggestion(
@@ -134,13 +154,13 @@ class _AISuggestionDialogState extends ConsumerState<AISuggestionDialog> {
         if (mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('AI đang tạo lộ trình...')),
+            SnackBar(content: Text(l10n.aiCreating)),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi: $e')),
+            SnackBar(content: Text(l10n.errorWith(e.toString().replaceAll('Exception: ', '')))),
           );
         }
       } finally {

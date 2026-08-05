@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/explore/presentation/providers/explore_provider.dart';
 
 class PlacePickerBottomSheet extends ConsumerStatefulWidget {
@@ -30,6 +31,7 @@ class _PlacePickerBottomSheetState extends ConsumerState<PlacePickerBottomSheet>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final exploreState = ref.watch(exploreProvider);
     final places = exploreState.places;
 
@@ -59,9 +61,9 @@ class _PlacePickerBottomSheetState extends ConsumerState<PlacePickerBottomSheet>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Chọn điểm đến Huế ✨',
-                  style: TextStyle(
+                                Text(
+                  l10n.selectPlaceTitle,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF0F172A),
@@ -89,7 +91,7 @@ class _PlacePickerBottomSheetState extends ConsumerState<PlacePickerBottomSheet>
                   ref.read(exploreProvider.notifier).searchPlaces(value);
                 },
                 decoration: InputDecoration(
-                  hintText: 'Tìm địa điểm, di sản, quán ăn...',
+                  hintText: l10n.searchPlaceHint,
                   hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
                   prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFFFF7A00)),
                   suffixIcon: _searchController.text.isNotEmpty
@@ -161,12 +163,12 @@ class _PlacePickerBottomSheetState extends ConsumerState<PlacePickerBottomSheet>
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF94A3B8)),
-                            SizedBox(height: 12),
+                          children: [
+                            const Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF94A3B8)),
+                            const SizedBox(height: 12),
                             Text(
-                              'Không tìm thấy địa điểm nào',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                              l10n.noPlacesEmpty,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -177,7 +179,7 @@ class _PlacePickerBottomSheetState extends ConsumerState<PlacePickerBottomSheet>
                         separatorBuilder: (_, _) => const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final place = places[index];
-                          final name = place['name']?.toString() ?? 'Địa điểm';
+                          final name = place['name']?.toString() ?? l10n.fallbackPlaceName;
                           final address = place['address']?.toString() ?? '';
                           final category = place['category']?.toString() ?? '';
                           final imageUrl = place['image_url']?.toString();
@@ -269,9 +271,9 @@ class _PlacePickerBottomSheetState extends ConsumerState<PlacePickerBottomSheet>
                                             color: const Color(0xFFFF7A00).withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(12),
                                           ),
-                                          child: const Text(
-                                            '+ Thêm',
-                                            style: TextStyle(
+                                          child: Text(
+                                            l10n.addButton,
+                                            style: const TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.bold,
                                               color: Color(0xFFFF7A00),

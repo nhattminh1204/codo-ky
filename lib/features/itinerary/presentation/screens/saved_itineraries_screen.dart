@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class SavedItinerariesScreen extends StatefulWidget {
   const SavedItinerariesScreen({super.key});
@@ -42,12 +43,13 @@ class _SavedItinerariesScreenState extends State<SavedItinerariesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
-          'Lịch trình đã lưu',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+        title: Text(
+          l10n.savedTripsTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
         ),
         centerTitle: true,
         elevation: 0,
@@ -75,16 +77,16 @@ class _SavedItinerariesScreenState extends State<SavedItinerariesScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${_savedTrips.length} CHUYẾN ĐI ĐÃ LƯU',
+                    l10n.savedTripsCount(_savedTrips.length),
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
                   ),
                   GestureDetector(
                     onTap: () => context.push('/itinerary/setup'),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.add, size: 16, color: Color(0xFFFF7A00)),
-                        SizedBox(width: 2),
-                        Text('Tạo mới AI', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00))),
+                        const Icon(Icons.add, size: 16, color: Color(0xFFFF7A00)),
+                        const SizedBox(width: 2),
+                        Text(l10n.createNewAi, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00))),
                       ],
                     ),
                   ),
@@ -94,14 +96,14 @@ class _SavedItinerariesScreenState extends State<SavedItinerariesScreen> {
 
               // TRIPS LIST
               if (_savedTrips.isEmpty)
-                const Center(
+                Center(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 60),
+                    padding: const EdgeInsets.symmetric(vertical: 60),
                     child: Column(
                       children: [
-                        Icon(Icons.map_outlined, size: 54, color: Color(0xFFCBD5E1)),
-                        SizedBox(height: 12),
-                        Text('Chưa có lịch trình du lịch nào được lưu.', style: TextStyle(color: Color(0xFF64748B))),
+                        const Icon(Icons.map_outlined, size: 54, color: Color(0xFFCBD5E1)),
+                        const SizedBox(height: 12),
+                        Text(l10n.noSavedTrips, style: const TextStyle(color: Color(0xFF64748B))),
                       ],
                     ),
                   ),
