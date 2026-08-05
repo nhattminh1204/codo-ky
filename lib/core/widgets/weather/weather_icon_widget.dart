@@ -9,6 +9,7 @@ class WeatherIconWidget extends StatelessWidget {
   final double size;
   final bool? isNight;
   final DateTime? timestamp;
+  final bool enableGlow;
   final bool useEmojiFallback;
 
   const WeatherIconWidget({
@@ -18,6 +19,7 @@ class WeatherIconWidget extends StatelessWidget {
     this.isNight,
     this.timestamp,
     this.useEmojiFallback = false,
+    this.enableGlow = true,
   });
 
   /// Tính toán trạng thái Ban Đêm dựa trên tham số hoặc timestamp
@@ -25,6 +27,29 @@ class WeatherIconWidget extends StatelessWidget {
     if (isNight != null) return isNight!;
     final dt = timestamp ?? DateTime.now();
     return dt.hour < 6 || dt.hour >= 18;
+  }
+
+  /// Màu tỏa ánh sáng hào quang (Ambient Glow Color) theo loại thời tiết
+  Color get glowColor {
+    if (weatherCode == 0) {
+      return _effectiveIsNight ? const Color(0xFF6366F1) : const Color(0xFFF59E0B);
+    }
+    if (weatherCode >= 1 && weatherCode <= 2) {
+      return _effectiveIsNight ? const Color(0xFF818CF8) : const Color(0xFFFBBF24);
+    }
+    if (weatherCode == 3) {
+      return const Color(0xFF64748B);
+    }
+    if (weatherCode == 45 || weatherCode == 48) {
+      return const Color(0xFF94A3B8);
+    }
+    if ((weatherCode >= 51 && weatherCode <= 67) || (weatherCode >= 80 && weatherCode <= 82)) {
+      return const Color(0xFF0EA5E9);
+    }
+    if (weatherCode >= 95 && weatherCode <= 99) {
+      return const Color(0xFFA855F7);
+    }
+    return const Color(0xFF64748B);
   }
 
   /// Tên file SVG chuẩn Meteocons (Filled style) theo WMO weather code
@@ -90,19 +115,39 @@ class WeatherIconWidget extends StatelessWidget {
 
     final assetPath = 'assets/icons/weather/$svgFileName';
 
-    return SizedBox(
+    final svgWidget = SvgPicture.asset(
+      assetPath,
       width: size,
       height: size,
-      child: SvgPicture.asset(
-        assetPath,
+      fit: BoxFit.contain,
+      placeholderBuilder: (_) => Text(
+        WmoCodeMapper.toIcon(weatherCode),
+        style: TextStyle(fontSize: size * 0.8),
+      ),
+    );
+
+    if (!enableGlow) {
+      return SizedBox(
         width: size,
         height: size,
-        fit: BoxFit.contain,
-        placeholderBuilder: (_) => Text(
-          WmoCodeMapper.toIcon(weatherCode),
-          style: TextStyle(fontSize: size * 0.8),
-        ),
+        child: svgWidget,
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: glowColor.withValues(alpha: 0.28),
+            blurRadius: size * 0.35,
+            spreadRadius: 1,
+          ),
+        ],
       ),
+      child: svgWidget,
     );
   }
 }

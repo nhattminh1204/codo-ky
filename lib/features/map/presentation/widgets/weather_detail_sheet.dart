@@ -311,7 +311,7 @@ class _SheetBody extends ConsumerWidget {
       children: [
         WeatherIconWidget(
           weatherCode: w.weatherCode,
-          size: 58,
+          size: 76,
           timestamp: DateTime.now(),
         ),
         const SizedBox(width: 14),
@@ -850,7 +850,6 @@ class _SheetBody extends ConsumerWidget {
   }
 
   // ── 5. Hourly Row (24h Slider) ───────────────────────────────────────────────
-  // Đã NÂNG CHIỀU CAO NỀN LÊN 118px ĐỂ KHẮC PHỤC TRIỆT ĐỂ LỖI OVERFLOWED 2.0 PIXELS
   Widget _buildHourlyRow(
       List<HourlyWeather> hourly, bool isDark, Color cardColor) {
     final now = DateTime.now();
@@ -864,7 +863,7 @@ class _SheetBody extends ConsumerWidget {
     if (filtered.isEmpty) return _buildErrorChip(isDark);
 
     return SizedBox(
-      height: 118, // Tăng từ 100 lên 118px để vừa đủ viền active pill
+      height: 128, // Tăng lên 128px để chứa vừa icon 38px tỏa hào quang
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: filtered.length,
@@ -881,26 +880,45 @@ class _SheetBody extends ConsumerWidget {
   Widget _hourlyCard(
       HourlyWeather h, bool isNow, bool isDark, Color cardColor) {
     final timeLabel = isNow ? 'Now' : _fmtHHmm(h.time);
-    final rainColor = _rainColor(h.precipitationProbability);
+    final rainColor = isNow ? const Color(0xFF7DD3FC) : _rainColor(h.precipitationProbability);
+
+    final bgDecoration = isNow
+        ? BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF1E40AF), Color(0xFF3B82F6)],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF3B82F6).withValues(alpha: 0.4),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          )
+        : BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+              width: 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          );
 
     return Container(
-      width: 66,
+      width: 68,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-      decoration: BoxDecoration(
-        color: isNow ? AppColors.primary.withValues(alpha: 0.15) : cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: isNow
-            ? Border.all(color: AppColors.primary, width: 1.8)
-            : Border.all(
-                color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.04)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: bgDecoration,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -908,15 +926,15 @@ class _SheetBody extends ConsumerWidget {
             timeLabel,
             style: TextStyle(
               fontSize: 11,
-              fontWeight: isNow ? FontWeight.w800 : FontWeight.w500,
+              fontWeight: isNow ? FontWeight.w800 : FontWeight.w600,
               color: isNow
-                  ? AppColors.primary
+                  ? Colors.white
                   : (isDark ? Colors.white60 : const Color(0xFF64748B)),
             ),
           ),
           WeatherIconWidget(
             weatherCode: h.weatherCode,
-            size: 26,
+            size: 38,
             timestamp: h.time,
           ),
           Text(
@@ -971,8 +989,12 @@ class _SheetBody extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+          width: 1.0,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
@@ -996,7 +1018,7 @@ class _SheetBody extends ConsumerWidget {
           ),
           WeatherIconWidget(
             weatherCode: d.weatherCode,
-            size: 26,
+            size: 36,
             isNight: false,
           ),
           const SizedBox(width: 12),
