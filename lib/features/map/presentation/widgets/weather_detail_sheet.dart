@@ -741,32 +741,37 @@ class _SheetBody extends ConsumerWidget {
               ),
 
               // TẦNG 2 & TẦNG 3: Số liệu chính + Status Subtitle ngay dưới
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 18.5,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      letterSpacing: -0.3,
-                      height: 1.1,
+              // TẦNG 2 & TẦNG 3: Số liệu chính căn giữa & phóng to 23.0px + Status Subtitle 바로 dưới
+              Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      value,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 23.0,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        letterSpacing: -0.5,
+                        height: 1.1,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    statusSubtitle,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                      color: accentColor,
-                      height: 1.1,
+                    const SizedBox(height: 2),
+                    Text(
+                      statusSubtitle,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: accentColor,
+                        height: 1.1,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
               ),
 
               // PROGRESS BAR CẦU VỒNG CHUYỂN MÀU MƯỢT + INDICATOR THUMB PILL
