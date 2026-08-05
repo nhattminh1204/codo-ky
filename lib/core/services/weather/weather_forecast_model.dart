@@ -33,6 +33,94 @@ class DayWeatherForecast {
       'tempMax: $tempMax, tempMin: $tempMin, rain: $rainProbability%)';
 }
 
+/// Thời tiết HIỆN TẠI tại một vị trí (dùng cho Map overlay).
+///
+/// Tái sử dụng [WmoCodeMapper] để suy ra icon/label/màu từ [weatherCode],
+/// đồng bộ với card dự báo theo ngày.
+class CurrentWeatherResult {
+  final double temperature; // °C
+  final int weatherCode; // WMO code
+  final double precipitation; // mm
+  final double humidity; // %
+
+  const CurrentWeatherResult({
+    required this.temperature,
+    required this.weatherCode,
+    required this.precipitation,
+    required this.humidity,
+  });
+
+  /// Icon emoji đại diện cho thời tiết hiện tại (dựa trên WMO code).
+  String get weatherIcon => WmoCodeMapper.toIcon(weatherCode);
+
+  /// Mô tả tiếng Việt ngắn gọn.
+  String get weatherLabel => WmoCodeMapper.toLabel(weatherCode);
+
+  /// Màu gợi ý cho nền chip (hex int), tùy trạng thái thời tiết.
+  int get themeColor => WmoCodeMapper.toThemeColor(weatherCode);
+
+  @override
+  String toString() =>
+      'CurrentWeatherResult(temperature: $temperature °C, code: $weatherCode, '
+      'precipitation: $precipitation mm, humidity: $humidity%)';
+}
+
+/// Dự báo thời tiết theo giờ — dùng cho panel thời tiết chi tiết trên Map.
+class HourlyWeather {
+  final DateTime time;
+  final int weatherCode; // WMO code
+  final double temperature; // °C
+  final int precipitationProbability; // 0–100%
+
+  const HourlyWeather({
+    required this.time,
+    required this.weatherCode,
+    required this.temperature,
+    required this.precipitationProbability,
+  });
+
+  String get weatherIcon => WmoCodeMapper.toIcon(weatherCode);
+  String get weatherLabel => WmoCodeMapper.toLabel(weatherCode);
+
+  @override
+  String toString() =>
+      'HourlyWeather($time, code: $weatherCode, $temperature°C, rain $precipitationProbability%)';
+}
+
+/// Thời tiết chi tiết cho panel Map: tình hình hiện tại [current] + các chỉ số
+/// mở rộng ([feelsLike], [windSpeed], [uvIndex], [aqi]) + dự báo theo giờ [hourly].
+class WeatherDetailResult {
+  final CurrentWeatherResult current;
+  final double feelsLike; // °C
+  final double windSpeed; // km/h
+  final double uvIndex; // 0–11+
+  final int? aqi; // US AQI (null nếu không lấy được)
+  final List<HourlyWeather> hourly;
+
+  const WeatherDetailResult({
+    required this.current,
+    required this.feelsLike,
+    required this.windSpeed,
+    required this.uvIndex,
+    required this.aqi,
+    required this.hourly,
+  });
+
+  /// 3 giờ tới có khả năng mưa cao (dựa trên precipitation probability).
+  bool get rainSoon {
+    final now = DateTime.now();
+    return hourly.any((h) {
+      final ahead = h.time.difference(now).inMinutes;
+      return ahead >= 0 && ahead <= 180 && h.precipitationProbability >= 50;
+    });
+  }
+
+  @override
+  String toString() =>
+      'WeatherDetail(feelsLike: $feelsLike°C, wind: $windSpeed km/h, '
+      'UV: $uvIndex, AQI: $aqi, hourly: ${hourly.length})';
+}
+
 /// Kết quả dự báo toàn bộ lộ trình.
 class WeatherForecastResult {
   final List<DayWeatherForecast> days;
