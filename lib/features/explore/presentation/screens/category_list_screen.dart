@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animations/animations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/widgets/animations/staggered_item.dart';
 import 'package:codoky/features/explore/presentation/providers/explore_provider.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
@@ -59,49 +60,49 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
     return cat == target;
   }
 
-  Map<String, dynamic> _getCategoryHeaderInfo(String catId) {
+  Map<String, dynamic> _getCategoryHeaderInfo(String catId, AppLocalizations l10n) {
     switch (catId.toLowerCase()) {
       case 'food':
       case 'restaurant':
         return {
-          'title': 'Ẩm thực Cố đô Huế 🍜',
-          'subtitle': 'Đặc sản Bún bò, Cơm hến & Bánh Huế truyền thống',
+          'title': l10n.categoryFoodHeaderTitle,
+          'subtitle': l10n.categoryFoodHeaderSubtitle,
           'colors': [const Color(0xFFFF7A00), const Color(0xFFFFB800)],
         };
       case 'temple':
         return {
-          'title': 'Tâm linh & Chùa Huế ⛩️',
-          'subtitle': 'Khám phá các ngôi chùa cổ thanh tịnh linh thiêng',
+          'title': l10n.categoryTempleHeaderTitle,
+          'subtitle': l10n.categoryTempleHeaderSubtitle,
           'colors': [const Color(0xFF9333EA), const Color(0xFFC084FC)],
         };
       case 'tomb':
         return {
-          'title': 'Lăng tẩm Triều Nguyễn 🏛️',
-          'subtitle': 'Khải Định, Tự Đức, Minh Mạng & Di tích lịch sử',
+          'title': l10n.categoryTombHeaderTitle,
+          'subtitle': l10n.categoryTombHeaderSubtitle,
           'colors': [const Color(0xFFD97706), const Color(0xFFF59E0B)],
         };
       case 'cafe':
         return {
-          'title': 'Đời sống & Cafe Huế ☕',
-          'subtitle': 'Thưởng thức Cafe muối & Trà đình thơ mộng',
+          'title': l10n.categoryCafeHeaderTitle,
+          'subtitle': l10n.categoryCafeHeaderSubtitle,
           'colors': [const Color(0xFF0284C7), const Color(0xFF38BDF8)],
         };
       case 'shopping':
         return {
-          'title': 'Phố đêm & Mua sắm 🛍️',
-          'subtitle': 'Chợ Đông Ba & Phố đi bộ sôi động',
+          'title': l10n.categoryShoppingHeaderTitle,
+          'subtitle': l10n.categoryShoppingHeaderSubtitle,
           'colors': [const Color(0xFF16A34A), const Color(0xFF4ADE80)],
         };
       case 'culture':
         return {
-          'title': 'Nghệ thuật & Trải nghiệm 🎶',
-          'subtitle': 'Ca Huế sông Hương & Làng nghề truyền thống',
+          'title': l10n.categoryCultureHeaderTitle,
+          'subtitle': l10n.categoryCultureHeaderSubtitle,
           'colors': [const Color(0xFFE11D48), const Color(0xFFFB7185)],
         };
       default:
         return {
-          'title': 'Di sản & Lịch sử Huế 🏰',
-          'subtitle': 'Hoàng Thành, Lăng tẩm triều Nguyễn & Di tích',
+          'title': l10n.categoryDefaultHeaderTitle,
+          'subtitle': l10n.categoryDefaultHeaderSubtitle,
           'colors': [const Color(0xFFFF5E62), const Color(0xFFFF9966)],
         };
     }
@@ -110,7 +111,8 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
   @override
   Widget build(BuildContext context) {
     final exploreState = ref.watch(exploreProvider);
-    final header = _getCategoryHeaderInfo(widget.categoryId);
+    final l10n = context.l10n;
+    final header = _getCategoryHeaderInfo(widget.categoryId, l10n);
     final List<Color> bgColors = header['colors'];
 
     // 1. Get raw places from exploreState matching category
@@ -227,12 +229,12 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
                         child: TextField(
                           controller: _searchController,
                           onChanged: (_) => setState(() {}),
-                          decoration: const InputDecoration(
-                            hintText: 'Tìm kiếm trong danh mục này...',
-                            hintStyle: TextStyle(fontSize: 12.5, color: Color(0xFF94A3B8)),
-                            prefixIcon: Icon(Icons.search_rounded, size: 20, color: Color(0xFFFF7A00)),
+                          decoration: InputDecoration(
+                            hintText: l10n.categorySearchHint,
+                            hintStyle: const TextStyle(fontSize: 12.5, color: Color(0xFF94A3B8)),
+                            prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Color(0xFFFF7A00)),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                           ),
                         ),
                       ),
@@ -250,7 +252,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${displayPlaces.length} địa điểm được tìm thấy',
+                  l10n.placesFound(displayPlaces.length),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -276,7 +278,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
                             Icon(Icons.star_rounded, size: 14, color: _activeSort == 'rating' ? const Color(0xFFFF7A00) : const Color(0xFF64748B)),
                             const SizedBox(width: 4),
                             Text(
-                              'Đánh giá cao ★',
+                              l10n.topRated,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -297,30 +299,30 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
           Expanded(
             child: exploreState.isLoading && displayPlaces.isEmpty
                 ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xFFFF7A00))))
-                : displayPlaces.isEmpty
-                    ? const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF94A3B8)),
-                            SizedBox(height: 8),
-                            Text('Không tìm thấy địa điểm phù hợp.', style: TextStyle(color: Color(0xFF64748B))),
-                          ],
-                        ),
-                      )
+: displayPlaces.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF94A3B8)),
+                                const SizedBox(height: 8),
+                                Text(l10n.noPlacesFound, style: const TextStyle(color: Color(0xFF64748B))),
+                              ],
+                            ),
+                          )
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 120),
                         itemCount: displayPlaces.length,
                         itemBuilder: (context, index) {
                           final place = displayPlaces[index];
                           final id = place['id']?.toString() ?? '$index';
-                          final name = place['name']?.toString() ?? 'Địa điểm Huế';
-                          final address = place['address']?.toString() ?? 'Thừa Thiên Huế';
+                          final name = place['name']?.toString() ?? l10n.fallbackPlaceName;
+                          final address = place['address']?.toString() ?? l10n.fallbackAddress;
                           final rating = double.tryParse(place['rating']?.toString() ?? '4.8') ?? 4.8;
                           final imageUrl = place['image_url']?.toString() ??
                               'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=800&auto=format&fit=crop&q=80';
-                          final ticketPrice = place['ticket_price']?.toString() ?? 'Tham quan di tích';
-                          final tag = place['tag']?.toString() ?? '📍 Điểm đến Huế';
+                          final ticketPrice = place['ticket_price']?.toString() ?? l10n.fallbackTicketLabel;
+                          final tag = place['tag']?.toString() ?? l10n.fallbackTag;
 
                           return StaggeredItem(
                             index: index,

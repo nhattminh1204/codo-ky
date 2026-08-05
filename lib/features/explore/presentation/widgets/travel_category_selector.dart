@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class TravelCategorySelector extends StatelessWidget {
   final String selectedCategoryId;
@@ -11,16 +12,17 @@ class TravelCategorySelector extends StatelessWidget {
     required this.onSelectCategory,
   });
 
-  static const List<Map<String, dynamic>> categories = [
-    {'id': 'all', 'name': 'Tất cả', 'icon': Icons.explore_rounded},
-    {'id': 'attraction', 'name': 'Di tích', 'icon': Icons.account_balance_rounded},
-    {'id': 'food', 'name': 'Ẩm thực', 'icon': Icons.restaurant_rounded},
-    {'id': 'cafe', 'name': 'Cà phê', 'icon': Icons.local_cafe_rounded},
-    {'id': 'stay', 'name': 'Lưu trú', 'icon': Icons.hotel_rounded},
-  ];
+  List<Map<String, dynamic>> _categories(AppLocalizations l10n) => [
+        {'id': 'all', 'name': l10n.categoryAll, 'icon': Icons.explore_rounded},
+        {'id': 'attraction', 'name': l10n.categorySites, 'icon': Icons.account_balance_rounded},
+        {'id': 'food', 'name': l10n.categoryFood, 'icon': Icons.restaurant_rounded},
+        {'id': 'cafe', 'name': l10n.categoryCafe, 'icon': Icons.local_cafe_rounded},
+        {'id': 'stay', 'name': l10n.categoryStay, 'icon': Icons.hotel_rounded},
+      ];
 
   @override
   Widget build(BuildContext context) {
+    final categories = _categories(context.l10n);
     return SizedBox(
       height: 48,
       child: ListView.separated(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:animations/animations.dart';
 import 'package:codoky/core/theme/motion.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
@@ -43,12 +44,13 @@ class PlaceListItem extends StatelessWidget {
   }
 
   Widget _buildCardContent(BuildContext context, VoidCallback handleTap) {
-    final name = place is Map ? (place['name'] as String? ?? 'Địa điểm Huế') : (place?.name as String? ?? 'Địa điểm Huế');
-    final address = place is Map ? (place['address'] as String? ?? 'Thừa Thiên Huế') : (place?.address as String? ?? 'Thừa Thiên Huế');
+    final l10n = context.l10n;
+    final name = place is Map ? (place['name'] as String? ?? l10n.fallbackPlaceName) : (place?.name as String? ?? l10n.fallbackPlaceName);
+    final address = place is Map ? (place['address'] as String? ?? l10n.fallbackAddress) : (place?.address as String? ?? l10n.fallbackAddress);
     final category = place is Map ? (place['category'] as String? ?? 'attraction') : (place?.category as String? ?? 'attraction');
     final rating = place is Map ? ((place['rating'] as num?)?.toDouble() ?? 4.8) : ((place?.rating as num?)?.toDouble() ?? 4.8);
 
-    final config = _getCategoryConfig(category);
+    final config = _getCategoryConfig(category, l10n);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -199,18 +201,18 @@ class PlaceListItem extends StatelessWidget {
     );
   }
 
-  _CategoryConfig _getCategoryConfig(String category) {
+  _CategoryConfig _getCategoryConfig(String category, AppLocalizations l10n) {
     switch (category.toLowerCase()) {
       case 'restaurant':
-        return _CategoryConfig(label: 'Quán ăn', color: const Color(0xFFE65100), icon: Icons.restaurant);
+        return _CategoryConfig(label: l10n.chipRestaurant, color: const Color(0xFFE65100), icon: Icons.restaurant);
       case 'attraction':
-        return _CategoryConfig(label: 'Địa điểm', color: const Color(0xFF0277BD), icon: Icons.photo_camera_rounded);
+        return _CategoryConfig(label: l10n.chipAttraction, color: const Color(0xFF0277BD), icon: Icons.photo_camera_rounded);
       case 'temple':
-        return _CategoryConfig(label: 'Chùa chiền', color: const Color(0xFF6A1B9A), icon: Icons.temple_buddhist);
+        return _CategoryConfig(label: l10n.chipTemple, color: const Color(0xFF6A1B9A), icon: Icons.temple_buddhist);
       case 'tomb':
-        return _CategoryConfig(label: 'Lăng tẩm', color: AppColors.primary, icon: Icons.account_balance);
+        return _CategoryConfig(label: l10n.chipTomb, color: AppColors.primary, icon: Icons.account_balance);
       default:
-        return _CategoryConfig(label: 'Tham quan', color: const Color(0xFF2E7D32), icon: Icons.explore_rounded);
+        return _CategoryConfig(label: l10n.chipSightseeing, color: const Color(0xFF2E7D32), icon: Icons.explore_rounded);
     }
   }
 }

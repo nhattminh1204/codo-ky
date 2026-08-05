@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animations/animations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/widgets/animations/staggered_item.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
 
@@ -17,62 +18,62 @@ class ExploreHomeScreen extends ConsumerStatefulWidget {
 class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> _categories = const [
-    {
-      'id': 'attraction',
-      'title': 'Di sản & Lịch sử',
-      'subtitle': 'Đại Nội, Lăng tẩm & Di tích',
-      'icon': Icons.account_balance_rounded,
-      'emoji': '🏰',
-      'count': '48 địa điểm',
-      'colors': [Color(0xFFFF5E62), Color(0xFFFF9966)],
-    },
-    {
-      'id': 'food',
-      'title': 'Ẩm thực Cố đô',
-      'subtitle': 'Bún bò, Cơm hến & Bánh Huế',
-      'icon': Icons.restaurant_rounded,
-      'emoji': '🍜',
-      'count': '120 địa điểm',
-      'colors': [Color(0xFFFF7A00), Color(0xFFFFB800)],
-    },
-    {
-      'id': 'temple',
-      'title': 'Tâm linh & Chùa',
-      'subtitle': 'Chùa Thiên Mụ, Từ Hiếu',
-      'icon': Icons.church_rounded,
-      'emoji': '⛩️',
-      'count': '35 địa điểm',
-      'colors': [Color(0xFF9333EA), Color(0xFFC084FC)],
-    },
-    {
-      'id': 'cafe',
-      'title': 'Đời sống & Cafe',
-      'subtitle': 'Cafe muối, Trà đình & Góc phố',
-      'icon': Icons.coffee_rounded,
-      'emoji': '☕',
-      'count': '85 địa điểm',
-      'colors': [Color(0xFF0284C7), Color(0xFF38BDF8)],
-    },
-    {
-      'id': 'shopping',
-      'title': 'Phố đêm & Mua sắm',
-      'subtitle': 'Chợ Đông Ba, Phố đi bộ',
-      'icon': Icons.shopping_bag_rounded,
-      'emoji': '🛍️',
-      'count': '26 địa điểm',
-      'colors': [Color(0xFF16A34A), Color(0xFF4ADE80)],
-    },
-    {
-      'id': 'culture',
-      'title': 'Nghệ thuật & Trải nghiệm',
-      'subtitle': 'Ca Huế sông Hương, Làng nón',
-      'icon': Icons.music_note_rounded,
-      'emoji': '🎶',
-      'count': '19 địa điểm',
-      'colors': [Color(0xFFE11D48), Color(0xFFFB7185)],
-    },
-  ];
+  List<Map<String, dynamic>> _categories(AppLocalizations l10n) => [
+        {
+          'id': 'attraction',
+          'title': l10n.categoryHeritageTitle,
+          'subtitle': l10n.categoryHeritageSubtitle,
+          'icon': Icons.account_balance_rounded,
+          'emoji': '🏰',
+          'count': l10n.placeCount(48),
+          'colors': [Color(0xFFFF5E62), Color(0xFFFF9966)],
+        },
+        {
+          'id': 'food',
+          'title': l10n.categoryFoodTitle,
+          'subtitle': l10n.categoryFoodSubtitle,
+          'icon': Icons.restaurant_rounded,
+          'emoji': '🍜',
+          'count': l10n.placeCount(120),
+          'colors': [Color(0xFFFF7A00), Color(0xFFFFB800)],
+        },
+        {
+          'id': 'temple',
+          'title': l10n.categorySpiritualTitle,
+          'subtitle': l10n.categorySpiritualSubtitle,
+          'icon': Icons.church_rounded,
+          'emoji': '⛩️',
+          'count': l10n.placeCount(35),
+          'colors': [Color(0xFF9333EA), Color(0xFFC084FC)],
+        },
+        {
+          'id': 'cafe',
+          'title': l10n.categoryCafeTitle,
+          'subtitle': l10n.categoryCafeSubtitle,
+          'icon': Icons.coffee_rounded,
+          'emoji': '☕',
+          'count': l10n.placeCount(85),
+          'colors': [Color(0xFF0284C7), Color(0xFF38BDF8)],
+        },
+        {
+          'id': 'shopping',
+          'title': l10n.categoryShoppingTitle,
+          'subtitle': l10n.categoryShoppingSubtitle,
+          'icon': Icons.shopping_bag_rounded,
+          'emoji': '🛍️',
+          'count': l10n.placeCount(26),
+          'colors': [Color(0xFF16A34A), Color(0xFF4ADE80)],
+        },
+        {
+          'id': 'culture',
+          'title': l10n.categoryCultureTitle,
+          'subtitle': l10n.categoryCultureSubtitle,
+          'icon': Icons.music_note_rounded,
+          'emoji': '🎶',
+          'count': l10n.placeCount(19),
+          'colors': [Color(0xFFE11D48), Color(0xFFFB7185)],
+        },
+      ];
 
   final List<Map<String, dynamic>> _featuredPlaces = const [
     {
@@ -125,6 +126,8 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final categories = _categories(l10n);
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SingleChildScrollView(
@@ -187,7 +190,7 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Khám phá Cố đô Huế 🌸',
+                                  l10n.exploreHeroTitle,
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w800,
@@ -199,7 +202,7 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  'Di sản, ẩm thực & nét đẹp sông Hương',
+                                  l10n.exploreHeroSubtitle,
                                   style: TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w500,
@@ -252,7 +255,7 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                               }
                             },
                             decoration: InputDecoration(
-                              hintText: 'Tìm địa điểm, món ăn, lăng tẩm Huế...',
+                              hintText: l10n.exploreSearchHint,
                               hintStyle: TextStyle(
                                 fontSize: 13,
                                 color: Theme.of(context).brightness == Brightness.dark
@@ -299,9 +302,9 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'DANH MỤC NỔI BẬT HUẾ',
-                    style: TextStyle(
+                  Text(
+                    l10n.featuredCategories,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF64748B),
@@ -309,7 +312,7 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                     ),
                   ),
                   Text(
-                    '6 Chủ đề',
+                    l10n.themesCount(categories.length),
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange[800]),
                   ),
                 ],
@@ -321,7 +324,7 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
               child: GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _categories.length,
+                itemCount: categories.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 1.45,
@@ -329,7 +332,7 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                   mainAxisSpacing: 12,
                 ),
                 itemBuilder: (context, index) {
-                  final cat = _categories[index];
+                  final cat = categories[index];
                   final List<Color> colors = cat['colors'];
 
                   return StaggeredItem(
@@ -411,9 +414,9 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'ĐỊA ĐIỂM HOT CẦN GHÉ',
-                    style: TextStyle(
+                  Text(
+                    l10n.hotPlaces,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF64748B),
@@ -422,9 +425,9 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                   ),
                   GestureDetector(
                     onTap: () => context.push('/explore/category/attraction'),
-                    child: const Text(
-                      'Xem tất cả >',
-                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
+                    child: Text(
+                      l10n.seeAll,
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
                     ),
                   ),
                 ],
@@ -565,9 +568,9 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'TRẢI NGHIỆM ĐẶC SẮC CỐ ĐÔ',
-                    style: TextStyle(
+                  Text(
+                    l10n.experiences,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF64748B),
@@ -579,13 +582,13 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                   // Experience Card 1
                   _buildExperienceCard(
                     context,
-                    title: 'Thưởng Trà chiều bên Sông Hương',
-                    subtitle: 'Ngắm hoàng hôn thơ mộng và nghe nhã nhạc Huế',
+                    title: l10n.experienceTeaTitle,
+                    subtitle: l10n.experienceTeaSubtitle,
                     emoji: '🍵',
                     bgGradient: const [Color(0xFFFFF8E7), Color(0xFFFFF1C2)],
                     borderColor: const Color(0xFFFDE68A),
                     tagColor: const Color(0xFFD97706),
-                    tag: 'Trải nghiệm Chill',
+                    tag: l10n.experienceChill,
                     onTap: () => context.push('/explore/category/culture'),
                   ),
                   const SizedBox(height: 10),
@@ -593,13 +596,13 @@ class _ExploreHomeScreenState extends ConsumerState<ExploreHomeScreen> {
                   // Experience Card 2
                   _buildExperienceCard(
                     context,
-                    title: 'Làng Nghề Làm Nón Lá Thủy Xuân',
-                    subtitle: 'Con đường chân nón rực rỡ sắc màu check-in',
+                    title: l10n.experienceHatTitle,
+                    subtitle: l10n.experienceHatSubtitle,
                     emoji: '👒',
                     bgGradient: const [Color(0xFFF3E8FF), Color(0xFFE9D5FF)],
                     borderColor: const Color(0xFFDDD6FE),
                     tagColor: const Color(0xFF9333EA),
-                    tag: 'Check-in Hot',
+                    tag: l10n.checkinHot,
                     onTap: () => context.push('/explore/category/culture'),
                   ),
                 ],
