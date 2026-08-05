@@ -601,5 +601,14 @@
   "weatherUvModerate": "Trung bình",
   "weatherUvHigh": "Cao",
   "weatherUvVeryHigh": "Rất cao",
-  "weatherUvExtreme": "Cực cao"
+  "weatherUvExtreme": "Cực cao",
+  "travelAdvisorTitle": "Gợi Ý Trợ Lý Du Lịch AI",
+  "travelAdvisorRainAdvice": "Có khả năng mưa rào ({prob}%). Hãy mang theo ô/áo mưa và ưu tiên tham quan điểm trong nhà như Bảo tàng Cổ vật.",
+  "travelAdvisorSunnyAdvice": "Nắng gắt (UV {uv}). Thích hợp tham quan sớm hoặc chiều mát, nhớ trang bị nón lá & bôi kem chống nắng.",
+  "travelAdvisorIdealAdvice": "Thời tiết Cố đô tuyệt đẹp! Rất lý tưởng dạo quanh Đại Nội, các Lăng tẩm hoặc đi thuyền Rồng Sông Hương.",
+  "travelAdvisorCoolAdvice": "Thời tiết se lạnh. Rất thích hợp thưởng thức trà sen, chè Huế và đi dạo Cố đô về đêm.",
+  "travelAdvisorBringUmbrella": "Nên mang ô/dù",
+  "travelAdvisorSunProtection": "Đội nón / Chống nắng",
+  "travelAdvisorIndoorPriority": "Ưu tiên điểm trong nhà",
+  "travelAdvisorOutdoorIdeal": "Lý tưởng tham quan ngoài trời"
 }

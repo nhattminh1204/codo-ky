@@ -456,8 +456,8 @@ class AppLocalizations {
   String get close => _t('Đóng', 'Close');
   String etaLabel(String eta) => _t('Đến lúc $eta', 'Arriving at $eta');
   String get routeCancelled => _t('Đã hủy lộ trình chỉ đường', 'Navigation cancelled');
-  String distanceKm(String value) => _t('${value} km', '${value} km');
-  String distanceM(String value) => _t('${value} m', '${value} m');
+  String distanceKm(String value) => _t('$value km', '$value km');
+  String distanceM(String value) => _t('$value m', '$value m');
   String remainingDistance(String distText) => _t('Còn $distText', '$distText remaining');
   String get voiceOn => _t('Bật âm thanh', 'Turn sound on');
   String get voiceOff => _t('Tắt âm thanh', 'Turn sound off');
@@ -737,6 +737,25 @@ class AppLocalizations {
   String get weatherUvHigh => _t('Cao', 'High');
   String get weatherUvVeryHigh => _t('Rất cao', 'Very High');
   String get weatherUvExtreme => _t('Cực cao', 'Extreme');
+
+  // ── AI Travel Advisor ──────────────────────────────────────────────────────
+  String get travelAdvisorTitle => _t('Gợi Ý Trợ Lý Du Lịch AI', 'AI Travel Companion Advisory');
+  String travelAdvisorRainAdvice(int prob) => _t(
+      'Có khả năng mưa rào ($prob%). Hãy mang theo ô/áo mưa và ưu tiên tham quan điểm trong nhà như Bảo tàng Cổ vật.',
+      'High chance of rain ($prob%). Carry an umbrella/raincoat and prioritize indoor spots like the Royal Fine Arts Museum.');
+  String travelAdvisorSunnyAdvice(double uv) => _t(
+      'Nắng gắt (UV ${uv.toStringAsFixed(1)}). Thích hợp tham quan sớm hoặc chiều mát, nhớ trang bị nón lá & bôi kem chống nắng.',
+      'Strong sun (UV ${uv.toStringAsFixed(1)}). Best for early morning or late afternoon visits. Wear a conical hat & sunscreen.');
+  String get travelAdvisorIdealAdvice => _t(
+      'Thời tiết Cố đô tuyệt đẹp! Rất lý tưởng dạo quanh Đại Nội, các Lăng tẩm hoặc đi thuyền Rồng Sông Hương.',
+      'Imperial weather is lovely! Ideal for strolling around the Citadel, Royal Tombs, or taking a Dragon Boat trip on Perfume River.');
+  String get travelAdvisorCoolAdvice => _t(
+      'Thời tiết se lạnh. Rất thích hợp thưởng thức trà sen, chè Huế và đi dạo Cố đô về đêm.',
+      'Chilly weather. Perfect for enjoying lotus tea, Hue sweet soup, and evening walks around the Citadel.');
+  String get travelAdvisorBringUmbrella => _t('Nên mang ô/dù', 'Bring umbrella');
+  String get travelAdvisorSunProtection => _t('Đội nón / Chống nắng', 'Sun protection needed');
+  String get travelAdvisorIndoorPriority => _t('Ưu tiên điểm trong nhà', 'Indoor spots recommended');
+  String get travelAdvisorOutdoorIdeal => _t('Lý tưởng tham quan ngoài trời', 'Great for outdoor sightseeing');
 }
 
 extension AppLocalizationsContextX on BuildContext {

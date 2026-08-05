@@ -18,7 +18,6 @@ import 'package:codoky/features/map/data/datasources/cached_disk_tile_provider.d
 import 'package:codoky/features/map/data/datasources/hue_boundary_loader.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/providers/current_weather_provider.dart';
-import 'package:codoky/features/map/presentation/widgets/current_weather_chip.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
 import 'package:codoky/features/map/presentation/widgets/map_search_bar_widget.dart';
 import 'package:codoky/features/map/presentation/widgets/map_toolbar_widget.dart';
