@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/review/presentation/providers/review_provider.dart';
 import 'package:codoky/features/review/presentation/widgets/review_card.dart';
 
@@ -23,15 +24,16 @@ class _MyReviewsScreenState extends ConsumerState<MyReviewsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final reviewState = ref.watch(reviewProvider);
     final myReviews = reviewState.myReviews;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
-          'Đánh giá của tôi',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+        title: Text(
+          l10n.myReviews,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
         ),
         centerTitle: true,
         elevation: 0,
@@ -78,11 +80,11 @@ class _MyReviewsScreenState extends ConsumerState<MyReviewsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStatItem('${myReviews.length}', 'Đánh giá đã viết'),
+                      _buildStatItem('${myReviews.length}', l10n.reviewsWritten),
                       Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.3)),
                       _buildStatItem(
                         '${myReviews.fold<int>(0, (sum, r) => sum + r.likeCount)}',
-                        'Lượt thích nhận được',
+                        l10n.likesReceived,
                       ),
                     ],
                   ),
@@ -102,14 +104,14 @@ class _MyReviewsScreenState extends ConsumerState<MyReviewsScreen> {
                     children: [
                       const Icon(Icons.rate_review_outlined, size: 56, color: Color(0xFF94A3B8)),
                       const SizedBox(height: 12),
-                      const Text(
-                        'Bạn chưa đóng góp đánh giá nào.',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                      Text(
+                        l10n.noReviewsContributed,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Hãy chia sẻ trải nghiệm về địa điểm Huế bạn đã ghé thăm!',
-                        style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                      Text(
+                        l10n.shareExperiencePrompt,
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
                         textAlign: TextAlign.center,
                       ),
                     ],

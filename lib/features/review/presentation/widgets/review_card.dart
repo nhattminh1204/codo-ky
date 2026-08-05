@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/features/review/data/models/review_model.dart';
 import 'package:codoky/features/review/presentation/providers/review_provider.dart';
 import 'package:codoky/core/utils/extensions/extensions.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class ReviewCard extends ConsumerWidget {
   final ReviewModel review;
@@ -23,6 +24,7 @@ class ReviewCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -91,23 +93,23 @@ class ReviewCard extends ConsumerWidget {
                   if (isMyReview)
                     PopupMenuButton<String>(
                       itemBuilder: (context) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit_outlined, size: 20),
-                              SizedBox(width: 8),
-                              Text('Chỉnh sửa'),
+                              const Icon(Icons.edit_outlined, size: 20),
+                              const SizedBox(width: 8),
+                              Text(l10n.edit),
                             ],
                           ),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete_outline, size: 20, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Xóa', style: TextStyle(color: Colors.red)),
+                              const Icon(Icons.delete_outline, size: 20, color: Colors.red),
+                              const SizedBox(width: 8),
+                              Text(l10n.delete, style: const TextStyle(color: Colors.red)),
                             ],
                           ),
                         ),
@@ -181,9 +183,9 @@ class ReviewCard extends ConsumerWidget {
                     onTap: () {
                       // Note: Subcollection comments is planned for future scope
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tính năng bình luận chi tiết đang phát triển.'),
-                          duration: Duration(seconds: 2),
+                        SnackBar(
+                          content: Text(l10n.commentsComingSoon),
+                          duration: const Duration(seconds: 2),
                         ),
                       );
                     },
@@ -191,14 +193,14 @@ class ReviewCard extends ConsumerWidget {
                   const Spacer(),
                   _ActionButton(
                     icon: Icons.share_outlined,
-                    label: 'Chia sẻ',
+                    label: l10n.share,
                     onTap: () {
-                      final shareText = '${review.placeName}: "${review.content}" - Đánh giá từ ${review.userName} trên CodoKy';
+                      final shareText = l10n.shareTemplate(review.placeName, review.content, review.userName);
                       Clipboard.setData(ClipboardData(text: shareText));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Đã sao chép nội dung đánh giá vào bộ nhớ tạm!'),
-                          duration: Duration(seconds: 2),
+                        SnackBar(
+                          content: Text(l10n.copiedToClipboard),
+                          duration: const Duration(seconds: 2),
                         ),
                       );
                     },

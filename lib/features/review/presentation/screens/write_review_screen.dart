@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class WriteReviewScreen extends ConsumerStatefulWidget {
   const WriteReviewScreen({super.key});
@@ -16,23 +17,46 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   final List<String> _selectedAspects = [];
   bool _isSubmitting = false;
 
-  final List<String> _aspectOptions = const [
-    '🏰 Cảnh quan đẹp',
-    '🍜 Món ăn ngon',
-    '💰 Giá hợp lý',
-    '🤝 Phục vụ chu đáo',
-    '📸 Góc chụp check-in',
-    '🌿 Yên tĩnh thư thái',
+  final List<String> _aspectIds = const [
+    'aspectScenery',
+    'aspectFood',
+    'aspectPrice',
+    'aspectService',
+    'aspectPhoto',
+    'aspectPeace',
   ];
 
-  final List<String> _ratingLabels = const [
-    '',
-    'Rất thất vọng 😡',
-    'Chưa hài lòng 🙁',
-    'Bình thường 😐',
-    'Hài lòng 😊',
-    'Rất tuyệt vời! 😍',
-  ];
+  String _aspectLabel(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'aspectFood':
+        return l10n.aspectFood;
+      case 'aspectPrice':
+        return l10n.aspectPrice;
+      case 'aspectService':
+        return l10n.aspectService;
+      case 'aspectPhoto':
+        return l10n.aspectPhoto;
+      case 'aspectPeace':
+        return l10n.aspectPeace;
+      default:
+        return l10n.aspectScenery;
+    }
+  }
+
+  String _ratingLabel(int value, AppLocalizations l10n) {
+    switch (value) {
+      case 1:
+        return l10n.rating1;
+      case 2:
+        return l10n.rating2;
+      case 4:
+        return l10n.rating4;
+      case 5:
+        return l10n.rating5;
+      default:
+        return l10n.rating3;
+    }
+  }
 
   @override
   void dispose() {
@@ -51,11 +75,12 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    final l10n = context.l10n;
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng viết vài dòng chia sẻ nhận xét của bạn.'),
+        SnackBar(
+          content: Text(l10n.reviewRequired),
           backgroundColor: AppColors.error,
         ),
       );
@@ -69,8 +94,8 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Cảm ơn bạn! Đánh giá đã gửi thành công (+20 điểm thưởng VIP).'),
+      SnackBar(
+        content: Text(l10n.reviewSuccess),
         backgroundColor: AppColors.success,
       ),
     );
@@ -80,12 +105,13 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
-          'Viết đánh giá địa điểm',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+        title: Text(
+          l10n.writeReviewTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
         ),
         centerTitle: true,
         elevation: 0,
@@ -171,9 +197,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    'ĐÁNH GIÁ MỨC ĐỘ HÀI LÒNG',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
+                                    Text(
+                    l10n.satisfactionLevel,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
                   ),
                   const SizedBox(height: 12),
 
@@ -195,7 +221,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                   const SizedBox(height: 6),
 
                   Text(
-                    _ratingLabels[_rating],
+                    _ratingLabel(_rating, l10n),
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
                   ),
                 ],
@@ -204,15 +230,15 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
             const SizedBox(height: AppSpacing.lg),
 
             // 3. ASPECT TAG CHIPS
-            const Text(
-              'TIÊU CHÍ NỔI BẬT KHUYÊN THÍCH',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
+            Text(
+              l10n.recommendedCriteria,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
             ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _aspectOptions.map((asp) {
+              children: _aspectIds.map((asp) {
                 final isSelected = _selectedAspects.contains(asp);
                 return GestureDetector(
                   onTap: () => _toggleAspect(asp),
@@ -226,7 +252,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                       ),
                     ),
                     child: Text(
-                      asp,
+                      _aspectLabel(asp, l10n),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -240,9 +266,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
             const SizedBox(height: AppSpacing.lg),
 
             // 4. COMMENT INPUT FIELD
-            const Text(
-              'NỘI DUNG NHẬN XÉT CHI TIẾT',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
+            Text(
+              l10n.detailedContent,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 0.5),
             ),
             const SizedBox(height: 8),
             Container(
@@ -255,11 +281,11 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                 controller: _commentController,
                 maxLines: 5,
                 maxLength: 300,
-                decoration: const InputDecoration(
-                  hintText: 'Chia sẻ nhận xét thực tế về trải nghiệm, không gian, vị trí hoặc lưu ý khi ghé thăm...',
-                  hintStyle: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                decoration: InputDecoration(
+                  hintText: l10n.reviewHint,
+                  hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(16),
+                  contentPadding: const EdgeInsets.all(16),
                 ),
               ),
             ),
@@ -297,14 +323,14 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                             height: 22,
                             child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation(Colors.white)),
                           )
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.send_rounded, size: 20, color: Colors.white),
-                              SizedBox(width: 8),
+                              const Icon(Icons.send_rounded, size: 20, color: Colors.white),
+                              const SizedBox(width: 8),
                               Text(
-                                'Gửi đánh giá (+20 điểm)',
-                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                                l10n.submitReview,
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                             ],
                           ),

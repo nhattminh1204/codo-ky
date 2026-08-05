@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:ui' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/logging/app_logger.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
+import 'package:codoky/core/config/localization/locale_provider.dart';
 import 'package:codoky/features/review/data/models/review_model.dart';
 
 class ReviewState {
@@ -56,13 +59,18 @@ class ReviewState {
 class ReviewNotifier extends StateNotifier<ReviewState> {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final Ref? _ref;
 
-  ReviewNotifier({FirebaseFirestore? firestore, FirebaseAuth? auth})
+  ReviewNotifier({FirebaseFirestore? firestore, FirebaseAuth? auth, Ref? ref})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _auth = auth ?? FirebaseAuth.instance,
+        _ref = ref,
         super(const ReviewState()) {
     loadReviews();
   }
+
+  AppLocalizations get _t =>
+      AppLocalizations(_ref?.read(localeProvider) ?? const Locale('vi'));
 
   Future<void> loadReviews() async {
     await Future.wait([loadAllReviews(), loadMyReviews()]);
@@ -179,7 +187,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
     try {
       final docRef = _firestore.collection('reviews').doc();
       final currentUid = _auth.currentUser?.uid ?? (review.userId.isNotEmpty ? review.userId : 'user_guest');
-      final currentName = _auth.currentUser?.displayName ?? (review.userName.isNotEmpty ? review.userName : 'Người dùng Huế');
+      final currentName = _auth.currentUser?.displayName ?? (review.userName.isNotEmpty ? review.userName : _t.userHue);
 
       final newReview = review.copyWith(
         id: docRef.id,
@@ -197,7 +205,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
       );
     } catch (e) {
       AppLogger.e('Error creating review on Firestore: $e', e);
-      throw Exception('Không thể gửi đánh giá: $e');
+      throw Exception(_t.cannotSubmitReview(e.toString()));
     }
   }
 
@@ -205,7 +213,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
     try {
       final currentUid = _auth.currentUser?.uid;
       if (currentUid != null && review.userId.isNotEmpty && review.userId != currentUid) {
-        throw Exception('Bạn không có quyền chỉnh sửa đánh giá này.');
+        throw Exception(_t.noPermissionEdit);
       }
 
       final updatedReview = review.copyWith(updatedAt: DateTime.now());
@@ -217,7 +225,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
       );
     } catch (e) {
       AppLogger.e('Error updating review on Firestore: $e', e);
-      throw Exception('Không thể cập nhật đánh giá: $e');
+      throw Exception(_t.cannotUpdateReview(e.toString()));
     }
   }
 
@@ -231,7 +239,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
       );
     } catch (e) {
       AppLogger.e('Error deleting review on Firestore: $e', e);
-      throw Exception('Không thể xóa đánh giá: $e');
+      throw Exception(_t.cannotDeleteReview(e.toString()));
     }
   }
 
@@ -285,5 +293,5 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
 }
 
 final reviewProvider = StateNotifierProvider<ReviewNotifier, ReviewState>((ref) {
-  return ReviewNotifier();
+  return ReviewNotifier(ref: ref);
 });

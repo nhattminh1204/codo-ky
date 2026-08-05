@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/utils/validators/validators.dart';
 import 'package:codoky/core/widgets/buttons/primary_button.dart';
 import 'package:codoky/core/widgets/inputs/text_input.dart';
@@ -61,10 +62,11 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
   }
 
   void _showPlacePicker() {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text('Chọn địa điểm đánh giá', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        title: Text(l10n.chooseReviewPlace, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         children: _availablePlaces.map((place) {
           return SimpleDialogOption(
             onPressed: () {
@@ -87,6 +89,7 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -118,7 +121,7 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
                 children: [
                   Expanded(
                     child: Text(
-                      'Viết đánh giá',
+                      l10n.writeReview,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -134,17 +137,17 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
               // Place selection
               TextInput(
                 controller: _placeController,
-                label: 'Địa điểm',
-                hint: 'Chọn địa điểm',
+                label: l10n.placeLabel,
+                hint: l10n.choosePlaceHint,
                 prefixIcon: const Icon(Icons.place_outlined),
-                validator: (v) => Validators.required(v, fieldName: 'Địa điểm'),
+                validator: (v) => Validators.required(v, fieldName: l10n.placeLabel),
                 readOnly: true,
                 onTap: _showPlacePicker,
               ),
               const SizedBox(height: 16),
               // Rating
               Text(
-                'Đánh giá của bạn',
+                l10n.yourReview,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -158,26 +161,26 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
               // Title
               TextInput(
                 controller: _titleController,
-                label: 'Tiêu đề',
-                hint: 'Viết tiêu đề đánh giá...',
+                label: l10n.titleLabel,
+                hint: l10n.titleHint,
                 prefixIcon: const Icon(Icons.title_outlined),
-                validator: (v) => Validators.minLength(v, 3, fieldName: 'Tiêu đề'),
+                validator: (v) => Validators.minLength(v, 3, fieldName: l10n.titleLabel),
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
               // Content
               TextInput(
                 controller: _contentController,
-                label: 'Nội dung',
-                hint: 'Chia sẻ trải nghiệm của bạn về địa điểm này...',
+                label: l10n.contentLabel,
+                hint: l10n.contentHint,
                 prefixIcon: const Icon(Icons.description_outlined),
-                validator: (v) => Validators.minLength(v, 10, fieldName: 'Nội dung'),
+                validator: (v) => Validators.minLength(v, 10, fieldName: l10n.contentLabel),
                 maxLines: 4,
                 textInputAction: TextInputAction.done,
               ),
               const SizedBox(height: 24),
               PrimaryButton(
-                text: 'Đăng đánh giá',
+                text: l10n.postReview,
                 isLoading: _isSubmitting,
                 onPressed: _submitReview,
               ),
@@ -190,10 +193,11 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
   }
 
   Future<void> _submitReview() async {
+    final l10n = context.l10n;
     if (_formKey.currentState!.validate()) {
       if (_rating == 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Vui lòng chọn số sao đánh giá')),
+          SnackBar(content: Text(l10n.chooseRatingFirst)),
         );
         return;
       }
@@ -204,7 +208,7 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
         final review = ReviewModel(
           id: '',
           userId: '',
-          userName: 'Du khách Huế',
+          userName: l10n.travelerName,
           placeId: _selectedPlaceId,
           placeName: _selectedPlaceName,
           rating: _rating,
@@ -221,9 +225,9 @@ class _WriteReviewBottomSheetState extends ConsumerState<WriteReviewBottomSheet>
         Navigator.pop(context);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đăng đánh giá thành công!'),
-            backgroundColor: Color(0xFF10B981),
+          SnackBar(
+            content: Text(l10n.reviewPosted),
+            backgroundColor: const Color(0xFF10B981),
           ),
         );
       } catch (e) {

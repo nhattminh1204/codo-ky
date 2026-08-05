@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 import 'package:codoky/core/widgets/animations/staggered_item.dart';
 import 'package:codoky/features/review/presentation/providers/review_provider.dart';
@@ -41,14 +42,15 @@ class _ReviewListScreenState extends ConsumerState<ReviewListScreen> with Ticker
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final reviewState = ref.watch(reviewProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
-          'Đánh giá từ du khách',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
+        title: Text(
+          l10n.reviewListTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
         ),
         centerTitle: true,
         elevation: 0,
@@ -68,7 +70,7 @@ class _ReviewListScreenState extends ConsumerState<ReviewListScreen> with Ticker
         onPressed: _openWriteReviewSheet,
         backgroundColor: const Color(0xFFFF7A00),
         icon: const Icon(Icons.rate_review_rounded, color: Colors.white),
-        label: const Text('Viết đánh giá', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        label: Text(l10n.writeReview, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(reviewProvider.notifier).loadAllReviews(placeId: widget.placeId, refresh: true),
@@ -111,7 +113,7 @@ class _ReviewListScreenState extends ConsumerState<ReviewListScreen> with Ticker
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${reviewState.allReviews.length} đánh giá',
+                            l10n.reviewCountLabel(reviewState.allReviews.length),
                             style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                           ),
                         ],
@@ -148,14 +150,14 @@ class _ReviewListScreenState extends ConsumerState<ReviewListScreen> with Ticker
                     children: [
                       const Icon(Icons.rate_review_outlined, size: 56, color: Color(0xFF94A3B8)),
                       const SizedBox(height: 12),
-                      const Text(
-                        'Chưa có đánh giá nào cho địa điểm này.',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                      Text(
+                        l10n.noReviewsForPlace,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Hãy là người đầu tiên chia sẻ cảm nhận của bạn!',
-                        style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                      Text(
+                        l10n.beFirstReviewer,
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -164,7 +166,7 @@ class _ReviewListScreenState extends ConsumerState<ReviewListScreen> with Ticker
                           backgroundColor: const Color(0xFFFF7A00),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
-                        child: const Text('Viết Đánh Giá Ngay', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        child: Text(l10n.writeReviewNow, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
