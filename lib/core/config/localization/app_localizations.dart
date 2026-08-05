@@ -771,6 +771,21 @@ class AppLocalizations {
   String get insightAqiGood => _t('Khí trời Cố đô trong lành, thích hợp dạo chơi', 'Fresh Imperial air, great for sightseeing');
   String get insightAqiModerate => _t('Không khí chấp nhận được, thoải mái ra ngoài', 'Acceptable air, comfortable for outdoor activities');
   String get insightAqiUnhealthy => _t('Nên đeo khẩu trang khi di chuyển bằng xe máy', 'Wear a mask while traveling by motorbike');
+
+  // Status Subtitles
+  String get statusHumidityHigh => _t('Oi nồng & Nồm ẩm', 'Hot & Humid');
+  String get statusHumidityLow => _t('Khô nóng (Gió Lào)', 'Dry Foehn Wind');
+  String get statusHumidityModerate => _t('Độ ẩm hơi cao', 'Slightly Humid');
+  String get statusHumidityGood => _t('Khô ráo dễ chịu', 'Pleasant & Dry');
+  String get statusWindHigh => _t('Gió mạnh / Giông', 'Strong Wind / Storm');
+  String get statusWindModerate => _t('Gió vừa', 'Moderate Wind');
+  String get statusWindGood => _t('Gió nhẹ', 'Light Breeze');
+  String get statusUvHigh => _t('UV Rất cao', 'Very High UV');
+  String get statusUvModerate => _t('UV Trung bình', 'Moderate UV');
+  String get statusUvGood => _t('UV Thấp', 'Low UV');
+  String get statusAqiUnhealthy => _t('Kém / Khói bụi', 'Unhealthy Air');
+  String get statusAqiModerate => _t('Trung bình', 'Moderate Air');
+  String get statusAqiGood => _t('Tốt', 'Good Air');
 }
 
 extension AppLocalizationsContextX on BuildContext {

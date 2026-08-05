@@ -623,5 +623,18 @@
   "insightUvHigh": "Nắng gắt, cần đội nón & bôi kem chống nắng",
   "insightAqiGood": "Khí trời Cố đô trong lành, thích hợp dạo chơi",
   "insightAqiModerate": "Không khí chấp nhận được, thoải mái ra ngoài",
-  "insightAqiUnhealthy": "Nên đeo khẩu trang khi di chuyển bằng xe máy"
+  "insightAqiUnhealthy": "Nên đeo khẩu trang khi di chuyển bằng xe máy",
+  "statusHumidityHigh": "Oi nồng & Nồm ẩm",
+  "statusHumidityLow": "Khô nóng (Gió Lào)",
+  "statusHumidityModerate": "Độ ẩm hơi cao",
+  "statusHumidityGood": "Khô ráo dễ chịu",
+  "statusWindHigh": "Gió mạnh / Giông",
+  "statusWindModerate": "Gió vừa",
+  "statusWindGood": "Gió nhẹ",
+  "statusUvHigh": "UV Rất cao",
+  "statusUvModerate": "UV Trung bình",
+  "statusUvGood": "UV Thấp",
+  "statusAqiUnhealthy": "Kém / Khói bụi",
+  "statusAqiModerate": "Trung bình",
+  "statusAqiGood": "Tốt"
 }

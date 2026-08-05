@@ -623,5 +623,18 @@
   "insightUvHigh": "Strong UV, wear hat & apply sunscreen",
   "insightAqiGood": "Fresh Imperial air, great for sightseeing",
   "insightAqiModerate": "Acceptable air, comfortable for outdoor activities",
-  "insightAqiUnhealthy": "Wear a mask while traveling by motorbike"
+  "insightAqiUnhealthy": "Wear a mask while traveling by motorbike",
+  "statusHumidityHigh": "Hot & Humid",
+  "statusHumidityLow": "Dry Foehn Wind",
+  "statusHumidityModerate": "Slightly Humid",
+  "statusHumidityGood": "Pleasant & Dry",
+  "statusWindHigh": "Strong Wind / Storm",
+  "statusWindModerate": "Moderate Wind",
+  "statusWindGood": "Light Breeze",
+  "statusUvHigh": "Very High UV",
+  "statusUvModerate": "Moderate UV",
+  "statusUvGood": "Low UV",
+  "statusAqiUnhealthy": "Unhealthy Air",
+  "statusAqiModerate": "Moderate Air",
+  "statusAqiGood": "Good Air"
 }

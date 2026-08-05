@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/config/localization/app_localizations.dart';
@@ -18,6 +19,13 @@ String _fmtHHmm(DateTime dt) {
 String _fmtShortDay(DateTime dt) {
   const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
   return '${days[dt.weekday % 7]}, ${dt.day}/${dt.month}';
+}
+
+/// Cấu trúc phân vùng mốc cho thanh Progress Bar
+class _ZoneSegment {
+  final double flex;
+  final Color color;
+  const _ZoneSegment(this.flex, this.color);
 }
 
 /// Dynamic Theme Palette tùy chỉnh màu gradient theo trạng thái thời tiết Huế.
@@ -516,7 +524,6 @@ class _SheetBody extends ConsumerWidget {
     );
   }
 
-  // ── 4. Stats Grid ───────────────────────────────────────────────────────────
   // ── 4. Stats Grid (3-Tier Bento Glass Style) ──────────────────────────────
   Widget _buildStatsGrid(
       WeatherDetailResult d, bool isDark, Color cardColor) {
@@ -524,6 +531,11 @@ class _SheetBody extends ConsumerWidget {
     final windSpeed = d.windSpeed;
     final uvIndex = d.uvIndex;
     final aqi = d.aqi ?? 65;
+
+    // Base colors for zone bars
+    final greenZoneColor = (isDark ? const Color(0xFF34D399) : const Color(0xFF059669)).withValues(alpha: 0.22);
+    final amberZoneColor = (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706)).withValues(alpha: 0.22);
+    final redZoneColor = (isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626)).withValues(alpha: 0.22);
 
     // Helper for semantic color palette based on level (0 = Green, 1 = Amber, 2 = Red)
     Color getSemanticColor(int level) {
@@ -550,15 +562,15 @@ class _SheetBody extends ConsumerWidget {
       }
     }
 
-    // 1. Độ ẩm (Humidity) - Thang 0-100%
+    // 1. Độ ẩm (Humidity) - Thang 0-100% (4 Vùng: Đỏ 0-40% -> Xanh 40-70% -> Vàng 70-85% -> Đỏ 85-100%)
     final int humidityLevel = (humidity > 85 || humidity < 40)
         ? 2
         : (humidity > 70 ? 1 : 0);
     final String humidityStatus = humidity > 85
-        ? 'Oi nồng & Nồm ẩm'
+        ? l10n.statusHumidityHigh
         : (humidity < 40
-            ? 'Khô nóng (Gió Lào)'
-            : (humidity > 70 ? 'Độ ẩm hơi cao' : 'Khô ráo dễ chịu'));
+            ? l10n.statusHumidityLow
+            : (humidity > 70 ? l10n.statusHumidityModerate : l10n.statusHumidityGood));
     final String humidityInsight = humidity > 85
         ? l10n.insightHumidityHigh
         : (humidity < 40
@@ -567,31 +579,31 @@ class _SheetBody extends ConsumerWidget {
                 ? l10n.insightHumidityModerate
                 : l10n.insightHumidityGood));
 
-    // 2. Tốc độ gió (Wind) - Reference Max: 40 km/h
+    // 2. Tốc độ gió (Wind) - Reference Max: 40 km/h (3 Vùng)
     final int windLevel = windSpeed > 25.0 ? 2 : (windSpeed >= 12.0 ? 1 : 0);
     final String windStatus = windSpeed > 25.0
-        ? 'Gió mạnh / Giông'
-        : (windSpeed >= 12.0 ? 'Gió vừa' : 'Gió nhẹ');
+        ? l10n.statusWindHigh
+        : (windSpeed >= 12.0 ? l10n.statusWindModerate : l10n.statusWindGood);
     final String windInsight = windSpeed > 25.0
         ? l10n.insightWindHigh
         : (windSpeed >= 12.0
             ? l10n.insightWindModerate
             : l10n.insightWindGood);
 
-    // 3. Chỉ số UV - Reference Max: 11
+    // 3. Chỉ số UV - Reference Max: 11 (3 Vùng)
     final int uvLevel = uvIndex >= 7.0 ? 2 : (uvIndex >= 3.0 ? 1 : 0);
     final String uvStatus = uvIndex >= 7.0
-        ? 'UV Rất cao'
-        : (uvIndex >= 3.0 ? 'UV Trung bình' : 'UV Thấp');
+        ? l10n.statusUvHigh
+        : (uvIndex >= 3.0 ? l10n.statusUvModerate : l10n.statusUvGood);
     final String uvInsight = uvIndex >= 7.0
         ? l10n.insightUvHigh
         : (uvIndex >= 3.0 ? l10n.insightUvModerate : l10n.insightUvGood);
 
-    // 4. Chất lượng không khí (AQI) - Reference Max: 200
+    // 4. Chất lượng không khí (AQI) - Reference Max: 200 (3 Vùng)
     final int aqiLevel = aqi > 100 ? 2 : (aqi > 50 ? 1 : 0);
     final String aqiStatus = aqi > 100
-        ? 'Kém / Khói bụi'
-        : (aqi > 50 ? 'Trung bình' : 'Tốt');
+        ? l10n.statusAqiUnhealthy
+        : (aqi > 50 ? l10n.statusAqiModerate : l10n.statusAqiGood);
     final String aqiInsight = aqi > 100
         ? l10n.insightAqiUnhealthy
         : (aqi > 50 ? l10n.insightAqiModerate : l10n.insightAqiGood);
@@ -604,7 +616,7 @@ class _SheetBody extends ConsumerWidget {
       crossAxisSpacing: 12,
       childAspectRatio: 1.38,
       children: [
-        // 1. Độ ẩm
+        // 1. Độ ẩm (4 vùng: Đỏ 0-40% -> Xanh 40-70% -> Vàng 70-85% -> Đỏ 85-100%)
         _bentoStatCard(
           icon: Icons.water_drop_rounded,
           accentColor: getSemanticColor(humidityLevel),
@@ -615,9 +627,14 @@ class _SheetBody extends ConsumerWidget {
           insightText: humidityInsight,
           progressValue: (humidity / 100.0).clamp(0.0, 1.0),
           isDark: isDark,
-          zoneSegments: const [0.40, 0.45, 0.15],
+          zoneSegments: [
+            _ZoneSegment(0.40, redZoneColor),
+            _ZoneSegment(0.30, greenZoneColor),
+            _ZoneSegment(0.15, amberZoneColor),
+            _ZoneSegment(0.15, redZoneColor),
+          ],
         ),
-        // 2. Tốc độ gió
+        // 2. Tốc độ gió (3 vùng)
         _bentoStatCard(
           icon: Icons.air_rounded,
           accentColor: getSemanticColor(windLevel),
@@ -628,9 +645,13 @@ class _SheetBody extends ConsumerWidget {
           insightText: windInsight,
           progressValue: (windSpeed / 40.0).clamp(0.0, 1.0),
           isDark: isDark,
-          zoneSegments: const [0.30, 0.325, 0.375],
+          zoneSegments: [
+            _ZoneSegment(0.30, greenZoneColor),
+            _ZoneSegment(0.325, amberZoneColor),
+            _ZoneSegment(0.375, redZoneColor),
+          ],
         ),
-        // 3. Chỉ số UV
+        // 3. Chỉ số UV (3 vùng)
         _bentoStatCard(
           icon: Icons.wb_sunny_rounded,
           accentColor: getSemanticColor(uvLevel),
@@ -641,9 +662,13 @@ class _SheetBody extends ConsumerWidget {
           insightText: uvInsight,
           progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
           isDark: isDark,
-          zoneSegments: const [0.27, 0.36, 0.37],
+          zoneSegments: [
+            _ZoneSegment(0.27, greenZoneColor),
+            _ZoneSegment(0.36, amberZoneColor),
+            _ZoneSegment(0.37, redZoneColor),
+          ],
         ),
-        // 4. Chất lượng không khí
+        // 4. Chất lượng không khí (3 vùng)
         _bentoStatCard(
           icon: Icons.eco_rounded,
           accentColor: getSemanticColor(aqiLevel),
@@ -654,7 +679,11 @@ class _SheetBody extends ConsumerWidget {
           insightText: aqiInsight,
           progressValue: (aqi / 200.0).clamp(0.0, 1.0),
           isDark: isDark,
-          zoneSegments: const [0.25, 0.25, 0.50],
+          zoneSegments: [
+            _ZoneSegment(0.25, greenZoneColor),
+            _ZoneSegment(0.25, amberZoneColor),
+            _ZoneSegment(0.50, redZoneColor),
+          ],
         ),
       ],
     );
@@ -670,154 +699,150 @@ class _SheetBody extends ConsumerWidget {
     required String insightText,
     required double progressValue,
     required bool isDark,
-    required List<double> zoneSegments,
+    required List<_ZoneSegment> zoneSegments,
   }) {
     final bgColor = isDark
         ? const Color(0xFF1E293B).withValues(alpha: 0.85)
         : Colors.white.withValues(alpha: 0.90);
     final borderColor = accentColor.withValues(alpha: 0.12);
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: borderColor, width: 1.0),
-        boxShadow: [
-          BoxShadow(
-            color: accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // TẦNG 1: Icon container + Label
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(5.5),
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(9),
-                ),
-                child: Icon(icon, size: 15, color: accentColor),
-              ),
-              const SizedBox(width: 7),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor, width: 1.0),
+            boxShadow: [
+              BoxShadow(
+                color: accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-
-          // TẦNG 2 & TẦNG 3: Số liệu chính + Status Subtitle 바로 dưới
-          Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 18.5,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  letterSpacing: -0.3,
-                  height: 1.1,
-                ),
+              // TẦNG 1: Icon container + Label
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(5.5),
+                    decoration: BoxDecoration(
+                      color: iconBgColor,
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: Icon(icon, size: 15, color: accentColor),
+                  ),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 2),
-              Text(
-                statusSubtitle,
-                style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w700,
-                  color: accentColor,
-                  height: 1.1,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
 
-          // PROGRESS BAR PHÂN VÙNG MỐC
-          Stack(
-            children: [
-              SizedBox(
-                height: 4,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: (zoneSegments[0] * 1000).round(),
-                        child: Container(color: (isDark ? const Color(0xFF34D399) : const Color(0xFF059669)).withValues(alpha: 0.2)),
-                      ),
-                      const SizedBox(width: 1),
-                      Expanded(
-                        flex: (zoneSegments[1] * 1000).round(),
-                        child: Container(color: (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706)).withValues(alpha: 0.2)),
-                      ),
-                      const SizedBox(width: 1),
-                      Expanded(
-                        flex: (zoneSegments[2] * 1000).round(),
-                        child: Container(color: (isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626)).withValues(alpha: 0.2)),
-                      ),
-                    ],
+              // TẦNG 2 & TẦNG 3: Số liệu chính + Status Subtitle 바로 dưới
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 18.5,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      letterSpacing: -0.3,
+                      height: 1.1,
+                    ),
                   ),
-                ),
-              ),
-              SizedBox(
-                height: 4,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: LinearProgressIndicator(
-                    value: progressValue,
-                    backgroundColor: Colors.transparent,
-                    valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                  const SizedBox(height: 2),
+                  Text(
+                    statusSubtitle,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: accentColor,
+                      height: 1.1,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
 
-          // DÒNG GỢI Ý HÀNH ĐỘNG DU LỊCH HUẾ (Contextual Insight)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.lightbulb_outline_rounded,
-                size: 11,
-                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  insightText,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white54 : const Color(0xFF64748B),
+              // PROGRESS BAR PHÂN VÙNG MỐC (Linh hoạt N vùng tùy chỉnh cho từng chỉ số)
+              Stack(
+                children: [
+                  SizedBox(
+                    height: 4,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: Row(
+                        children: zoneSegments.map((seg) {
+                          return Expanded(
+                            flex: (seg.flex * 1000).round(),
+                            child: Container(color: seg.color),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  SizedBox(
+                    height: 4,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: progressValue,
+                        backgroundColor: Colors.transparent,
+                        valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // DÒNG GỢI Ý HÀNH ĐỘNG DU LỊCH HUẾ (Contextual Insight)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline_rounded,
+                    size: 11,
+                    color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      insightText,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
