@@ -528,6 +528,10 @@ class _SheetBody extends ConsumerWidget {
     final uvIndex = d.uvIndex;
     final aqi = d.aqi ?? 65;
 
+    // Xác định giờ hiện tại: ban đêm 20h–05h → UV = 0 là bình thường, ẩn card thật
+    final nowHour = DateTime.now().hour;
+    final isNighttime = nowHour >= 20 || nowHour < 6;
+
     // Multi-stop rainbow spectrum gradient color definitions
     final greenColor = isDark ? const Color(0xFF34D399) : const Color(0xFF10B981);
     final amberColor = isDark ? const Color(0xFFFBBF24) : const Color(0xFFF59E0B);
@@ -641,20 +645,22 @@ class _SheetBody extends ConsumerWidget {
           gradientColors: [greenColor, amberColor, redColor],
           gradientStops: const [0.0, 0.40, 1.0],
         ),
-        // 3. Chỉ số UV (Dải màu cầu vồng 4 mốc)
-        _bentoStatCard(
-          icon: Icons.wb_sunny_rounded,
-          accentColor: getSemanticColor(uvLevel),
-          iconBgColor: getIconBgColor(uvLevel),
-          label: l10n.weatherUvIndex,
-          value: 'UV ${uvIndex.toStringAsFixed(1)}',
-          statusSubtitle: uvStatus,
-          insightText: uvInsight,
-          progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
-          isDark: isDark,
-          gradientColors: [greenColor, amberColor, orangeColor, redColor],
-          gradientStops: const [0.0, 0.30, 0.65, 1.0],
-        ),
+        // 3. Chỉ số UV — hiện badge ban đêm nếu đang là đêm (không có UV thật)
+        isNighttime
+            ? _bentoNightUvCard(isDark: isDark)
+            : _bentoStatCard(
+                icon: Icons.wb_sunny_rounded,
+                accentColor: getSemanticColor(uvLevel),
+                iconBgColor: getIconBgColor(uvLevel),
+                label: l10n.weatherUvIndex,
+                value: 'UV ${uvIndex.toStringAsFixed(1)}',
+                statusSubtitle: uvStatus,
+                insightText: uvInsight,
+                progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
+                isDark: isDark,
+                gradientColors: [greenColor, amberColor, orangeColor, redColor],
+                gradientStops: const [0.0, 0.30, 0.65, 1.0],
+              ),
         // 4. Chất lượng không khí (Dải màu cầu vồng 3 mốc)
         _bentoStatCard(
           icon: Icons.eco_rounded,
@@ -670,6 +676,108 @@ class _SheetBody extends ConsumerWidget {
           gradientStops: const [0.0, 0.35, 1.0],
         ),
       ],
+    );
+  }
+
+  /// Card placeholder UV ban đêm — thay "UV 0.0" bằng thông báo thân thiện
+  Widget _bentoNightUvCard({required bool isDark}) {
+    final bgColor = isDark
+        ? const Color(0xFF1E293B).withValues(alpha: 0.85)
+        : Colors.white.withValues(alpha: 0.90);
+    final nightAccent = isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1);
+    final nightBg = isDark ? const Color(0xFF1E1B4B) : const Color(0xFFEDE9FE);
+
+    return _PressableCard(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: nightAccent.withValues(alpha: 0.15), width: 1.0),
+              boxShadow: [
+                BoxShadow(
+                  color: nightAccent.withValues(alpha: isDark ? 0.12 : 0.07),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(5.5),
+                      decoration: BoxDecoration(
+                        color: nightBg,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: Icon(Icons.nightlight_round, size: 15, color: nightAccent),
+                    ),
+                    const SizedBox(width: 7),
+                    Expanded(
+                      child: Text(
+                        l10n.weatherUvIndex,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                Center(
+                  child: Column(
+                    children: [
+                      Text('🌙', style: const TextStyle(fontSize: 26)),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Ban đêm',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: nightAccent,
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.info_outline_rounded, size: 11,
+                        color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        'UV không đo được ban đêm',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -882,17 +990,45 @@ class _SheetBody extends ConsumerWidget {
 
     if (filtered.isEmpty) return _buildErrorChip(isDark);
 
+    // Bọc trong Stack để thêm fade-out gradient gợi ý scroll bên phải
     return SizedBox(
-      height: 128, // Tăng lên 128px để chứa vừa icon 38px tỏa hào quang
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: filtered.length,
-        separatorBuilder: (context, i) => const SizedBox(width: 8),
-        itemBuilder: (_, i) {
-          final h = filtered[i];
-          final isNow = (h.time.difference(now).inMinutes).abs() <= 30;
-          return _hourlyCard(h, isNow, isDark, cardColor);
-        },
+      height: 128,
+      child: Stack(
+        children: [
+          ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: filtered.length,
+            separatorBuilder: (context, i) => const SizedBox(width: 8),
+            itemBuilder: (_, i) {
+              final h = filtered[i];
+              final isNow = (h.time.difference(now).inMinutes).abs() <= 30;
+              return _hourlyCard(h, isNow, isDark, cardColor);
+            },
+          ),
+          // Fade gradient bên phải → hint scroll
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: 40,
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      (isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC))
+                          .withValues(alpha: 0.0),
+                      (isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC))
+                          .withValues(alpha: 0.85),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -966,15 +1102,33 @@ class _SheetBody extends ConsumerWidget {
               color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
-          Text(
-            '${h.precipitationProbability}%',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: h.precipitationProbability > 0
-                  ? rainColor
-                  : (isDark ? Colors.white30 : const Color(0xFFCBD5E1)),
-            ),
+          // % mưa — to hơn, kèm biểu tượng mưa nếu > 20%
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (h.precipitationProbability > 20)
+                Padding(
+                  padding: const EdgeInsets.only(right: 2),
+                  child: Icon(
+                    Icons.water_drop_rounded,
+                    size: 9,
+                    color: rainColor,
+                  ),
+                ),
+              Text(
+                '${h.precipitationProbability}%',
+                style: TextStyle(
+                  fontSize: h.precipitationProbability > 40 ? 12 : 10.5,
+                  fontWeight: h.precipitationProbability > 40
+                      ? FontWeight.w800
+                      : FontWeight.w600,
+                  color: h.precipitationProbability > 0
+                      ? rainColor
+                      : (isDark ? Colors.white30 : const Color(0xFFCBD5E1)),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -985,8 +1139,22 @@ class _SheetBody extends ConsumerWidget {
   // ── 6. Daily 7-Day Forecast List ─────────────────────────────────────────────
   Widget _buildDailyList(
       List<DayWeatherForecast> days, bool isDark, Color cardColor) {
+    final limit = math.min(days.length, 7);
+
+    // Tìm index ngày mưa nhiều nhất trong 7 ngày → highlight
+    int rainiestIdx = 0;
+    int maxRain = 0;
+    for (int i = 0; i < limit; i++) {
+      if (days[i].rainProbability > maxRain) {
+        maxRain = days[i].rainProbability;
+        rainiestIdx = i;
+      }
+    }
+    // Chỉ highlight nếu ngày mưa nhất có ít nhất 40% mưa
+    final showRainiestBadge = maxRain >= 40;
+
     return Column(
-      children: List.generate(math.min(days.length, 7), (i) {
+      children: List.generate(limit, (i) {
         final d = days[i];
         final isToday = i == 0;
         final isTomorrow = i == 1;
@@ -995,32 +1163,50 @@ class _SheetBody extends ConsumerWidget {
             : isTomorrow
                 ? l10n.weatherTomorrow
                 : _fmtShortDay(d.date);
-        return _dailyRow(d, dayLabel, isDark, cardColor);
+        final isRainiest = showRainiestBadge && i == rainiestIdx;
+        return _dailyRow(d, dayLabel, isDark, cardColor, isRainiest: isRainiest);
       }),
     );
   }
 
   Widget _dailyRow(
-      DayWeatherForecast d, String dayLabel, bool isDark, Color cardColor) {
+    DayWeatherForecast d,
+    String dayLabel,
+    bool isDark,
+    Color cardColor, {
+    bool isRainiest = false,
+  }) {
     final rainProb = d.rainProbability;
     final barColor = _rainColor(rainProb);
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subColor = isDark ? Colors.white60 : const Color(0xFF64748B);
 
+    // Màu nổi bật cho ngày mưa nhiều nhất
+    final rainiestBorderColor = const Color(0xFF2563EB).withValues(alpha: 0.50);
+    final rainiestBg = isDark
+        ? const Color(0xFF1E3A5F).withValues(alpha: 0.85)
+        : const Color(0xFFEFF6FF);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+        color: isRainiest
+            ? rainiestBg
+            : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC)),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-          width: 1.0,
+          color: isRainiest
+              ? rainiestBorderColor
+              : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+          width: isRainiest ? 1.5 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
-            blurRadius: 6,
+            color: isRainiest
+                ? const Color(0xFF2563EB).withValues(alpha: 0.12)
+                : Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+            blurRadius: isRainiest ? 10 : 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -1053,14 +1239,37 @@ class _SheetBody extends ConsumerWidget {
             ),
           ),
           const Spacer(),
+          // Badge "☔ Mưa nhiều" nếu là ngày mưa nhất
+          if (isRainiest) ...([
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB).withValues(alpha: isDark ? 0.25 : 0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: const Color(0xFF2563EB).withValues(alpha: 0.35),
+                  width: 0.8,
+                ),
+              ),
+              child: const Text(
+                '☔ Nhiều nhất',
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2563EB),
+                ),
+              ),
+            ),
+          ]),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 '$rainProb%',
                 style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
+                  fontSize: isRainiest ? 13 : 11.5,
+                  fontWeight: isRainiest ? FontWeight.w800 : FontWeight.w600,
                   color: rainProb > 40 ? barColor : subColor,
                 ),
               ),
