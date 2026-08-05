@@ -691,10 +691,11 @@ class _SheetBody extends ConsumerWidget {
         : Colors.white.withValues(alpha: 0.90);
     final borderColor = accentColor.withValues(alpha: 0.12);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+    return _PressableCard(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
           decoration: BoxDecoration(
@@ -864,8 +865,9 @@ class _SheetBody extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ── 5. Hourly Row (24h Slider) ───────────────────────────────────────────────
   Widget _buildHourlyRow(
@@ -933,9 +935,10 @@ class _SheetBody extends ConsumerWidget {
             ],
           );
 
-    return Container(
-      width: 68,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+    return _PressableCard(
+      child: Container(
+        width: 68,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: bgDecoration,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -975,8 +978,9 @@ class _SheetBody extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ── 6. Daily 7-Day Forecast List ─────────────────────────────────────────────
   Widget _buildDailyList(
@@ -1126,6 +1130,35 @@ class _SheetBody extends ConsumerWidget {
             style: TextStyle(fontSize: 12.5, color: Color(0xFFEF4444)),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Widget bọc hiệu ứng phản hồi chạm Micro-interaction nảy (pressScale = 0.96, 150ms)
+class _PressableCard extends StatefulWidget {
+  final Widget child;
+
+  const _PressableCard({required this.child});
+
+  @override
+  State<_PressableCard> createState() => _PressableCardState();
+}
+
+class _PressableCardState extends State<_PressableCard> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? AppMotion.pressScale : 1.0,
+        duration: AppMotion.micro,
+        curve: AppMotion.standardCurve,
+        child: widget.child,
       ),
     );
   }
