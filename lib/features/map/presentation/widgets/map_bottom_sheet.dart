@@ -9,6 +9,7 @@ import 'package:codoky/features/review/presentation/providers/review_provider.da
 import 'package:codoky/features/review/presentation/widgets/review_card.dart';
 import 'package:codoky/features/review/presentation/widgets/write_review_bottom_sheet.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 
 class MapBottomSheet extends ConsumerStatefulWidget {
@@ -156,22 +157,23 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final parsedPlace = _parsePlace(widget.place);
     final placeId = parsedPlace['id']?.toString() ?? '1';
     final name = parsedPlace['name']?.toString() ?? '';
-    final address = parsedPlace['address']?.toString() ?? 'Thừa Thiên Huế';
+    final address = parsedPlace['address']?.toString() ?? l10n.ttAddressFallback;
     final category = parsedPlace['category']?.toString() ?? 'attraction';
     final rating = (parsedPlace['rating'] as num?)?.toDouble() ?? 4.8;
     final reviewCount = (parsedPlace['review_count'] as num?)?.toInt() ?? 128;
     final lat = (parsedPlace['latitude'] as num?)?.toDouble() ?? 16.4637;
     final lng = (parsedPlace['longitude'] as num?)?.toDouble() ?? 107.5909;
-    final openHours = parsedPlace['open_hours']?.toString() ?? '07:30 - 17:30 (Hằng ngày)';
-    final ticketPrice = parsedPlace['ticket_price']?.toString() ?? 'Miễn phí / Vé tham quan di tích';
+    final openHours = parsedPlace['open_hours']?.toString() ?? l10n.fallbackHoursDaily;
+    final ticketPrice = parsedPlace['ticket_price']?.toString() ?? l10n.fallbackTicket2;
     final phone = parsedPlace['phone']?.toString() ?? '0234 3523 237';
     final imageUrl = _getImageUrl(parsedPlace);
     final description = _getDescription(parsedPlace);
 
-    final config = _getCategoryConfig(category);
+    final config = _getCategoryConfig(category, l10n);
     final mapState = ref.watch(mapProvider);
     final isSaved = mapState.savedPlaceIds.contains(placeId);
     final activeRoute = mapState.activeRoute;
@@ -310,6 +312,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     bool isFetchingRoute,
     String placeId,
   ) {
+    final l10n = context.l10n;
     return Padding(
       key: const ValueKey('compact_content'),
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
@@ -341,7 +344,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Đang di chuyển đến điểm này • $address',
+                        '${l10n.navigatingTo} $address',
                         style: TextStyle(
                           color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                           fontSize: 12,
@@ -443,9 +446,9 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                       padding: EdgeInsets.symmetric(horizontal: 8),
                       child: Text('•', style: TextStyle(color: Color(0xFFCBD5E1))),
                     ),
-                    const Text(
-                      'Đang mở cửa',
-                      style: TextStyle(
+                    Text(
+                      l10n.openNow,
+                      style: const TextStyle(
                         color: Color(0xFF10B981),
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
@@ -488,10 +491,10 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                                 ),
                           label: Text(
                             isFetchingRoute
-                                ? 'Đang tính...'
+                                ? l10n.calculating
                                 : (activeRoute != null
-                                    ? 'Bắt đầu di chuyển'
-                                    : 'Đường đi'),
+                                    ? l10n.startGpsNavigation
+                                    : l10n.route),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
@@ -536,6 +539,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     bool isDark,
     List<dynamic> placeReviews,
   ) {
+    final l10n = context.l10n;
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
       child: SingleChildScrollView(
@@ -663,7 +667,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
               const Icon(Icons.star_rounded, size: 18, color: Color(0xFFF59E0B)),
               const SizedBox(width: 4),
               Text(
-                '$rating ($reviewCount đánh giá)',
+                l10n.ratingReviews(rating, reviewCount),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
@@ -674,9 +678,9 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 child: Text('•', style: TextStyle(color: Color(0xFFCBD5E1))),
               ),
-              const Text(
-                'Đang mở cửa',
-                style: TextStyle(
+              Text(
+                l10n.openNow,
+                style: const TextStyle(
                   color: Color(0xFF10B981),
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
@@ -697,7 +701,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                 children: [
                   _buildQuickActionButton(
                     icon: Icons.phone_rounded,
-                    label: 'Gọi điện',
+                    label: l10n.call,
                     color: const Color(0xFF10B981),
                     isDark: isDark,
                     onTap: () => _makePhoneCall(phone),
@@ -705,7 +709,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                   const SizedBox(width: 14),
                   _buildQuickActionButton(
                     icon: Icons.map_rounded,
-                    label: 'Bản đồ ngoài',
+                    label: l10n.externalMap,
                     color: const Color(0xFF2563EB),
                     isDark: isDark,
                     onTap: () => _openExternalMap(lat, lng),
@@ -713,19 +717,19 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                   const SizedBox(width: 14),
                   _buildQuickActionButton(
                     icon: Icons.share_rounded,
-                    label: 'Chia sẻ',
+                    label: l10n.share,
                     color: const Color(0xFF8B5CF6),
                     isDark: isDark,
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Đã sao chép liên kết địa điểm "$name"')),
+                        SnackBar(content: Text(l10n.shareLinkCopied(name))),
                       );
                     },
                   ),
                   const SizedBox(width: 14),
                   _buildQuickActionButton(
                     icon: isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                    label: isSaved ? 'Đã lưu' : 'Lưu',
+                    label: isSaved ? l10n.savedLabel : l10n.saveLabel,
                     color: const Color(0xFFF59E0B),
                     isDark: isDark,
                     onTap: () => ref.read(mapProvider.notifier).toggleSavePlace(placeId),
@@ -738,16 +742,16 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           const SizedBox(height: 16),
 
           // Detailed Info Cards
-          _buildInfoRow(Icons.location_on_outlined, 'Địa chỉ', address, isDark),
-          _buildInfoRow(Icons.access_time_rounded, 'Giờ mở cửa', openHours, isDark),
-          _buildInfoRow(Icons.confirmation_number_outlined, 'Giá vé / Phí tham quan', ticketPrice, isDark),
-          _buildInfoRow(Icons.call_outlined, 'Liên hệ hotline', phone, isDark),
+          _buildInfoRow(Icons.location_on_outlined, l10n.address, address, isDark),
+          _buildInfoRow(Icons.access_time_rounded, l10n.openingHours, openHours, isDark),
+          _buildInfoRow(Icons.confirmation_number_outlined, l10n.ticketFee, ticketPrice, isDark),
+          _buildInfoRow(Icons.call_outlined, l10n.hotline, phone, isDark),
 
           const SizedBox(height: 16),
 
           // Heritage Description / Overview
           Text(
-            'Giới thiệu & Lịch sử',
+            l10n.introHistoryTitle,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -772,11 +776,11 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: const [
-              _TagChip(label: '🏰 Di sản Cố Đô'),
-              _TagChip(label: '📸 Check-in đẹp'),
-              _TagChip(label: '🏛️ Kiến trúc Triều Nguyễn'),
-              _TagChip(label: '🌿 Không gian thơ mộng'),
+            children: [
+              _TagChip(label: l10n.tagHeritage),
+              _TagChip(label: l10n.tagCheckin),
+              _TagChip(label: l10n.tagArchitecture),
+              _TagChip(label: l10n.tagScenery),
             ],
           ),
 
@@ -786,17 +790,17 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Text(
-                  'Đánh giá & Trải nghiệm',
-                  style: TextStyle(
-                    fontSize: 15.5,
-                    fontWeight: FontWeight.w800,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+Expanded(
+            child: Text(
+              l10n.reviewsExperiences,
+              style: TextStyle(
+                fontSize: 15.5,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
               ),
               const SizedBox(width: 8),
               TextButton.icon(
@@ -810,9 +814,9 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                   );
                 },
                 icon: const Icon(Icons.rate_review_outlined, size: 16, color: AppColors.primary),
-                label: const Text(
-                  'Viết đánh giá',
-                  style: TextStyle(
+                label: Text(
+                  l10n.writeReview,
+                  style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
@@ -834,7 +838,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
               ),
               child: Center(
                 child: Text(
-                  'Chưa có bài đánh giá nào. Hãy là người đầu tiên chia sẻ cảm nhận!',
+                  l10n.noReviewsYet,
                   style: TextStyle(
                     fontSize: 12.5,
                     color: isDark ? Colors.white60 : const Color(0xFF64748B),
@@ -868,10 +872,11 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     bool isFetchingRoute,
     bool isDark,
   ) {
-    final vehicleItems = const [
-      VehicleOption(id: 'walking', label: 'Đi bộ', icon: Icons.directions_walk_rounded),
-      VehicleOption(id: 'motorbike', label: 'Xe máy', icon: Icons.two_wheeler_rounded),
-      VehicleOption(id: 'driving', label: 'Ô tô', icon: Icons.directions_car_rounded),
+    final l10n = context.l10n;
+    final vehicleItems = [
+      VehicleOption(id: 'walking', label: l10n.travelWalking, icon: Icons.directions_walk_rounded),
+      VehicleOption(id: 'motorbike', label: l10n.travelMotorbike, icon: Icons.two_wheeler_rounded),
+      VehicleOption(id: 'driving', label: l10n.travelDriving, icon: Icons.directions_car_rounded),
     ];
 
     final initialOption = vehicleItems.firstWhere(
@@ -932,10 +937,10 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                       ),
                 label: Text(
                   isFetchingRoute
-                      ? 'Đang tính...'
+                      ? l10n.calculating
                       : (mapState.activeRoute != null
-                          ? 'Bắt đầu di chuyển'
-                          : 'Chỉ đường'),
+                          ? l10n.startGpsNavigation
+                          : l10n.directions),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14.5,
@@ -1104,6 +1109,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
   Widget _buildAlternativeRoutesSelector(WidgetRef ref, MapState state) {
     if (state.alternativeRoutes.isEmpty) return const SizedBox.shrink();
 
+    final l10n = context.l10n;
     final routes = state.alternativeRoutes;
     final selectedIdx = state.selectedRouteIndex;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -1122,9 +1128,9 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     }
 
     String _getRouteLabel(int idx) {
-      if (idx == fastestIdx) return '⚡ Nhanh nhất';
-      if (idx == shortestIdx && idx != fastestIdx) return '📍 Ngắn nhất';
-      return '🔄 Tuyến thay thế';
+      if (idx == fastestIdx) return '⚡ ${l10n.routeFastest}';
+      if (idx == shortestIdx && idx != fastestIdx) return '📍 ${l10n.routeShortest}';
+      return '🔄 ${l10n.routeAlternative}';
     }
 
     Color _getLabelColor(int idx, bool isSelected) {
@@ -1140,7 +1146,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: Text(
-            'Chọn tuyến đường',
+            l10n.chooseRoute,
             style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w700,
@@ -1361,18 +1367,18 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
   }
 
 
-  _CategoryConfig _getCategoryConfig(String category) {
+  _CategoryConfig _getCategoryConfig(String category, AppLocalizations l10n) {
     switch (category.toLowerCase()) {
       case 'restaurant':
-        return _CategoryConfig(label: 'Quán ăn Huế', color: const Color(0xFF8B1522), icon: Icons.restaurant);
+        return _CategoryConfig(label: l10n.categoryFoodBadge, color: const Color(0xFF8B1522), icon: Icons.restaurant);
       case 'attraction':
-        return _CategoryConfig(label: 'Địa điểm di sản', color: const Color(0xFF8B1522), icon: Icons.place);
+        return _CategoryConfig(label: l10n.categoryHeritageBadge, color: const Color(0xFF8B1522), icon: Icons.place);
       case 'temple':
-        return _CategoryConfig(label: 'Chùa chiền', color: const Color(0xFF8B1522), icon: Icons.church);
+        return _CategoryConfig(label: l10n.categorySpiritualBadge, color: const Color(0xFF8B1522), icon: Icons.church);
       case 'tomb':
-        return _CategoryConfig(label: 'Lăng tẩm', color: const Color(0xFF8B1522), icon: Icons.account_balance);
+        return _CategoryConfig(label: l10n.categoryDefaultBadge, color: const Color(0xFF8B1522), icon: Icons.account_balance);
       default:
-        return _CategoryConfig(label: 'Tham quan', color: const Color(0xFF8B1522), icon: Icons.tour);
+        return _CategoryConfig(label: l10n.categoryDefaultBadge, color: const Color(0xFF8B1522), icon: Icons.tour);
     }
   }
 }

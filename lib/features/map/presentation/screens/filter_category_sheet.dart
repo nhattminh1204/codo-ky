@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 
 class FilterCategorySheet extends ConsumerStatefulWidget {
@@ -13,56 +14,56 @@ class FilterCategorySheet extends ConsumerStatefulWidget {
 class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
   final Set<String> _selectedCategories = {};
 
-  final List<Map<String, dynamic>> _categories = const [
-    {
-      'id': 'saved',
-      'label': 'Địa điểm đã lưu',
-      'icon': Icons.bookmark_rounded,
-      'color': Color(0xFFE11D48),
-    },
-    {
-      'id': 'attraction',
-      'label': 'Địa điểm & Di tích',
-      'icon': Icons.account_balance_rounded,
-      'color': Color(0xFFFF5E62),
-    },
-    {
-      'id': 'restaurant',
-      'label': 'Nhà hàng & Ẩm thực',
-      'icon': Icons.restaurant_rounded,
-      'color': Color(0xFFFF7A00),
-    },
-    {
-      'id': 'temple',
-      'label': 'Chùa & Tâm linh',
-      'icon': Icons.temple_buddhist_rounded,
-      'color': Color(0xFF9333EA),
-    },
-    {
-      'id': 'tomb',
-      'label': 'Lăng tẩm Triều Nguyễn',
-      'icon': Icons.castle_rounded,
-      'color': Color(0xFFD97706),
-    },
-    {
-      'id': 'cafe',
-      'label': 'Cafe & Trà Huế',
-      'icon': Icons.coffee_rounded,
-      'color': Color(0xFF0284C7),
-    },
-    {
-      'id': 'shopping',
-      'label': 'Chợ & Mua sắm',
-      'icon': Icons.shopping_bag_rounded,
-      'color': Color(0xFF16A34A),
-    },
-    {
-      'id': 'culture',
-      'label': 'Nghệ thuật & Văn hóa',
-      'icon': Icons.music_note_rounded,
-      'color': Color(0xFFE11D48),
-    },
-  ];
+  List<Map<String, dynamic>> _categories(AppLocalizations l10n) => [
+        {
+          'id': 'saved',
+          'label': l10n.savedCategory,
+          'icon': Icons.bookmark_rounded,
+          'color': Color(0xFFE11D48),
+        },
+        {
+          'id': 'attraction',
+          'label': l10n.attractionCategory,
+          'icon': Icons.account_balance_rounded,
+          'color': Color(0xFFFF5E62),
+        },
+        {
+          'id': 'restaurant',
+          'label': l10n.restaurantCategory,
+          'icon': Icons.restaurant_rounded,
+          'color': Color(0xFFFF7A00),
+        },
+        {
+          'id': 'temple',
+          'label': l10n.templeCategory,
+          'icon': Icons.temple_buddhist_rounded,
+          'color': Color(0xFF9333EA),
+        },
+        {
+          'id': 'tomb',
+          'label': l10n.tombCategory,
+          'icon': Icons.castle_rounded,
+          'color': Color(0xFFD97706),
+        },
+        {
+          'id': 'cafe',
+          'label': l10n.cafeCategory,
+          'icon': Icons.coffee_rounded,
+          'color': Color(0xFF0284C7),
+        },
+        {
+          'id': 'shopping',
+          'label': l10n.shoppingCategory,
+          'icon': Icons.shopping_bag_rounded,
+          'color': Color(0xFF16A34A),
+        },
+        {
+          'id': 'culture',
+          'label': l10n.cultureCategory,
+          'icon': Icons.music_note_rounded,
+          'color': Color(0xFFE11D48),
+        },
+      ];
 
   @override
   void initState() {
@@ -102,6 +103,8 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final categories = _categories(l10n);
     return DraggableScrollableSheet(
       initialChildSize: 0.40,
       minChildSize: 0.25,
@@ -136,7 +139,7 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Bộ lọc danh mục',
+                      l10n.filterTitle,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -150,7 +153,7 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Chọn một hoặc nhiều danh mục để lọc marker trên bản đồ:',
+                l10n.filterSubtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -159,7 +162,7 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
               Wrap(
                 spacing: 8,
                 runSpacing: 10,
-                children: _categories.map((cat) {
+                children: categories.map((cat) {
                   final catId = cat['id'] as String;
                   final label = cat['label'] as String;
                   final icon = cat['icon'] as IconData;
@@ -198,7 +201,7 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: const Text('Đặt lại', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(l10n.reset, style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -210,7 +213,7 @@ class _FilterCategorySheetState extends ConsumerState<FilterCategorySheet> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: const Text('Áp dụng', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: Text(l10n.apply, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],

@@ -7,6 +7,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/config/constants/app_constants.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/theme/motion.dart';
 import 'package:codoky/core/utils/helpers/app_snackbar.dart';
 import 'package:vibration/vibration.dart';
@@ -147,7 +148,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
     if (distMeters <= 200 && distMeters > 50 && _announcedLevel < 1) {
       _announcedLevel = 1;
-      final text = 'Sau ${distMeters.round()} mét nữa, ${currentStep.instruction}';
+      final text = context.l10n.ttsApproach(distMeters.round(), currentStep.instruction);
       TtsService().speak(text);
     } else if (distMeters <= 50 && _announcedLevel < 2) {
       _announcedLevel = 2;
@@ -253,15 +254,15 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     AppLogger.i('🔄 Phát hiện đi lệch route (>5s). Tiến hành tự động tính lại tuyến đường...');
 
     if (!ref.read(mapProvider).isVoiceMuted) {
-      TtsService().speak('Đang tính lại tuyến đường mới');
+      TtsService().speak(context.l10n.ttsRecalculating);
     }
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🔄 Đang tự động tính lại tuyến mới...'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Color(0xFFFF7A00),
+        SnackBar(
+          content: Text(context.l10n.recalculatingSnackbar),
+          duration: const Duration(seconds: 2),
+          backgroundColor: const Color(0xFFFF7A00),
         ),
       );
     }
@@ -360,6 +361,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   }
 
   Future<void> _triggerArrival() async {
+    final l10n = context.l10n;
     _stopLiveNavigation();
 
     try {
@@ -372,7 +374,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     }
 
     if (!ref.read(mapProvider).isVoiceMuted) {
-      TtsService().speak('Bạn đã đến điểm đến! Chúc bạn có trải nghiệm tuyệt vời tại Cố đô Huế.');
+      TtsService().speak(l10n.ttsArrived);
     }
 
     if (mounted) {
@@ -380,16 +382,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         context: context,
         builder: (ctx) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.stars_rounded, color: Colors.amber, size: 28),
-              SizedBox(width: 10),
-              Text('Đã Đến Điểm Đến!'),
+              const Icon(Icons.stars_rounded, color: Colors.amber, size: 28),
+              const SizedBox(width: 10),
+              Text(l10n.arrivedTitle),
             ],
           ),
-          content: const Text(
-            '🎉 Bạn đã đến địa điểm an toàn. Chúc bạn có những phút giây khám phá Cố đô Huế tuyệt vời!',
-          ),
+          content: Text(l10n.arrivedMessage),
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -398,7 +398,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Đóng'),
+              child: Text(l10n.close),
             ),
           ],
         ),
@@ -560,6 +560,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               if (_hueBoundary != null)
                 IgnorePointer(
                   child: PolygonLayer(
+                    polygonCulling: false,
                     polygons: [
                       Polygon(
                         points: _worldMaskPolygon,
@@ -714,7 +715,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                             }
                           } else {
                             if (!context.mounted) return;
-                            final err = ref.read(mapProvider).routeErrorMessage ?? 'Không thể tìm thấy tuyến đường';
+                            final err = ref.read(mapProvider).routeErrorMessage ?? context.l10n.errorWith(context.l10n.noPlacesFound);
                             AppSnackBar.show(context, err, isError: true);
                           }
                         } else {
@@ -754,13 +755,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               child: MapSearchBarWidget(),
             ),
 
-          // Chip thời tiết hiện tại — tự xê dịch theo trạng thái để không đè
-          // search bar (duyệt bản đồ, activeRoute == null) hay banner rẽ.
-          Positioned(
-            left: 14,
-            top: state.activeRoute == null ? 150 : 110,
-            child: const CurrentWeatherChip(),
-          ),
+
           Positioned(
             top: state.activeRoute != null ? 96 : 124,
             right: 14,
@@ -804,13 +799,13 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     switch (mode) {
       case 'motorbike':
         icon = Icons.two_wheeler_rounded;
-        label = 'Xe máy';
+        label = context.l10n.travelMotorbike;
       case 'driving':
         icon = Icons.directions_car_rounded;
-        label = 'Ô tô';
+        label = context.l10n.travelDriving;
       default:
         icon = Icons.directions_walk_rounded;
-        label = 'Đi bộ';
+        label = context.l10n.travelWalking;
     }
 
     return GestureDetector(
@@ -982,7 +977,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            'Đến lúc $etaLabel',
+                            context.l10n.etaLabel(etaLabel),
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w500,
@@ -1053,7 +1048,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   onTap: () {
                     _stopLiveNavigation();
                     ref.read(mapProvider.notifier).clearRoute();
-                    AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
+                    AppSnackBar.show(context, context.l10n.routeCancelled);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1075,7 +1070,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                         Icon(Icons.close_rounded, size: 13,
                             color: isDark ? Colors.red[300] : const Color(0xFFDC2626)),
                         const SizedBox(width: 4),
-                        Text('Hủy',
+                        Text(context.l10n.cancel,
                             style: TextStyle(
                               fontSize: 12, fontWeight: FontWeight.w600,
                               color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
@@ -1165,7 +1160,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   onTap: () {
                     _stopLiveNavigation();
                     ref.read(mapProvider.notifier).clearRoute();
-                    AppSnackBar.show(context, 'Đã hủy lộ trình chỉ đường');
+                    AppSnackBar.show(context, context.l10n.routeCancelled);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1187,7 +1182,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                         Icon(Icons.close_rounded, size: 13,
                             color: isDark ? Colors.red[300] : const Color(0xFFDC2626)),
                         const SizedBox(width: 4),
-                        Text('Hủy',
+                        Text(context.l10n.cancel,
                             style: TextStyle(
                               fontSize: 12, fontWeight: FontWeight.w600,
                               color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
@@ -1210,8 +1205,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     final currentPos = state.currentLocation ?? const LatLng(16.4637, 107.5909);
     final distMeters = _calculateDistanceMeters(currentPos, currentStep.location);
     final distText = distMeters >= 1000
-        ? '${(distMeters / 1000).toStringAsFixed(1)} km'
-        : '${distMeters.round()} m';
+        ? context.l10n.distanceKm((distMeters / 1000).toStringAsFixed(1))
+        : context.l10n.distanceM(distMeters.round().toString());
 
     IconData turnIcon = Icons.straight_rounded;
     if (currentStep.type == 'arrive') {
@@ -1256,7 +1251,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Còn $distText',
+                  context.l10n.remainingDistance(distText),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
@@ -1287,7 +1282,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               color: state.isVoiceMuted ? const Color(0xFF94A3B8) : const Color(0xFF2563EB),
               size: 22,
             ),
-            tooltip: state.isVoiceMuted ? 'Bật âm thanh' : 'Tắt âm thanh',
+            tooltip: state.isVoiceMuted ? context.l10n.voiceOn : context.l10n.voiceOff,
           ),
         ],
       ),

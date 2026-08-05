@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/auth/presentation/providers/auth_provider.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
+import 'package:codoky/features/map/presentation/providers/current_weather_provider.dart';
 import 'package:codoky/features/map/presentation/screens/filter_category_sheet.dart';
+import 'package:codoky/features/map/presentation/widgets/weather_detail_sheet.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
@@ -30,6 +33,7 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
   Widget build(BuildContext context) {
     final state = ref.watch(mapProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return SafeArea(
       child: Padding(
@@ -71,7 +75,7 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                         ref.read(mapProvider.notifier).setSearchQuery(val);
                       },
                       decoration: InputDecoration(
-                        hintText: 'Tìm kiếm địa điểm...',
+                        hintText: l10n.mapSearchHint,
                         hintStyle: TextStyle(
                           fontSize: 13.5,
                           color: isDark ? Colors.white54 : const Color(0xFF94A3B8),
@@ -112,7 +116,9 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                       // Voice search placeholder
                     },
                   ),
-                  const SizedBox(width: 8),
+                  // ── Weather Badge ──────────────────────────────────────────
+                  _WeatherBadge(isDark: isDark),
+                  const SizedBox(width: 4),
                   Container(
                     width: 1,
                     height: 16,
@@ -180,7 +186,9 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                             Icon(Icons.tune_rounded, size: 16, color: state.selectedCategories.isNotEmpty ? Colors.white : AppColors.primary),
                             const SizedBox(width: 4),
                             Text(
-                              state.selectedCategories.isNotEmpty ? 'Lọc (${state.selectedCategories.length})' : 'Bộ lọc',
+                              state.selectedCategories.isNotEmpty
+                                  ? l10n.filterLabel(state.selectedCategories.length)
+                                  : l10n.filterLabelNoCount,
                               style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: state.selectedCategories.isNotEmpty ? Colors.white : AppColors.primary),
                             ),
                             if (state.selectedCategories.isNotEmpty) ...[
@@ -197,19 +205,19 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
                       ),
                     ),
                 ),
-                _buildFilterChip('featured', 'Nổi bật', state, isDark),
+                _buildFilterChip('featured', l10n.featured, state, isDark),
                 const SizedBox(width: 8),
-                  _buildFilterChip('saved', 'Đã lưu (${state.savedPlaceIds.length})', state, isDark),
+                  _buildFilterChip('saved', l10n.savedCountLabel(state.savedPlaceIds.length), state, isDark),
                   const SizedBox(width: 8),
-                  _buildFilterChip('all', 'Tất cả', state, isDark),
+                  _buildFilterChip('all', l10n.all, state, isDark),
                   const SizedBox(width: 8),
-                  _buildFilterChip('restaurant', 'Quán ăn', state, isDark),
+                  _buildFilterChip('restaurant', l10n.restaurant, state, isDark),
                   const SizedBox(width: 8),
-                  _buildFilterChip('attraction', 'Địa điểm', state, isDark),
+                  _buildFilterChip('attraction', l10n.place, state, isDark),
                   const SizedBox(width: 8),
-                  _buildFilterChip('tomb', 'Lăng tẩm', state, isDark),
+                  _buildFilterChip('tomb', l10n.tomb, state, isDark),
                   const SizedBox(width: 8),
-                  _buildFilterChip('temple', 'Chùa', state, isDark),
+                  _buildFilterChip('temple', l10n.temple, state, isDark),
                 ],
               ),
             ),
@@ -309,6 +317,63 @@ class _MapSearchBarWidgetState extends ConsumerState<MapSearchBarWidget> with Ti
           child: child,
         ),
       ),
+    );
+  }
+}
+
+// ── Weather Badge ──────────────────────────────────────────────────────────────
+/// Badge nhỏ hiển thị icon + nhiệt độ hiện tại trong Search Bar.
+/// Chỉ hiện khi đã có dữ liệu; tap → mở [WeatherDetailSheet].
+class _WeatherBadge extends ConsumerWidget {
+  final bool isDark;
+  const _WeatherBadge({required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weatherState = ref.watch(currentWeatherProvider);
+    return weatherState.currentWeather.maybeWhen(
+      data: (w) => GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => const WeatherDetailSheet(),
+          );
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : const Color(0xFFBFDBFE),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(w.weatherIcon, style: const TextStyle(fontSize: 14)),
+              const SizedBox(width: 3),
+              Text(
+                '${w.temperature.round()}°',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF1D4ED8),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      orElse: () => const SizedBox.shrink(),
     );
   }
 }

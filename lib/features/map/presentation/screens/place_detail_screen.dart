@@ -7,8 +7,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
+import 'package:codoky/features/map/presentation/providers/current_weather_provider.dart';
 import 'package:codoky/features/review/presentation/providers/review_provider.dart';
 import 'package:codoky/features/review/presentation/widgets/review_card.dart';
 import 'package:codoky/features/review/presentation/widgets/write_review_bottom_sheet.dart';
@@ -147,7 +149,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Không thể mở bản đồ chỉ đường.')),
+          SnackBar(content: Text(context.l10n.cantOpenMap)),
         );
       }
     }
@@ -176,6 +178,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
 
     final reviewState = ref.watch(reviewProvider);
     final placeReviews = reviewState.allReviews;
+    final l10n = context.l10n;
 
     final place = _placeData!;
     final name = place['name'] as String;
@@ -266,7 +269,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                             const Icon(Icons.place_rounded, size: 14, color: Colors.white),
                             const SizedBox(width: 4),
                             Text(
-                              _getCategoryLabel(category),
+                              _getCategoryLabel(category, l10n),
                               style: const TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.bold,
@@ -325,7 +328,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '($reviewCount Đánh giá từ du khách)',
+                            l10n.reviewCountFromTravelers(reviewCount),
                             style: const TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w500,
@@ -376,7 +379,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                             Expanded(
                               child: _buildActionButton(
                                 icon: Icons.near_me_rounded,
-                                label: 'Chỉ đường',
+                                label: l10n.directions,
                                 color: const Color(0xFFFF7A00),
                                 onTap: () => _openNavigationMap(lat, lng, name),
                               ),
@@ -385,7 +388,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                             Expanded(
                               child: _buildActionButton(
                                 icon: Icons.phone_in_talk_rounded,
-                                label: 'Liên hệ',
+                                label: l10n.contact,
                                 color: const Color(0xFF00B87C),
                                 onTap: () => _makePhoneCall(phone),
                               ),
@@ -397,14 +400,14 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                                   final isSaved = ref.watch(mapProvider).savedPlaceIds.contains(widget.id);
                                   return _buildActionButton(
                                     icon: isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                                    label: isSaved ? 'Đã lưu' : 'Lưu lại',
+                                    label: isSaved ? l10n.savedLabel : l10n.saveLabel,
                                     color: isSaved ? const Color(0xFFFF5E62) : const Color(0xFF64748B),
                                     onTap: () {
                                       ref.read(mapProvider.notifier).toggleSavePlace(widget.id);
                                       final newSaved = !isSaved;
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text(newSaved ? 'Đã lưu địa điểm vào mục yêu thích!' : 'Đã xóa khỏi danh sách lưu.'),
+                                          content: Text(newSaved ? l10n.savedToFavorites : l10n.removedFromSaved),
                                           duration: const Duration(seconds: 2),
                                         ),
                                       );
@@ -417,7 +420,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                             Expanded(
                               child: _buildActionButton(
                                 icon: Icons.add_to_photos_rounded,
-                                label: '+ Lịch trình',
+                                label: l10n.addToItinerary,
                                 color: const Color(0xFF9333EA),
                                 onTap: () {
                                   context.push('/itinerary/setup');
@@ -462,7 +465,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Giờ mở cửa', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                                      Text(l10n.openingHours, style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
                                       Text(
                                         openHours,
                                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
@@ -476,9 +479,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                                     color: const Color(0xFFE6F9F3),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text(
-                                    'ĐANG MỞ CỬA',
-                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF00B87C)),
+                                  child: Text(
+                                    l10n.openNow,
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF00B87C)),
                                   ),
                                 ),
                               ],
@@ -501,7 +504,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Giá vé / Chi phí', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                                      Text(l10n.ticketPrice, style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
                                       Text(
                                         ticketPrice,
                                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
@@ -516,10 +519,13 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                       ),
                       const SizedBox(height: AppSpacing.lg),
 
+                      // Smart Travel Weather Context Card (Option 1)
+                      _buildSmartWeatherAdviceCard(context),
+
                       // 5. GIỚI THIỆU & LỊCH SỬ
-                      const Text(
-                        'GIỚI THIỆU & LỊCH SỬ',
-                        style: TextStyle(
+                      Text(
+                        l10n.introHistory,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF64748B),
@@ -562,9 +568,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                       const SizedBox(height: AppSpacing.lg),
 
                       // 6. BẢN ĐỒ MINI CỤC BỘ (INTERACTIVE MINI MAP PREVIEW)
-                      const Text(
-                        'VỊ TRÍ TRÊN BẢN ĐỒ HUẾ',
-                        style: TextStyle(
+                      Text(
+                        l10n.locationOnMap,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF64748B),
@@ -641,7 +647,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                                   elevation: 4,
                                 ),
                                 icon: const Icon(Icons.navigation_rounded, size: 14, color: Color(0xFFFF7A00)),
-                                label: const Text('Mở chỉ đường', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                label: Text(l10n.openDirections, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                               ),
                             ),
                           ],
@@ -653,9 +659,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'ĐÁNH GIÁ TỪ DU KHÁCH',
-                            style: TextStyle(
+                          Text(
+                            l10n.travelerReviews,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF64748B),
@@ -673,13 +679,13 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                                 ),
                               );
                             },
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Icon(Icons.rate_review_outlined, size: 14, color: Color(0xFFFF7A00)),
-                                SizedBox(width: 4),
+                                const Icon(Icons.rate_review_outlined, size: 14, color: Color(0xFFFF7A00)),
+                                const SizedBox(width: 4),
                                 Text(
-                                  'Viết đánh giá',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
+                                  l10n.writeReview,
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF7A00)),
                                 ),
                               ],
                             ),
@@ -706,14 +712,14 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                             children: [
                               const Icon(Icons.rate_review_outlined, size: 36, color: Color(0xFF94A3B8)),
                               const SizedBox(height: 8),
-                              const Text(
-                                'Chưa có đánh giá nào cho địa điểm này.',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                              Text(
+                                l10n.noReviewsForPlace,
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                'Hãy là người đầu tiên chia sẻ cảm nhận!',
-                                style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                              Text(
+                                l10n.beFirstReviewer,
+                                style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
                               ),
                               const SizedBox(height: 12),
                               ElevatedButton.icon(
@@ -728,7 +734,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                                   );
                                 },
                                 icon: const Icon(Icons.edit, size: 14, color: Colors.white),
-                                label: const Text('Viết Đánh Giá Ngay', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                label: Text(l10n.writeReviewNow, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFF7A00),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -796,7 +802,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                               final newSaved = !isSaved;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(newSaved ? 'Đã lưu địa điểm!' : 'Đã bỏ lưu địa điểm.'),
+                                  content: Text(newSaved ? l10n.savedPlaceTopbar : l10n.unsavedPlaceTopbar),
                                   duration: const Duration(seconds: 2),
                                 ),
                               );
@@ -821,9 +827,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                       const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () {
-                          Clipboard.setData(ClipboardData(text: 'Khám phá $name cùng ứng dụng du lịch Huế CodoKy!'));
+                          Clipboard.setData(ClipboardData(text: l10n.sharePlace(name)));
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Đã sao chép liên kết địa điểm!')),
+                            SnackBar(content: Text(l10n.linkCopied)),
                           );
                         },
                         child: Container(
@@ -872,14 +878,14 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                 child: InkWell(
                   onTap: () => _openNavigationMap(lat, lng, name),
                   borderRadius: BorderRadius.circular(16),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.near_me_rounded, size: 22, color: Colors.white),
-                      SizedBox(width: 8),
+                      const Icon(Icons.near_me_rounded, size: 22, color: Colors.white),
+                      const SizedBox(width: 8),
                       Text(
-                        'Chỉ đường tới đây ngay',
-                        style: TextStyle(
+                        l10n.navigateHereNow,
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -941,20 +947,144 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
     );
   }
 
-  String _getCategoryLabel(String cat) {
+  String _getCategoryLabel(String cat, AppLocalizations l10n) {
     final lower = cat.toLowerCase();
     if (lower.contains('attraction') || lower.contains('di tích') || lower.contains('lịch sử')) {
-      return '🏰 Di tích & Di sản Lịch sử';
+      return l10n.categoryHeritageBadge;
     }
     if (lower.contains('food') || lower.contains('ẩm thực') || lower.contains('restaurant')) {
-      return '🍜 Ẩm thực Cố đô Huế';
+      return l10n.categoryFoodBadge;
     }
     if (lower.contains('temple') || lower.contains('chùa')) {
-      return '⛩️ Tâm linh & Chùa Huế';
+      return l10n.categorySpiritualBadge;
     }
     if (lower.contains('cafe') || lower.contains('cà phê')) {
-      return '☕ Cafe & Đời sống Huế';
+      return l10n.categoryCafeBadge;
     }
-    return '📍 Địa điểm du lịch Huế';
+    return l10n.categoryDefaultBadge;
+  }
+
+  Widget _buildSmartWeatherAdviceCard(BuildContext context) {
+    final weatherAsync = ref.watch(currentWeatherProvider).currentWeather;
+
+    return weatherAsync.maybeWhen(
+      data: (weather) {
+        final temp = weather.temperature.round();
+        final icon = weather.weatherIcon;
+        final label = weather.weatherLabel;
+        final isRain = weather.weatherCode >= 51;
+        final isClear = weather.weatherCode <= 3;
+
+        final adviceText = isRain
+            ? 'Đang có mưa tại Huế (${weather.precipitation.round()}% xác suất). Bạn nên mang theo ô/áo mưa hoặc ưu tiên tham quan khu vực có mái che.'
+            : isClear
+                ? 'Thời tiết nắng đẹp, khí hậu rất lý tưởng để tham quan ngoài trời & chụp ảnh check-in.'
+                : 'Thời tiết dịu mát. Thích hợp dạo quanh và trải nghiệm văn hóa Cố đô.';
+
+        final cardBgColor = isRain ? const Color(0xFFEFF6FF) : const Color(0xFFFFFBEB);
+        final borderColor = isRain ? const Color(0xFFBFDBFE) : const Color(0xFFFDE68A);
+        final accentColor = isRain ? const Color(0xFF2563EB) : const Color(0xFFD97706);
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: cardBgColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: accentColor.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(icon, style: const TextStyle(fontSize: 20)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              '$temp°C',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                                color: accentColor,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '• $label',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF334155),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Mưa: ${weather.precipitation.round()}% • Độ ẩm: ${weather.humidity.round()}%',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.wb_incandescent_outlined, size: 16, color: Color(0xFFF59E0B)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        adviceText,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF334155),
+                          fontWeight: FontWeight.w500,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
   }
 }

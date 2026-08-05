@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
 
@@ -20,6 +21,7 @@ class MapToolbarWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(mapProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Container(
       decoration: BoxDecoration(
@@ -44,7 +46,7 @@ class MapToolbarWidget extends ConsumerWidget {
           _buildControlIconButton(
             context: context,
             icon: Icons.palette_outlined,
-            tooltip: 'Đổi phong cách bản đồ',
+            tooltip: l10n.mapStyleTooltip,
             iconColor: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF2563EB),
             onPressed: () => _showIconStyleDrawer(context, ref),
           ),
@@ -55,7 +57,7 @@ class MapToolbarWidget extends ConsumerWidget {
             _buildControlIconButton(
               context: context,
               icon: Icons.gps_fixed_rounded,
-              tooltip: 'Theo dõi lại vị trí',
+              tooltip: l10n.recenterTooltip,
               iconColor: const Color(0xFF2563EB),
               onPressed: onRecenterGps,
             ),
@@ -66,7 +68,7 @@ class MapToolbarWidget extends ConsumerWidget {
           _buildControlIconButton(
             context: context,
             icon: Icons.my_location_rounded,
-            tooltip: 'Vị trí của tôi',
+            tooltip: l10n.myLocationTooltip,
             iconColor: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF2563EB),
             onPressed: onLocateUser,
           ),
@@ -116,6 +118,7 @@ class MapToolbarWidget extends ConsumerWidget {
 
   void _showIconStyleDrawer(BuildContext context, WidgetRef ref) {
     final currentStyle = ref.read(mapProvider).markerStyle;
+    final l10n = context.l10n;
 
     showAppBottomSheet(
       context: context,
@@ -150,14 +153,14 @@ class MapToolbarWidget extends ConsumerWidget {
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              'Tùy Chỉnh Phong Cách Icon',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                              l10n.iconStyleTitle,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                             ),
                             Text(
-                              'Chọn phong cách biểu tượng hiện đại & trẻ trung',
-                              style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                              l10n.iconStyleSubtitle,
+                              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
                             ),
                           ],
                         ),
@@ -174,8 +177,8 @@ class MapToolbarWidget extends ConsumerWidget {
                   context: context,
                   ref: ref,
                   style: MapMarkerStyle.gradientVibrantGlow,
-                  title: 'Gradient Vibrant Glow',
-                  subtitle: 'Màu sắc đổ bóng rực rỡ, năng động & nổi bật',
+                  title: l10n.styleGlowTitle,
+                  subtitle: l10n.styleGlowSubtitle,
                   icon: Icons.bolt_rounded,
                   color: const Color(0xFFFF5E36),
                   isSelected: currentStyle == MapMarkerStyle.gradientVibrantGlow,
@@ -185,8 +188,8 @@ class MapToolbarWidget extends ConsumerWidget {
                   context: context,
                   ref: ref,
                   style: MapMarkerStyle.glassmorphicDuotone,
-                  title: 'Glassmorphic Duotone',
-                  subtitle: 'Trong suốt 2 tông màu tinh tế, sang trọng',
+                  title: l10n.styleDuotoneTitle,
+                  subtitle: l10n.styleDuotoneSubtitle,
                   icon: Icons.layers_rounded,
                   color: const Color(0xFF06B6D4),
                   isSelected: currentStyle == MapMarkerStyle.glassmorphicDuotone,
@@ -196,8 +199,8 @@ class MapToolbarWidget extends ConsumerWidget {
                   context: context,
                   ref: ref,
                   style: MapMarkerStyle.playfulPop3D,
-                  title: '3D Playful Pop',
-                  subtitle: 'Khối 3D bo tròn đầy năng lượng tuổi trẻ',
+                  title: l10n.style3dTitle,
+                  subtitle: l10n.style3dSubtitle,
                   icon: Icons.sentiment_very_satisfied_rounded,
                   color: const Color(0xFF8B5CF6),
                   isSelected: currentStyle == MapMarkerStyle.playfulPop3D,
