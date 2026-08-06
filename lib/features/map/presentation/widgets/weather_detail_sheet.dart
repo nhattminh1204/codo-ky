@@ -617,84 +617,80 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
 
     return Column(
       children: [
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _bentoStatCard(
-                  icon: Icons.water_drop_rounded,
-                  accentColor: getSemanticColor(humidityLevel),
-                  iconBgColor: getIconBgColor(humidityLevel),
-                  label: l10n.weatherHumidity,
-                  value: '$humidity%',
-                  statusSubtitle: humidityStatus,
-                  insightText: humidityInsight,
-                  progressValue: (humidity / 100.0).clamp(0.0, 1.0),
-                  isDark: isDark,
-                  gradientColors: [redColor, greenColor, amberColor, redColor],
-                  gradientStops: const [0.0, 0.40, 0.70, 1.0],
-                ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _bentoStatCard(
+                icon: Icons.water_drop_rounded,
+                accentColor: getSemanticColor(humidityLevel),
+                iconBgColor: getIconBgColor(humidityLevel),
+                label: l10n.weatherHumidity,
+                value: '$humidity%',
+                statusSubtitle: humidityStatus,
+                insightText: humidityInsight,
+                progressValue: (humidity / 100.0).clamp(0.0, 1.0),
+                isDark: isDark,
+                gradientColors: [redColor, greenColor, amberColor, redColor],
+                gradientStops: const [0.0, 0.40, 0.70, 1.0],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _bentoStatCard(
-                  icon: Icons.air_rounded,
-                  accentColor: getSemanticColor(windLevel),
-                  iconBgColor: getIconBgColor(windLevel),
-                  label: l10n.weatherWind,
-                  value: l10n.weatherWindUnit(windSpeed),
-                  statusSubtitle: windStatus,
-                  insightText: windInsight,
-                  progressValue: (windSpeed / 40.0).clamp(0.0, 1.0),
-                  isDark: isDark,
-                  gradientColors: [greenColor, amberColor, redColor],
-                  gradientStops: const [0.0, 0.40, 1.0],
-                ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _bentoStatCard(
+                icon: Icons.air_rounded,
+                accentColor: getSemanticColor(windLevel),
+                iconBgColor: getIconBgColor(windLevel),
+                label: l10n.weatherWind,
+                value: l10n.weatherWindUnit(windSpeed),
+                statusSubtitle: windStatus,
+                insightText: windInsight,
+                progressValue: (windSpeed / 40.0).clamp(0.0, 1.0),
+                isDark: isDark,
+                gradientColors: [greenColor, amberColor, redColor],
+                gradientStops: const [0.0, 0.40, 1.0],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         const SizedBox(height: 10),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: isNighttime
-                    ? _bentoNightUvCard(isDark: isDark)
-                    : _bentoStatCard(
-                        icon: Icons.wb_sunny_rounded,
-                        accentColor: getSemanticColor(uvLevel),
-                        iconBgColor: getIconBgColor(uvLevel),
-                        label: l10n.weatherUvIndex,
-                        value: 'UV ${uvIndex.toStringAsFixed(1)}',
-                        statusSubtitle: uvStatus,
-                        insightText: uvInsight,
-                        progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
-                        isDark: isDark,
-                        gradientColors: [greenColor, amberColor, orangeColor, redColor],
-                        gradientStops: const [0.0, 0.30, 0.65, 1.0],
-                      ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: isNighttime
+                  ? _bentoNightUvCard(isDark: isDark)
+                  : _bentoStatCard(
+                      icon: Icons.wb_sunny_rounded,
+                      accentColor: getSemanticColor(uvLevel),
+                      iconBgColor: getIconBgColor(uvLevel),
+                      label: l10n.weatherUvIndex,
+                      value: 'UV ${uvIndex.toStringAsFixed(1)}',
+                      statusSubtitle: uvStatus,
+                      insightText: uvInsight,
+                      progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
+                      isDark: isDark,
+                      gradientColors: [greenColor, amberColor, orangeColor, redColor],
+                      gradientStops: const [0.0, 0.30, 0.65, 1.0],
+                    ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _bentoStatCard(
+                icon: Icons.eco_rounded,
+                accentColor: getSemanticColor(aqiLevel),
+                iconBgColor: getIconBgColor(aqiLevel),
+                label: l10n.weatherAirQuality,
+                value: 'AQI $aqi',
+                statusSubtitle: aqiStatus,
+                insightText: aqiInsight,
+                progressValue: (aqi / 200.0).clamp(0.0, 1.0),
+                isDark: isDark,
+                gradientColors: [greenColor, amberColor, redColor],
+                gradientStops: const [0.0, 0.35, 1.0],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _bentoStatCard(
-                  icon: Icons.eco_rounded,
-                  accentColor: getSemanticColor(aqiLevel),
-                  iconBgColor: getIconBgColor(aqiLevel),
-                  label: l10n.weatherAirQuality,
-                  value: 'AQI $aqi',
-                  statusSubtitle: aqiStatus,
-                  insightText: aqiInsight,
-                  progressValue: (aqi / 200.0).clamp(0.0, 1.0),
-                  isDark: isDark,
-                  gradientColors: [greenColor, amberColor, redColor],
-                  gradientStops: const [0.0, 0.35, 1.0],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
@@ -909,43 +905,39 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                 ),
 
                 // Tầng 4: Progress bar gradient
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final trackWidth = constraints.maxWidth;
-                    final fillWidth = (trackWidth * progressValue).clamp(0.0, trackWidth);
-
-                    return SizedBox(
-                      height: 5,
-                      child: Stack(
-                        alignment: Alignment.centerLeft,
-                        children: [
-                          Container(
+                SizedBox(
+                  height: 5,
+                  width: double.infinity,
+                  child: Stack(
+                    alignment: Alignment.centerLeft,
+                    children: [
+                      Container(
+                        height: 5,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(3),
+                          gradient: LinearGradient(
+                            colors: gradientColors.map((c) => c.withValues(alpha: 0.20)).toList(),
+                            stops: gradientStops,
+                          ),
+                        ),
+                      ),
+                      FractionallySizedBox(
+                        widthFactor: progressValue.clamp(0.0, 1.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(3),
+                          child: Container(
                             height: 5,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(3),
                               gradient: LinearGradient(
-                                colors: gradientColors.map((c) => c.withValues(alpha: 0.20)).toList(),
+                                colors: gradientColors,
                                 stops: gradientStops,
                               ),
                             ),
                           ),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(3),
-                            child: Container(
-                              width: fillWidth,
-                              height: 5,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: gradientColors,
-                                  stops: gradientStops,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
 
                 // Tầng 5: Insight text
