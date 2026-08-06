@@ -484,76 +484,86 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.explore_rounded,
-                  size: 16,
-                  color: AppColors.primary,
-                ),
+          // Cột trái: Icon Container nổi bật
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.25),
+                width: 0.8,
               ),
-              const SizedBox(width: 8),
-              Text(
-                l10n.travelAdvisorTitle,
-                style: TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  letterSpacing: 0.2,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            adviceText,
-            style: TextStyle(
-              fontSize: 12.5,
-              height: 1.45,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+            ),
+            child: Icon(
+              Icons.explore_rounded,
+              size: 20,
+              color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: badges.map((b) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? themeConfig.accentColor.withValues(alpha: 0.15)
-                      : const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark
-                        ? themeConfig.accentColor.withValues(alpha: 0.3)
-                        : const Color(0xFFBFDBFE),
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  b,
+          const SizedBox(width: 12),
+
+          // Cột phải: Content (Tiêu đề + Nội dung khuyên + Badges)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.travelAdvisorTitle,
                   style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? themeConfig.accentColor
-                        : const Color(0xFF1D4ED8),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    letterSpacing: 0.2,
                   ),
                 ),
-              );
-            }).toList(),
+                const SizedBox(height: 6),
+                Text(
+                  adviceText,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: badges.map((b) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? themeConfig.accentColor.withValues(alpha: 0.15)
+                            : const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark
+                              ? themeConfig.accentColor.withValues(alpha: 0.3)
+                              : const Color(0xFFBFDBFE),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Text(
+                        b,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? themeConfig.accentColor
+                              : const Color(0xFF1D4ED8),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
         ],
       ),
