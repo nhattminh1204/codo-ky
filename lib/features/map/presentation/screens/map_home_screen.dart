@@ -37,7 +37,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   late final LocationService _locationService;
   late AnimationController _pulseController;
   List<LatLng>? _hueBoundary;
-  List<LatLng>? _vietnamBoundary;
+  List<List<LatLng>>? _vietnamRings;
 
   @override
   void initState() {
@@ -54,9 +54,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
       setState(() => _hueBoundary = ring);
     });
 
-    VietnamBoundaryLoader.loadBoundaryRing().then((ring) {
+    VietnamBoundaryLoader.loadBoundaryRings().then((rings) {
       if (!mounted) return;
-      setState(() => _vietnamBoundary = ring);
+      setState(() => _vietnamRings = rings);
     });
 
     Future.microtask(() {
@@ -570,9 +570,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   maxCacheAge: const Duration(days: 30),
                 ),
               ),
-              // Tầng overlay ranh giới Việt Nam: mask phủ các quốc gia khác (làm mờ hẳn)
-              // Giữ lãnh thổ Việt Nam 100% tươi sáng sắc nét.
-              if (_vietnamBoundary != null || _hueBoundary != null)
+              // Tầng overlay ranh giới Việt Nam (Đất liền + Hoàng Sa + Trường Sa + Phú Quốc):
+              // Mask phủ mờ các quốc gia khác, giữ trọn vẹn lãnh thổ Việt Nam tươi sáng.
+              if ((_vietnamRings != null && _vietnamRings!.isNotEmpty) || _hueBoundary != null)
                 IgnorePointer(
                   child: PolygonLayer(
                     polygonCulling: false,
@@ -580,7 +580,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                       Polygon(
                         points: _worldMaskPolygon,
                         holePointsList: [
-                          _vietnamBoundary ?? _hueBoundary!,
+                          ...?_vietnamRings,
+                          if (_vietnamRings == null && _hueBoundary != null) _hueBoundary!,
                         ],
                         color: _boundaryMaskColor(context),
                         borderStrokeWidth: 0,
@@ -589,6 +590,25 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                     ],
                   ),
                 ),
+              // Marker khẳng định chủ quyền quốc gia Hoàng Sa & Trường Sa của Việt Nam 🇻🇳
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: const LatLng(16.50, 112.00),
+                    width: 220,
+                    height: 48,
+                    alignment: Alignment.center,
+                    child: _buildIslandSovereigntyBadge('Quần đảo Hoàng Sa (Việt Nam)'),
+                  ),
+                  Marker(
+                    point: const LatLng(9.50, 113.80),
+                    width: 220,
+                    height: 48,
+                    alignment: Alignment.center,
+                    child: _buildIslandSovereigntyBadge('Quần đảo Trường Sa (Việt Nam)'),
+                  ),
+                ],
+              ),
               if (_hueBoundary != null)
                 IgnorePointer(
                   child: PolylineLayer(
@@ -1438,6 +1458,45 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     return Theme.of(context).brightness == Brightness.dark
         ? const Color(0xFFCBD5E1)
         : const Color(0xFF334155);
+  }
+
+  /// Badge khẳng định chủ quyền lãnh hải & hải đảo Việt Nam 🇻🇳
+  Widget _buildIslandSovereigntyBadge(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFDC2626), Color(0xFF991B1B)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x66991B1B),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: const Color(0xFFFDE047), width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.star_rounded, color: Color(0xFFFDE047), size: 15),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11.0,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   List<Marker> _buildMarkers(List<dynamic> places, dynamic selectedPlace) {
