@@ -774,22 +774,22 @@ class AppLocalizations {
     switch (index % 4) {
       case 0:
         return _t(
-          'Mưa Cố đô mang vẻ đẹp thơ mộng riêng biệt. Hãy ghé một quán Cà phê Muối ven đường, ngắm mưa rơi trên mái ngói rêu phong và nghe điệu ca Huế.',
-          'Hue rain holds a poetic charm. Stop by a local Salt Coffee shop, watch rain fall on ancient mossy tiles and listen to traditional Hue folk songs.',
+          'Thời tiết Huế có thể có mưa rào. Bạn nên mang theo ô/dù và ưu tiên tham quan các điểm trong nhà như Bảo tàng Cổ vật Cung đình.',
+          'Showers expected in Hue. Consider bringing an umbrella and visiting indoor heritage spots like the Royal Fine Arts Museum.',
         );
       case 1:
+        return _t(
+          'Trời Cố đô đổ mưa rồi nì! Ghé liền quán Cà phê Muối ven đường ngắm mưa rơi trên mái ngói rêu phong, nghe điệu ca Huế êm ả nghe bạn.',
+          'Hue rain holds a poetic charm. Stop by a local Salt Coffee shop, watch rain fall on ancient mossy tiles and listen to traditional Hue folk songs.',
+        );
+      case 2:
         return _t(
           'Trời mưa rào thích hợp trú chân tại Bảo tàng Cổ vật Cung đình Huế, Trung tâm Điềm Phùng Thị hoặc thưởng thức Bún bò Huế nóng hổi.',
           'Showers are ideal for sheltering at the Imperial Antique Museum, Diem Phung Thi Art Center, or savoring hot Hue Beef Noodle Soup.',
         );
-      case 2:
-        return _t(
-          'Thời tiết mưa mát mẻ rất lý tưởng để tham quan Nhà thờ Phủ Cam, thưởng thức Bánh lọc gói lá dong nóng hổi và trà sen Thừa Thiên.',
-          'Cool rainy weather is perfect to visit Phu Cam Cathedral, enjoy warm leaf-wrapped tapioca dumplings and Thua Thien lotus tea.',
-        );
       default:
         return _t(
-          'Cơn mưa Huế làm không gian chùa chiền thêm tĩnh mịch. Bạn có thể ghé viếng Chùa Từ Hiếu, nghe tiếng chuông chùa tĩnh tâm và thưởng bánh ít.',
+          'Mưa Huế mát rượi luôn nà. Thích hợp ghé viếng Chùa Từ Hiếu, nghe tiếng chuông chùa tĩnh tâm và thưởng thức bánh lọc gói lá dong.',
           'Hue rain brings serene peace to temples. Visit Tu Hieu Pagoda, listen to temple bells, and enjoy traditional sweet rice cakes.',
         );
     }
@@ -799,18 +799,18 @@ class AppLocalizations {
     switch (index % 3) {
       case 0:
         return _t(
-          'Nắng Cố đô khá gắt vào giữa trưa. Bạn nên đi tham quan Đại Nội từ sớm 7h00 hoặc đón hoàng hôn tại Đồi Vọng Cảnh sau 16h30.',
-          'Midday Imperial sun is strong. Visit the Citadel early at 7:00 AM or watch the sunset at Vong Canh Hill after 4:30 PM.',
+          'Thời tiết nắng hanh rực rỡ. Thích hợp tham quan Cố đô sớm hoặc chiều mát, nhớ trang bị nón lá & bôi kem chống nắng.',
+          'Bright sunny weather in Hue. Ideal for early morning or late afternoon visits. Remember sun protection.',
         );
       case 1:
         return _t(
-          'Trời nắng đẹp thích hợp chụp ảnh tại Lăng Khải Định. Trưa nắng hãy ghé hẻm Hùng Vương thưởng thức ly Chè Hẻm Huế 20 vị giải nhiệt.',
-          'Bright sunny sky is great for photos at Khai Dinh Tomb. At noon, head to Hung Vuong alley for refreshing 20-flavor Hue sweet soup.',
+          'Nắng Cố đô trưa ni gắt lắm nghe! Sáng sớm 7h ghé Đại Nội hoặc đợi chiều mát sau 16h30 lên Đồi Vọng Cảnh ngắm hoàng hôn nà.',
+          'Midday Imperial sun is strong. Visit the Citadel early at 7:00 AM or watch the sunset at Vong Canh Hill after 4:30 PM.',
         );
       default:
         return _t(
-          'Trưa nắng nên nghỉ ngơi tại các không gian cà phê vườn Huế như Vỹ Dạ Xưa, tận hưởng làn gió mát lành bên bến sông Hương.',
-          'Sunny midday is best spent at garden cafes like Vy Da Xua, enjoying cool gentle breezes along the Perfume River.',
+          'Trời nắng đẹp thích hợp chụp ảnh tại Lăng Khải Định. Trưa nắng hãy ghé hẻm Hùng Vương thưởng thức ly Chè Hẻm Huế 20 vị giải nhiệt.',
+          'Bright sunny sky is great for photos at Khai Dinh Tomb. At noon, head to Hung Vuong alley for refreshing 20-flavor Hue sweet soup.',
         );
     }
   }
@@ -819,13 +819,13 @@ class AppLocalizations {
     switch (index % 2) {
       case 0:
         return _t(
-          'Gió lạnh Cố đô tràn về. Thích hợp dạo bộ Phố đi bộ Nguyễn Đình Chiểu, ăn Bánh mì Tràng Tiền nướng giòn và ngắm cầu Tràng Tiền lên đèn.',
-          'Cool breeze sweeps through. Perfect for walking along Nguyen Dinh Chieu night street, eating crispy Trang Tien bread and watching illuminated bridges.',
+          'Thời tiết se lạnh. Rất thích hợp thưởng thức trà sen, chè Huế và đi dạo Cố đô về đêm.',
+          'Chilly weather. Perfect for enjoying lotus tea, Hue sweet soup, and evening walks around the Citadel.',
         );
       default:
         return _t(
-          'Tiết trời se lạnh dễ chịu rất thích hợp đi dạo Lăng Tự Đức, ngắm hồ Lưu Khiêm và thưởng trà nóng tại đình Xung Khiêm.',
-          'Chilly pleasant weather is ideal for wandering Tu Duc Tomb, admiring Luu Khiem Lake and sipping warm tea at Xung Khiêm Pavilion.',
+          'Gió lạnh Cố đô tràn về rồi đó nà! Khoác áo mỏng vô dạo Phố đi bộ Nguyễn Đình Chiểu, ăn Bánh mì Tràng Tiền nướng giòn rụm nghe.',
+          'Cool breeze sweeps through. Perfect for walking along Nguyen Dinh Chieu night street, eating crispy Trang Tien bread and watching illuminated bridges.',
         );
     }
   }
@@ -834,57 +834,14 @@ class AppLocalizations {
     switch (index % 2) {
       case 0:
         return _t(
-          'Thời tiết Cố đô hôm nay đẹp tuyệt vời! Rất lý tưởng thuê áo dài chụp ảnh tại Đại Nội và trải nghiệm chuyến đi thuyền Rồng Sông Hương.',
-          'Imperial weather is magnificent today! Ideal for renting Ao Dai photos at the Citadel and taking a Dragon Boat trip on Perfume River.',
+          'Thời tiết Cố đô tuyệt đẹp! Rất lý tưởng dạo quanh Đại Nội, các Lăng tẩm hoặc đi thuyền Rồng Sông Hương.',
+          'Imperial weather is lovely! Ideal for strolling around the Citadel, Royal Tombs, or taking a Dragon Boat trip on Perfume River.',
         );
       default:
         return _t(
-          'Trời xanh mây trắng trong lành! Thích hợp chinh phục Đỉnh Hòn Vượn, ghé Rừng đước Rú Cha hoặc ngắm bình minh Đầm Chuồn phá Tam Giang.',
-          'Clear blue sky! Perfect for exploring Ru Cha Mangrove Forest or taking a boat ride during sunrise at Dam Chuon Lagoon.',
+          'Trời Cố đô hôm nay đẹp mê hồn nà! Thuê liền bộ áo dài ghé Đại Nội chụp ảnh rồi đi chuyến thuyền Rồng Sông Hương nghe.',
+          'Imperial weather is magnificent today! Ideal for renting Ao Dai photos at the Citadel and taking a Dragon Boat trip on Perfume River.',
         );
-    }
-  }
-
-  // ── Giọng Cố Đô Huế Thân Thương (Hue Dialect Accent Voice Messages) ──────────
-  String travelAdvisorRainAdviceHue(int index) {
-    switch (index % 4) {
-      case 0:
-        return 'Trời Cố đô đổ mưa rồi nì! Ghé liền quán Cà phê Muối ven đường ngắm mưa rơi trên mái ngói rêu phong, nghe điệu ca Huế êm ả nghe bạn.';
-      case 1:
-        return 'Trời mưa rào rồi nà. Trú chân vô Bảo tàng Cổ vật Cung đình Huế hoặc mần bát Bún bò Huế nóng hổi cho ấm bụng nghe.';
-      case 2:
-        return 'Mưa Huế mát rượi luôn nà. Thích hợp ghé viếng Chùa Từ Hiếu, nghe tiếng chuông chùa tĩnh tâm và thưởng thức bánh lọc gói lá dong.';
-      default:
-        return 'Cơn mưa Huế mộng mơ chi lạ! Ghé Nhà thờ Phủ Cam trú mưa, uống tách trà sen Thừa Thiên nóng hổi nghe bạn.';
-    }
-  }
-
-  String travelAdvisorSunnyAdviceHue(int index) {
-    switch (index % 3) {
-      case 0:
-        return 'Nắng Cố đô trưa ni gắt lắm nghe! Sáng sớm 7h ghé Đại Nội hoặc đợi chiều mát sau 16h30 lên Đồi Vọng Cảnh ngắm hoàng hôn nà.';
-      case 1:
-        return 'Trời nắng rực rỡ ri thì ghé Lăng Khải Định chụp ảnh hết nấc. Trưa nắng ghé hẻm Hùng Vương mần ly Chè Hẻm 20 vị giải nhiệt nghe.';
-      default:
-        return 'Nắng trưa gắt lắm nghe, ghé quán cà phê vườn Vỹ Dạ Xưa nghỉ ngơi, tận hưởng làn gió mát lành bên bến sông Hương.';
-    }
-  }
-
-  String travelAdvisorCoolAdviceHue(int index) {
-    switch (index % 2) {
-      case 0:
-        return 'Gió lạnh Cố đô tràn về rồi đó nà! Khoác áo mỏng vô dạo Phố đi bộ Nguyễn Đình Chiểu, ăn Bánh mì Tràng Tiền nướng giòn rụm nghe.';
-      default:
-        return 'Tiết trời se lạnh dễ chịu chi lạ. Đi dạo Lăng Tự Đức ngắm hồ Lưu Khiêm và thưởng trà nóng tại đình Xung Khiêm nghe bạn.';
-    }
-  }
-
-  String travelAdvisorIdealAdviceHue(int index) {
-    switch (index % 2) {
-      case 0:
-        return 'Trời Cố đô hôm nay đẹp mê hồn nà! Thuê liền bộ áo dài ghé Đại Nội chụp ảnh rồi đi chuyến thuyền Rồng Sông Hương nghe.';
-      default:
-        return 'Trời xanh mây trắng Cố đô trong lành chi lạ! Chinh phục Đỉnh Hòn Vượn hoặc ghé Rừng đước Rú Cha, ngắm bình minh Đầm Chuồn nà.';
     }
   }
 

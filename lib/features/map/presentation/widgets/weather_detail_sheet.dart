@@ -9,7 +9,6 @@ import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/services/weather/weather_forecast_model.dart';
 import 'package:codoky/features/map/presentation/providers/current_weather_provider.dart';
 import 'package:codoky/features/map/presentation/providers/weather_detail_provider.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:codoky/core/widgets/weather/weather_icon_widget.dart';
 
 /// Format giờ nhanh dạng HH:mm
@@ -156,45 +155,8 @@ class _SheetBody extends ConsumerStatefulWidget {
 
 class _SheetBodyState extends ConsumerState<_SheetBody> {
   HourlyWeather? _selectedHour;
-  bool _useHueDialect = true;
-  bool _isSpeaking = false;
-  final FlutterTts _flutterTts = FlutterTts();
 
   AppLocalizations get l10n => widget.l10n;
-
-  @override
-  void initState() {
-    super.initState();
-    _initTts();
-  }
-
-  void _initTts() {
-    _flutterTts.setCompletionHandler(() {
-      if (mounted) setState(() => _isSpeaking = false);
-    });
-    _flutterTts.setErrorHandler((msg) {
-      if (mounted) setState(() => _isSpeaking = false);
-    });
-  }
-
-  @override
-  void dispose() {
-    _flutterTts.stop();
-    super.dispose();
-  }
-
-  Future<void> _toggleSpeech(String text) async {
-    if (_isSpeaking) {
-      await _flutterTts.stop();
-      if (mounted) setState(() => _isSpeaking = false);
-    } else {
-      await _flutterTts.setLanguage('vi-VN');
-      await _flutterTts.setSpeechRate(0.48);
-      await _flutterTts.setPitch(1.02);
-      if (mounted) setState(() => _isSpeaking = true);
-      await _flutterTts.speak(text);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -448,29 +410,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     final String adviceText;
     final List<String> badges = [];
 
-    if (_useHueDialect) {
-      if (isRainy) {
-        adviceText = l10n.travelAdvisorRainAdviceHue(varIndex);
-      } else if (isSunnyHot) {
-        adviceText = l10n.travelAdvisorSunnyAdviceHue(varIndex);
-      } else if (isCool) {
-        adviceText = l10n.travelAdvisorCoolAdviceHue(varIndex);
-      } else {
-        adviceText = l10n.travelAdvisorIdealAdviceHue(varIndex);
-      }
-    } else {
-      if (isRainy) {
-        adviceText = l10n.travelAdvisorRainAdviceVar(varIndex);
-      } else if (isSunnyHot) {
-        adviceText = l10n.travelAdvisorSunnyAdviceVar(varIndex);
-      } else if (isCool) {
-        adviceText = l10n.travelAdvisorCoolAdviceVar(varIndex);
-      } else {
-        adviceText = l10n.travelAdvisorIdealAdviceVar(varIndex);
-      }
-    }
-
     if (isRainy) {
+      adviceText = l10n.travelAdvisorRainAdviceVar(varIndex);
       final rIdx = varIndex % 4;
       if (rIdx == 0) {
         badges.add('☕ Cà phê Muối Cố đô');
@@ -486,6 +427,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         badges.add('🔔 Tiếng chuông tĩnh tâm');
       }
     } else if (isSunnyHot) {
+      adviceText = l10n.travelAdvisorSunnyAdviceVar(varIndex);
       final sIdx = varIndex % 3;
       if (sIdx == 0) {
         badges.add('🌅 Bình minh Đại Nội');
@@ -498,6 +440,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         badges.add('🕶️ ${l10n.travelAdvisorSunProtection}');
       }
     } else if (isCool) {
+      adviceText = l10n.travelAdvisorCoolAdviceVar(varIndex);
       final cIdx = varIndex % 2;
       if (cIdx == 0) {
         badges.add('🥖 Bánh mì Tràng Tiền');
@@ -507,6 +450,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         badges.add(l10n.travelAdvisorLotusTea);
       }
     } else {
+      adviceText = l10n.travelAdvisorIdealAdviceVar(varIndex);
       final iIdx = varIndex % 2;
       if (iIdx == 0) {
         badges.add('👘 Áo dài Cố đô');
@@ -552,66 +496,20 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
-                  Icons.record_voice_over_rounded,
+                  Icons.explore_rounded,
                   size: 16,
                   color: AppColors.primary,
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Lời Nhắc Cố Đô Huế',
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    letterSpacing: 0.2,
-                  ),
+              Text(
+                l10n.travelAdvisorTitle,
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  letterSpacing: 0.2,
                 ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() => _useHueDialect = !_useHueDialect);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
-                  decoration: BoxDecoration(
-                    color: _useHueDialect
-                        ? const Color(0xFFEA580C).withValues(alpha: isDark ? 0.25 : 0.12)
-                        : (isDark ? Colors.white12 : const Color(0xFFF1F5F9)),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _useHueDialect
-                          ? const Color(0xFFEA580C).withValues(alpha: 0.4)
-                          : (isDark ? Colors.white24 : const Color(0xFFCBD5E1)),
-                      width: 0.8,
-                    ),
-                  ),
-                  child: Text(
-                    _useHueDialect ? '🌸 Giọng Huế' : '🇻🇳 Phổ thông',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                      color: _useHueDialect
-                          ? (isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C))
-                          : (isDark ? Colors.white70 : const Color(0xFF475569)),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              IconButton(
-                onPressed: () => _toggleSpeech(adviceText),
-                icon: Icon(
-                  _isSpeaking ? Icons.volume_up_rounded : Icons.volume_mute_rounded,
-                  size: 20,
-                  color: _isSpeaking
-                      ? AppColors.primary
-                      : (isDark ? Colors.white54 : const Color(0xFF64748B)),
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                tooltip: _isSpeaking ? 'Dừng phát' : 'Nghe giọng đọc',
               ),
             ],
           ),
