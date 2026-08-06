@@ -404,10 +404,21 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
 final itineraryProvider = StateNotifierProvider<ItineraryNotifier, ItineraryState>((ref) {
   final aiService = ref.watch(aiRemoteServiceProvider);
   final osrmService = ref.watch(osrmRemoteServiceProvider);
+
+  ItineraryFirestoreService? firestoreService;
+  try {
+    firestoreService = ItineraryFirestoreService(firestore: FirebaseFirestore.instance);
+  } catch (_) {}
+
+  FirebaseAuth? auth;
+  try {
+    auth = FirebaseAuth.instance;
+  } catch (_) {}
+
   return ItineraryNotifier(
     aiRemoteService: aiService,
     osrmRemoteService: osrmService,
-    firestoreService: ItineraryFirestoreService(firestore: FirebaseFirestore.instance),
-    auth: FirebaseAuth.instance,
+    firestoreService: firestoreService,
+    auth: auth,
   );
 });

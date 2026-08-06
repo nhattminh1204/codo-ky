@@ -59,18 +59,17 @@ class ReviewState {
 class ReviewNotifier extends StateNotifier<ReviewState> {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
-  final Ref? _ref;
+  final Ref? ref;
 
-  ReviewNotifier({FirebaseFirestore? firestore, FirebaseAuth? auth, Ref? ref})
+  ReviewNotifier({FirebaseFirestore? firestore, FirebaseAuth? auth, this.ref})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _auth = auth ?? FirebaseAuth.instance,
-        _ref = ref,
         super(const ReviewState()) {
     loadReviews();
   }
 
   AppLocalizations get _t =>
-      AppLocalizations(_ref?.read(localeProvider) ?? const Locale('vi'));
+      AppLocalizations(ref?.read(localeProvider) ?? const Locale('vi'));
 
   Future<void> loadReviews() async {
     await Future.wait([loadAllReviews(), loadMyReviews()]);

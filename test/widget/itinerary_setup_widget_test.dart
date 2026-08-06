@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/network/api_client.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/itinerary/data/models/itinerary_model.dart';
 import 'package:codoky/features/itinerary/data/services/ai_remote_service.dart';
 import 'package:codoky/features/itinerary/presentation/providers/itinerary_provider.dart';
@@ -67,6 +69,14 @@ void main() {
             osrmRemoteServiceProvider.overrideWithValue(MockOsrmService()),
           ],
           child: const MaterialApp(
+            locale: Locale('vi'),
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
             home: ItinerarySetupScreen(),
           ),
         ),
@@ -96,6 +106,14 @@ void main() {
         UncontrolledProviderScope(
           container: container,
           child: const MaterialApp(
+            locale: Locale('vi'),
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
             home: ItinerarySetupScreen(),
           ),
         ),
