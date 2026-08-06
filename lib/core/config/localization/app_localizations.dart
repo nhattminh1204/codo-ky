@@ -845,6 +845,49 @@ class AppLocalizations {
     }
   }
 
+  // ── Giọng Cố Đô Huế Thân Thương (Hue Dialect Accent Voice Messages) ──────────
+  String travelAdvisorRainAdviceHue(int index) {
+    switch (index % 4) {
+      case 0:
+        return 'Trời Cố đô đổ mưa rồi nì! Ghé liền quán Cà phê Muối ven đường ngắm mưa rơi trên mái ngói rêu phong, nghe điệu ca Huế êm ả nghe bạn.';
+      case 1:
+        return 'Trời mưa rào rồi nà. Trú chân vô Bảo tàng Cổ vật Cung đình Huế hoặc mần bát Bún bò Huế nóng hổi cho ấm bụng nghe.';
+      case 2:
+        return 'Mưa Huế mát rượi luôn nà. Thích hợp ghé viếng Chùa Từ Hiếu, nghe tiếng chuông chùa tĩnh tâm và thưởng thức bánh lọc gói lá dong.';
+      default:
+        return 'Cơn mưa Huế mộng mơ chi lạ! Ghé Nhà thờ Phủ Cam trú mưa, uống tách trà sen Thừa Thiên nóng hổi nghe bạn.';
+    }
+  }
+
+  String travelAdvisorSunnyAdviceHue(int index) {
+    switch (index % 3) {
+      case 0:
+        return 'Nắng Cố đô trưa ni gắt lắm nghe! Sáng sớm 7h ghé Đại Nội hoặc đợi chiều mát sau 16h30 lên Đồi Vọng Cảnh ngắm hoàng hôn nà.';
+      case 1:
+        return 'Trời nắng rực rỡ ri thì ghé Lăng Khải Định chụp ảnh hết nấc. Trưa nắng ghé hẻm Hùng Vương mần ly Chè Hẻm 20 vị giải nhiệt nghe.';
+      default:
+        return 'Nắng trưa gắt lắm nghe, ghé quán cà phê vườn Vỹ Dạ Xưa nghỉ ngơi, tận hưởng làn gió mát lành bên bến sông Hương.';
+    }
+  }
+
+  String travelAdvisorCoolAdviceHue(int index) {
+    switch (index % 2) {
+      case 0:
+        return 'Gió lạnh Cố đô tràn về rồi đó nà! Khoác áo mỏng vô dạo Phố đi bộ Nguyễn Đình Chiểu, ăn Bánh mì Tràng Tiền nướng giòn rụm nghe.';
+      default:
+        return 'Tiết trời se lạnh dễ chịu chi lạ. Đi dạo Lăng Tự Đức ngắm hồ Lưu Khiêm và thưởng trà nóng tại đình Xung Khiêm nghe bạn.';
+    }
+  }
+
+  String travelAdvisorIdealAdviceHue(int index) {
+    switch (index % 2) {
+      case 0:
+        return 'Trời Cố đô hôm nay đẹp mê hồn nà! Thuê liền bộ áo dài ghé Đại Nội chụp ảnh rồi đi chuyến thuyền Rồng Sông Hương nghe.';
+      default:
+        return 'Trời xanh mây trắng Cố đô trong lành chi lạ! Chinh phục Đỉnh Hòn Vượn hoặc ghé Rừng đước Rú Cha, ngắm bình minh Đầm Chuồn nà.';
+    }
+  }
+
   String get travelAdvisorCoolChe => _t('🥤 Giải nhiệt Chè Huế', '🥤 Enjoy Hue Sweet Soup');
   String get travelAdvisorLotusTea => _t('☕ Trà sen Cố đô', '☕ Imperial Lotus Tea');
   String get travelAdvisorDragonBoat => _t('🐉 Thuyền Rồng Sông Hương', '🐉 Perfume River Dragon Boat');
