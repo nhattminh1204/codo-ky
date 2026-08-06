@@ -726,7 +726,6 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         ? const Color(0xFF1E293B).withValues(alpha: 0.85)
         : Colors.white.withValues(alpha: 0.90);
     final nightAccent = isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1);
-    final nightBg = isDark ? const Color(0xFF1E1B4B) : const Color(0xFFEDE9FE);
 
     return _PressableCard(
       child: ClipRRect(
@@ -756,10 +755,14 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                     Container(
                       padding: const EdgeInsets.all(5.5),
                       decoration: BoxDecoration(
-                        color: nightBg,
+                        color: isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7),
                         borderRadius: BorderRadius.circular(9),
                       ),
-                      child: Icon(Icons.nightlight_round, size: 15, color: nightAccent),
+                      child: Icon(
+                        Icons.wb_sunny_rounded,
+                        size: 15,
+                        color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
