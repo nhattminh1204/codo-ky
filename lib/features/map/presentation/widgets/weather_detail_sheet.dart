@@ -487,20 +487,29 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cột trái: Icon Container nổi bật
+          // Cột trái: Icon Container nổi bật (To, vừa vặn khung hình)
           Container(
-            padding: const EdgeInsets.all(8),
+            width: 46,
+            height: 46,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.12),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.primary.withValues(alpha: isDark ? 0.22 : 0.12),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.25),
-                width: 0.8,
+                color: AppColors.primary.withValues(alpha: 0.30),
+                width: 1.0,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Icon(
               Icons.explore_rounded,
-              size: 20,
+              size: 28,
               color: AppColors.primary,
             ),
           ),
