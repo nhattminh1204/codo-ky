@@ -406,25 +406,59 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     final isSunnyHot = temp >= 32.0 || uvIndex >= 6.0;
     final isCool = temp <= 22.0;
 
+    final varIndex = (DateTime.now().hour + (current?.weatherCode ?? 0));
     final String adviceText;
     final List<String> badges = [];
 
     if (isRainy) {
-      adviceText = l10n.travelAdvisorRainAdvice();
-      badges.add('☔ ${l10n.travelAdvisorBringUmbrella}');
-      badges.add('🏛️ ${l10n.travelAdvisorIndoorPriority}');
+      adviceText = l10n.travelAdvisorRainAdviceVar(varIndex);
+      final rIdx = varIndex % 4;
+      if (rIdx == 0) {
+        badges.add('☕ Cà phê Muối Cố đô');
+        badges.add('🎵 Ca Huế sông Hương');
+      } else if (rIdx == 1) {
+        badges.add('🏛️ ${l10n.travelAdvisorIndoorPriority}');
+        badges.add('🍜 Bún bò Huế nóng');
+      } else if (rIdx == 2) {
+        badges.add('⛪ Nhà thờ Phủ Cam');
+        badges.add('🥟 Bánh lọc nóng');
+      } else {
+        badges.add('🛕 Chùa Từ Hiếu');
+        badges.add('🔔 Tiếng chuông tĩnh tâm');
+      }
     } else if (isSunnyHot) {
-      adviceText = l10n.travelAdvisorSunnyAdvice();
-      badges.add('👒 ${l10n.travelAdvisorSunProtection}');
-      badges.add(l10n.travelAdvisorCoolChe);
+      adviceText = l10n.travelAdvisorSunnyAdviceVar(varIndex);
+      final sIdx = varIndex % 3;
+      if (sIdx == 0) {
+        badges.add('🌅 Bình minh Đại Nội');
+        badges.add('🌇 Hoàng hôn Đồi Vọng Cảnh');
+      } else if (sIdx == 1) {
+        badges.add('📸 Lăng Khải Định');
+        badges.add(l10n.travelAdvisorCoolChe);
+      } else {
+        badges.add('🏡 Vỹ Dạ Xưa Cafe');
+        badges.add('🕶️ ${l10n.travelAdvisorSunProtection}');
+      }
     } else if (isCool) {
-      adviceText = l10n.travelAdvisorCoolAdvice;
-      badges.add(l10n.travelAdvisorThinJacket);
-      badges.add(l10n.travelAdvisorLotusTea);
+      adviceText = l10n.travelAdvisorCoolAdviceVar(varIndex);
+      final cIdx = varIndex % 2;
+      if (cIdx == 0) {
+        badges.add('🥖 Bánh mì Tràng Tiền');
+        badges.add(l10n.travelAdvisorThinJacket);
+      } else {
+        badges.add('🍁 Lăng Tự Đức');
+        badges.add(l10n.travelAdvisorLotusTea);
+      }
     } else {
-      adviceText = l10n.travelAdvisorIdealAdvice;
-      badges.add('🌿 ${l10n.travelAdvisorOutdoorIdeal}');
-      badges.add(l10n.travelAdvisorDragonBoat);
+      adviceText = l10n.travelAdvisorIdealAdviceVar(varIndex);
+      final iIdx = varIndex % 2;
+      if (iIdx == 0) {
+        badges.add('👘 Áo dài Cố đô');
+        badges.add(l10n.travelAdvisorDragonBoat);
+      } else {
+        badges.add('🚣 Đầm Chuồn Tam Giang');
+        badges.add('🌲 Rừng đước Rú Cha');
+      }
     }
 
     final cardBg = isDark
