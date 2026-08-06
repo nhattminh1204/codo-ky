@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:animations/animations.dart';
-import 'package:codoky/core/theme/motion.dart';
 import 'package:codoky/features/map/presentation/screens/place_detail_screen.dart';
 
 class PlaceListItem extends StatelessWidget {

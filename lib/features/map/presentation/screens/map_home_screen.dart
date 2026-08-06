@@ -23,7 +23,6 @@ import 'package:codoky/features/map/presentation/widgets/map_toolbar_widget.dart
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
 import 'package:codoky/features/map/presentation/widgets/marker_constants.dart';
 import 'package:codoky/features/map/utils/marker_overlap_resolver.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class MapHomeScreen extends ConsumerStatefulWidget {
   const MapHomeScreen({super.key});
@@ -469,6 +468,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
   void _clearSelectionAndZoomOut() {
     ref.read(mapProvider.notifier).clearSelection();
+    if (_previousCameraCenter != null) {
+      _animatedMapMove(_previousCameraCenter!, _previousCameraZoom ?? 15.0);
+    }
     _previousCameraCenter = null;
     _previousCameraZoom = null;
   }
@@ -851,33 +853,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildGlassOverlay({
-    required Widget child,
-    required double borderRadius,
-    EdgeInsetsGeometry? padding,
-    Color? glassColor,
-    GlassQuality quality = GlassQuality.standard,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: isDark ? 0.2 : 0.4),
-          width: 1.2,
-        ),
-      ),
-      child: GlassContainer(
-        useOwnLayer: true,
-        quality: quality,
-        shape: LiquidRoundedRectangle(borderRadius: borderRadius),
-        padding: padding,
-        settings: glassColor != null ? LiquidGlassSettings(glassColor: glassColor) : null,
-        child: child,
       ),
     );
   }
