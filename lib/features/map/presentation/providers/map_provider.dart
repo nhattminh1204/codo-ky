@@ -373,6 +373,8 @@ class MapNotifier extends StateNotifier<MapState> {
     final startPos = state.currentLocation ?? const LatLng(16.4637, 107.5909);
     final endPos = LatLng(destLat, destLng);
 
+    final hasExistingRoute = state.activeRoute != null;
+
     state = state.copyWith(
       isFetchingRoute: true,
       clearRouteError: true,
@@ -402,9 +404,9 @@ class MapNotifier extends StateNotifier<MapState> {
       final message = NetworkExceptions.getErrorMessage(e);
       AppLogger.w('OSRM routing network exception: $message');
       state = state.copyWith(
-        clearActiveRoute: true,
-        alternativeRoutes: const [],
-        selectedRouteIndex: 0,
+        clearActiveRoute: !hasExistingRoute,
+        alternativeRoutes: hasExistingRoute ? state.alternativeRoutes : const [],
+        selectedRouteIndex: hasExistingRoute ? state.selectedRouteIndex : 0,
         isFetchingRoute: false,
         routeErrorMessage: message,
       );
@@ -412,14 +414,14 @@ class MapNotifier extends StateNotifier<MapState> {
     } catch (e) {
       AppLogger.e('OSRM routing unexpected exception: $e');
       state = state.copyWith(
-        clearActiveRoute: true,
-        alternativeRoutes: const [],
-        selectedRouteIndex: 0,
+        clearActiveRoute: !hasExistingRoute,
+        alternativeRoutes: hasExistingRoute ? state.alternativeRoutes : const [],
+        selectedRouteIndex: hasExistingRoute ? state.selectedRouteIndex : 0,
         isFetchingRoute: false,
         routeErrorMessage: 'Không thể tính toán tuyến đường. Vui lòng thử lại!',
-      );
-      return false;
-    }
+    );
+    return false;
+  }
   }
 
   /// Clears active driving route from state

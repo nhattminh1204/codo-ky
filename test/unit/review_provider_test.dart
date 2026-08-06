@@ -74,5 +74,21 @@ void main() {
       expect(state.isLoadingAll, isFalse);
       expect(state.error, isNull);
     });
+
+    test('ReviewState handles SWR isRefreshingAll and isRefreshingMine flags accurately', () {
+      var state = const ReviewState();
+      expect(state.isRefreshingAll, isFalse);
+      expect(state.isRefreshingMine, isFalse);
+
+      state = state.copyWith(isRefreshingAll: true, isRefreshingMine: true);
+
+      expect(state.isRefreshingAll, isTrue);
+      expect(state.isRefreshingMine, isTrue);
+
+      state = state.copyWith(isRefreshingAll: false, isRefreshingMine: false);
+
+      expect(state.isRefreshingAll, isFalse);
+      expect(state.isRefreshingMine, isFalse);
+    });
   });
 }

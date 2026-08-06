@@ -12,6 +12,8 @@ class ReviewState {
   final List<ReviewModel> myReviews;
   final bool isLoadingAll;
   final bool isLoadingMine;
+  final bool isRefreshingAll;
+  final bool isRefreshingMine;
   final String? error;
   final bool hasMoreAll;
   final bool hasMoreMine;
@@ -23,6 +25,8 @@ class ReviewState {
     this.myReviews = const [],
     this.isLoadingAll = false,
     this.isLoadingMine = false,
+    this.isRefreshingAll = false,
+    this.isRefreshingMine = false,
     this.error,
     this.hasMoreAll = false,
     this.hasMoreMine = false,
@@ -35,6 +39,8 @@ class ReviewState {
     List<ReviewModel>? myReviews,
     bool? isLoadingAll,
     bool? isLoadingMine,
+    bool? isRefreshingAll,
+    bool? isRefreshingMine,
     String? error,
     bool clearError = false,
     bool? hasMoreAll,
@@ -47,6 +53,8 @@ class ReviewState {
       myReviews: myReviews ?? this.myReviews,
       isLoadingAll: isLoadingAll ?? this.isLoadingAll,
       isLoadingMine: isLoadingMine ?? this.isLoadingMine,
+      isRefreshingAll: isRefreshingAll ?? this.isRefreshingAll,
+      isRefreshingMine: isRefreshingMine ?? this.isRefreshingMine,
       error: clearError ? null : (error ?? this.error),
       hasMoreAll: hasMoreAll ?? this.hasMoreAll,
       hasMoreMine: hasMoreMine ?? this.hasMoreMine,
@@ -76,8 +84,15 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
   }
 
   Future<void> loadAllReviews({String? placeId, bool refresh = false}) async {
-    if (state.isLoadingAll && !refresh) return;
-    state = state.copyWith(isLoadingAll: true, error: null);
+    if ((state.isLoadingAll || state.isRefreshingAll) && !refresh) return;
+
+    final hasExistingData = state.allReviews.isNotEmpty;
+    if (hasExistingData && refresh) {
+      // SWR: Preserve existing reviews in RAM during background refresh
+      state = state.copyWith(isRefreshingAll: true, clearError: true);
+    } else {
+      state = state.copyWith(isLoadingAll: true, clearError: true);
+    }
 
     try {
       Query query = _firestore.collection('reviews').orderBy('created_at', descending: true);
@@ -99,6 +114,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
       state = state.copyWith(
         allReviews: reviews,
         isLoadingAll: false,
+        isRefreshingAll: false,
         hasMoreAll: snapshot.docs.length >= 10,
         lastDocAll: snapshot.docs.isNotEmpty ? snapshot.docs.last : null,
       );
@@ -106,6 +122,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
       AppLogger.w('Firestore loadAllReviews fallback or error: $e');
       state = state.copyWith(
         isLoadingAll: false,
+        isRefreshingAll: false,
         error: e.toString().replaceAll('Exception: ', ''),
       );
     }
@@ -114,12 +131,18 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
   Future<void> loadMyReviews({bool refresh = false}) async {
     final currentUid = _auth.currentUser?.uid;
     if (currentUid == null || currentUid.isEmpty) {
-      state = state.copyWith(myReviews: [], isLoadingMine: false);
+      state = state.copyWith(myReviews: [], isLoadingMine: false, isRefreshingMine: false);
       return;
     }
 
-    if (state.isLoadingMine && !refresh) return;
-    state = state.copyWith(isLoadingMine: true, error: null);
+    if ((state.isLoadingMine || state.isRefreshingMine) && !refresh) return;
+
+    final hasExistingMine = state.myReviews.isNotEmpty;
+    if (hasExistingMine && refresh) {
+      state = state.copyWith(isRefreshingMine: true, clearError: true);
+    } else {
+      state = state.copyWith(isLoadingMine: true, clearError: true);
+    }
 
     try {
       final snapshot = await _firestore
@@ -140,6 +163,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
       state = state.copyWith(
         myReviews: reviews,
         isLoadingMine: false,
+        isRefreshingMine: false,
         hasMoreMine: snapshot.docs.length >= 10,
         lastDocMine: snapshot.docs.isNotEmpty ? snapshot.docs.last : null,
       );
@@ -147,6 +171,7 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
       AppLogger.w('Firestore loadMyReviews fallback or error: $e');
       state = state.copyWith(
         isLoadingMine: false,
+        isRefreshingMine: false,
         error: e.toString().replaceAll('Exception: ', ''),
       );
     }

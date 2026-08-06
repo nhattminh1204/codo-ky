@@ -18,6 +18,7 @@ class ItineraryState {
   final List<ItineraryModel> myItineraries;
   final List<ItineraryModel> aiSuggestions;
   final bool isLoading;
+  final bool isRefreshingMyItineraries;
   final bool isLoadingSuggestions;
   final String? error;
 
@@ -25,6 +26,7 @@ class ItineraryState {
     this.myItineraries = const [],
     this.aiSuggestions = const [],
     this.isLoading = false,
+    this.isRefreshingMyItineraries = false,
     this.isLoadingSuggestions = false,
     this.error,
   });
@@ -33,6 +35,7 @@ class ItineraryState {
     List<ItineraryModel>? myItineraries,
     List<ItineraryModel>? aiSuggestions,
     bool? isLoading,
+    bool? isRefreshingMyItineraries,
     bool? isLoadingSuggestions,
     String? error,
   }) {
@@ -40,6 +43,7 @@ class ItineraryState {
       myItineraries: myItineraries ?? this.myItineraries,
       aiSuggestions: aiSuggestions ?? this.aiSuggestions,
       isLoading: isLoading ?? this.isLoading,
+      isRefreshingMyItineraries: isRefreshingMyItineraries ?? this.isRefreshingMyItineraries,
       isLoadingSuggestions: isLoadingSuggestions ?? this.isLoadingSuggestions,
       error: error,
     );
@@ -67,20 +71,34 @@ class ItineraryNotifier extends StateNotifier<ItineraryState> {
         super(const ItineraryState());
 
   Future<void> loadMyItineraries() async {
-    state = state.copyWith(isLoading: true, error: null);
+    final hasExistingMine = state.myItineraries.isNotEmpty;
+    if (hasExistingMine) {
+      state = state.copyWith(isRefreshingMyItineraries: true, error: null);
+    } else {
+      state = state.copyWith(isLoading: true, error: null);
+    }
 
     final uid = _auth?.currentUser?.uid;
     final service = _firestoreService;
     if (uid == null || service == null) {
-      state = state.copyWith(isLoading: false, myItineraries: const []);
+      state = state.copyWith(isLoading: false, isRefreshingMyItineraries: false, myItineraries: const []);
       return;
     }
 
     try {
       final mine = await service.getMyItineraries(uid);
-      state = state.copyWith(isLoading: false, myItineraries: mine);
+      state = state.copyWith(
+        isLoading: false,
+        isRefreshingMyItineraries: false,
+        myItineraries: mine,
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      AppLogger.w('Firestore getMyItineraries error: $e');
+      state = state.copyWith(
+        isLoading: false,
+        isRefreshingMyItineraries: false,
+        error: hasExistingMine ? null : e.toString(),
+      );
     }
   }
 

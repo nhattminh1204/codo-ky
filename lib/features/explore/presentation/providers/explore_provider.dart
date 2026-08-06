@@ -11,6 +11,7 @@ class ExploreState {
   final List<dynamic> categories;
   final String? selectedCategory;
   final bool isLoading;
+  final bool isRefreshing;
   final String? searchQuery;
 
   const ExploreState({
@@ -22,31 +23,29 @@ class ExploreState {
     this.categories = const [],
     this.selectedCategory,
     this.isLoading = false,
+    this.isRefreshing = false,
     this.searchQuery,
   });
 
-  List<dynamic> get places {
+  List<dynamic> get places => filteredPlaces;
+
+  List<dynamic> get filteredPlaces {
     List<dynamic> baseList;
-    switch (selectedCategory) {
-      case 'restaurant':
-      case 'food':
-        baseList = restaurants;
-        break;
-      case 'attraction':
-        baseList = attractions;
-        break;
-      case 'temple':
-        baseList = temples;
-        break;
-      case 'tomb':
-        baseList = tombs;
-        break;
-      default:
-        baseList = allPlaces;
-        break;
+    if (selectedCategory == null || selectedCategory == 'all') {
+      baseList = allPlaces;
+    } else if (selectedCategory == 'restaurant') {
+      baseList = restaurants;
+    } else if (selectedCategory == 'attraction') {
+      baseList = attractions;
+    } else if (selectedCategory == 'temple') {
+      baseList = temples;
+    } else if (selectedCategory == 'tomb') {
+      baseList = tombs;
+    } else {
+      baseList = allPlaces;
     }
 
-    if (searchQuery != null && searchQuery!.isNotEmpty) {
+    if (searchQuery != null && searchQuery!.trim().isNotEmpty) {
       return baseList.where((p) {
         final name = (p['name'] as String?)?.toLowerCase() ?? '';
         final address = (p['address'] as String?)?.toLowerCase() ?? '';
@@ -67,6 +66,7 @@ class ExploreState {
     String? selectedCategory,
     bool clearCategory = false,
     bool? isLoading,
+    bool? isRefreshing,
     String? searchQuery,
   }) {
     return ExploreState(
@@ -78,6 +78,7 @@ class ExploreState {
       categories: categories ?? this.categories,
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       isLoading: isLoading ?? this.isLoading,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -91,7 +92,12 @@ class ExploreNotifier extends StateNotifier<ExploreState> {
   Future<void> loadPlaces({bool refresh = false}) async {
     if (state.allPlaces.isNotEmpty && !refresh) return;
 
-    state = state.copyWith(isLoading: true);
+    final hasExistingPlaces = state.allPlaces.isNotEmpty;
+    if (hasExistingPlaces && refresh) {
+      state = state.copyWith(isRefreshing: true);
+    } else {
+      state = state.copyWith(isLoading: true);
+    }
 
     try {
       final jsonString = await rootBundle.loadString('assets/data/hue_places_seed.json');
@@ -133,9 +139,10 @@ class ExploreNotifier extends StateNotifier<ExploreState> {
         tombs: tombs,
         categories: categories,
         isLoading: false,
+        isRefreshing: false,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false, isRefreshing: false);
     }
   }
 
