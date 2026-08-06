@@ -461,31 +461,6 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
       }
     }
 
-    // Dynamic gradient and glow for 3D Lightbulb Emoji glass frame (Style 1)
-    final List<Color> tipGradientColors;
-    final Color tipBorderColor;
-    if (isRainy) {
-      tipGradientColors = isDark
-          ? const [Color(0xFF0C4A6E), Color(0xFF0369A1)]
-          : const [Color(0xFFE0F2FE), Color(0xFFBAE6FD)];
-      tipBorderColor = isDark ? const Color(0xFF38BDF8) : const Color(0xFF7DD3FC);
-    } else if (isSunnyHot) {
-      tipGradientColors = isDark
-          ? const [Color(0xFF451A03), Color(0xFF78350F)]
-          : const [Color(0xFFFEF3C7), Color(0xFFFDE68A)];
-      tipBorderColor = isDark ? const Color(0xFFFBBF24) : const Color(0xFFFCD34D);
-    } else if (isCool) {
-      tipGradientColors = isDark
-          ? const [Color(0xFF064E3B), Color(0xFF047857)]
-          : const [Color(0xFFD1FAE5), Color(0xFFA7F3D0)];
-      tipBorderColor = isDark ? const Color(0xFF34D399) : const Color(0xFF6EE7B7);
-    } else {
-      tipGradientColors = isDark
-          ? const [Color(0xFF1E1B4B), Color(0xFF312E81)]
-          : const [Color(0xFFEEF2FF), Color(0xFFE0E7FF)];
-      tipBorderColor = isDark ? const Color(0xFF818CF8) : const Color(0xFFA5B4FC);
-    }
-
     final cardBg = isDark
         ? const Color(0xFF1E293B).withValues(alpha: 0.9)
         : Colors.white.withValues(alpha: 0.95);
@@ -510,38 +485,21 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Cột trái: Emoji 💡 3D trên nền Glassmorphic Gradient mờ siêu sang
-          Container(
-            width: 46,
-            height: 46,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: tipGradientColors,
-              ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: tipBorderColor.withValues(alpha: isDark ? 0.45 : 0.60),
-                width: 1.2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: tipBorderColor.withValues(alpha: isDark ? 0.25 : 0.15),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: const Text(
+          // Cột trái: Emoji 💡 to, nổi bật, thả tự do không viền/nền, căn giữa hoàn hảo
+          SizedBox(
+            width: 44,
+            child: Text(
               '💡',
-              style: TextStyle(fontSize: 25, height: 1.0),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 34,
+                height: 1.0,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
 
           // Cột phải: Content (Tiêu đề + Nội dung khuyên + Badges)
           Expanded(
