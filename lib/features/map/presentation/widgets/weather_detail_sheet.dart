@@ -461,16 +461,29 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
       }
     }
 
-    // Dynamic accent color for the tip card icon frame based on weather condition
-    final Color tipIconAccent;
+    // Dynamic gradient and glow for 3D Lightbulb Emoji glass frame (Style 1)
+    final List<Color> tipGradientColors;
+    final Color tipBorderColor;
     if (isRainy) {
-      tipIconAccent = isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7); // Sky Blue (Rainy)
+      tipGradientColors = isDark
+          ? const [Color(0xFF0C4A6E), Color(0xFF0369A1)]
+          : const [Color(0xFFE0F2FE), Color(0xFFBAE6FD)];
+      tipBorderColor = isDark ? const Color(0xFF38BDF8) : const Color(0xFF7DD3FC);
     } else if (isSunnyHot) {
-      tipIconAccent = isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706); // Golden Amber (Sunny)
+      tipGradientColors = isDark
+          ? const [Color(0xFF451A03), Color(0xFF78350F)]
+          : const [Color(0xFFFEF3C7), Color(0xFFFDE68A)];
+      tipBorderColor = isDark ? const Color(0xFFFBBF24) : const Color(0xFFFCD34D);
     } else if (isCool) {
-      tipIconAccent = isDark ? const Color(0xFF34D399) : const Color(0xFF059669); // Emerald Green (Cool)
+      tipGradientColors = isDark
+          ? const [Color(0xFF064E3B), Color(0xFF047857)]
+          : const [Color(0xFFD1FAE5), Color(0xFFA7F3D0)];
+      tipBorderColor = isDark ? const Color(0xFF34D399) : const Color(0xFF6EE7B7);
     } else {
-      tipIconAccent = AppColors.primary; // Royal Blue (Ideal)
+      tipGradientColors = isDark
+          ? const [Color(0xFF1E1B4B), Color(0xFF312E81)]
+          : const [Color(0xFFEEF2FF), Color(0xFFE0E7FF)];
+      tipBorderColor = isDark ? const Color(0xFF818CF8) : const Color(0xFFA5B4FC);
     }
 
     final cardBg = isDark
@@ -499,30 +512,33 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cột trái: Icon Container nổi bật (Đổi màu động theo thời tiết)
+          // Cột trái: Emoji 💡 3D trên nền Glassmorphic Gradient mờ siêu sang
           Container(
             width: 46,
             height: 46,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: tipIconAccent.withValues(alpha: isDark ? 0.22 : 0.12),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: tipGradientColors,
+              ),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: tipIconAccent.withValues(alpha: 0.30),
-                width: 1.0,
+                color: tipBorderColor.withValues(alpha: isDark ? 0.45 : 0.60),
+                width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: tipIconAccent.withValues(alpha: isDark ? 0.15 : 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  color: tipBorderColor.withValues(alpha: isDark ? 0.25 : 0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
-            child: Icon(
-              Icons.tips_and_updates_rounded,
-              size: 28,
-              color: tipIconAccent,
+            child: const Text(
+              '💡',
+              style: TextStyle(fontSize: 25, height: 1.0),
             ),
           ),
           const SizedBox(width: 12),
