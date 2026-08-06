@@ -83,12 +83,7 @@ Nhật ký các quyết định kỹ thuật quan trọng trong dự án CodoKy.
 | 2026-07-30 | Chuyển thanh Bottom Navigation thành Glassmorphism trong suốt & Blur | **Glassmorphic Floating Dock**: Bổ sung `BackdropFilter(filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16))` và `ClipRRect(borderRadius: 24)`. **Transparent Layer**: Đặt `extendBody: true` trên `Scaffold` và loại bỏ hoàn toàn container màu trắng/đen ở layer dưới. Bản đồ và nội dung danh sách tràn mịn dưới thanh điều hướng. **Testing**: `flutter test` pass 85/85 tests (100%), `flutter analyze` 0 issue. | Tech Lead / Independent Auditor | ✅ Accepted |
 | 2026-07-30 | Triển khai Shared Element Transitions (Container Transform) cho Place Cards | **Reusable Component**: Xây dựng `AppOpenContainer` (`package:animations/animations.dart`) với hiệu ứng `AppMotion.emphasized` (450ms). **Integration**: Đấu nối chuyển cảnh phình thẻ (Container Transform) từ các thẻ địa điểm và nút "Xem chi tiết" (`MapBottomSheet`, `PlaceListItem`, `ExploreHomeScreen`) sang `PlaceDetailScreen`. **Testing**: `flutter test` pass 85/85 tests (100%), `flutter analyze` 0 issue. | Tech Lead / Independent Auditor | ✅ Accepted |
 | 2026-07-30 | Triển khai Chế độ Dark Mode (Đêm Hoàng Thành - Imperial Dark) & Persistence | **Theme Tokens**: Cấu hình bộ Token Dark Mode (`bgDark: #121418`, `surfaceDark: #1E222A`, `borderDark: #2D333F`, `textPrimaryDark: #F1F5F9`) tuân thủ chuẩn Minimalist Heritage 2026. **State Management**: Sử dụng `ThemeNotifier` (Riverpod `StateNotifier<ThemeMode>`) kết hợp `SharedPreferences` (`app_theme_mode`) duy trì trạng thái cài đặt qua các phiên làm việc. **UI**: Đấu nối bộ chọn chế độ Giao diện (Sáng / Tối / Theo hệ thống) trực tiếp tại màn hình Hồ sơ cá nhân `ProfileHomeScreen`. **Testing**: Chạy `flutter test` pass 83/83 unit & widget tests (100%), `flutter analyze` 0 issue. | Tech Lead / Independent Auditor | ✅ Accepted |
-
-
-
-
-
-
+| 2026-08-06 | Tinh chỉnh Bảng Thời Tiết (WeatherDetailSheet): Đưa Thông Số Nâng Cao (Độ ẩm, Tốc độ gió) xuống dưới fold & Cập nhật thời tiết liên tục | **Yêu cầu**: (1) Đưa các thẻ thông số nâng cao (Độ ẩm, Tốc độ gió, Chỉ số UV, AQI) xuống phía dưới trong ListView, vuốt lên mới xem; điều chỉnh `initialChildSize` thành `0.38` để tránh bị che lấp bởi Liquid Glass Dock khi vừa mở; (2) Tích hợp `Timer.periodic` tự động làm mới thời tiết mỗi 2 phút khi bảng mở và hỗ trợ `force: true` reload ngay lập tức trên `CurrentWeatherNotifier`; (3) Thêm chỉ báo Trực tiếp 🟢, thời gian cập nhật real-time và nút Reload thủ công. Bổ sung i18n & unit test `current_weather_provider_test.dart` pass 100%. | Tech Lead / Independent Auditor | ✅ Accepted |
 
 
 ---
