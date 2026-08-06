@@ -15,6 +15,7 @@ import 'package:codoky/core/services/audio/tts_service.dart';
 import 'package:codoky/core/services/location/location_service.dart';
 import 'package:codoky/features/map/data/datasources/cached_disk_tile_provider.dart';
 import 'package:codoky/features/map/data/datasources/hue_boundary_loader.dart';
+import 'package:codoky/features/map/data/datasources/vietnam_boundary_loader.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/providers/current_weather_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
@@ -36,6 +37,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   late final LocationService _locationService;
   late AnimationController _pulseController;
   List<LatLng>? _hueBoundary;
+  List<LatLng>? _vietnamBoundary;
 
   @override
   void initState() {
@@ -50,6 +52,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     HueBoundaryLoader.loadBoundaryRing().then((ring) {
       if (!mounted) return;
       setState(() => _hueBoundary = ring);
+    });
+
+    VietnamBoundaryLoader.loadBoundaryRing().then((ring) {
+      if (!mounted) return;
+      setState(() => _vietnamBoundary = ring);
     });
 
     Future.microtask(() {
@@ -563,16 +570,18 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   maxCacheAge: const Duration(days: 30),
                 ),
               ),
-              // Tầng overlay ranh giới Huế: mask nền (ngoài ranh giới) +
-              // viền nét đứt. Nằm DƯỚI lớp marker để không chặn hitTest.
-              if (_hueBoundary != null)
+              // Tầng overlay ranh giới Việt Nam: mask phủ các quốc gia khác (làm mờ hẳn)
+              // Giữ lãnh thổ Việt Nam 100% tươi sáng sắc nét.
+              if (_vietnamBoundary != null || _hueBoundary != null)
                 IgnorePointer(
                   child: PolygonLayer(
                     polygonCulling: false,
                     polygons: [
                       Polygon(
                         points: _worldMaskPolygon,
-                        holePointsList: [_hueBoundary!],
+                        holePointsList: [
+                          _vietnamBoundary ?? _hueBoundary!,
+                        ],
                         color: _boundaryMaskColor(context),
                         borderStrokeWidth: 0,
                         disableHolesBorder: true,
@@ -1420,8 +1429,8 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   /// (bản đồ dark) — phần trong Huế giữ nguyên trong suốt.
   Color _boundaryMaskColor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
-        ? Colors.black.withValues(alpha: 0.40)
-        : Colors.white.withValues(alpha: 0.55);
+        ? Colors.black.withValues(alpha: 0.55)
+        : Colors.white.withValues(alpha: 0.68);
   }
 
   /// Màu viền nét đứt theo ranh giới — tương phản tốt trên cả 2 nền tile.
