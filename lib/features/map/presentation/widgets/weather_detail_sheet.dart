@@ -615,71 +615,86 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         ? l10n.insightAqiUnhealthy
         : (aqi > 50 ? l10n.insightAqiModerate : l10n.insightAqiGood);
 
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.42,
+    return Column(
       children: [
-        // 1. Độ ẩm (Dải màu cầu vồng 4 mốc: Đỏ -> Xanh -> Vàng -> Đỏ)
-        _bentoStatCard(
-          icon: Icons.water_drop_rounded,
-          accentColor: getSemanticColor(humidityLevel),
-          iconBgColor: getIconBgColor(humidityLevel),
-          label: l10n.weatherHumidity,
-          value: '$humidity%',
-          statusSubtitle: humidityStatus,
-          insightText: humidityInsight,
-          progressValue: (humidity / 100.0).clamp(0.0, 1.0),
-          isDark: isDark,
-          gradientColors: [redColor, greenColor, amberColor, redColor],
-          gradientStops: const [0.0, 0.40, 0.70, 1.0],
-        ),
-        // 2. Tốc độ gió (Dải màu cầu vồng 3 mốc)
-        _bentoStatCard(
-          icon: Icons.air_rounded,
-          accentColor: getSemanticColor(windLevel),
-          iconBgColor: getIconBgColor(windLevel),
-          label: l10n.weatherWind,
-          value: l10n.weatherWindUnit(windSpeed),
-          statusSubtitle: windStatus,
-          insightText: windInsight,
-          progressValue: (windSpeed / 40.0).clamp(0.0, 1.0),
-          isDark: isDark,
-          gradientColors: [greenColor, amberColor, redColor],
-          gradientStops: const [0.0, 0.40, 1.0],
-        ),
-        // 3. Chỉ số UV — hiện badge ban đêm nếu đang là đêm (không có UV thật)
-        isNighttime
-            ? _bentoNightUvCard(isDark: isDark)
-            : _bentoStatCard(
-                icon: Icons.wb_sunny_rounded,
-                accentColor: getSemanticColor(uvLevel),
-                iconBgColor: getIconBgColor(uvLevel),
-                label: l10n.weatherUvIndex,
-                value: 'UV ${uvIndex.toStringAsFixed(1)}',
-                statusSubtitle: uvStatus,
-                insightText: uvInsight,
-                progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
-                isDark: isDark,
-                gradientColors: [greenColor, amberColor, orangeColor, redColor],
-                gradientStops: const [0.0, 0.30, 0.65, 1.0],
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _bentoStatCard(
+                  icon: Icons.water_drop_rounded,
+                  accentColor: getSemanticColor(humidityLevel),
+                  iconBgColor: getIconBgColor(humidityLevel),
+                  label: l10n.weatherHumidity,
+                  value: '$humidity%',
+                  statusSubtitle: humidityStatus,
+                  insightText: humidityInsight,
+                  progressValue: (humidity / 100.0).clamp(0.0, 1.0),
+                  isDark: isDark,
+                  gradientColors: [redColor, greenColor, amberColor, redColor],
+                  gradientStops: const [0.0, 0.40, 0.70, 1.0],
+                ),
               ),
-        // 4. Chất lượng không khí (Dải màu cầu vồng 3 mốc)
-        _bentoStatCard(
-          icon: Icons.eco_rounded,
-          accentColor: getSemanticColor(aqiLevel),
-          iconBgColor: getIconBgColor(aqiLevel),
-          label: l10n.weatherAirQuality,
-          value: 'AQI $aqi',
-          statusSubtitle: aqiStatus,
-          insightText: aqiInsight,
-          progressValue: (aqi / 200.0).clamp(0.0, 1.0),
-          isDark: isDark,
-          gradientColors: [greenColor, amberColor, redColor],
-          gradientStops: const [0.0, 0.35, 1.0],
+              const SizedBox(width: 10),
+              Expanded(
+                child: _bentoStatCard(
+                  icon: Icons.air_rounded,
+                  accentColor: getSemanticColor(windLevel),
+                  iconBgColor: getIconBgColor(windLevel),
+                  label: l10n.weatherWind,
+                  value: l10n.weatherWindUnit(windSpeed),
+                  statusSubtitle: windStatus,
+                  insightText: windInsight,
+                  progressValue: (windSpeed / 40.0).clamp(0.0, 1.0),
+                  isDark: isDark,
+                  gradientColors: [greenColor, amberColor, redColor],
+                  gradientStops: const [0.0, 0.40, 1.0],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: isNighttime
+                    ? _bentoNightUvCard(isDark: isDark)
+                    : _bentoStatCard(
+                        icon: Icons.wb_sunny_rounded,
+                        accentColor: getSemanticColor(uvLevel),
+                        iconBgColor: getIconBgColor(uvLevel),
+                        label: l10n.weatherUvIndex,
+                        value: 'UV ${uvIndex.toStringAsFixed(1)}',
+                        statusSubtitle: uvStatus,
+                        insightText: uvInsight,
+                        progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
+                        isDark: isDark,
+                        gradientColors: [greenColor, amberColor, orangeColor, redColor],
+                        gradientStops: const [0.0, 0.30, 0.65, 1.0],
+                      ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _bentoStatCard(
+                  icon: Icons.eco_rounded,
+                  accentColor: getSemanticColor(aqiLevel),
+                  iconBgColor: getIconBgColor(aqiLevel),
+                  label: l10n.weatherAirQuality,
+                  value: 'AQI $aqi',
+                  statusSubtitle: aqiStatus,
+                  insightText: aqiInsight,
+                  progressValue: (aqi / 200.0).clamp(0.0, 1.0),
+                  isDark: isDark,
+                  gradientColors: [greenColor, amberColor, redColor],
+                  gradientStops: const [0.0, 0.35, 1.0],
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
