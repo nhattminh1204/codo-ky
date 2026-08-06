@@ -710,22 +710,22 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
+            padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: nightAccent.withValues(alpha: 0.15), width: 1.0),
+              border: Border.all(color: nightAccent.withValues(alpha: 0.18), width: 1.2),
               boxShadow: [
                 BoxShadow(
                   color: nightAccent.withValues(alpha: isDark ? 0.12 : 0.07),
-                  blurRadius: 12,
+                  blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
@@ -737,14 +737,15 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                       ),
                       child: Icon(Icons.nightlight_round, size: 15, color: nightAccent),
                     ),
-                    const SizedBox(width: 7),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         l10n.weatherUvIndex,
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12.0,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                          color: isDark ? Colors.white70 : const Color(0xFF475569),
+                          letterSpacing: -0.2,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -752,43 +753,77 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
                 Center(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('🌙', style: const TextStyle(fontSize: 26)),
-                      const SizedBox(height: 2),
-                      Text(
-                        l10n.weatherNighttime,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                          color: nightAccent,
-                          height: 1.1,
+                      Text('🌙', style: const TextStyle(fontSize: 22)),
+                      const SizedBox(height: 3),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: nightAccent.withValues(alpha: isDark ? 0.20 : 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          l10n.weatherNighttime,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: nightAccent,
+                            height: 1.1,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Row(
-                  children: [
-                    Icon(Icons.info_outline_rounded, size: 11,
-                        color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        l10n.weatherNightUvInsight,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 5,
+                  width: double.infinity,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      color: nightAccent.withValues(alpha: 0.12),
                     ),
-                  ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 28,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: 11,
+                          color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          l10n.weatherNightUvInsight,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                            height: 1.25,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -814,7 +849,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     final baseBg = isDark
         ? const Color(0xFF1E293B)
         : Colors.white;
-    final borderColor = accentColor.withValues(alpha: isDark ? 0.28 : 0.20);
+    final borderColor = accentColor.withValues(alpha: isDark ? 0.25 : 0.18);
 
     return _PressableCard(
       child: ClipRRect(
@@ -822,42 +857,43 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            padding: const EdgeInsets.fromLTRB(13, 12, 13, 11),
+            padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
             decoration: BoxDecoration(
               color: baseBg,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: borderColor, width: 1.2),
               boxShadow: [
                 BoxShadow(
-                  color: accentColor.withValues(alpha: isDark ? 0.18 : 0.10),
+                  color: accentColor.withValues(alpha: isDark ? 0.14 : 0.08),
                   blurRadius: 14,
-                  offset: const Offset(0, 5),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 // Tầng 1: Icon + Label
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(5.5),
                       decoration: BoxDecoration(
                         color: iconBgColor,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(9),
                       ),
-                      child: Icon(icon, size: 16, color: accentColor),
+                      child: Icon(icon, size: 15, color: accentColor),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         label,
                         style: TextStyle(
-                          fontSize: 11.5,
+                          fontSize: 12.0,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white60 : const Color(0xFF475569),
+                          color: isDark ? Colors.white70 : const Color(0xFF475569),
+                          letterSpacing: -0.2,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -865,46 +901,50 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
 
-                // Tầng 2: Số liệu chính
+                // Tầng 2: Số liệu chính & Subhead Chip
                 Center(
-                  child: Text(
-                    value,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      letterSpacing: -0.8,
-                      height: 1.0,
-                    ),
-                  ),
-                ),
-
-                // Tầng 3: Status pill chip màu semantic
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      statusSubtitle,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: accentColor,
-                        height: 1.2,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        value,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          letterSpacing: -0.8,
+                          height: 1.0,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                      const SizedBox(height: 5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          statusSubtitle,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: accentColor,
+                            height: 1.1,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 10),
 
-                // Tầng 4: Progress bar gradient
+                // Tầng 3: Progress bar gradient
                 SizedBox(
                   height: 5,
                   width: double.infinity,
@@ -939,34 +979,38 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 8),
 
-                // Tầng 5: Insight text
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 1),
-                      child: Icon(
-                        Icons.tips_and_updates_rounded,
-                        size: 10,
-                        color: accentColor.withValues(alpha: 0.65),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        insightText,
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                          height: 1.3,
+                // Tầng 4: Insight text với chiều cao cố định 28px
+                SizedBox(
+                  height: 28,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Icon(
+                          Icons.tips_and_updates_rounded,
+                          size: 11,
+                          color: accentColor.withValues(alpha: 0.70),
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          insightText,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                            height: 1.25,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
