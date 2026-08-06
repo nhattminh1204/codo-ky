@@ -578,35 +578,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     final orangeColor = isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C);
     final redColor = isDark ? const Color(0xFFF87171) : const Color(0xFFEF4444);
 
-    // Helper for semantic color palette based on level (0 = Green, 1 = Amber, 2 = Red)
-    Color getSemanticColor(int level) {
-      if (isDark) {
-        if (level == 0) return const Color(0xFF34D399); // Emerald
-        if (level == 1) return const Color(0xFFFBBF24); // Amber
-        return const Color(0xFFF87171); // Crimson
-      } else {
-        if (level == 0) return const Color(0xFF059669); // Emerald
-        if (level == 1) return const Color(0xFFD97706); // Amber
-        return const Color(0xFFDC2626); // Crimson
-      }
-    }
-
-    Color getIconBgColor(int level) {
-      if (isDark) {
-        if (level == 0) return const Color(0xFF064E3B);
-        if (level == 1) return const Color(0xFF451A03);
-        return const Color(0xFF450A0A);
-      } else {
-        if (level == 0) return const Color(0xFFD1FAE5);
-        if (level == 1) return const Color(0xFFFEF3C7);
-        return const Color(0xFFFEE2E2);
-      }
-    }
-
-    // 1. Độ ẩm (Humidity) - Thang 0-100% (Gradient 4 mốc: Đỏ 0-40% -> Xanh 40-70% -> Vàng 70-85% -> Đỏ 85-100%)
-    final int humidityLevel = (humidity > 85 || humidity < 40)
-        ? 2
-        : (humidity > 70 ? 1 : 0);
+    // 1. Độ ẩm (Humidity) - Thang 0-100%
     final String humidityStatus = humidity > 85
         ? l10n.statusHumidityHigh
         : (humidity < 40
@@ -621,7 +593,6 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                 : l10n.insightHumidityGood));
 
     // 2. Tốc độ gió (Wind) - Reference Max: 40 km/h
-    final int windLevel = windSpeed > 25.0 ? 2 : (windSpeed >= 12.0 ? 1 : 0);
     final String windStatus = windSpeed > 25.0
         ? l10n.statusWindHigh
         : (windSpeed >= 12.0 ? l10n.statusWindModerate : l10n.statusWindGood);
@@ -632,7 +603,6 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
             : l10n.insightWindGood);
 
     // 3. Chỉ số UV - Reference Max: 11
-    final int uvLevel = uvIndex >= 7.0 ? 2 : (uvIndex >= 3.0 ? 1 : 0);
     final String uvStatus = uvIndex >= 7.0
         ? l10n.statusUvHigh
         : (uvIndex >= 3.0 ? l10n.statusUvModerate : l10n.statusUvGood);
@@ -641,13 +611,29 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         : (uvIndex >= 3.0 ? l10n.insightUvModerate : l10n.insightUvGood);
 
     // 4. Chất lượng không khí (AQI) - Reference Max: 200
-    final int aqiLevel = aqi > 100 ? 2 : (aqi > 50 ? 1 : 0);
     final String aqiStatus = aqi > 100
         ? l10n.statusAqiUnhealthy
         : (aqi > 50 ? l10n.statusAqiModerate : l10n.statusAqiGood);
     final String aqiInsight = aqi > 100
         ? l10n.insightAqiUnhealthy
         : (aqi > 50 ? l10n.insightAqiModerate : l10n.insightAqiGood);
+
+    // Màu sắc cố định đặc trưng theo đối tượng (Fixed Brand Signature Colors)
+    // 1. Độ ẩm (Humidity) 💧: Ocean Sky Blue
+    final humidityAccent = isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7);
+    final humidityBg = isDark ? const Color(0xFF0C4A6E) : const Color(0xFFE0F2FE);
+
+    // 2. Tốc độ gió (Wind) 💨: Warm Sunset Orange
+    final windAccent = isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C);
+    final windBg = isDark ? const Color(0xFF451A03) : const Color(0xFFFFEDD5);
+
+    // 3. Chỉ số UV (UV Index) ☀️: Golden Sun Amber
+    final uvAccent = isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706);
+    final uvBg = isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7);
+
+    // 4. Chất lượng không khí (AQI) 🍃: Fresh Emerald Green
+    final aqiAccent = isDark ? const Color(0xFF34D399) : const Color(0xFF059669);
+    final aqiBg = isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5);
 
     return Column(
       children: [
@@ -658,8 +644,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
               Expanded(
                 child: _bentoStatCard(
                   icon: Icons.water_drop_rounded,
-                  accentColor: getSemanticColor(humidityLevel),
-                  iconBgColor: getIconBgColor(humidityLevel),
+                  accentColor: humidityAccent,
+                  iconBgColor: humidityBg,
                   label: l10n.weatherHumidity,
                   value: '$humidity%',
                   statusSubtitle: humidityStatus,
@@ -674,8 +660,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
               Expanded(
                 child: _bentoStatCard(
                   icon: Icons.air_rounded,
-                  accentColor: getSemanticColor(windLevel),
-                  iconBgColor: getIconBgColor(windLevel),
+                  accentColor: windAccent,
+                  iconBgColor: windBg,
                   label: l10n.weatherWind,
                   value: l10n.weatherWindUnit(windSpeed),
                   statusSubtitle: windStatus,
@@ -699,8 +685,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                     ? _bentoNightUvCard(isDark: isDark)
                     : _bentoStatCard(
                         icon: Icons.wb_sunny_rounded,
-                        accentColor: getSemanticColor(uvLevel),
-                        iconBgColor: getIconBgColor(uvLevel),
+                        accentColor: uvAccent,
+                        iconBgColor: uvBg,
                         label: l10n.weatherUvIndex,
                         value: 'UV ${uvIndex.toStringAsFixed(1)}',
                         statusSubtitle: uvStatus,
@@ -715,8 +701,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
               Expanded(
                 child: _bentoStatCard(
                   icon: Icons.eco_rounded,
-                  accentColor: getSemanticColor(aqiLevel),
-                  iconBgColor: getIconBgColor(aqiLevel),
+                  accentColor: aqiAccent,
+                  iconBgColor: aqiBg,
                   label: l10n.weatherAirQuality,
                   value: 'AQI $aqi',
                   statusSubtitle: aqiStatus,
