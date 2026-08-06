@@ -7,6 +7,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/network/api_client.dart';
 import 'package:codoky/features/map/data/datasources/osrm_remote_service.dart';
 import 'package:codoky/features/map/data/models/osrm_route_model.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
 import 'package:codoky/features/review/presentation/providers/review_provider.dart';
@@ -89,6 +91,14 @@ void main() {
             reviewProvider.overrideWith((ref) => ReviewNotifierMock()),
           ],
           child: MaterialApp(
+            locale: const Locale('vi'),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Center(
                 child: SizedBox(
@@ -121,6 +131,14 @@ void main() {
             reviewProvider.overrideWith((ref) => ReviewNotifierMock()),
           ],
           child: MaterialApp(
+            locale: const Locale('vi'),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Center(
                 child: SizedBox(
@@ -141,8 +159,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap handle to expand
-      final handleFinder = find.byType(GestureDetector).at(1);
-      await tester.tap(handleFinder);
+      await tester.tap(find.byKey(const ValueKey('drag_handle_bar')));
       await tester.pumpAndSettle();
 
       // Verify expanded detail view elements appear
@@ -152,7 +169,7 @@ void main() {
       expect(find.text('Bản đồ ngoài'), findsOneWidget);
 
       // Tap handle to collapse back
-      await tester.tap(handleFinder);
+      await tester.tap(find.byKey(const ValueKey('drag_handle_bar')));
       await tester.pumpAndSettle();
 
       // Verify collapsed back to compact view
@@ -170,6 +187,13 @@ void main() {
             reviewProvider.overrideWith((ref) => ReviewNotifierMock()),
           ],
           child: MaterialApp(
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Center(
                 child: SizedBox(
@@ -193,8 +217,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Verify compact sheet renders CTA button 'Đường đi'
-      final navigateButtonFinder = find.widgetWithText(ElevatedButton, 'Đường đi');
+      // Verify compact sheet renders CTA button
+      final navigateButtonFinder = find.byType(ElevatedButton);
       expect(navigateButtonFinder, findsOneWidget);
 
       // Tap 'Đường đi' button

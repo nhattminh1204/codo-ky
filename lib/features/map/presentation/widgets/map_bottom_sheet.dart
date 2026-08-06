@@ -142,19 +142,6 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
     }
   }
 
-  TravelMode _parseTravelMode(String mode) {
-    switch (mode) {
-      case 'walking':
-        return TravelMode.walking;
-      case 'motorbike':
-        return TravelMode.motorbike;
-      case 'driving':
-        return TravelMode.driving;
-      default:
-        return TravelMode.motorbike;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -226,6 +213,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
           children: [
             // Handle Top Header Bar with drag gesture & expand indicator
             GestureDetector(
+              key: const ValueKey('drag_handle_bar'),
               onTap: _toggleExpand,
               behavior: HitTestBehavior.opaque,
               child: Container(
@@ -1127,13 +1115,13 @@ Expanded(
       }
     }
 
-    String _getRouteLabel(int idx) {
+    String getRouteLabel(int idx) {
       if (idx == fastestIdx) return '⚡ ${l10n.routeFastest}';
       if (idx == shortestIdx && idx != fastestIdx) return '📍 ${l10n.routeShortest}';
       return '🔄 ${l10n.routeAlternative}';
     }
 
-    Color _getLabelColor(int idx, bool isSelected) {
+    Color getLabelColor(int idx, bool isSelected) {
       if (isSelected) return Colors.white;
       if (idx == fastestIdx) return const Color(0xFF2563EB); // Blue
       if (idx == shortestIdx && idx != fastestIdx) return const Color(0xFF059669); // Green
@@ -1159,8 +1147,8 @@ Expanded(
           children: List.generate(routes.length, (idx) {
             final route = routes[idx];
             final isSelected = idx == selectedIdx;
-            final label = _getRouteLabel(idx);
-            final labelColor = _getLabelColor(idx, isSelected);
+            final label = getRouteLabel(idx);
+            final labelColor = getLabelColor(idx, isSelected);
 
             // Tính % chênh lệch so với tuyến nhanh nhất (để hiển thị hint)
             final fastestDuration = routes[fastestIdx].durationSeconds;

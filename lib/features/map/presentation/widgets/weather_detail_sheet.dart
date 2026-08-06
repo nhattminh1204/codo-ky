@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:codoky/core/config/localization/app_localizations.dart';
 import 'package:codoky/core/config/theme/app_theme.dart';
 import 'package:codoky/core/services/weather/weather_forecast_model.dart';
@@ -16,10 +18,11 @@ String _fmtHHmm(DateTime dt) {
   return '$h:$m';
 }
 
-/// Format ngày dạng "T2, 5/8"
-String _fmtShortDay(DateTime dt) {
-  const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-  return '${days[dt.weekday % 7]}, ${dt.day}/${dt.month}';
+
+Color _rainColor(int prob) {
+  if (prob <= 30) return const Color(0xFF10B981);
+  if (prob <= 60) return const Color(0xFFF59E0B);
+  return const Color(0xFF2563EB);
 }
 
 
@@ -75,7 +78,7 @@ class _WeatherThemeConfig {
 }
 
 /// Full-feature Weather & Travel Companion Sheet.
-/// DraggableScrollableSheet với 2 snap points: Basic View (45%) -> Advanced View (90%).
+/// DraggableScrollableSheet với 2 snap points: Basic Summary (38%) -> Advanced View (90%).
 class WeatherDetailSheet extends ConsumerStatefulWidget {
   const WeatherDetailSheet({super.key});
 
@@ -84,12 +87,32 @@ class WeatherDetailSheet extends ConsumerStatefulWidget {
 }
 
 class _WeatherDetailSheetState extends ConsumerState<WeatherDetailSheet> {
+  Timer? _periodicTimer;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(weatherDetailProvider.notifier).loadDetail();
+      _refreshAllWeather(force: false);
     });
+    // Cập nhật thời tiết liên tục mỗi 2 phút khi bảng thông tin thời tiết đang mở
+    _periodicTimer = Timer.periodic(const Duration(minutes: 2), (_) {
+      _refreshAllWeather(force: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _periodicTimer?.cancel();
+    super.dispose();
+  }
+
+  void _refreshAllWeather({bool force = true}) {
+    ref.read(weatherDetailProvider.notifier).loadDetail(forceRefresh: force);
+    ref.read(currentWeatherProvider.notifier).refreshIfNeeded(
+          const LatLng(16.4637, 107.5909),
+          force: force,
+        );
   }
 
   @override
@@ -99,11 +122,11 @@ class _WeatherDetailSheetState extends ConsumerState<WeatherDetailSheet> {
 
     return DraggableScrollableSheet(
       expand: false,
-      initialChildSize: 0.46,
-      minChildSize: 0.46,
+      initialChildSize: 0.42,
+      minChildSize: 0.42,
       maxChildSize: 0.90,
       snap: true,
-      snapSizes: const [0.46, 0.90],
+      snapSizes: const [0.42, 0.90],
       builder: (context, scrollController) {
         return _SheetBody(
           scrollController: scrollController,
@@ -131,19 +154,19 @@ class _SheetBody extends ConsumerStatefulWidget {
 }
 
 class _SheetBodyState extends ConsumerState<_SheetBody> {
-  int _selectedDayOffset = 0;
+  HourlyWeather? _selectedHour;
 
-  bool get isDark => widget.isDark;
   AppLocalizations get l10n => widget.l10n;
-  ScrollController get scrollController => widget.scrollController;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = widget.isDark;
+    final l10n = widget.l10n;
     final currentState = ref.watch(currentWeatherProvider);
     final detailState = ref.watch(weatherDetailProvider);
 
     final currentWeatherObj = currentState.currentWeather.valueOrNull;
-    final weatherCode = currentWeatherObj?.weatherCode ?? 0;
+    final weatherCode = _selectedHour?.weatherCode ?? currentWeatherObj?.weatherCode ?? 0;
     final themeConfig = _WeatherThemeConfig.fromCode(weatherCode, isDark);
 
     return Container(
@@ -179,65 +202,68 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
           // --- Scrollable Content ---
           Expanded(
             child: ListView(
-              controller: scrollController,
-              // Tăng bottom padding lên 120px để KHÔNG bị che lấp bởi Liquid Glass Navigation Capsule
+              controller: widget.scrollController,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
               children: [
-                // 1. Header: Vị trí + Time
-                _buildHeader(currentState, isDark),
-                const SizedBox(height: 14),
+                // 1. Header: Vị trí
+                _buildHeader(isDark),
+                const SizedBox(height: 10),
 
                 // 2. Hero: Nhiệt độ + Mô tả ngắn
                 currentState.currentWeather.when(
-                  data: (w) => _buildHero(w, detailState, isDark, themeConfig),
-                  loading: () => _buildShimmer(height: 100, isDark: isDark),
+                  data: (w) => _buildHero(
+                    w,
+                    detailState,
+                    isDark,
+                    themeConfig,
+                  ),
+                  loading: () => _buildShimmer(height: 90, isDark: isDark),
                   error: (e, _) => const SizedBox.shrink(),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
-                // 3. 🤖 AI SMART TRAVEL ADVISOR CARD (Đặc quyền CodoKy)
+                // 3. Gợi ý trải nghiệm Huế
                 _buildSmartTravelAdvisor(
                   currentWeatherObj,
                   detailState.detail.valueOrNull,
                   isDark,
                   themeConfig,
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 36),
 
-                // 4. Stats Grid: 2x2 Glass Cards
-                detailState.detail.when(
-                  data: (d) => _buildStatsGrid(d, isDark, themeConfig.cardBg),
-                  loading: () => _buildShimmer(height: 90, isDark: isDark),
-                  error: (e, st) => const SizedBox.shrink(),
-                ),
-                const SizedBox(height: 24),
-
-                // 5. Hourly Forecast — Chọn ngày
+                // 4. Hourly Forecast (Dự báo hôm nay 24h)
                 _buildSectionTitle(l10n.weatherHourlyForecast, isDark),
                 const SizedBox(height: 10),
                 detailState.detail.when(
-                  data: (d) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDaySelector(d.hourly),
-                      const SizedBox(height: 10),
-                      _buildHourlyRow(d.hourly, isDark, themeConfig.cardBg, _selectedDayOffset),
-                    ],
+                  data: (d) => _buildHourlyRow(
+                    d.hourly,
+                    isDark,
+                    themeConfig.cardBg,
                   ),
-                  loading: () => _buildShimmer(height: 150, isDark: isDark),
+                  loading: () => _buildShimmer(height: 118, isDark: isDark),
                   error: (e, st) => _buildErrorChip(isDark),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+
+                // 5. Thông số nâng cao (Stats Grid: Độ ẩm, Tốc độ gió, UV, AQI)
+                _buildSectionTitle(l10n.weatherAdvancedMetrics, isDark),
+                const SizedBox(height: 8),
+                detailState.detail.when(
+                  data: (d) => _buildStatsGrid(d, isDark, themeConfig.cardBg),
+                  loading: () => _buildShimmer(height: 180, isDark: isDark),
+                  error: (e, st) => const SizedBox.shrink(),
+                ),
+                const SizedBox(height: 10),
 
                 // 6. Daily Forecast (7 Ngày tới)
                 _buildSectionTitle(l10n.weatherDailyForecast, isDark),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
                 detailState.forecast.when(
                   data: (f) => _buildDailyList(f.days, isDark, themeConfig.cardBg),
                   loading: () => _buildShimmer(height: 260, isDark: isDark),
                   error: (e, st) => _buildErrorChip(isDark),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -247,12 +273,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
   }
 
   // ── 1. Header ────────────────────────────────────────────────────────────────
-  Widget _buildHeader(CurrentWeatherState state, bool isDark) {
-    final timeStr = state.lastFetchedAt != null
-        ? _fmtHHmm(state.lastFetchedAt!)
-        : '';
-    final subtitleColor = isDark ? Colors.white60 : const Color(0xFF64748B);
-
+  Widget _buildHeader(bool isDark) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -273,19 +294,6 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
             color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
-        const Spacer(),
-        if (timeStr.isNotEmpty)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.04),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              l10n.weatherUpdatedAt(timeStr),
-              style: TextStyle(fontSize: 11.5, color: subtitleColor),
-            ),
-          ),
       ],
     );
   }
@@ -297,6 +305,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     bool isDark,
     _WeatherThemeConfig themeConfig,
   ) {
+    final displayThemeColor = WmoCodeMapper.toThemeColor(w.weatherCode);
     final feelsLike = detailState.detail.valueOrNull?.feelsLike;
 
     return Row(
@@ -349,15 +358,15 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: Color(w.themeColor).withValues(alpha: isDark ? 0.25 : 0.85),
+            color: Color(displayThemeColor).withValues(alpha: isDark ? 0.25 : 0.85),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Color(w.themeColor).withValues(alpha: 0.5),
+              color: Color(displayThemeColor).withValues(alpha: 0.5),
               width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Color(w.themeColor).withValues(alpha: 0.2),
+                color: Color(displayThemeColor).withValues(alpha: 0.2),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
@@ -376,7 +385,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     );
   }
 
-  // ── 3. 🤖 AI SMART TRAVEL ADVISOR CARD (Đặc quyền Du lịch Huế) ──────────────────
+  // ── 3. 🌿 GỢI Ý TRẢI NGHIỆM HUẾ ──────────────────────────────────────────
   Widget _buildSmartTravelAdvisor(
     CurrentWeatherResult? current,
     WeatherDetailResult? detail,
@@ -401,11 +410,11 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     final List<String> badges = [];
 
     if (isRainy) {
-      adviceText = l10n.travelAdvisorRainAdvice(rainProb > 0 ? rainProb : 60);
+      adviceText = l10n.travelAdvisorRainAdvice();
       badges.add('☔ ${l10n.travelAdvisorBringUmbrella}');
       badges.add('🏛️ ${l10n.travelAdvisorIndoorPriority}');
     } else if (isSunnyHot) {
-      adviceText = l10n.travelAdvisorSunnyAdvice(uvIndex);
+      adviceText = l10n.travelAdvisorSunnyAdvice();
       badges.add('👒 ${l10n.travelAdvisorSunProtection}');
       badges.add('🥤 Giải nhiệt Chè Huế');
     } else if (isCool) {
@@ -422,8 +431,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         ? const Color(0xFF1E293B).withValues(alpha: 0.9)
         : Colors.white.withValues(alpha: 0.95);
     final borderColor = isDark
-        ? themeConfig.accentColor.withValues(alpha: 0.4)
-        : AppColors.primary.withValues(alpha: 0.3);
+        ? themeConfig.accentColor.withValues(alpha: 0.3)
+        : AppColors.primary.withValues(alpha: 0.2);
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -434,8 +443,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withValues(alpha: 0.3)
-                : AppColors.primary.withValues(alpha: 0.08),
+                ? Colors.black.withValues(alpha: 0.25)
+                : AppColors.primary.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -449,15 +458,13 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF8B1522), Color(0xFFB91C1C)],
-                  ),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
-                  Icons.auto_awesome_rounded,
-                  size: 15,
-                  color: Colors.white,
+                child: Icon(
+                  Icons.explore_rounded,
+                  size: 16,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(width: 8),
@@ -466,7 +473,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                 style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF8B1522),
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
                   letterSpacing: 0.2,
                 ),
               ),
@@ -614,7 +621,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.22,
+      childAspectRatio: 1.42,
       children: [
         // 1. Độ ẩm (Dải màu cầu vồng 4 mốc: Đỏ -> Xanh -> Vàng -> Đỏ)
         _bentoStatCard(
@@ -740,7 +747,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                       Text('🌙', style: const TextStyle(fontSize: 26)),
                       const SizedBox(height: 2),
                       Text(
-                        'Ban đêm',
+                        l10n.weatherNighttime,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 11.5,
@@ -759,7 +766,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        'UV không đo được ban đêm',
+                        l10n.weatherNightUvInsight,
                         style: TextStyle(
                           fontSize: 10,
                           fontStyle: FontStyle.italic,
@@ -963,92 +970,14 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
   }
 
 
-  // ── Day Selector Chips ───────────────────────────────────────────────────────
-  Widget _buildDaySelector(List<HourlyWeather> hourly) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    // Tính các ngày có trong data (tối đa 3 ngày: Hôm nay, Ngày mai, Ngày kia)
-    final availableDays = <int>[];
-    for (int offset = 0; offset <= 2; offset++) {
-      final targetDay = today.add(Duration(days: offset));
-      final hasData = hourly.any((h) {
-        final d = DateTime(h.time.year, h.time.month, h.time.day);
-        return d == targetDay;
-      });
-      if (hasData) availableDays.add(offset);
-    }
-
-    return Row(
-      children: availableDays.map((offset) {
-        final isSelected = offset == _selectedDayOffset;
-        final label = offset == 0
-            ? 'Hôm nay'
-            : offset == 1
-                ? 'Ngày mai'
-                : 'Ngày kia';
-
-        return Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: GestureDetector(
-            onTap: () => setState(() => _selectedDayOffset = offset),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF2563EB) // Royal Blue
-                    : (isDark
-                        ? Colors.white.withValues(alpha: 0.10)
-                        : const Color(0xFF94A3B8).withValues(alpha: 0.12)),
-                borderRadius: BorderRadius.circular(20),
-                border: isSelected
-                    ? null
-                    : Border.all(
-                        color: isDark
-                            ? Colors.white24
-                            : const Color(0xFFCBD5E1),
-                        width: 1,
-                      ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: const Color(0xFF2563EB).withValues(alpha: 0.30),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected
-                      ? Colors.white
-                      : (isDark ? Colors.white60 : const Color(0xFF475569)),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  // ── 5. Hourly Row (Slider theo ngày) ─────────────────────────────────────────
+  // ── 5. Hourly Row (24h Slider) ───────────────────────────────────────────────
   Widget _buildHourlyRow(
-      List<HourlyWeather> hourly, bool isDark, Color cardColor, int dayOffset) {
+      List<HourlyWeather> hourly, bool isDark, Color cardColor) {
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final targetDay = today.add(Duration(days: dayOffset));
-
     final filtered = hourly
         .where((h) {
-          final hDay = DateTime(h.time.year, h.time.month, h.time.day);
-          return hDay == targetDay;
+          final diff = h.time.difference(now).inMinutes;
+          return diff >= -30 && diff <= 24 * 60;
         })
         .toList();
 
@@ -1063,10 +992,29 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
             scrollDirection: Axis.horizontal,
             itemCount: filtered.length,
             separatorBuilder: (context, i) => const SizedBox(width: 8),
-            itemBuilder: (_, i) {
+            itemBuilder: (context, i) {
               final h = filtered[i];
               final isNow = (h.time.difference(now).inMinutes).abs() <= 30;
-              return _hourlyCard(h, isNow, isDark, cardColor);
+              final isSelected = _selectedHour != null
+                  ? (_selectedHour!.time == h.time)
+                  : isNow;
+
+              return _HourlyCardWidget(
+                hourly: h,
+                isNow: isNow,
+                isSelected: isSelected,
+                isDark: isDark,
+                cardColor: cardColor,
+                onTap: () {
+                  setState(() {
+                    if (_selectedHour?.time == h.time) {
+                      _selectedHour = null;
+                    } else {
+                      _selectedHour = h;
+                    }
+                  });
+                },
+              );
             },
           ),
           // Fade gradient bên phải → hint scroll
@@ -1097,273 +1045,195 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     );
   }
 
-  Widget _hourlyCard(
-      HourlyWeather h, bool isNow, bool isDark, Color cardColor) {
-    final timeLabel = isNow ? 'Now' : _fmtHHmm(h.time);
-    final rainColor = isNow ? const Color(0xFF7DD3FC) : _rainColor(h.precipitationProbability);
-
-    final bgDecoration = isNow
-        ? BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF1E40AF), Color(0xFF3B82F6)],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF3B82F6).withValues(alpha: 0.4),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          )
-        : BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-              width: 1.0,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          );
-
-    return _PressableCard(
-      child: Container(
-        width: 68,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-      decoration: bgDecoration,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            timeLabel,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: isNow ? FontWeight.w800 : FontWeight.w600,
-              color: isNow
-                  ? Colors.white
-                  : (isDark ? Colors.white60 : const Color(0xFF64748B)),
-            ),
-          ),
-          WeatherIconWidget(
-            weatherCode: h.weatherCode,
-            size: 38,
-            timestamp: h.time,
-          ),
-          Text(
-            '${h.temperature.round()}°',
-            style: TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
-            ),
-          ),
-          // % mưa — to hơn, kèm biểu tượng mưa nếu > 20%
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (h.precipitationProbability > 20)
-                Padding(
-                  padding: const EdgeInsets.only(right: 2),
-                  child: Icon(
-                    Icons.water_drop_rounded,
-                    size: 9,
-                    color: rainColor,
-                  ),
-                ),
-              Text(
-                '${h.precipitationProbability}%',
-                style: TextStyle(
-                  fontSize: h.precipitationProbability > 40 ? 12 : 10.5,
-                  fontWeight: h.precipitationProbability > 40
-                      ? FontWeight.w800
-                      : FontWeight.w600,
-                  color: h.precipitationProbability > 0
-                      ? rainColor
-                      : (isDark ? Colors.white30 : const Color(0xFFCBD5E1)),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
   // ── 6. Daily 7-Day Forecast List ─────────────────────────────────────────────
   Widget _buildDailyList(
       List<DayWeatherForecast> days, bool isDark, Color cardColor) {
     final limit = math.min(days.length, 7);
+    if (limit == 0) return _buildErrorChip(isDark);
 
-    // Tìm index ngày mưa nhiều nhất trong 7 ngày → highlight
-    int rainiestIdx = 0;
-    int maxRain = 0;
+    // Tính min và max nhiệt độ của cả 7 ngày để scale thanh range bar chuẩn tuyệt đối
+    double globalMin = days[0].tempMin;
+    double globalMax = days[0].tempMax;
     for (int i = 0; i < limit; i++) {
-      if (days[i].rainProbability > maxRain) {
-        maxRain = days[i].rainProbability;
-        rainiestIdx = i;
-      }
+      if (days[i].tempMin < globalMin) globalMin = days[i].tempMin;
+      if (days[i].tempMax > globalMax) globalMax = days[i].tempMax;
     }
-    // Chỉ highlight nếu ngày mưa nhất có ít nhất 40% mưa
-    final showRainiestBadge = maxRain >= 40;
-
-    return Column(
-      children: List.generate(limit, (i) {
-        final d = days[i];
-        final isToday = i == 0;
-        final isTomorrow = i == 1;
-        final dayLabel = isToday
-            ? l10n.weatherToday
-            : isTomorrow
-                ? l10n.weatherTomorrow
-                : _fmtShortDay(d.date);
-        final isRainiest = showRainiestBadge && i == rainiestIdx;
-        return _dailyRow(d, dayLabel, isDark, cardColor, isRainiest: isRainiest);
-      }),
-    );
-  }
-
-  Widget _dailyRow(
-    DayWeatherForecast d,
-    String dayLabel,
-    bool isDark,
-    Color cardColor, {
-    bool isRainiest = false,
-  }) {
-    final rainProb = d.rainProbability;
-    final barColor = _rainColor(rainProb);
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final subColor = isDark ? Colors.white60 : const Color(0xFF64748B);
-
-    // Màu nổi bật cho ngày mưa nhiều nhất
-    final rainiestBorderColor = const Color(0xFF2563EB).withValues(alpha: 0.50);
-    final rainiestBg = isDark
-        ? const Color(0xFF1E3A5F).withValues(alpha: 0.85)
-        : const Color(0xFFEFF6FF);
+    final totalSpan = (globalMax - globalMin).clamp(1.0, 100.0);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: isRainiest
-            ? rainiestBg
-            : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC)),
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isRainiest
-              ? rainiestBorderColor
-              : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
-          width: isRainiest ? 1.5 : 1.0,
+          color: isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFE2E8F0),
+          width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: isRainiest
-                ? const Color(0xFF2563EB).withValues(alpha: 0.12)
-                : Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
-            blurRadius: isRainiest ? 10 : 6,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 82,
-            child: Text(
-              dayLabel,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: textColor,
-              ),
-            ),
-          ),
-          WeatherIconWidget(
-            weatherCode: d.weatherCode,
-            size: 36,
-            isNight: false,
-          ),
-          const SizedBox(width: 12),
-          Text(
-            '${d.tempMin.round()}°~${d.tempMax.round()}°',
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              color: textColor,
-            ),
-          ),
-          const Spacer(),
-          // Badge "☔ Mưa nhiều" nếu là ngày mưa nhất
-          if (isRainiest) ...([
-            Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2563EB).withValues(alpha: isDark ? 0.25 : 0.12),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: const Color(0xFF2563EB).withValues(alpha: 0.35),
-                  width: 0.8,
-                ),
-              ),
-              child: const Text(
-                '☔ Nhiều nhất',
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2563EB),
-                ),
-              ),
-            ),
-          ]),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '$rainProb%',
-                style: TextStyle(
-                  fontSize: isRainiest ? 13 : 11.5,
-                  fontWeight: isRainiest ? FontWeight.w800 : FontWeight.w600,
-                  color: rainProb > 40 ? barColor : subColor,
-                ),
-              ),
-              const SizedBox(height: 3),
-              SizedBox(
-                width: 60,
-                height: 4,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: LinearProgressIndicator(
-                    value: rainProb / 100.0,
-                    backgroundColor:
-                        isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                    valueColor: AlwaysStoppedAnimation<Color>(barColor),
+      child: Column(
+        children: List.generate(limit, (i) {
+          final d = days[i];
+          final dayLabel = _fmtDailyLabel(i, d.date);
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                // Cột 1: Tên ngày (vd: Hôm nay, Thứ Hai...)
+                SizedBox(
+                  width: 82,
+                  child: Text(
+                    dayLabel,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+
+                // Cột 2: Icon thời tiết + % Khả năng mưa
+                SizedBox(
+                  width: 62,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      WeatherIconWidget(
+                        weatherCode: d.weatherCode,
+                        size: 20,
+                        isNight: false,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${d.rainProbability}%',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF38BDF8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // Cột 3: Nhiệt độ thấp nhất
+                SizedBox(
+                  width: 32,
+                  child: Text(
+                    '${d.tempMin.round()}°',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                // Cột 4: Thanh Range Bar dải nhiệt độ (Gradient Xanh -> Cam)
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final trackWidth = constraints.maxWidth;
+                      final minRatio = ((d.tempMin - globalMin) / totalSpan).clamp(0.0, 1.0);
+                      final maxRatio = ((d.tempMax - globalMin) / totalSpan).clamp(0.0, 1.0);
+
+                      final leftPos = trackWidth * minRatio;
+                      final barWidth = ((maxRatio - minRatio) * trackWidth).clamp(8.0, trackWidth);
+
+                      return SizedBox(
+                        height: 4.5,
+                        child: Stack(
+                          children: [
+                            // Track nền xám nhạt
+                            Container(
+                              width: double.infinity,
+                              height: 4.5,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.12)
+                                    : const Color(0xFFE2E8F0),
+                                borderRadius: BorderRadius.circular(2.25),
+                              ),
+                            ),
+                            // Đoạn nhiệt độ của ngày (Gradient Xanh -> Cam)
+                            Positioned(
+                              left: leftPos,
+                              width: barWidth,
+                              top: 0,
+                              bottom: 0,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(2.25),
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF3B82F6), Color(0xFFF59E0B)],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                // Cột 5: Nhiệt độ cao nhất
+                SizedBox(
+                  width: 32,
+                  child: Text(
+                    '${d.tempMax.round()}°',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────────
-  Color _rainColor(int prob) {
-    if (prob <= 30) return const Color(0xFF10B981);
-    if (prob <= 60) return const Color(0xFFF59E0B);
-    return const Color(0xFF2563EB);
+  String _fmtDailyLabel(int index, DateTime date) {
+    if (index == 0) return l10n.weatherToday;
+    switch (date.weekday) {
+      case DateTime.monday:
+        return 'Thứ Hai';
+      case DateTime.tuesday:
+        return 'Thứ Ba';
+      case DateTime.wednesday:
+        return 'Thứ Tư';
+      case DateTime.thursday:
+        return 'Thứ Năm';
+      case DateTime.friday:
+        return 'Thứ Sáu';
+      case DateTime.saturday:
+        return 'Thứ Bảy';
+      case DateTime.sunday:
+        return 'Chủ Nhật';
+      default:
+        return '';
+    }
   }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
 
   Widget _buildSectionTitle(String title, bool isDark) {
     return Text(
@@ -1403,6 +1273,183 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
             style: TextStyle(fontSize: 12.5, color: Color(0xFFEF4444)),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _HourlyCardWidget extends StatefulWidget {
+  final HourlyWeather hourly;
+  final bool isNow;
+  final bool isSelected;
+  final bool isDark;
+  final Color cardColor;
+  final VoidCallback onTap;
+
+  const _HourlyCardWidget({
+    required this.hourly,
+    required this.isNow,
+    required this.isSelected,
+    required this.isDark,
+    required this.cardColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_HourlyCardWidget> createState() => _HourlyCardWidgetState();
+}
+
+class _HourlyCardWidgetState extends State<_HourlyCardWidget> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final h = widget.hourly;
+    final isDark = widget.isDark;
+    final timeLabel = widget.isNow ? 'Now' : _fmtHHmm(h.time);
+
+    final isSelected = widget.isSelected;
+    final isHovered = _isHovered && !isSelected;
+
+    final rainColor = isSelected
+        ? const Color(0xFF7DD3FC)
+        : _rainColor(h.precipitationProbability);
+
+    final BoxDecoration bgDecoration;
+    if (isSelected) {
+      bgDecoration = BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF1E40AF), Color(0xFF3B82F6)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.7),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withValues(alpha: 0.45),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      );
+    } else if (isHovered) {
+      bgDecoration = BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF2563EB),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2563EB).withValues(alpha: 0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      );
+    } else {
+      bgDecoration = BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      );
+    }
+
+    final timeColor = isSelected
+        ? Colors.white
+        : (isHovered
+            ? const Color(0xFF2563EB)
+            : (isDark ? Colors.white60 : const Color(0xFF64748B)));
+
+    final tempColor = isSelected
+        ? Colors.white
+        : (isHovered
+            ? (isDark ? Colors.white : const Color(0xFF2563EB))
+            : (isDark ? Colors.white : const Color(0xFF0F172A)));
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
+          width: 68,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+          decoration: bgDecoration,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                timeLabel,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w800 : (isHovered ? FontWeight.w700 : FontWeight.w600),
+                  color: timeColor,
+                ),
+              ),
+              WeatherIconWidget(
+                weatherCode: h.weatherCode,
+                size: 38,
+                timestamp: h.time,
+              ),
+              // Temperature: WHITE when selected, vibrant when hovered
+              Text(
+                '${h.temperature.round()}°',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                  color: tempColor,
+                ),
+              ),
+              // Rain probability
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (h.precipitationProbability > 20)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2),
+                      child: Icon(
+                        Icons.water_drop_rounded,
+                        size: 9,
+                        color: rainColor,
+                      ),
+                    ),
+                  Text(
+                    '${h.precipitationProbability}%',
+                    style: TextStyle(
+                      fontSize: h.precipitationProbability > 40 ? 12 : 10.5,
+                      fontWeight: h.precipitationProbability > 40
+                          ? FontWeight.w800
+                          : FontWeight.w600,
+                      color: isSelected
+                          ? Colors.white
+                          : (h.precipitationProbability > 0
+                              ? rainColor
+                              : (isDark ? Colors.white30 : const Color(0xFFCBD5E1))),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
