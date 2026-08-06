@@ -9,14 +9,14 @@ class AppConstants {
   static const int defaultTimeout = 30;
   static const int defaultPageSize = 20;
   static const double defaultMapZoom = 14.0;
-  static const double minMapZoom = 5.0;
+  static const double minMapZoom = 3.5;
   static const double maxMapZoom = 18.5;
   static const double defaultMapLatitude = 16.4637;
   static const double defaultMapLongitude = 107.5909;
 
-  /// Tọa độ giới hạn khung hình Lãnh thổ Việt Nam (Khung Nam-Tây & Bắc-Đông)
-  static final LatLng vietnamSouthWest = LatLng(7.5, 101.5);
-  static final LatLng vietnamNorthEast = LatLng(24.5, 118.5);
+  /// Tọa độ giới hạn khung hình Mở rộng Lãnh thổ & Biển Đông Việt Nam (Bao gồm Hoàng Sa & Trường Sa)
+  static final LatLng vietnamSouthWest = LatLng(3.0, 95.0);
+  static final LatLng vietnamNorthEast = LatLng(27.0, 126.0);
 
   static const String defaultMapStyle = '[]';
   static const int maxImageSize = 5 * 1024 * 1024;
