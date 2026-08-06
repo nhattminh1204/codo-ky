@@ -461,6 +461,18 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
       }
     }
 
+    // Dynamic accent color for the tip card icon frame based on weather condition
+    final Color tipIconAccent;
+    if (isRainy) {
+      tipIconAccent = isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7); // Sky Blue (Rainy)
+    } else if (isSunnyHot) {
+      tipIconAccent = isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706); // Golden Amber (Sunny)
+    } else if (isCool) {
+      tipIconAccent = isDark ? const Color(0xFF34D399) : const Color(0xFF059669); // Emerald Green (Cool)
+    } else {
+      tipIconAccent = AppColors.primary; // Royal Blue (Ideal)
+    }
+
     final cardBg = isDark
         ? const Color(0xFF1E293B).withValues(alpha: 0.9)
         : Colors.white.withValues(alpha: 0.95);
@@ -487,21 +499,21 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cột trái: Icon Container nổi bật (To, vừa vặn khung hình)
+          // Cột trái: Icon Container nổi bật (Đổi màu động theo thời tiết)
           Container(
             width: 46,
             height: 46,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: isDark ? 0.22 : 0.12),
+              color: tipIconAccent.withValues(alpha: isDark ? 0.22 : 0.12),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.30),
+                color: tipIconAccent.withValues(alpha: 0.30),
                 width: 1.0,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.08),
+                  color: tipIconAccent.withValues(alpha: isDark ? 0.15 : 0.08),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -510,7 +522,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
             child: Icon(
               Icons.explore_rounded,
               size: 28,
-              color: AppColors.primary,
+              color: tipIconAccent,
             ),
           ),
           const SizedBox(width: 12),
