@@ -1,3 +1,5 @@
+import 'package:latlong2/latlong.dart';
+
 class AppConstants {
   static const String appName = 'CodoKy';
   static const String appVersion = '1.0.0';
@@ -7,8 +9,15 @@ class AppConstants {
   static const int defaultTimeout = 30;
   static const int defaultPageSize = 20;
   static const double defaultMapZoom = 14.0;
+  static const double minMapZoom = 5.0;
+  static const double maxMapZoom = 18.5;
   static const double defaultMapLatitude = 16.4637;
   static const double defaultMapLongitude = 107.5909;
+
+  /// Tọa độ giới hạn khung hình Lãnh thổ Việt Nam (Khung Nam-Tây & Bắc-Đông)
+  static final LatLng vietnamSouthWest = LatLng(7.5, 101.5);
+  static final LatLng vietnamNorthEast = LatLng(24.5, 118.5);
+
   static const String defaultMapStyle = '[]';
   static const int maxImageSize = 5 * 1024 * 1024;
   static const List<String> supportedImageExtensions = ['jpg', 'jpeg', 'png', 'webp'];

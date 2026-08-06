@@ -531,6 +531,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 AppConstants.defaultMapLongitude,
               ),
               initialZoom: AppConstants.defaultMapZoom.toDouble(),
+              minZoom: AppConstants.minMapZoom,
+              maxZoom: AppConstants.maxMapZoom,
+              cameraConstraint: CameraConstraint.contain(
+                bounds: LatLngBounds(
+                  AppConstants.vietnamSouthWest,
+                  AppConstants.vietnamNorthEast,
+                ),
+              ),
               onTap: (_, _) => _clearSelectionAndZoomOut(),
               onMapEvent: (event) {
                 if (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd) {
