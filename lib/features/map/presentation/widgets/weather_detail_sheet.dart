@@ -520,7 +520,7 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
               ],
             ),
             child: Icon(
-              Icons.lightbulb_rounded,
+              Icons.tips_and_updates_rounded,
               size: 28,
               color: tipIconAccent,
             ),
