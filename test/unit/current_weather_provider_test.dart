@@ -99,5 +99,20 @@ void main() {
 
       expect(service.fetchCount, equals(2));
     });
+
+    test('5. Truyền force: true → luôn fetch lại lập tức dù cùng vị trí và chưa qua 30 phút', () async {
+      final service = MockWeatherService();
+      var now = DateTime(2026, 8, 4, 8, 0);
+      final notifier = CurrentWeatherNotifier(service, now: () => now);
+
+      await notifier.refreshIfNeeded(hue);
+      expect(service.fetchCount, equals(1));
+
+      // Mới trôi 1 phút, cùng vị trí nhưng có force: true (cập nhật thời tiết liên tục/manual tap)
+      now = now.add(const Duration(minutes: 1));
+      await notifier.refreshIfNeeded(hue, force: true);
+
+      expect(service.fetchCount, equals(2));
+    });
   });
 }

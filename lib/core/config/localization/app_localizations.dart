@@ -586,6 +586,27 @@ class AppLocalizations {
   String get routeAlternative => _t('🔄 Tuyến thay thế', '🔄 Alternative Route');
   String get chooseRoute => _t('Chọn tuyến đường', 'Choose Route');
   String extraMinutes(int minutes) => _t('+$minutes ph', '+$minutes min');
+  String get travelAdvisorTitle => _t('Gợi Ý Trải Nghiệm Huế', 'Hue Travel Tips');
+  String travelAdvisorRainAdvice([int prob = 0]) => _t(
+      'Thời tiết Huế có thể có mưa rào. Bạn nên mang theo ô/dù và ưu tiên tham quan các điểm trong nhà như Bảo tàng Cổ vật.',
+      'Showers expected in Hue. Consider bringing an umbrella and visiting indoor heritage spots like the Royal Fine Arts Museum.');
+  String travelAdvisorSunnyAdvice([double uv = 0.0]) => _t(
+      'Thời tiết nắng hanh rực rỡ. Thích hợp tham quan Cố đô sớm hoặc chiều mát, nhớ trang bị nón lá & bôi kem chống nắng.',
+      'Bright sunny weather in Hue. Ideal for early morning or late afternoon visits. Remember sun protection.');
+  String get travelAdvisorIdealAdvice => _t(
+      'Thời tiết Cố đô tuyệt đẹp! Rất lý tưởng dạo quanh Đại Nội, các Lăng tẩm hoặc đi thuyền Rồng Sông Hương.',
+      'Imperial weather is lovely! Ideal for strolling around the Citadel, Royal Tombs, or taking a Dragon Boat trip on Perfume River.');
+  String get travelAdvisorCoolAdvice => _t(
+      'Thời tiết se lạnh. Rất thích hợp thưởng thức trà sen, chè Huế và đi dạo Cố đô về đêm.',
+      'Chilly weather. Perfect for enjoying lotus tea, Hue sweet soup, and evening walks around the Citadel.');
+  String get travelAdvisorBringUmbrella => _t('Nên mang ô/dù', 'Bring umbrella');
+  String get travelAdvisorSunProtection => _t('Đội nón / Chống nắng', 'Sun protection needed');
+  String get travelAdvisorIndoorPriority => _t('Ưu tiên điểm trong nhà', 'Indoor spots recommended');
+  String get travelAdvisorOutdoorIdeal => _t('Lý tưởng tham quan ngoài trời', 'Great for outdoor sightseeing');
+  String get weatherAdvancedMetrics => _t('Chi tiết thông số nâng cao', 'Advanced Weather Parameters');
+  String get weatherSwipeUpHint => _t('Vuốt lên xem thông số nâng cao', 'Swipe up for advanced parameters');
+  String get weatherLiveStatus => _t('Trực tiếp', 'Live');
+  String get weatherRefreshing => _t('Đang làm mới...', 'Refreshing...');
   String get catRestaurant => _t('Quán ăn Huế', 'Hue Restaurant');
   String get catHeritagePlace => _t('Địa điểm di sản', 'Heritage Site');
   String get catTemple => _t('Chùa chiền', 'Temple');
@@ -738,24 +759,18 @@ class AppLocalizations {
   String get weatherUvVeryHigh => _t('Rất cao', 'Very High');
   String get weatherUvExtreme => _t('Cực cao', 'Extreme');
 
-  // ── AI Travel Advisor ──────────────────────────────────────────────────────
-  String get travelAdvisorTitle => _t('Gợi Ý Trợ Lý Du Lịch AI', 'AI Travel Companion Advisory');
-  String travelAdvisorRainAdvice(int prob) => _t(
-      'Có khả năng mưa rào ($prob%). Hãy mang theo ô/áo mưa và ưu tiên tham quan điểm trong nhà như Bảo tàng Cổ vật.',
-      'High chance of rain ($prob%). Carry an umbrella/raincoat and prioritize indoor spots like the Royal Fine Arts Museum.');
-  String travelAdvisorSunnyAdvice(double uv) => _t(
-      'Nắng gắt (UV ${uv.toStringAsFixed(1)}). Thích hợp tham quan sớm hoặc chiều mát, nhớ trang bị nón lá & bôi kem chống nắng.',
-      'Strong sun (UV ${uv.toStringAsFixed(1)}). Best for early morning or late afternoon visits. Wear a conical hat & sunscreen.');
-  String get travelAdvisorIdealAdvice => _t(
-      'Thời tiết Cố đô tuyệt đẹp! Rất lý tưởng dạo quanh Đại Nội, các Lăng tẩm hoặc đi thuyền Rồng Sông Hương.',
-      'Imperial weather is lovely! Ideal for strolling around the Citadel, Royal Tombs, or taking a Dragon Boat trip on Perfume River.');
-  String get travelAdvisorCoolAdvice => _t(
-      'Thời tiết se lạnh. Rất thích hợp thưởng thức trà sen, chè Huế và đi dạo Cố đô về đêm.',
-      'Chilly weather. Perfect for enjoying lotus tea, Hue sweet soup, and evening walks around the Citadel.');
-  String get travelAdvisorBringUmbrella => _t('Nên mang ô/dù', 'Bring umbrella');
-  String get travelAdvisorSunProtection => _t('Đội nón / Chống nắng', 'Sun protection needed');
-  String get travelAdvisorIndoorPriority => _t('Ưu tiên điểm trong nhà', 'Indoor spots recommended');
-  String get travelAdvisorOutdoorIdeal => _t('Lý tưởng tham quan ngoài trời', 'Great for outdoor sightseeing');
+  String get dayMonday => _t('Thứ Hai', 'Monday');
+  String get dayTuesday => _t('Thứ Ba', 'Tuesday');
+  String get dayWednesday => _t('Thứ Tư', 'Wednesday');
+  String get dayThursday => _t('Thứ Năm', 'Thursday');
+  String get dayFriday => _t('Thứ Sáu', 'Friday');
+  String get daySaturday => _t('Thứ Bảy', 'Saturday');
+  String get daySunday => _t('Chủ Nhật', 'Sunday');
+  String get weatherNighttime => _t('Ban đêm', 'Nighttime');
+  String get weatherNightUvInsight => _t('Ban đêm không đo chỉ số UV', 'UV index not measured at night');
+
+  // ── Travel Experience Tips ──────────────────────────────────────────────────
+
 
   // Insights
   String get insightHumidityGood => _t('Mát mẻ, lý tưởng dạo quanh Đại Nội & phố cổ', 'Pleasant & cool, ideal for Citadel & Old Town walks');

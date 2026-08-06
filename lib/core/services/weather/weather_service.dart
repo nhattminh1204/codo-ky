@@ -177,7 +177,7 @@ class WeatherService {
           'weather_code',
           'precipitation_probability',
         ],
-        forecastHours: 72,
+        forecastHours: 24,
       ),
       aqi: aqi,
     );

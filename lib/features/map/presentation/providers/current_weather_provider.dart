@@ -57,14 +57,14 @@ class CurrentWeatherNotifier extends StateNotifier<CurrentWeatherState> {
 
   bool get hasWeather => state.currentWeather.hasValue;
 
-  /// Fetch thời tiết cho [newPosition] nếu cần (vị trí null/đổi >10km/đã >30 phút).
-  Future<void> refreshIfNeeded(LatLng newPosition) async {
+  /// Fetch thời tiết cho [newPosition] (gợi ý force=true khi user tap reload hoặc timer tự động).
+  Future<void> refreshIfNeeded(LatLng newPosition, {bool force = false}) async {
     final lastPos = state.lastFetchedPosition;
     final lastAt = state.lastFetchedAt;
 
     final bool shouldFetch;
-    if (lastPos == null || lastAt == null) {
-      // Lần đầu tiên: chưa từng fetch → luôn gọi.
+    if (force || lastPos == null || lastAt == null) {
+      // Ép buộc hoặc lần đầu tiên chưa từng fetch → luôn gọi.
       shouldFetch = true;
     } else {
       final distanceKm = GeoHelpers.distanceMeters(lastPos, newPosition) / 1000.0;
