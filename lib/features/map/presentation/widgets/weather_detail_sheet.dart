@@ -635,6 +635,9 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     final aqiAccent = isDark ? const Color(0xFF34D399) : const Color(0xFF059669);
     final aqiBg = isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5);
 
+    // 5. Purple color definition for extreme AQI & UV
+    final purpleColor = isDark ? const Color(0xFFA855F7) : const Color(0xFF9333EA);
+
     return Column(
       children: [
         IntrinsicHeight(
@@ -652,8 +655,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                   insightText: humidityInsight,
                   progressValue: (humidity / 100.0).clamp(0.0, 1.0),
                   isDark: isDark,
-                  gradientColors: [redColor, greenColor, amberColor, redColor],
-                  gradientStops: const [0.0, 0.40, 0.70, 1.0],
+                  gradientColors: [amberColor, greenColor, amberColor, redColor],
+                  gradientStops: const [0.0, 0.45, 0.75, 1.0],
                 ),
               ),
               const SizedBox(width: 10),
@@ -666,10 +669,10 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                   value: l10n.weatherWindUnit(windSpeed),
                   statusSubtitle: windStatus,
                   insightText: windInsight,
-                  progressValue: (windSpeed / 40.0).clamp(0.0, 1.0),
+                  progressValue: (windSpeed / 60.0).clamp(0.0, 1.0),
                   isDark: isDark,
-                  gradientColors: [greenColor, amberColor, redColor],
-                  gradientStops: const [0.0, 0.40, 1.0],
+                  gradientColors: [greenColor, amberColor, orangeColor, redColor],
+                  gradientStops: const [0.0, 0.25, 0.50, 1.0],
                 ),
               ),
             ],
@@ -691,10 +694,10 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                         value: 'UV ${uvIndex.toStringAsFixed(1)}',
                         statusSubtitle: uvStatus,
                         insightText: uvInsight,
-                        progressValue: (uvIndex / 11.0).clamp(0.0, 1.0),
+                        progressValue: (uvIndex / 12.0).clamp(0.0, 1.0),
                         isDark: isDark,
-                        gradientColors: [greenColor, amberColor, orangeColor, redColor],
-                        gradientStops: const [0.0, 0.30, 0.65, 1.0],
+                        gradientColors: [greenColor, amberColor, orangeColor, redColor, purpleColor],
+                        gradientStops: const [0.0, 0.25, 0.50, 0.67, 1.0],
                       ),
               ),
               const SizedBox(width: 10),
@@ -707,10 +710,10 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                   value: 'AQI $aqi',
                   statusSubtitle: aqiStatus,
                   insightText: aqiInsight,
-                  progressValue: (aqi / 200.0).clamp(0.0, 1.0),
+                  progressValue: (aqi / 300.0).clamp(0.0, 1.0),
                   isDark: isDark,
-                  gradientColors: [greenColor, amberColor, redColor],
-                  gradientStops: const [0.0, 0.35, 1.0],
+                  gradientColors: [greenColor, amberColor, orangeColor, redColor, purpleColor],
+                  gradientStops: const [0.0, 0.17, 0.33, 0.50, 1.0],
                 ),
               ),
             ],
@@ -726,8 +729,6 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         ? const Color(0xFF1E293B).withValues(alpha: 0.85)
         : Colors.white.withValues(alpha: 0.90);
     final nightAccent = isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1);
-    final uvAccent = isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706);
-    final uvBg = isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7);
 
     return _PressableCard(
       child: ClipRRect(
@@ -735,15 +736,14 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            height: double.infinity,
             padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: uvAccent.withValues(alpha: isDark ? 0.25 : 0.18), width: 1.2),
+              border: Border.all(color: nightAccent.withValues(alpha: 0.18), width: 1.2),
               boxShadow: [
                 BoxShadow(
-                  color: uvAccent.withValues(alpha: isDark ? 0.12 : 0.06),
+                  color: nightAccent.withValues(alpha: isDark ? 0.12 : 0.07),
                   blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
@@ -758,13 +758,13 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                     Container(
                       padding: const EdgeInsets.all(5.5),
                       decoration: BoxDecoration(
-                        color: uvBg,
+                        color: isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7),
                         borderRadius: BorderRadius.circular(9),
                       ),
                       child: Icon(
                         Icons.wb_sunny_rounded,
                         size: 15,
-                        color: uvAccent,
+                        color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -788,18 +788,8 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        '0.0',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                          letterSpacing: -0.8,
-                          height: 1.0,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
+                      Text('🌙', style: const TextStyle(fontSize: 22)),
+                      const SizedBox(height: 3),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
                         decoration: BoxDecoration(
@@ -824,30 +814,45 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
-                  height: 4,
+                  height: 5,
                   width: double.infinity,
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(2),
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.10)
-                          : const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(3),
+                      color: nightAccent.withValues(alpha: 0.12),
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
                   height: 28,
-                  child: Text(
-                    l10n.weatherNightUvInsight,
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: 11,
+                          color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          l10n.weatherNightUvInsight,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                            height: 1.25,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -882,7 +887,6 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            height: double.infinity,
             padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
             decoration: BoxDecoration(
               color: baseBg,
@@ -970,50 +974,87 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
                 ),
                 const SizedBox(height: 10),
 
-                // Tầng 3: Clean progress bar (Human Design)
+                // Tầng 3: Progress bar gradient (Uncompressed Full-Width Spectrum Clipping)
                 SizedBox(
-                  height: 4,
+                  height: 5,
                   width: double.infinity,
-                  child: Stack(
-                    alignment: Alignment.centerLeft,
-                    children: [
-                      Container(
-                        height: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(2),
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.10)
-                              : const Color(0xFFE2E8F0),
-                        ),
-                      ),
-                      FractionallySizedBox(
-                        widthFactor: progressValue.clamp(0.05, 1.0),
-                        child: Container(
-                          height: 4,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(2),
-                            color: accentColor,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final totalWidth = constraints.maxWidth;
+                      final filledWidth = totalWidth * progressValue.clamp(0.0, 1.0);
+
+                      return Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Container(
+                            height: 5,
+                            width: totalWidth,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(3),
+                              gradient: LinearGradient(
+                                colors: gradientColors.map((c) => c.withValues(alpha: 0.20)).toList(),
+                                stops: gradientStops,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ],
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: SizedBox(
+                              height: 5,
+                              width: filledWidth,
+                              child: OverflowBox(
+                                alignment: Alignment.centerLeft,
+                                minWidth: totalWidth,
+                                maxWidth: totalWidth,
+                                child: Container(
+                                  height: 5,
+                                  width: totalWidth,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: gradientColors,
+                                      stops: gradientStops,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 8),
 
-                // Tầng 4: Insight text sạch sẽ chuẩn Human Craftsmanship
+                // Tầng 4: Insight text với chiều cao cố định 28px
                 SizedBox(
                   height: 28,
-                  child: Text(
-                    insightText,
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Icon(
+                          Icons.tips_and_updates_rounded,
+                          size: 11,
+                          color: accentColor.withValues(alpha: 0.70),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          insightText,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                            height: 1.25,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
