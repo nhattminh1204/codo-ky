@@ -416,15 +416,15 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     } else if (isSunnyHot) {
       adviceText = l10n.travelAdvisorSunnyAdvice();
       badges.add('👒 ${l10n.travelAdvisorSunProtection}');
-      badges.add('🥤 Giải nhiệt Chè Huế');
+      badges.add(l10n.travelAdvisorCoolChe);
     } else if (isCool) {
       adviceText = l10n.travelAdvisorCoolAdvice;
-      badges.add('🧥 Áo khoác mỏng');
-      badges.add('☕ Trà sen Cố đô');
+      badges.add(l10n.travelAdvisorThinJacket);
+      badges.add(l10n.travelAdvisorLotusTea);
     } else {
       adviceText = l10n.travelAdvisorIdealAdvice;
       badges.add('🌿 ${l10n.travelAdvisorOutdoorIdeal}');
-      badges.add('🐉 Thuyền Rồng Sông Hương');
+      badges.add(l10n.travelAdvisorDragonBoat);
     }
 
     final cardBg = isDark

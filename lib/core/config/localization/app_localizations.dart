@@ -770,6 +770,10 @@ class AppLocalizations {
   String get weatherNightUvInsight => _t('Ban đêm không đo chỉ số UV', 'UV index not measured at night');
 
   // ── Travel Experience Tips ──────────────────────────────────────────────────
+  String get travelAdvisorCoolChe => _t('🥤 Giải nhiệt Chè Huế', '🥤 Enjoy Hue Sweet Soup');
+  String get travelAdvisorLotusTea => _t('☕ Trà sen Cố đô', '☕ Imperial Lotus Tea');
+  String get travelAdvisorDragonBoat => _t('🐉 Thuyền Rồng Sông Hương', '🐉 Perfume River Dragon Boat');
+  String get travelAdvisorThinJacket => _t('🧥 Áo khoác mỏng', '🧥 Light Jacket');
 
 
   // Insights
