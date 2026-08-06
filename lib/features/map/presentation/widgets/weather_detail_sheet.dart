@@ -205,8 +205,12 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
               controller: widget.scrollController,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
               children: [
-                // 1. Header: Vị trí
-                _buildHeader(isDark),
+                // 1. Header: Vị trí & Trạng thái nạp ngầm SWR
+                _buildHeader(
+                  isDark,
+                  isRefreshing: detailState.isRefreshing,
+                  isOffline: detailState.isOffline,
+                ),
                 const SizedBox(height: 10),
 
                 // 2. Hero: Nhiệt độ + Mô tả ngắn
@@ -273,7 +277,11 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
   }
 
   // ── 1. Header ────────────────────────────────────────────────────────────────
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeader(
+    bool isDark, {
+    bool isRefreshing = false,
+    bool isOffline = false,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -294,6 +302,59 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
             color: isDark ? Colors.white : const Color(0xFF0F172A),
           ),
         ),
+        const Spacer(),
+        if (isRefreshing)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.10),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 10,
+                  height: 10,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Cập nhật...',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else if (isOffline)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF78350F).withValues(alpha: 0.3)
+                  : const Color(0xFFFEF3C7),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFF59E0B),
+                width: 0.8,
+              ),
+            ),
+            child: Text(
+              'Ngoại tuyến',
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+                color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+              ),
+            ),
+          ),
       ],
     );
   }

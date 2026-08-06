@@ -6,22 +6,30 @@ class WeatherDetailState {
   final AsyncValue<WeatherDetailResult> detail;
   final AsyncValue<WeatherForecastResult> forecast;
   final DateTime? loadedAt;
+  final bool isRefreshing;
+  final bool isOffline;
 
   const WeatherDetailState({
     this.detail = const AsyncValue.loading(),
     this.forecast = const AsyncValue.loading(),
     this.loadedAt,
+    this.isRefreshing = false,
+    this.isOffline = false,
   });
 
   WeatherDetailState copyWith({
     AsyncValue<WeatherDetailResult>? detail,
     AsyncValue<WeatherForecastResult>? forecast,
     DateTime? loadedAt,
+    bool? isRefreshing,
+    bool? isOffline,
   }) {
     return WeatherDetailState(
       detail: detail ?? this.detail,
       forecast: forecast ?? this.forecast,
       loadedAt: loadedAt ?? this.loadedAt,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
+      isOffline: isOffline ?? this.isOffline,
     );
   }
 
@@ -43,10 +51,20 @@ class WeatherDetailNotifier extends StateNotifier<WeatherDetailState> {
         state.isFullyLoaded;
     if (!forceRefresh && isCacheValid) return;
 
-    state = state.copyWith(
-      detail: const AsyncValue.loading(),
-      forecast: const AsyncValue.loading(),
-    );
+    final hasExistingData = state.isFullyLoaded;
+
+    if (hasExistingData) {
+      // Stale-While-Revalidate (SWR): Preserve existing data in RAM to prevent UI flicker!
+      state = state.copyWith(isRefreshing: true, isOffline: false);
+    } else {
+      // Cold start: Show loading skeleton
+      state = state.copyWith(
+        detail: const AsyncValue.loading(),
+        forecast: const AsyncValue.loading(),
+        isRefreshing: true,
+        isOffline: false,
+      );
+    }
 
     WeatherDetailResult? detailResult;
     WeatherForecastResult? forecastResult;
@@ -56,37 +74,56 @@ class WeatherDetailNotifier extends StateNotifier<WeatherDetailState> {
     StackTrace? forecastStack;
 
     await Future.wait([
-      _service
-          .fetchWeatherDetail(latitude: _hueLatitude, longitude: _hueLongitude)
-          .then((v) => detailResult = v)
-          .catchError((Object e, StackTrace st) {
-        detailError = e;
-        detailStack = st;
-        return WeatherDetailResult(
-          current: const CurrentWeatherResult(
-            temperature: 0, weatherCode: 0, precipitation: 0, humidity: 0),
-          feelsLike: 0, windSpeed: 0, uvIndex: 0, aqi: null, hourly: [],
-        );
-      }),
-      _service
-          .fetchForecast(latitude: _hueLatitude, longitude: _hueLongitude, forecastDays: 7)
-          .then((v) => forecastResult = v)
-          .catchError((Object e, StackTrace st) {
-        forecastError = e;
-        forecastStack = st;
-        return const WeatherForecastResult(days: []);
-      }),
+      () async {
+        try {
+          detailResult = await _service.fetchWeatherDetail(
+              latitude: _hueLatitude, longitude: _hueLongitude);
+        } catch (e, st) {
+          detailError = e;
+          detailStack = st;
+        }
+      }(),
+      () async {
+        try {
+          forecastResult = await _service.fetchForecast(
+              latitude: _hueLatitude, longitude: _hueLongitude, forecastDays: 7);
+        } catch (e, st) {
+          forecastError = e;
+          forecastStack = st;
+        }
+      }(),
     ]);
 
-    state = state.copyWith(
-      detail: detailResult != null
-          ? AsyncValue.data(detailResult!)
-          : AsyncValue.error(detailError!, detailStack!),
-      forecast: forecastResult != null
-          ? AsyncValue.data(forecastResult!)
-          : AsyncValue.error(forecastError!, forecastStack!),
-      loadedAt: DateTime.now(),
-    );
+    final isDetailSuccess = detailResult != null;
+    final isForecastSuccess = forecastResult != null;
+
+    if (isDetailSuccess && isForecastSuccess) {
+      state = state.copyWith(
+        detail: AsyncValue.data(detailResult!),
+        forecast: AsyncValue.data(forecastResult!),
+        loadedAt: DateTime.now(),
+        isRefreshing: false,
+        isOffline: false,
+      );
+    } else if (hasExistingData) {
+      // Offline fallback during refresh: Preserve stale data & flag as offline
+      state = state.copyWith(
+        isRefreshing: false,
+        isOffline: true,
+      );
+    } else {
+      // Cold start error with no previous data
+      state = state.copyWith(
+        detail: isDetailSuccess
+            ? AsyncValue.data(detailResult!)
+            : AsyncValue.error(detailError ?? Exception('Failed to fetch weather detail'), detailStack ?? StackTrace.current),
+        forecast: isForecastSuccess
+            ? AsyncValue.data(forecastResult!)
+            : AsyncValue.error(forecastError ?? Exception('Failed to fetch weather forecast'), forecastStack ?? StackTrace.current),
+        isRefreshing: false,
+        isOffline: true,
+      );
+    }
   }
 }
 

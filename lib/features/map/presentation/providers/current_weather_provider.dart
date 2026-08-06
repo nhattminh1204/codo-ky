@@ -74,9 +74,13 @@ class CurrentWeatherNotifier extends StateNotifier<CurrentWeatherState> {
 
     if (!shouldFetch) return;
 
-    state = state.copyWith(
-      currentWeather: const AsyncValue<CurrentWeatherResult>.loading(),
-    );
+    final hasExistingData = state.currentWeather.hasValue;
+
+    if (!hasExistingData) {
+      state = state.copyWith(
+        currentWeather: const AsyncValue<CurrentWeatherResult>.loading(),
+      );
+    }
 
     try {
       final result = await _service.fetchCurrentWeather(
@@ -89,10 +93,12 @@ class CurrentWeatherNotifier extends StateNotifier<CurrentWeatherState> {
         lastFetchedAt: _now(),
       );
     } catch (e, st) {
-      // GIỮ lại dữ liệu cũ + metadata nếu có để UI không crash giữa chừng.
-      state = state.copyWith(
-        currentWeather: AsyncValue.error(e, st),
-      );
+      // If we don't have existing data, emit error state. Otherwise keep stale data.
+      if (!hasExistingData) {
+        state = state.copyWith(
+          currentWeather: AsyncValue.error(e, st),
+        );
+      }
     }
   }
 }
