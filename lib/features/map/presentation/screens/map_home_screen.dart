@@ -16,6 +16,8 @@ import 'package:codoky/core/services/location/location_service.dart';
 import 'package:codoky/features/map/data/datasources/cached_disk_tile_provider.dart';
 import 'package:codoky/features/map/data/datasources/hue_boundary_loader.dart';
 import 'package:codoky/features/map/data/datasources/vietnam_boundary_loader.dart';
+import 'package:codoky/core/utils/helpers/bottom_sheet_helper.dart';
+import 'package:codoky/features/map/data/models/osrm_route_model.dart';
 import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/features/map/presentation/providers/current_weather_provider.dart';
 import 'package:codoky/features/map/presentation/widgets/map_bottom_sheet.dart';
@@ -23,6 +25,7 @@ import 'package:codoky/features/map/presentation/widgets/map_search_bar_widget.d
 import 'package:codoky/features/map/presentation/widgets/map_toolbar_widget.dart';
 import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
 import 'package:codoky/features/map/presentation/widgets/marker_constants.dart';
+import 'package:codoky/features/map/presentation/widgets/vietnam_territory_layers.dart';
 import 'package:codoky/features/map/utils/marker_overlap_resolver.dart';
 
 class MapHomeScreen extends ConsumerStatefulWidget {
@@ -38,6 +41,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   late AnimationController _pulseController;
   List<LatLng>? _hueBoundary;
   List<List<LatLng>>? _vietnamRings;
+  VietnamTerritoryLayerState _layerState = const VietnamTerritoryLayerState();
+  bool _showLayerPanel = false;
+  bool _isManualLayerOverride = false;
 
   @override
   void initState() {
@@ -94,8 +100,22 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
   bool _isLiveTracking = false;
   bool _isAutoFollowUser = true;
+  bool _is3dPerspective = true;
   bool _isGpsWeak = false;
   double? _currentHeading;
+
+  void _toggle3dPerspective() {
+    setState(() {
+      _is3dPerspective = !_is3dPerspective;
+    });
+    if (!_is3dPerspective) {
+      _mapController.rotate(0.0);
+    } else {
+      final heading = _currentHeading ?? 0.0;
+      final headingDeg = heading * (180.0 / math.pi);
+      _mapController.rotate(-headingDeg);
+    }
+  }
 
   @override
   void dispose() {
@@ -336,7 +356,11 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
 
         final hasRoute = ref.read(mapProvider).activeRoute != null;
         if (_isAutoFollowUser && hasRoute) {
-          _animatedMapMove(newPos, 17.0, duration: AppMotion.micro * 2, curve: AppMotion.standardCurve);
+          _animatedMapMove(newPos, 17.5, duration: AppMotion.micro * 2, curve: AppMotion.standardCurve);
+          if (_is3dPerspective && heading != null) {
+            final headingDeg = heading * (180.0 / math.pi);
+            _mapController.rotate(-headingDeg);
+          }
         }
       },
     );
@@ -525,6 +549,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(mapProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -553,6 +578,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 }
               },
               onPositionChanged: (position, hasGesture) {
+                _handleZoomBasedTerritoryLayers(position.zoom);
                 if (hasGesture && _isAutoFollowUser && state.activeRoute != null) {
                   setState(() {
                     _isAutoFollowUser = false;
@@ -562,7 +588,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             ),
             children: [
               TileLayer(
-                urlTemplate: _getTileUrlTemplate(state.mapTileStyle),
+                urlTemplate: _getTileUrlTemplate(state.mapTileStyle, isDark),
                 userAgentPackageName: 'com.codoky.app',
                 tileProvider: CachedDiskTileProvider(
                   userAgent: 'com.codoky.app',
@@ -570,39 +596,33 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   maxCacheAge: const Duration(days: 30),
                 ),
               ),
-              // Tầng overlay ranh giới Việt Nam (Đất liền + Hoàng Sa + Trường Sa + Phú Quốc):
-              // Mask phủ mờ các quốc gia khác, giữ trọn vẹn lãnh thổ Việt Nam tươi sáng.
-              if ((_vietnamRings != null && _vietnamRings!.isNotEmpty) || _hueBoundary != null)
-                IgnorePointer(
-                  child: PolygonLayer(
-                    polygonCulling: false,
-                    polygons: [
-                      Polygon(
-                        points: _worldMaskPolygon,
-                        holePointsList: [
-                          ...?_vietnamRings,
-                          if (_vietnamRings == null && _hueBoundary != null) _hueBoundary!,
-                        ],
-                        color: _boundaryMaskColor(context),
-                        borderStrokeWidth: 0,
-                        disableHolesBorder: true,
-                      ),
-                    ],
-                  ),
+              // ─────────────────────────────────────────────────────────────
+              // HỆ THỐNG ĐA LỚP LÃNH THỔ VIỆT NAM — chuẩn pháp lý & địa lý
+              // EPSG:4326 (WGS84): tọa độ khóa chặt ở mọi mức zoom/pan.
+              //  Layer 1: EEZ 200 hải lý (tuyên bố chủ quyền VN)
+              //  Layer 2: Lãnh hải 12 hải lý
+              //  Layer 3: Mask phủ mờ quốc gia khác (hole = lãnh thổ VN)
+              //  Layer 4: Đường viền biên giới đất liền sáng
+              // ─────────────────────────────────────────────────────────────
+              if (_vietnamRings != null && _vietnamRings!.isNotEmpty)
+                VietnamTerritoryLayers(
+                  landRings: _vietnamRings!,
+                  currentZoom: _mapController.camera.zoom,
+                  showWorldMask: _layerState.showWorldMask,
                 ),
               // Marker khẳng định chủ quyền quốc gia Hoàng Sa & Trường Sa của Việt Nam 🇻🇳
               MarkerLayer(
                 markers: [
                   Marker(
                     point: const LatLng(16.50, 112.00),
-                    width: 220,
+                    width: 240,
                     height: 48,
                     alignment: Alignment.center,
                     child: _buildIslandSovereigntyBadge('Quần đảo Hoàng Sa (Việt Nam)'),
                   ),
                   Marker(
                     point: const LatLng(9.50, 113.80),
-                    width: 220,
+                    width: 240,
                     height: 48,
                     alignment: Alignment.center,
                     child: _buildIslandSovereigntyBadge('Quần đảo Trường Sa (Việt Nam)'),
@@ -634,14 +654,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                           color: const Color(0xFF94A3B8).withValues(alpha: 0.8),
                           pattern: StrokePattern.dashed(segments: [15, 10]),
                         ),
-                    // Tuyến đường đang được chọn (Active Route) -> Nét liền (Solid), màu Crimson Huế chuyên nghiệp
+                    // Tuyến đường đang được chọn (Active Route) -> Nét liền (Solid), màu Neon Laser Sky Blue ở Dark Mode
                     if (state.activeRoute != null)
                       Polyline(
                         points: state.activeRoute!.points,
-                        strokeWidth: 5.0,
-                        color: const Color(0xFF8B1522),
+                        strokeWidth: 5.5,
+                        color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF8B1522),
                         borderStrokeWidth: 2.0,
-                        borderColor: Colors.white,
+                        borderColor: isDark ? const Color(0xFF0288D1) : Colors.white,
                       ),
                   ],
                 )
@@ -650,10 +670,10 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   polylines: [
                     Polyline(
                       points: state.activeRoute!.points,
-                      strokeWidth: 5.0,
-                      color: const Color(0xFF8B1522),
+                      strokeWidth: 5.5,
+                      color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF8B1522),
                       borderStrokeWidth: 2.0,
-                      borderColor: Colors.white,
+                      borderColor: isDark ? const Color(0xFF0288D1) : Colors.white,
                     ),
                   ],
                 ),
@@ -671,17 +691,19 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                     return Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFF8B1522), Color(0xFFA61C31)],
+                          colors: isDark
+                              ? const [Color(0xFF0288D1), Color(0xFF00B0FF)]
+                              : const [Color(0xFF8B1522), Color(0xFFA61C31)],
                         ),
                         border: Border.all(color: Colors.white, width: 2.0),
-                        boxShadow: const [
+                        boxShadow: [
                           BoxShadow(
-                            color: Color(0x408B1522),
-                            blurRadius: 8,
-                            offset: Offset(0, 3),
+                            color: isDark ? const Color(0x6600B0FF) : const Color(0x408B1522),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
@@ -707,9 +729,9 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                 ),
             ],
           ),
-          // BottomSheet chỉ hiện ở chế độ Preview (chưa navigate) với animation Slide + Fade
+          // BottomSheet chỉ hiện ở chế độ chọn địa điểm ban đầu (khi chưa có route) với animation Slide + Fade
           Positioned(
-            bottom: state.activeRoute != null ? 164 : 96,
+            bottom: 96,
             left: 14,
             right: 14,
             child: AnimatedSwitcher(
@@ -729,7 +751,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                   ),
                 );
               },
-              child: (state.selectedPlace != null && !state.isNavigating)
+              child: (state.selectedPlace != null && !state.isNavigating && state.activeRoute == null)
                   ? MapBottomSheet(
                       key: ValueKey(
                         state.selectedPlace is Map
@@ -774,15 +796,14 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               child: _buildTurnByTurnBanner(state),
             ),
 
-          // Tầng 2: Thanh Điều Khiển Hành Trình Gộp Chung Cố Định (Single Consolidated Control Bar)
+          // Tầng 2: Thanh Điều Khiển Buồng Lái Đáy (Cockpit Bar) — đặt sát đáy màn hình khi đã có tuyến đường
           if (state.activeRoute != null && !state.isFetchingRoute)
             Positioned(
-              bottom: 96,
+              bottom: 14,
               left: 14,
               right: 14,
               child: _buildConsolidatedNavigationControlBar(state),
             ),
-
 
           if (state.activeRoute == null)
             const Positioned(
@@ -792,35 +813,43 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
               child: MapSearchBarWidget(),
             ),
 
-
+          // Map Toolbar (GPS Recenter, Compass / Layers) đặt bên phải, không bị đè lên banner
           Positioned(
-            top: state.activeRoute != null ? 96 : 124,
+            top: state.activeRoute != null ? 136 : 88,
             right: 14,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 250),
-              // Toolbar hiện khi:
-              // - Không có địa điểm nào (bình thường)
-              // - Đang điều hướng thực tế (cần nút recenter GPS)
-              // Ẩn khi: có địa điểm nhưng chưa navigate (bottom sheet đang mở)
-              opacity: (state.selectedPlace != null && !state.isNavigating) ? 0.0 : 1.0,
-              child: IgnorePointer(
-                ignoring: state.selectedPlace != null && !state.isNavigating,
-                child: MapToolbarWidget(
-                  isAutoFollowUser: _isAutoFollowUser,
-                  onRecenterGps: () {
-                    setState(() {
-                      _isAutoFollowUser = true;
-                    });
-                    final userPos = ref.read(mapProvider).currentLocation;
-                    if (userPos != null) {
-                      _animatedMapMove(userPos, 17.0);
-                    }
-                  },
-                  onLocateUser: _goToCurrentLocation,
-                ),
-              ),
+            child: MapToolbarWidget(
+              isAutoFollowUser: _isAutoFollowUser,
+              is3dPerspective: _is3dPerspective,
+              isLayerPanelOpen: _showLayerPanel,
+              onToggleLayers: () {
+                setState(() {
+                  _showLayerPanel = !_showLayerPanel;
+                });
+              },
+              onToggle3dPerspective: _toggle3dPerspective,
+              onRecenterGps: () {
+                setState(() {
+                  _isAutoFollowUser = true;
+                });
+                final userPos = ref.read(mapProvider).currentLocation;
+                if (userPos != null) {
+                  _animatedMapMove(userPos, 17.5);
+                }
+              },
+              onFitRouteOverview: state.activeRoute != null
+                  ? () => _zoomToFitRoute(state.activeRoute!)
+                  : null,
+              onLocateUser: _goToCurrentLocation,
             ),
           ),
+
+          // Layers legend panel — hiện khi _showLayerPanel = true
+          if (_showLayerPanel && state.activeRoute == null)
+            Positioned(
+              top: 88,
+              right: 64,
+              child: _buildTerritoryLayerPanel(context),
+            ),
         ],
       ),
     );
@@ -898,311 +927,316 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeRoute = state.activeRoute!;
 
-    // Glass tint chuẩn theo UI_RULES: 20% white/black trong suốt
-    final glassSurface = isDark
-        ? const Color(0x33000000)
-        : Colors.white.withValues(alpha: 0.92);
-
-    // ETA: giờ đến dự kiến = hiện tại + remainingDuration
     final etaTime = DateTime.now().add(
       Duration(seconds: activeRoute.durationSeconds.toInt()),
     );
     final etaLabel =
         '${etaTime.hour.toString().padLeft(2, '0')}:${etaTime.minute.toString().padLeft(2, '0')}';
 
+    final placeName = (state.selectedPlace != null)
+        ? (state.selectedPlace['name'] as String? ?? state.selectedPlace.name as String? ?? 'Cửa Chánh Tây')
+        : 'Thành phố Huế';
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
-        color: glassSurface,
-        borderRadius: BorderRadius.circular(9999),
+        color: isDark ? const Color(0xFF1E222D) : Colors.white,
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.12)
-              : Colors.black.withValues(alpha: 0.07),
-          width: 1.0,
+              : Colors.black.withValues(alpha: 0.08),
+          width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.10),
-            blurRadius: 20,
+            color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.15),
+            blurRadius: 24,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: state.isNavigating
-          // ============================================================
-          // CHẾNG NAVIGATE: Distance · Duration · ETA | GPS Recenter | Hủy
-          // ============================================================
-          ? Row(
-              children: [
-                // Khoảng cách + thời gian còn lại
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header Row: Destination + Subtitle + "Đường tốt nhất" badge
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB45309).withValues(alpha: 0.25),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.45),
+                    width: 1.0,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.account_balance_rounded,
+                  color: Color(0xFFFBBF24),
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      placeName,
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      'Thành phố Huế, Thừa Thiên Huế',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF064E3B).withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.40),
+                    width: 1.0,
+                  ),
+                ),
+                child: Text(
+                  context.l10n.bestRouteBadge,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF34D399),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          // 3 Metrics Cards (Khoảng cách · Thời gian (highlight) · Đến lúc)
+          Row(
+            children: [
+              // 1. Khoảng cách
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF151922) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.05),
+                    ),
+                  ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            activeRoute.formattedDistance,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
-                              color: isDark ? Colors.white : AppColors.primaryDark,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Text(
-                              '·',
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: isDark
-                                    ? Colors.white38
-                                    : AppColors.primary.withValues(alpha: 0.40),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            activeRoute.formattedDuration,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              color: isDark ? Colors.white70 : AppColors.primary,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        context.l10n.distanceHeader,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
                       ),
-                      const SizedBox(height: 1),
-                      // ETA — giờ đến dự kiến
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.flag_rounded,
-                            size: 10,
-                            color: isDark
-                                ? Colors.white38
-                                : AppColors.primary.withValues(alpha: 0.50),
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            context.l10n.etaLabel(etaLabel),
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w500,
-                              color: isDark
-                                  ? Colors.white38
-                                  : AppColors.primary.withValues(alpha: 0.60),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Spacer(),
-
-                // Nút Recenter GPS — quan trọng khi đang navigate và bản đồ bị pan
-                GestureDetector(
-                  onTap: () {
-                    setState(() => _isAutoFollowUser = true);
-                    final userPos = ref.read(mapProvider).currentLocation;
-                    if (userPos != null) _animatedMapMove(userPos, 17.0);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: _isAutoFollowUser
-                          ? AppColors.primary
-                          : (isDark
-                              ? Colors.white.withValues(alpha: 0.10)
-                              : AppColors.primaryContainer),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: _isAutoFollowUser
-                            ? AppColors.primaryDark
-                            : (isDark
-                                ? Colors.white.withValues(alpha: 0.15)
-                                : AppColors.primary.withValues(alpha: 0.25)),
-                        width: 1.0,
-                      ),
-                    ),
-                    child: Icon(
-                      _isAutoFollowUser
-                          ? Icons.my_location_rounded
-                          : Icons.location_searching_rounded,
-                      size: 16,
-                      color: _isAutoFollowUser
-                          ? Colors.white
-                          : (isDark ? Colors.white70 : AppColors.primary),
-                    ),
-                  ),
-                ),
-
-                // Divider mỏng
-                Container(
-                  width: 1,
-                  height: 20,
-                  margin: const EdgeInsets.only(right: 8),
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.12)
-                      : AppColors.primary.withValues(alpha: 0.15),
-                ),
-
-                // Nút Hủy
-                GestureDetector(
-                  onTap: () {
-                    _stopLiveNavigation();
-                    ref.read(mapProvider.notifier).clearRoute();
-                    AppSnackBar.show(context, context.l10n.routeCancelled);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.red.withValues(alpha: 0.18)
-                          : const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(9999),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.red.withValues(alpha: 0.35)
-                            : const Color(0xFFFCA5A5),
-                        width: 1.0,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.close_rounded, size: 13,
-                            color: isDark ? Colors.red[300] : const Color(0xFFDC2626)),
-                        const SizedBox(width: 4),
-                        Text(context.l10n.cancel,
-                            style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
-                            )),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            )
-          // ============================================================
-          // CHẾNG PREVIEW: Distance · Duration | Chips phương tiện | Hủy
-          // ============================================================
-          : Row(
-              children: [
-                // Khoảng cách & Thời gian
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                      const SizedBox(height: 4),
                       Text(
                         activeRoute.formattedDistance,
                         style: TextStyle(
+                          fontSize: 15.5,
                           fontWeight: FontWeight.w800,
-                          fontSize: 13.5,
-                          color: isDark ? Colors.white : AppColors.primaryDark,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+
+              // 2. Thời gian (Highlighted center card in Royal Blue)
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E3A8A).withValues(alpha: 0.40),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF3B82F6).withValues(alpha: 0.65),
+                      width: 1.4,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        context.l10n.durationHeader,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF60A5FA),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(
-                          '·',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 15,
-                            color: isDark
-                                ? Colors.white38
-                                : AppColors.primary.withValues(alpha: 0.40),
-                          ),
-                        ),
-                      ),
+                      const SizedBox(height: 4),
                       Text(
                         activeRoute.formattedDuration,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: isDark ? Colors.white70 : AppColors.primary,
+                        style: const TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF93C5FD),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(width: 8),
 
-                // Divider mỏng
-                Container(
-                  width: 1, height: 20,
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.12)
-                      : AppColors.primary.withValues(alpha: 0.15),
-                ),
-
-                // 3 chip phương tiện bấm được
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              // 3. Đến lúc
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF151922) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.05),
+                    ),
+                  ),
+                  child: Column(
                     children: [
-                      _buildMiniTravelModeChip('motorbike', state.travelMode),
-                      _buildMiniTravelModeChip('driving', state.travelMode),
-                      _buildMiniTravelModeChip('walking', state.travelMode),
+                      Text(
+                        context.l10n.etaHeader,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        etaLabel,
+                        style: TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
                 ),
+              ),
+            ],
+          ),
 
-                // Divider mỏng
-                Container(
-                  width: 1, height: 20,
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.12)
-                      : AppColors.primary.withValues(alpha: 0.15),
-                ),
+          const SizedBox(height: 14),
 
-                // Nút Hủy
-                GestureDetector(
-                  onTap: () {
-                    _stopLiveNavigation();
-                    ref.read(mapProvider.notifier).clearRoute();
-                    AppSnackBar.show(context, context.l10n.routeCancelled);
-                  },
+          // Bottom Action Row: Search along route input + Cancel Button
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _showSearchAlongRouteSheet(context),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.red.withValues(alpha: 0.18)
-                          : const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(9999),
+                      color: isDark ? const Color(0xFF151922) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isDark
-                            ? Colors.red.withValues(alpha: 0.35)
-                            : const Color(0xFFFCA5A5),
-                        width: 1.0,
+                        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
                       ),
                     ),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.close_rounded, size: 13,
-                            color: isDark ? Colors.red[300] : const Color(0xFFDC2626)),
-                        const SizedBox(width: 4),
-                        Text(context.l10n.cancel,
+                        Icon(
+                          Icons.search_rounded,
+                          size: 16,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            context.l10n.searchAlongRoute,
                             style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.red[300] : const Color(0xFFDC2626),
-                            )),
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: () {
+                  _stopLiveNavigation();
+                  ref.read(mapProvider.notifier).clearRoute();
+                  AppSnackBar.show(context, context.l10n.routeCancelled);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7F1D1D).withValues(alpha: 0.38),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFDC2626).withValues(alpha: 0.55),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.close_rounded,
+                        size: 14,
+                        color: Color(0xFFF87171),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        context.l10n.cancel,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFFF87171),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1218,96 +1252,519 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         ? context.l10n.distanceKm((distMeters / 1000).toStringAsFixed(1))
         : context.l10n.distanceM(distMeters.round().toString());
 
-    IconData turnIcon = Icons.straight_rounded;
-    if (currentStep.type == 'arrive') {
-      turnIcon = Icons.location_on_rounded;
-    } else if (currentStep.modifier.contains('left')) {
-      turnIcon = Icons.turn_left_rounded;
-    } else if (currentStep.modifier.contains('right')) {
-      turnIcon = Icons.turn_right_rounded;
-    }
+    final turnIcon = _getTurnManeuverIcon(currentStep.type, currentStep.modifier);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.08),
-          width: 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
-            blurRadius: 18,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: () => _showTurnByTurnListSheet(context, state.activeRoute!),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E222D) : Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08),
+            width: 1.2,
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2563EB),
-              borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.50 : 0.16),
+              blurRadius: 26,
+              offset: const Offset(0, 8),
             ),
-            child: Icon(turnIcon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ],
+        ),
+        child: Row(
+          children: [
+            // 1. Khối Icon Rẽ Siêu To & Đậm Nét (Prominent Royal Blue Turn Box)
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB),
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2563EB).withValues(alpha: 0.45),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(turnIcon, color: Colors.white, size: 30),
+            ),
+            const SizedBox(width: 14),
+
+            // 2. Thông số khoảng cách lớn + Dòng chỉ dẫn đường trực quan
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    context.l10n.remainingDistance(distText),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.navigation_rounded,
+                        size: 13,
+                        color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF2563EB),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          currentStep.instruction,
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // 3. Cụm điều khiển: Loa giọng nói + Biển báo Tối đa 50 km/h
+            Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  context.l10n.remainingDistance(distText),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                // Nút Bật/Tắt Giọng Nói
+                GestureDetector(
+                  onTap: () => ref.read(mapProvider.notifier).toggleVoiceMute(),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFF1F5F9),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.06),
+                      ),
+                    ),
+                    child: Icon(
+                      state.isVoiceMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                      color: isDark ? Colors.white : const Color(0xFF1E293B),
+                      size: 19,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  currentStep.instruction,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+
+                const SizedBox(width: 8),
+
+                // Biển báo Giới Hạn Tốc Độ Tối Đa P.127 (Chuẩn Quốc gia Việt Nam: Tròn trắng viền đỏ số đen)
+                Tooltip(
+                  message: context.l10n.speedLimitSignTooltip,
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFFDC2626),
+                        width: 3.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.20),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      '50',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF0F172A),
+                        height: 1.0,
+                      ),
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed: () {
-              ref.read(mapProvider.notifier).toggleVoiceMute();
-            },
-            icon: Icon(
-              state.isVoiceMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-              color: state.isVoiceMuted ? const Color(0xFF94A3B8) : const Color(0xFF2563EB),
-              size: 22,
-            ),
-            tooltip: state.isVoiceMuted ? context.l10n.voiceOn : context.l10n.voiceOff,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
+  void _showTurnByTurnListSheet(BuildContext context, OsrmRoute route) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showAppBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.alt_route_rounded, color: Color(0xFF2563EB), size: 22),
+                  const SizedBox(width: 8),
+                  Text(
+                    context.l10n.turnByTurnSteps,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.45,
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: route.steps.length,
+                  separatorBuilder: (_, __) => Divider(
+                    color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                    height: 1,
+                  ),
+                  itemBuilder: (ctx, i) {
+                    final step = route.steps[i];
+                    final stepIcon = _getTurnManeuverIcon(step.type, step.modifier);
 
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFEFF6FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(stepIcon, color: const Color(0xFF2563EB), size: 18),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              step.instruction,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSearchAlongRouteSheet(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showAppBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                context.l10n.searchAlongRoute,
+                style: TextStyle(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  _buildQuickPoiCategoryButton(
+                    context: context,
+                    icon: Icons.local_gas_station_rounded,
+                    label: context.l10n.gasStations,
+                    color: const Color(0xFFF59E0B),
+                    onTap: () {
+                      Navigator.of(ctx).pop();
+                      ref.read(mapProvider.notifier).setSearchQuery('xăng');
+                    },
+                  ),
+                  const SizedBox(width: 10),
+                  _buildQuickPoiCategoryButton(
+                    context: context,
+                    icon: Icons.local_parking_rounded,
+                    label: context.l10n.parkingLots,
+                    color: const Color(0xFF3B82F6),
+                    onTap: () {
+                      Navigator.of(ctx).pop();
+                      ref.read(mapProvider.notifier).setSearchQuery('bãi đỗ');
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _buildQuickPoiCategoryButton(
+                    context: context,
+                    icon: Icons.coffee_rounded,
+                    label: context.l10n.coffeeSpots,
+                    color: const Color(0xFF10B981),
+                    onTap: () {
+                      Navigator.of(ctx).pop();
+                      ref.read(mapProvider.notifier).filterByCategory('restaurant');
+                    },
+                  ),
+                  const SizedBox(width: 10),
+                  _buildQuickPoiCategoryButton(
+                    context: context,
+                    icon: Icons.restaurant_rounded,
+                    label: context.l10n.catRestaurant,
+                    color: const Color(0xFFEC4899),
+                    onTap: () {
+                      Navigator.of(ctx).pop();
+                      ref.read(mapProvider.notifier).filterByCategory('restaurant');
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildQuickPoiCategoryButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _zoomToFitRoute(OsrmRoute route) {
+    if (route.points.isEmpty) return;
+    setState(() {
+      _isAutoFollowUser = false;
+    });
+
+    final state = ref.read(mapProvider);
+    final userPos = state.currentLocation;
+    LatLng? destPos;
+    final place = state.selectedPlace;
+    if (place != null) {
+      if (place is Map) {
+        final lat = place['latitude'] ?? place['lat'];
+        final lng = place['longitude'] ?? place['lng'] ?? place['lon'];
+        if (lat != null && lng != null) {
+          destPos = LatLng((lat as num).toDouble(), (lng as num).toDouble());
+        }
+      } else {
+        try {
+          final lat = (place as dynamic).latitude ?? (place as dynamic).lat;
+          final lng = (place as dynamic).longitude ?? (place as dynamic).lng;
+          if (lat != null && lng != null) {
+            destPos = LatLng((lat as num).toDouble(), (lng as num).toDouble());
+          }
+        } catch (_) {}
+      }
+    }
+    destPos ??= (route.points.isNotEmpty ? route.points.last : null);
+
+    // Tập hợp 100% các điểm quan trọng: Tọa độ xe GPS + Toàn bộ polyline OSRM + Điểm đích đến
+    final List<LatLng> allBoundsPoints = [
+      if (userPos != null) userPos,
+      ...route.points,
+      if (destPos != null) destPos,
+    ];
+
+    if (allBoundsPoints.isEmpty) return;
+
+    final rawBounds = LatLngBounds.fromPoints(allBoundsPoints);
+    final latSpan = (rawBounds.north - rawBounds.south).abs();
+    final lngSpan = (rawBounds.east - rawBounds.west).abs();
+
+    // Buffer đệm 15-20% theo cả 4 hướng để các Marker Callout Tag không bị cắt mép
+    final latBuffer = math.max(latSpan * 0.18, 0.0035);
+    final lngBuffer = math.max(lngSpan * 0.18, 0.0035);
+
+    final expandedBounds = LatLngBounds(
+      LatLng(rawBounds.south - latBuffer, rawBounds.west - lngBuffer),
+      LatLng(rawBounds.north + latBuffer, rawBounds.east + lngBuffer),
+    );
+
+    // Tính toán lề an toàn chuẩn xác theo Safe Area và chiều cao thực tế của Banner đỉnh & Cockpit đáy
+    final mediaQuery = MediaQuery.of(context);
+    final topSafePadding = mediaQuery.padding.top + 140.0;
+    final bottomSafePadding = mediaQuery.padding.bottom + 260.0;
+
+    final fitted = CameraFit.bounds(
+      bounds: expandedBounds,
+      padding: EdgeInsets.fromLTRB(54, topSafePadding, 54, bottomSafePadding),
+      maxZoom: 16.5,
+      minZoom: 11.5,
+    ).fit(_mapController.camera);
+
+    final clampedZoom = fitted.zoom.clamp(11.5, 16.5);
+
+    _animatedMapMove(
+      fitted.center,
+      clampedZoom,
+      duration: const Duration(milliseconds: 750),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  IconData _getTurnManeuverIcon(String type, String modifier) {
+    final mod = modifier.toLowerCase();
+    final typ = type.toLowerCase();
+
+    if (typ == 'arrive' || typ.contains('arrive')) {
+      return Icons.location_on_rounded;
+    }
+    if (mod.contains('u-turn') || mod.contains('uturn') || mod.contains('vòng lui') || mod.contains('quay đầu')) {
+      return mod.contains('left') ? Icons.u_turn_left_rounded : Icons.u_turn_right_rounded;
+    }
+    if (typ.contains('rotary') || typ.contains('roundabout') || mod.contains('bùng binh') || mod.contains('vòng xuyến')) {
+      return mod.contains('left') ? Icons.roundabout_left_rounded : Icons.roundabout_right_rounded;
+    }
+    if (mod.contains('sharp left')) {
+      return Icons.turn_sharp_left_rounded;
+    }
+    if (mod.contains('sharp right')) {
+      return Icons.turn_sharp_right_rounded;
+    }
+    if (mod.contains('slight left')) {
+      return Icons.turn_slight_left_rounded;
+    }
+    if (mod.contains('slight right')) {
+      return Icons.turn_slight_right_rounded;
+    }
+    if (mod.contains('left')) {
+      return Icons.turn_left_rounded;
+    }
+    if (mod.contains('right')) {
+      return Icons.turn_right_rounded;
+    }
+    if (mod.contains('straight') || typ.contains('continue') || typ.contains('depart')) {
+      return Icons.straight_rounded;
+    }
+    return Icons.straight_rounded;
+  }
 
   Marker _buildUserLocationMarker(LatLng position) {
     final opacityFactor = _isGpsWeak ? 0.5 : 1.0;
+    final state = ref.read(mapProvider);
+    final isNavigating = state.activeRoute != null;
+
+    final effectiveHeading = _currentHeading ??
+        (state.activeRoute != null && state.activeRoute!.points.length > 1
+            ? _calculateBearing(position, state.activeRoute!.points[1])
+            : null);
 
     return Marker(
       point: position,
-      width: 60,
-      height: 60,
+      width: isNavigating ? 84 : 60,
+      height: isNavigating ? 84 : 60,
       rotate: true,
       child: AnimatedBuilder(
         animation: _pulseController,
@@ -1320,59 +1777,116 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
             child: Stack(
               alignment: Alignment.center,
               children: [
+                // 1. Radar Pulse Wave phát sáng tỏa tròn
                 Transform.scale(
                   scale: scale,
                   child: Container(
-                    width: 46,
-                    height: 46,
+                    width: isNavigating ? 64 : 46,
+                    height: isNavigating ? 64 : 46,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _isGpsWeak
                           ? const Color(0xFFF59E0B).withValues(alpha: opacity * 0.35)
-                          : const Color(0xFF1E88E5).withValues(alpha: opacity * 0.35),
+                          : (isNavigating
+                              ? const Color(0xFF38BDF8).withValues(alpha: opacity * 0.40)
+                              : const Color(0xFF1E88E5).withValues(alpha: opacity * 0.35)),
                     ),
                   ),
                 ),
+
+                // 2. Chùm sáng dẫn đường 3D chiếu về phía trước (Forward Vision Beam) khi đang lái xe
+                if (isNavigating && effectiveHeading != null)
+                  Transform.rotate(
+                    angle: effectiveHeading,
+                    child: Transform.translate(
+                      offset: const Offset(0, -22),
+                      child: Container(
+                        width: 44,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          gradient: RadialGradient(
+                            center: const Alignment(0, 1.0),
+                            radius: 0.9,
+                            colors: [
+                              const Color(0xFF38BDF8).withValues(alpha: 0.55),
+                              const Color(0xFF38BDF8).withValues(alpha: 0.15),
+                              Colors.transparent,
+                            ],
+                            stops: const [0.0, 0.6, 1.0],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // 3. Vòng bảo vệ lõi định vị
                 Container(
-                  width: 34,
-                  height: 34,
+                  width: isNavigating ? 42 : 34,
+                  height: isNavigating ? 42 : 34,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _isGpsWeak
                         ? const Color(0xFFF59E0B).withValues(alpha: 0.2)
-                        : const Color(0xFF1E88E5).withValues(alpha: 0.2),
+                        : (isNavigating
+                            ? const Color(0xFF0284C7).withValues(alpha: 0.25)
+                            : const Color(0xFF1E88E5).withValues(alpha: 0.2)),
                     border: Border.all(
                       color: _isGpsWeak
                           ? const Color(0xFFF59E0B).withValues(alpha: 0.8)
-                          : const Color(0xFF1E88E5).withValues(alpha: 0.6),
+                          : (isNavigating
+                              ? const Color(0xFF38BDF8).withValues(alpha: 0.85)
+                              : const Color(0xFF1E88E5).withValues(alpha: 0.6)),
                       width: 1.5,
                     ),
                   ),
                 ),
-                if (_currentHeading != null)
+
+                // 4. Con trỏ Mũi Tên Dẫn Đường 3D (Aerodynamic 3D Navigation Arrow Puck)
+                if (isNavigating || effectiveHeading != null)
                   Transform.rotate(
-                    angle: _currentHeading!,
+                    angle: effectiveHeading ?? 0.0,
                     child: Container(
-                      padding: const EdgeInsets.all(5),
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF7A00),
                         shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0xFF38BDF8), // Cyan phát sáng dạ quang ở chóp
+                            Color(0xFF2563EB), // Royal Blue đậm ở thân
+                            Color(0xFF1D4ED8), // Deep Blue ở chân
+                          ],
+                        ),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2.2,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.35),
+                            color: Colors.black.withValues(alpha: 0.45),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                          BoxShadow(
+                            color: const Color(0xFF38BDF8).withValues(alpha: 0.6),
                             blurRadius: 8,
-                            offset: const Offset(0, 3),
+                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.navigation_rounded,
-                        size: 20,
-                        color: Colors.white,
+                      child: const Center(
+                        child: Icon(
+                          Icons.navigation_rounded,
+                          size: 20,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   )
                 else ...[
+                  // Khi ở chế độ xem bản đồ 2D tĩnh
                   Container(
                     width: 22,
                     height: 22,
@@ -1418,41 +1932,6 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
   // Phải nằm DƯỚI lớp marker để không chặn hitTest người dùng.
   // ------------------------------------------------------------
 
-  /// Ring khổng lồ phủ toàn cầu (bao cả bản sao world khi wrap quanh kinh
-  /// tuyến 180°) để mask không bao giờ lộ viền dù zoom out tối đa.
-  static final List<LatLng> _worldMaskPolygon = _buildWorldMaskPolygon();
-
-  static List<LatLng> _buildWorldMaskPolygon() {
-    // Phủ ±7200° kinh độ (= 20 bản sao thế giới) để mask luôn phủ kín viewport
-    // dù zoom out tối đa (zoom 0 hiển thị tới ~5 bản sao world) hay pan xa.
-    const double lonEdge = 7200.0;
-    const double northLat = 89.9;
-    const double southLat = -89.9;
-    const int steps = 72;
-    final points = <LatLng>[];
-    for (int i = 0; i <= steps; i++) {
-      points.add(LatLng(northLat, -lonEdge + i * (lonEdge * 2) / steps));
-    }
-    for (int i = 0; i <= steps; i++) {
-      points.add(LatLng(northLat - (northLat - southLat) * i / steps, lonEdge));
-    }
-    for (int i = 0; i <= steps; i++) {
-      points.add(LatLng(southLat, lonEdge - i * (lonEdge * 2) / steps));
-    }
-    for (int i = 0; i <= steps; i++) {
-      points.add(LatLng(southLat + (northLat - southLat) * i / steps, -lonEdge));
-    }
-    return points;
-  }
-
-  /// Màu overlay ngoài ranh giới: trắng/xám alpha ~0.5 (sáng) hoặc tối nhẹ
-  /// (bản đồ dark) — phần trong Huế giữ nguyên trong suốt.
-  Color _boundaryMaskColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? Colors.black.withValues(alpha: 0.55)
-        : Colors.white.withValues(alpha: 0.68);
-  }
-
   /// Màu viền nét đứt theo ranh giới — tương phản tốt trên cả 2 nền tile.
   Color _boundaryLineColor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
@@ -1485,13 +1964,206 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
         children: [
           const Icon(Icons.star_rounded, color: Color(0xFFFDE047), size: 15),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11.0,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.2,
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11.0,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Nút nhỏ bật/tắt panel lớp lãnh thổ Việt Nam (EEZ, lãnh hải, mask)
+  Widget _buildLayersToggleButton(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: () => setState(() => _showLayerPanel = !_showLayerPanel),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: _showLayerPanel
+              ? const Color(0xFF1565C0)
+              : (isDark ? const Color(0xFF1E293B) : Colors.white),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: _showLayerPanel
+                ? const Color(0xFF1565C0)
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.10)
+                    : Colors.black.withValues(alpha: 0.08)),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Icon(
+          Icons.layers_rounded,
+          size: 18,
+          color: _showLayerPanel
+              ? Colors.white
+              : (isDark ? const Color(0xFFE2E8F0) : const Color(0xFF2563EB)),
+        ),
+      ),
+    );
+  }
+
+  void _handleZoomBasedTerritoryLayers(double zoom) {
+    if (_isManualLayerOverride) return;
+
+    // Zoom level rules:
+    //  - zoom < 4.0: show EEZ, hide territorial sea (too small to render clearly)
+    //  - 4.0 <= zoom <= 8.0: show EEZ + territorial sea
+    //  - zoom > 8.0: hide EEZ (out of viewport), keep territorial sea + land border
+    final shouldShowEez = zoom <= 8.0;
+    final shouldShowSea = zoom >= 4.0;
+
+    if (_layerState.showEez != shouldShowEez ||
+        _layerState.showTerritorialSea != shouldShowSea) {
+      setState(() {
+        _layerState = _layerState.copyWith(
+          showEez: shouldShowEez,
+          showTerritorialSea: shouldShowSea,
+        );
+      });
+    }
+  }
+
+  /// Toggle một trạng thái lớp trong [VietnamTerritoryLayerState].
+  void _toggleLayer({bool? eez, bool? territorialSea, bool? worldMask}) {
+    setState(() {
+      _isManualLayerOverride = true;
+      _layerState = _layerState.copyWith(
+        showEez: eez ?? _layerState.showEez,
+        showTerritorialSea: territorialSea ?? _layerState.showTerritorialSea,
+        showWorldMask: worldMask ?? _layerState.showWorldMask,
+      );
+    });
+  }
+
+  /// Legend + toggle panel hiển thị / ẩn các lớp lãnh thổ Việt Nam.
+  Widget _buildTerritoryLayerPanel(BuildContext context) {
+    final l10n = context.l10n;
+    return Container(
+      width: 210,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xCC0F172A)
+            : const Color(0xCCFFFFFF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF1565C0).withValues(alpha: 0.3),
+          width: 1.0,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x22000000),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '🗺️ ${l10n.territoryLayersTitle}',
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+              const SizedBox(width: 8),
+              if (_isManualLayerOverride)
+                GestureDetector(
+                  onTap: () => setState(() {
+                    _isManualLayerOverride = false;
+                    _handleZoomBasedTerritoryLayers(_mapController.camera.zoom);
+                  }),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1565C0).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      'Auto',
+                      style: TextStyle(fontSize: 10, color: Color(0xFF1565C0), fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          _buildLayerToggleRow(
+            color: const Color(0xFF1565C0),
+            label: l10n.eezLayerTitle,
+            isOn: _layerState.showEez,
+            onToggle: (v) => _toggleLayer(eez: v),
+          ),
+          _buildLayerToggleRow(
+            color: const Color(0xFF0288D1),
+            label: l10n.territorialSeaTitle,
+            isOn: _layerState.showTerritorialSea,
+            onToggle: (v) => _toggleLayer(territorialSea: v),
+          ),
+          _buildLayerToggleRow(
+            color: const Color(0x88000000),
+            label: l10n.worldMaskTitle,
+            isOn: _layerState.showWorldMask,
+            onToggle: (v) => _toggleLayer(worldMask: v),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLayerToggleRow({
+    required Color color,
+    required String label,
+    required bool isOn,
+    required ValueChanged<bool> onToggle,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Container(
+            width: 14,
+            height: 14,
+            margin: const EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(color: color, width: 1.2),
+            ),
+          ),
+          Expanded(
+            child: Text(label, style: const TextStyle(fontSize: 11.5)),
+          ),
+          Transform.scale(
+            scale: 0.75,
+            child: Switch.adaptive(
+              value: isOn,
+              onChanged: onToggle,
+              activeThumbColor: const Color(0xFF1565C0),
             ),
           ),
         ],
@@ -1503,6 +2175,7 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     final markers = <Marker>[];
     final mapState = ref.watch(mapProvider);
     final savedIds = mapState.savedPlaceIds;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     for (final place in places) {
       final lat = place['latitude'] as double? ?? (place.latitude as double?);
@@ -1564,27 +2237,38 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
                       scale: isSelected ? 1.0 : 0.75,
                       child: Container(
                         margin: const EdgeInsets.only(top: 2),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFFF59E0B),
                           borderRadius: BorderRadius.circular(12),
-                          boxShadow: const [
+                          boxShadow: [
                             BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
+                              color: const Color(0xFFF59E0B).withValues(alpha: 0.45),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),
-                        child: Text(
-                          (place['name'] as String? ?? place.name as String? ?? ''),
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF0F172A),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.star_rounded,
+                              size: 13,
+                              color: Color(0xFF0F172A),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              (place['name'] as String? ?? place.name as String? ?? ''),
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF0F172A),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -1600,18 +2284,22 @@ class _MapHomeScreenState extends ConsumerState<MapHomeScreen> with TickerProvid
     return markers;
   }
 
-  String _getTileUrlTemplate(MapTileStyle? style) {
-    switch (style) {
-      case MapTileStyle.cartoVoyager:
-        return 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
-      case MapTileStyle.cartoDark:
-        return 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
-      case MapTileStyle.cartoPositron:
-        return 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
-      case MapTileStyle.osmStandard:
-      default:
-        return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  String _getTileUrlTemplate(MapTileStyle? style, bool isDark) {
+    if (style != null && style != MapTileStyle.osmStandard) {
+      switch (style) {
+        case MapTileStyle.cartoVoyager:
+          return 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+        case MapTileStyle.cartoDark:
+          return 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+        case MapTileStyle.cartoPositron:
+          return 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+        case MapTileStyle.osmStandard:
+          return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+      }
     }
+    return isDark
+        ? 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   }
 
   Future<void> _goToCurrentLocation() async {

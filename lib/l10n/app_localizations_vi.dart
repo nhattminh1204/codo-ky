@@ -1798,6 +1798,18 @@ class AppLocalizationsVi extends AppLocalizations {
   String get weatherLocationHue => 'Thành phố Huế';
 
   @override
+  String get weatherAdvancedMetrics => 'Chi tiết thông số nâng cao';
+
+  @override
+  String get weatherSwipeUpHint => 'Vuốt lên xem thông số nâng cao';
+
+  @override
+  String get weatherLiveStatus => 'Trực tiếp';
+
+  @override
+  String get weatherRefreshing => 'Đang làm mới...';
+
+  @override
   String get weatherUvLow => 'Thấp';
 
   @override
@@ -1811,4 +1823,205 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get weatherUvExtreme => 'Cực cao';
+
+  @override
+  String get travelAdvisorTitle => 'Gợi Ý Trải Nghiệm Huế';
+
+  @override
+  String get travelAdvisorRainAdvice => 'Thời tiết Huế có thể có mưa rào. Bạn nên mang theo ô/dù và ưu tiên tham quan các điểm trong nhà như Bảo tàng Cổ vật.';
+
+  @override
+  String get travelAdvisorSunnyAdvice => 'Thời tiết nắng hanh rực rỡ. Thích hợp tham quan Cố đô sớm hoặc chiều mát, nhớ trang bị nón lá & bôi kem chống nắng.';
+
+  @override
+  String get travelAdvisorIdealAdvice => 'Thời tiết Cố đô tuyệt đẹp! Rất lý tưởng dạo quanh Đại Nội, các Lăng tẩm hoặc đi thuyền Rồng Sông Hương.';
+
+  @override
+  String get travelAdvisorCoolAdvice => 'Thời tiết se lạnh. Rất thích hợp thưởng thức trà sen, chè Huế và đi dạo Cố đô về đêm.';
+
+  @override
+  String get travelAdvisorBringUmbrella => 'Nên mang ô/dù';
+
+  @override
+  String get travelAdvisorSunProtection => 'Đội nón / Chống nắng';
+
+  @override
+  String get travelAdvisorIndoorPriority => 'Ưu tiên điểm trong nhà';
+
+  @override
+  String get travelAdvisorOutdoorIdeal => 'Lý tưởng tham quan ngoài trời';
+
+  @override
+  String get insightHumidityGood => 'Mát mẻ, lý tưởng dạo quanh Đại Nội & phố cổ';
+
+  @override
+  String get insightHumidityModerate => 'Khá ẩm, có thể cảm thấy hơi nồng khi đi bộ';
+
+  @override
+  String get insightHumidityHigh => 'Thời tiết oi nồng, nên mặc đồ thoáng mát';
+
+  @override
+  String get insightHumidityLow => 'Gió Lào hanh khô, nên bổ sung nhiều nước';
+
+  @override
+  String get insightWindGood => 'Gió êm, rất thích hợp đi thuyền Rồng Sông Hương';
+
+  @override
+  String get insightWindModerate => 'Gió lộng thoáng mát khi tham quan Chùa Thiên Mụ';
+
+  @override
+  String get insightWindHigh => 'Gió lớn, cẩn thận khi di chuyển qua cầu Tràng Tiền';
+
+  @override
+  String get insightUvGood => 'An toàn cho da, tha hồ chụp ảnh ngoài trời';
+
+  @override
+  String get insightUvModerate => 'Nắng vừa, nên mang nón lá khi đi các Lăng tẩm';
+
+  @override
+  String get insightUvHigh => 'Nắng gắt, cần đội nón & bôi kem chống nắng';
+
+  @override
+  String get insightAqiGood => 'Khí trời Cố đô trong lành, thích hợp dạo chơi';
+
+  @override
+  String get insightAqiModerate => 'Không khí chấp nhận được, thoải mái ra ngoài';
+
+  @override
+  String get insightAqiUnhealthy => 'Nên đeo khẩu trang khi di chuyển bằng xe máy';
+
+  @override
+  String get statusHumidityHigh => 'Oi nồng & Nồm ẩm';
+
+  @override
+  String get statusHumidityLow => 'Khô nóng (Gió Lào)';
+
+  @override
+  String get statusHumidityModerate => 'Độ ẩm hơi cao';
+
+  @override
+  String get statusHumidityGood => 'Khô ráo dễ chịu';
+
+  @override
+  String get statusWindHigh => 'Gió mạnh / Giông';
+
+  @override
+  String get statusWindModerate => 'Gió vừa';
+
+  @override
+  String get statusWindGood => 'Gió nhẹ';
+
+  @override
+  String get statusUvHigh => 'UV Rất cao';
+
+  @override
+  String get statusUvModerate => 'UV Trung bình';
+
+  @override
+  String get statusUvGood => 'UV Thấp';
+
+  @override
+  String get statusAqiUnhealthy => 'Kém / Khói bụi';
+
+  @override
+  String get statusAqiModerate => 'Trung bình';
+
+  @override
+  String get statusAqiGood => 'Tốt';
+
+  @override
+  String get weatherHumiditySub => 'HUMIDITY';
+
+  @override
+  String get weatherWindSub => 'WIND SPEED';
+
+  @override
+  String get weatherUvSub => 'UV INDEX';
+
+  @override
+  String get weatherAirQualitySub => 'AIR QUALITY';
+
+  @override
+  String get gaugeHumidityStep1 => '0%';
+
+  @override
+  String get gaugeHumidityStep2 => 'Khô';
+
+  @override
+  String get gaugeHumidityStep3 => 'Lý tưởng';
+
+  @override
+  String get gaugeHumidityStep4 => 'Ẩm ướt';
+
+  @override
+  String get gaugeHumidityStep5 => '100%';
+
+  @override
+  String get gaugeWindStep1 => '0';
+
+  @override
+  String get gaugeWindStep2 => 'Êm';
+
+  @override
+  String get gaugeWindStep3 => 'Nhẹ';
+
+  @override
+  String get gaugeWindStep4 => 'Vừa';
+
+  @override
+  String get gaugeWindStep5 => 'Mạnh (50+)';
+
+  @override
+  String get gaugeUvStep1 => '0 (Thấp)';
+
+  @override
+  String get gaugeUvStep2 => 'Trung bình';
+
+  @override
+  String get gaugeUvStep3 => 'Cao';
+
+  @override
+  String get gaugeUvStep4 => '11+ (Gắt)';
+
+  @override
+  String get gaugeAqiStep1 => '0 (Tốt)';
+
+  @override
+  String get gaugeAqiStep2 => 'T.Bình';
+
+  @override
+  String get gaugeAqiStep3 => 'Kém';
+
+  @override
+  String get gaugeAqiStep4 => '300+ (Xấu)';
+
+  @override
+  String get weatherSimulateTitle => 'Mô phỏng dữ liệu thời tiết';
+
+  @override
+  String get weatherSimulateSubtitle => 'Kéo các thanh trượt bên dưới để thử nghiệm phản hồi giao diện, badge trạng thái & lời khuyên du lịch tương ứng:';
+
+  @override
+  String get weatherSimulateReset => 'Đặt lại mặc định';
+
+  @override
+  String get weatherSimulateClose => 'Hoàn tất';
+
+  @override
+  String get weatherSimulateToggle => 'Mô phỏng';
+
+  @override
+  String get statusUvExtreme => 'UV Rất Gay Gắt';
+
+  @override
+  String get statusAqiHazardous => 'Xấu / Nguy hại';
+
+  @override
+  String get insightUvExtreme => 'UV cực kỳ gay gắt, khuyến cáo hạn chế ra ngoài từ 11h-14h';
+
+  @override
+  String get insightAqiHazardous => 'Chất lượng không khí rất xấu, khuyên đeo khẩu trang chống bụi mịn';
+
+  @override
+  String get insightUvNight => 'Trời tối, chỉ số UV bằng 0. Hoàn toàn an toàn dạo phố đêm Huế';
 }

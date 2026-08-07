@@ -3641,6 +3641,30 @@ abstract class AppLocalizations {
   /// **'Hue City'**
   String get weatherLocationHue;
 
+  /// No description provided for @weatherAdvancedMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Weather Parameters'**
+  String get weatherAdvancedMetrics;
+
+  /// No description provided for @weatherSwipeUpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe up for advanced parameters'**
+  String get weatherSwipeUpHint;
+
+  /// No description provided for @weatherLiveStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get weatherLiveStatus;
+
+  /// No description provided for @weatherRefreshing.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing...'**
+  String get weatherRefreshing;
+
   /// No description provided for @weatherUvLow.
   ///
   /// In en, this message translates to:
@@ -3670,6 +3694,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Extreme'**
   String get weatherUvExtreme;
+
+  /// No description provided for @travelAdvisorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue Travel Tips'**
+  String get travelAdvisorTitle;
+
+  /// No description provided for @travelAdvisorRainAdvice.
+  ///
+  /// In en, this message translates to:
+  /// **'Showers expected in Hue. Consider bringing an umbrella and visiting indoor heritage spots like the Royal Fine Arts Museum.'**
+  String get travelAdvisorRainAdvice;
+
+  /// No description provided for @travelAdvisorSunnyAdvice.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright sunny weather in Hue. Ideal for early morning or late afternoon visits. Remember sun protection.'**
+  String get travelAdvisorSunnyAdvice;
+
+  /// No description provided for @travelAdvisorIdealAdvice.
+  ///
+  /// In en, this message translates to:
+  /// **'Imperial weather is lovely! Ideal for strolling around the Citadel, Royal Tombs, or taking a Dragon Boat trip on Perfume River.'**
+  String get travelAdvisorIdealAdvice;
+
+  /// No description provided for @travelAdvisorCoolAdvice.
+  ///
+  /// In en, this message translates to:
+  /// **'Chilly weather. Perfect for enjoying lotus tea, Hue sweet soup, and evening walks around the Citadel.'**
+  String get travelAdvisorCoolAdvice;
+
+  /// No description provided for @travelAdvisorBringUmbrella.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring umbrella'**
+  String get travelAdvisorBringUmbrella;
+
+  /// No description provided for @travelAdvisorSunProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun protection needed'**
+  String get travelAdvisorSunProtection;
+
+  /// No description provided for @travelAdvisorIndoorPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Indoor spots recommended'**
+  String get travelAdvisorIndoorPriority;
+
+  /// No description provided for @travelAdvisorOutdoorIdeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Great for outdoor sightseeing'**
+  String get travelAdvisorOutdoorIdeal;
+
+  /// No description provided for @insightHumidityGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Pleasant & cool, ideal for Citadel & Old Town walks'**
+  String get insightHumidityGood;
+
+  /// No description provided for @insightHumidityModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Slightly humid, might feel a bit warm while walking'**
+  String get insightHumidityModerate;
+
+  /// No description provided for @insightHumidityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot & humid, wear lightweight cotton clothes'**
+  String get insightHumidityHigh;
+
+  /// No description provided for @insightHumidityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry Foehn wind, drink plenty of water'**
+  String get insightHumidityLow;
+
+  /// No description provided for @insightWindGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm breeze, perfect for Perfume River Dragon Boat'**
+  String get insightWindGood;
+
+  /// No description provided for @insightWindModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Breezy & fresh around Thien Mu Pagoda'**
+  String get insightWindModerate;
+
+  /// No description provided for @insightWindHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong wind, stay cautious on Trang Tien Bridge'**
+  String get insightWindHigh;
+
+  /// No description provided for @insightUvGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe for skin, enjoy taking outdoor photos'**
+  String get insightUvGood;
+
+  /// No description provided for @insightUvModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate sun, wear a conical hat at Royal Tombs'**
+  String get insightUvModerate;
+
+  /// No description provided for @insightUvHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong UV, wear hat & apply sunscreen'**
+  String get insightUvHigh;
+
+  /// No description provided for @insightAqiGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh Imperial air, great for sightseeing'**
+  String get insightAqiGood;
+
+  /// No description provided for @insightAqiModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptable air, comfortable for outdoor activities'**
+  String get insightAqiModerate;
+
+  /// No description provided for @insightAqiUnhealthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Wear a mask while traveling by motorbike'**
+  String get insightAqiUnhealthy;
+
+  /// No description provided for @statusHumidityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot & Humid'**
+  String get statusHumidityHigh;
+
+  /// No description provided for @statusHumidityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry Foehn Wind'**
+  String get statusHumidityLow;
+
+  /// No description provided for @statusHumidityModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Slightly Humid'**
+  String get statusHumidityModerate;
+
+  /// No description provided for @statusHumidityGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Pleasant & Dry'**
+  String get statusHumidityGood;
+
+  /// No description provided for @statusWindHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong Wind / Storm'**
+  String get statusWindHigh;
+
+  /// No description provided for @statusWindModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate Wind'**
+  String get statusWindModerate;
+
+  /// No description provided for @statusWindGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Breeze'**
+  String get statusWindGood;
+
+  /// No description provided for @statusUvHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Very High UV'**
+  String get statusUvHigh;
+
+  /// No description provided for @statusUvModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate UV'**
+  String get statusUvModerate;
+
+  /// No description provided for @statusUvGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Low UV'**
+  String get statusUvGood;
+
+  /// No description provided for @statusAqiUnhealthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Unhealthy Air'**
+  String get statusAqiUnhealthy;
+
+  /// No description provided for @statusAqiModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate Air'**
+  String get statusAqiModerate;
+
+  /// No description provided for @statusAqiGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Air'**
+  String get statusAqiGood;
+
+  /// No description provided for @weatherHumiditySub.
+  ///
+  /// In en, this message translates to:
+  /// **'HUMIDITY'**
+  String get weatherHumiditySub;
+
+  /// No description provided for @weatherWindSub.
+  ///
+  /// In en, this message translates to:
+  /// **'WIND SPEED'**
+  String get weatherWindSub;
+
+  /// No description provided for @weatherUvSub.
+  ///
+  /// In en, this message translates to:
+  /// **'UV INDEX'**
+  String get weatherUvSub;
+
+  /// No description provided for @weatherAirQualitySub.
+  ///
+  /// In en, this message translates to:
+  /// **'AIR QUALITY'**
+  String get weatherAirQualitySub;
+
+  /// No description provided for @gaugeHumidityStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'0%'**
+  String get gaugeHumidityStep1;
+
+  /// No description provided for @gaugeHumidityStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry'**
+  String get gaugeHumidityStep2;
+
+  /// No description provided for @gaugeHumidityStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Ideal'**
+  String get gaugeHumidityStep3;
+
+  /// No description provided for @gaugeHumidityStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Humid'**
+  String get gaugeHumidityStep4;
+
+  /// No description provided for @gaugeHumidityStep5.
+  ///
+  /// In en, this message translates to:
+  /// **'100%'**
+  String get gaugeHumidityStep5;
+
+  /// No description provided for @gaugeWindStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'0'**
+  String get gaugeWindStep1;
+
+  /// No description provided for @gaugeWindStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get gaugeWindStep2;
+
+  /// No description provided for @gaugeWindStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get gaugeWindStep3;
+
+  /// No description provided for @gaugeWindStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get gaugeWindStep4;
+
+  /// No description provided for @gaugeWindStep5.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong (50+)'**
+  String get gaugeWindStep5;
+
+  /// No description provided for @gaugeUvStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'0 (Low)'**
+  String get gaugeUvStep1;
+
+  /// No description provided for @gaugeUvStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get gaugeUvStep2;
+
+  /// No description provided for @gaugeUvStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get gaugeUvStep3;
+
+  /// No description provided for @gaugeUvStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'11+ (Extreme)'**
+  String get gaugeUvStep4;
+
+  /// No description provided for @gaugeAqiStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'0 (Good)'**
+  String get gaugeAqiStep1;
+
+  /// No description provided for @gaugeAqiStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get gaugeAqiStep2;
+
+  /// No description provided for @gaugeAqiStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Unhealthy'**
+  String get gaugeAqiStep3;
+
+  /// No description provided for @gaugeAqiStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'300+ (Hazardous)'**
+  String get gaugeAqiStep4;
+
+  /// No description provided for @weatherSimulateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Data Simulation'**
+  String get weatherSimulateTitle;
+
+  /// No description provided for @weatherSimulateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag the sliders below to test UI responsiveness, status badges & corresponding travel tips:'**
+  String get weatherSimulateSubtitle;
+
+  /// No description provided for @weatherSimulateReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Default'**
+  String get weatherSimulateReset;
+
+  /// No description provided for @weatherSimulateClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get weatherSimulateClose;
+
+  /// No description provided for @weatherSimulateToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate'**
+  String get weatherSimulateToggle;
+
+  /// No description provided for @statusUvExtreme.
+  ///
+  /// In en, this message translates to:
+  /// **'Extreme UV'**
+  String get statusUvExtreme;
+
+  /// No description provided for @statusAqiHazardous.
+  ///
+  /// In en, this message translates to:
+  /// **'Hazardous Air'**
+  String get statusAqiHazardous;
+
+  /// No description provided for @insightUvExtreme.
+  ///
+  /// In en, this message translates to:
+  /// **'Extreme UV, avoid outdoor exposure between 11 AM - 2 PM'**
+  String get insightUvExtreme;
+
+  /// No description provided for @insightAqiHazardous.
+  ///
+  /// In en, this message translates to:
+  /// **'Very poor air quality, wearing a protective mask is advised'**
+  String get insightAqiHazardous;
+
+  /// No description provided for @insightUvNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Nighttime, UV is 0. Completely safe to enjoy Hue night streets'**
+  String get insightUvNight;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

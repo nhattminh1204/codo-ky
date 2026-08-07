@@ -25,6 +25,57 @@ Color _rainColor(int prob) {
   return const Color(0xFF2563EB);
 }
 
+Color _getTempColor(double t) {
+  if (t <= 20) return const Color(0xFF0EA5E9); // Sky blue (<20°)
+  if (t <= 24) return const Color(0xFF38BDF8); // Light sky blue (21-24°)
+  if (t <= 27) return const Color(0xFF10B981); // Emerald Green (25-27°)
+  if (t <= 29) return const Color(0xFF84CC16); // Lime Green / Olive (28-29°)
+  if (t <= 32) return const Color(0xFFF59E0B); // Amber / Gold (30-32°)
+  if (t <= 34) return const Color(0xFFF97316); // Orange (33-34°)
+  return const Color(0xFFEF4444); // Red / Crimson (>35°)
+}
+
+List<Color> _generateRangeGradientColors(double minTemp, double maxTemp) {
+  final span = maxTemp - minTemp;
+  final colors = <Color>[];
+  final step = math.max(1.0, (span / 4).roundToDouble());
+  for (double t = minTemp; t <= maxTemp; t += step) {
+    colors.add(_getTempColor(t));
+  }
+  if (colors.isEmpty || colors.last != _getTempColor(maxTemp)) {
+    colors.add(_getTempColor(maxTemp));
+  }
+  if (colors.length == 1) {
+    colors.add(colors.first);
+  }
+  return colors;
+}
+
+Widget _buildLegendDot(String label, Color color, bool isDark) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 7,
+        height: 7,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+        ),
+      ),
+      const SizedBox(width: 3),
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: 9.5,
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white70 : const Color(0xFF475569),
+        ),
+      ),
+    ],
+  );
+}
+
 
 /// Dynamic Theme Palette tùy chỉnh màu gradient theo trạng thái thời tiết Huế.
 class _WeatherThemeConfig {
@@ -626,83 +677,121 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     );
   }
 
-  // ── 4. Stats Grid (3-Tier Bento Glass Style) ──────────────────────────────
+  // ── 4. Stats Grid (Optimized Travel Weather Metrics & Simulation) ─────────
+  // ── 4. Stats Grid (Optimized Travel Weather Metrics) ───────────────────────
   Widget _buildStatsGrid(
       WeatherDetailResult d, bool isDark, Color cardColor) {
     final humidity = d.current.humidity.round();
     final windSpeed = d.windSpeed;
     final uvIndex = d.uvIndex;
-    final aqi = d.aqi ?? 65;
+    final aqi = d.aqi ?? 72;
 
-    // Xác định giờ hiện tại: ban đêm 20h–05h → UV = 0 là bình thường, ẩn card thật
     final nowHour = DateTime.now().hour;
     final isNighttime = nowHour >= 20 || nowHour < 6;
 
-    // Multi-stop rainbow spectrum gradient color definitions
-    final greenColor = isDark ? const Color(0xFF34D399) : const Color(0xFF10B981);
-    final amberColor = isDark ? const Color(0xFFFBBF24) : const Color(0xFFF59E0B);
-    final orangeColor = isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C);
-    final redColor = isDark ? const Color(0xFFF87171) : const Color(0xFFEF4444);
-
-    // 1. Độ ẩm (Humidity) - Thang 0-100%
+    // 1. Humidity Calculations
     final String humidityStatus = humidity > 85
         ? l10n.statusHumidityHigh
         : (humidity < 40
             ? l10n.statusHumidityLow
-            : (humidity > 70 ? l10n.statusHumidityModerate : l10n.statusHumidityGood));
+            : (humidity > 75 ? l10n.statusHumidityModerate : l10n.statusHumidityGood));
     final String humidityInsight = humidity > 85
         ? l10n.insightHumidityHigh
         : (humidity < 40
             ? l10n.insightHumidityLow
-            : (humidity > 70
+            : (humidity > 75
                 ? l10n.insightHumidityModerate
                 : l10n.insightHumidityGood));
 
-    // 2. Tốc độ gió (Wind) - Reference Max: 40 km/h
+    final humidityStatusBg = humidity > 85
+        ? (isDark ? const Color(0xFF1E1B4B) : const Color(0xFFE0E7FF))
+        : (humidity < 40
+            ? (isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7))
+            : (humidity > 75
+                ? (isDark ? const Color(0xFF1E3A8A) : const Color(0xFFDBEAFE))
+                : (isDark ? const Color(0xFF0C4A6E) : const Color(0xFFE0F2FE))));
+    final humidityStatusText = humidity > 85
+        ? (isDark ? const Color(0xFF818CF8) : const Color(0xFF4F46E5))
+        : (humidity < 40
+            ? (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706))
+            : (humidity > 75
+                ? (isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB))
+                : (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7))));
+
+    // 2. Wind Calculations
     final String windStatus = windSpeed > 25.0
         ? l10n.statusWindHigh
-        : (windSpeed >= 12.0 ? l10n.statusWindModerate : l10n.statusWindGood);
+        : (windSpeed >= 11.0 ? l10n.statusWindModerate : l10n.statusWindGood);
     final String windInsight = windSpeed > 25.0
         ? l10n.insightWindHigh
-        : (windSpeed >= 12.0
+        : (windSpeed >= 11.0
             ? l10n.insightWindModerate
             : l10n.insightWindGood);
 
-    // 3. Chỉ số UV - Reference Max: 11
-    final String uvStatus = uvIndex >= 7.0
-        ? l10n.statusUvHigh
-        : (uvIndex >= 3.0 ? l10n.statusUvModerate : l10n.statusUvGood);
-    final String uvInsight = uvIndex >= 7.0
-        ? l10n.insightUvHigh
-        : (uvIndex >= 3.0 ? l10n.insightUvModerate : l10n.insightUvGood);
+    final windStatusBg = windSpeed > 25.0
+        ? (isDark ? const Color(0xFF4C1D95) : const Color(0xFFFFE4E6))
+        : (windSpeed >= 11.0
+            ? (isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7))
+            : (isDark ? const Color(0xFF451A03) : const Color(0xFFFFEDD5)));
+    final windStatusText = windSpeed > 25.0
+        ? (isDark ? const Color(0xFFF87171) : const Color(0xFFE11D48))
+        : (windSpeed >= 11.0
+            ? (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706))
+            : (isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C)));
 
-    // 4. Chất lượng không khí (AQI) - Reference Max: 200
-    final String aqiStatus = aqi > 100
-        ? l10n.statusAqiUnhealthy
-        : (aqi > 50 ? l10n.statusAqiModerate : l10n.statusAqiGood);
-    final String aqiInsight = aqi > 100
-        ? l10n.insightAqiUnhealthy
-        : (aqi > 50 ? l10n.insightAqiModerate : l10n.insightAqiGood);
+    // 3. UV Calculations
+    final String uvStatus = uvIndex > 8.0
+        ? l10n.statusUvExtreme
+        : (uvIndex >= 6.0
+            ? l10n.statusUvHigh
+            : (uvIndex >= 3.0 ? l10n.statusUvModerate : l10n.statusUvGood));
+    final String uvInsight = uvIndex > 8.0
+        ? l10n.insightUvExtreme
+        : (uvIndex >= 6.0
+            ? l10n.insightUvHigh
+            : (uvIndex >= 3.0 ? l10n.insightUvModerate : l10n.insightUvGood));
 
-    // Màu sắc cố định đặc trưng theo đối tượng (Fixed Brand Signature Colors)
-    // 1. Độ ẩm (Humidity) 💧: Ocean Sky Blue
-    final humidityAccent = isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7);
-    final humidityBg = isDark ? const Color(0xFF0C4A6E) : const Color(0xFFE0F2FE);
+    final uvStatusBg = uvIndex > 8.0
+        ? (isDark ? const Color(0xFF4C1D95) : const Color(0xFFF3E8FF))
+        : (uvIndex >= 6.0
+            ? (isDark ? const Color(0xFF451A03) : const Color(0xFFFFEDD5))
+            : (uvIndex >= 3.0
+                ? (isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7))
+                : (isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5))));
+    final uvStatusText = uvIndex > 8.0
+        ? (isDark ? const Color(0xFFA855F7) : const Color(0xFF9333EA))
+        : (uvIndex >= 6.0
+            ? (isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C))
+            : (uvIndex >= 3.0
+                ? (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706))
+                : (isDark ? const Color(0xFF34D399) : const Color(0xFF059669))));
 
-    // 2. Tốc độ gió (Wind) 💨: Warm Sunset Orange
-    final windAccent = isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C);
-    final windBg = isDark ? const Color(0xFF451A03) : const Color(0xFFFFEDD5);
+    // 4. AQI Calculations
+    final String aqiStatus = aqi > 150
+        ? l10n.statusAqiHazardous
+        : (aqi > 100
+            ? l10n.statusAqiUnhealthy
+            : (aqi > 50 ? l10n.statusAqiModerate : l10n.statusAqiGood));
+    final String aqiInsight = aqi > 150
+        ? l10n.insightAqiHazardous
+        : (aqi > 100
+            ? l10n.insightAqiUnhealthy
+            : (aqi > 50 ? l10n.insightAqiModerate : l10n.insightAqiGood));
 
-    // 3. Chỉ số UV (UV Index) ☀️: Golden Sun Amber
-    final uvAccent = isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706);
-    final uvBg = isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7);
-
-    // 4. Chất lượng không khí (AQI) 🍃: Fresh Emerald Green
-    final aqiAccent = isDark ? const Color(0xFF34D399) : const Color(0xFF059669);
-    final aqiBg = isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5);
-
-    // 5. Purple color definition for extreme AQI & UV
-    final purpleColor = isDark ? const Color(0xFFA855F7) : const Color(0xFF9333EA);
+    final aqiStatusBg = aqi > 150
+        ? (isDark ? const Color(0xFF4C1D95) : const Color(0xFFFFE4E6))
+        : (aqi > 100
+            ? (isDark ? const Color(0xFF451A03) : const Color(0xFFFFEDD5))
+            : (aqi > 50
+                ? (isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7))
+                : (isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5))));
+    final aqiStatusText = aqi > 150
+        ? (isDark ? const Color(0xFFF87171) : const Color(0xFFE11D48))
+        : (aqi > 100
+            ? (isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C))
+            : (aqi > 50
+                ? (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706))
+                : (isDark ? const Color(0xFF34D399) : const Color(0xFF059669))));
 
     return Column(
       children: [
@@ -711,34 +800,74 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: _bentoStatCard(
+                child: _buildOptimizedMetricCard(
                   icon: Icons.water_drop_rounded,
-                  accentColor: humidityAccent,
-                  iconBgColor: humidityBg,
+                  accentColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                  iconBgColor: isDark ? const Color(0xFF0C4A6E) : const Color(0xFFF0F9FF),
                   label: l10n.weatherHumidity,
-                  value: '$humidity%',
-                  statusSubtitle: humidityStatus,
-                  insightText: humidityInsight,
+                  subLabel: l10n.weatherHumiditySub,
+                  valueStr: '$humidity',
+                  unitStr: '%',
+                  statusText: humidityStatus,
+                  statusBgColor: humidityStatusBg,
+                  statusTextColor: humidityStatusText,
+                  gaugeSteps: [
+                    l10n.gaugeHumidityStep1,
+                    l10n.gaugeHumidityStep2,
+                    l10n.gaugeHumidityStep3,
+                    l10n.gaugeHumidityStep4,
+                    l10n.gaugeHumidityStep5,
+                  ],
                   progressValue: (humidity / 100.0).clamp(0.0, 1.0),
+                  spectrumGradientColors: const [
+                    Color(0xFFFBBF24),
+                    Color(0xFF38BDF8),
+                    Color(0xFF2563EB),
+                  ],
+                  spectrumGradientStops: const [0.0, 0.5, 1.0],
+                  tipIcon: Icons.lightbulb_rounded,
+                  tipText: humidityInsight,
                   isDark: isDark,
-                  gradientColors: [amberColor, greenColor, amberColor, redColor],
-                  gradientStops: const [0.0, 0.45, 0.75, 1.0],
+                  topGlowGradientColors: const [
+                    Color(0xFF38BDF8),
+                    Color(0xFF2563EB),
+                  ],
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _bentoStatCard(
+                child: _buildOptimizedMetricCard(
                   icon: Icons.air_rounded,
-                  accentColor: windAccent,
-                  iconBgColor: windBg,
+                  accentColor: isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+                  iconBgColor: isDark ? const Color(0xFF451A03) : const Color(0xFFFFF7ED),
                   label: l10n.weatherWind,
-                  value: l10n.weatherWindUnit(windSpeed),
-                  statusSubtitle: windStatus,
-                  insightText: windInsight,
-                  progressValue: (windSpeed / 60.0).clamp(0.0, 1.0),
+                  subLabel: l10n.weatherWindSub,
+                  valueStr: '${windSpeed.round()}',
+                  unitStr: 'km/h',
+                  statusText: windStatus,
+                  statusBgColor: windStatusBg,
+                  statusTextColor: windStatusText,
+                  gaugeSteps: [
+                    l10n.gaugeWindStep1,
+                    l10n.gaugeWindStep2,
+                    l10n.gaugeWindStep3,
+                    l10n.gaugeWindStep4,
+                    l10n.gaugeWindStep5,
+                  ],
+                  progressValue: (windSpeed / 50.0).clamp(0.0, 1.0),
+                  spectrumGradientColors: const [
+                    Color(0xFF34D399),
+                    Color(0xFFFBBF24),
+                    Color(0xFFF87171),
+                  ],
+                  spectrumGradientStops: const [0.0, 0.5, 1.0],
+                  tipIcon: Icons.directions_boat_rounded,
+                  tipText: windInsight,
                   isDark: isDark,
-                  gradientColors: [greenColor, amberColor, orangeColor, redColor],
-                  gradientStops: const [0.0, 0.25, 0.50, 1.0],
+                  topGlowGradientColors: const [
+                    Color(0xFFF97316),
+                    Color(0xFFF59E0B),
+                  ],
                 ),
               ),
             ],
@@ -752,34 +881,75 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
               Expanded(
                 child: isNighttime
                     ? _bentoNightUvCard(isDark: isDark)
-                    : _bentoStatCard(
+                    : _buildOptimizedMetricCard(
                         icon: Icons.wb_sunny_rounded,
-                        accentColor: uvAccent,
-                        iconBgColor: uvBg,
+                        accentColor: isDark ? const Color(0xFFFACC15) : const Color(0xFFD97706),
+                        iconBgColor: isDark ? const Color(0xFF451A03) : const Color(0xFFFEFCE8),
                         label: l10n.weatherUvIndex,
-                        value: 'UV ${uvIndex.toStringAsFixed(1)}',
-                        statusSubtitle: uvStatus,
-                        insightText: uvInsight,
+                        subLabel: l10n.weatherUvSub,
+                        valueStr: uvIndex.toStringAsFixed(1),
+                        unitStr: 'UV',
+                        statusText: uvStatus,
+                        statusBgColor: uvStatusBg,
+                        statusTextColor: uvStatusText,
+                        gaugeSteps: [
+                          l10n.gaugeUvStep1,
+                          l10n.gaugeUvStep2,
+                          l10n.gaugeUvStep3,
+                          l10n.gaugeUvStep4,
+                        ],
                         progressValue: (uvIndex / 12.0).clamp(0.0, 1.0),
+                        spectrumGradientColors: const [
+                          Color(0xFF34D399),
+                          Color(0xFFFACC15),
+                          Color(0xFFF97316),
+                          Color(0xFFA855F7),
+                        ],
+                        spectrumGradientStops: const [0.0, 0.33, 0.66, 1.0],
+                        tipIcon: Icons.photo_camera_rounded,
+                        tipText: uvInsight,
                         isDark: isDark,
-                        gradientColors: [greenColor, amberColor, orangeColor, redColor, purpleColor],
-                        gradientStops: const [0.0, 0.25, 0.50, 0.67, 1.0],
+                        topGlowGradientColors: const [
+                          Color(0xFFFACC15),
+                          Color(0xFFF97316),
+                          Color(0xFFA855F7),
+                        ],
                       ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _bentoStatCard(
+                child: _buildOptimizedMetricCard(
                   icon: Icons.eco_rounded,
-                  accentColor: aqiAccent,
-                  iconBgColor: aqiBg,
+                  accentColor: isDark ? const Color(0xFF34D399) : const Color(0xFF059669),
+                  iconBgColor: isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5),
                   label: l10n.weatherAirQuality,
-                  value: 'AQI $aqi',
-                  statusSubtitle: aqiStatus,
-                  insightText: aqiInsight,
+                  subLabel: l10n.weatherAirQualitySub,
+                  valueStr: '$aqi',
+                  unitStr: 'AQI',
+                  statusText: aqiStatus,
+                  statusBgColor: aqiStatusBg,
+                  statusTextColor: aqiStatusText,
+                  gaugeSteps: [
+                    l10n.gaugeAqiStep1,
+                    l10n.gaugeAqiStep2,
+                    l10n.gaugeAqiStep3,
+                    l10n.gaugeAqiStep4,
+                  ],
                   progressValue: (aqi / 300.0).clamp(0.0, 1.0),
+                  spectrumGradientColors: const [
+                    Color(0xFF34D399),
+                    Color(0xFFFBBF24),
+                    Color(0xFFF97316),
+                    Color(0xFFF87171),
+                  ],
+                  spectrumGradientStops: const [0.0, 0.33, 0.66, 1.0],
+                  tipIcon: Icons.directions_walk_rounded,
+                  tipText: aqiInsight,
                   isDark: isDark,
-                  gradientColors: [greenColor, amberColor, orangeColor, redColor, purpleColor],
-                  gradientStops: const [0.0, 0.17, 0.33, 0.50, 1.0],
+                  topGlowGradientColors: const [
+                    Color(0xFF34D399),
+                    Color(0xFF0D9488),
+                  ],
                 ),
               ),
             ],
@@ -789,158 +959,222 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     );
   }
 
-  /// Card placeholder UV ban đêm — thay "UV 0.0" bằng thông báo thân thiện
   Widget _bentoNightUvCard({required bool isDark}) {
     final bgColor = isDark
-        ? const Color(0xFF1E293B).withValues(alpha: 0.85)
-        : Colors.white.withValues(alpha: 0.90);
+        ? const Color(0xFF1E293B)
+        : Colors.white;
     final nightAccent = isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1);
 
     return _PressableCard(
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: nightAccent.withValues(alpha: 0.18), width: 1.2),
-              boxShadow: [
-                BoxShadow(
-                  color: nightAccent.withValues(alpha: isDark ? 0.12 : 0.07),
-                  blurRadius: 14,
-                  offset: const Offset(0, 4),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: nightAccent.withValues(alpha: 0.22), width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: nightAccent.withValues(alpha: isDark ? 0.14 : 0.08),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 3.5,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF6366F1), Color(0xFFA855F7)],
+                  ),
                 ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 11, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF1E1B4B) : const Color(0xFFEEF2FF),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: nightAccent.withValues(alpha: 0.3),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.nights_stay_rounded,
+                            size: 16,
+                            color: nightAccent,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.weatherUvIndex,
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                l10n.weatherUvSub,
+                                style: TextStyle(
+                                  fontSize: 9.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                  letterSpacing: 0.5,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.all(5.5),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7),
-                        borderRadius: BorderRadius.circular(9),
+                        color: nightAccent.withValues(alpha: isDark ? 0.20 : 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: nightAccent.withValues(alpha: 0.35),
+                          width: 0.8,
+                        ),
                       ),
-                      child: Icon(
-                        Icons.wb_sunny_rounded,
-                        size: 15,
-                        color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+                      child: Text(
+                        l10n.weatherNighttime,
+                        style: TextStyle(
+                          fontSize: 10.0,
+                          fontWeight: FontWeight.w700,
+                          color: nightAccent,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        l10n.weatherUvIndex,
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white70 : const Color(0xFF475569),
-                          letterSpacing: -0.2,
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            '0.0',
+                            style: TextStyle(
+                              fontSize: 28.0,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              letterSpacing: -0.8,
+                              height: 1.0,
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            'UV',
+                            style: TextStyle(
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: nightAccent.withValues(alpha: isDark ? 0.12 : 0.07),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: nightAccent.withValues(alpha: isDark ? 0.22 : 0.14),
+                          width: 0.8,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1.5),
+                            child: Container(
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                color: nightAccent.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.dark_mode_rounded,
+                                size: 11,
+                                color: nightAccent,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              l10n.insightUvNight,
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w500,
+                                color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+                                height: 1.35,
+                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('🌙', style: const TextStyle(fontSize: 22)),
-                      const SizedBox(height: 3),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
-                        decoration: BoxDecoration(
-                          color: nightAccent.withValues(alpha: isDark ? 0.20 : 0.12),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          l10n.weatherNighttime,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
-                            color: nightAccent,
-                            height: 1.1,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 5,
-                  width: double.infinity,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      color: nightAccent.withValues(alpha: 0.12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 28,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Icon(
-                          Icons.info_outline_rounded,
-                          size: 11,
-                          color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Text(
-                          l10n.weatherNightUvInsight,
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                            height: 1.25,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _bentoStatCard({
+  Widget _buildOptimizedMetricCard({
     required IconData icon,
     required Color accentColor,
     required Color iconBgColor,
     required String label,
-    required String value,
-    required String statusSubtitle,
-    required String insightText,
+    required String subLabel,
+    required String valueStr,
+    required String unitStr,
+    required String statusText,
+    required Color statusBgColor,
+    required Color statusTextColor,
+    required List<String> gaugeSteps,
     required double progressValue,
+    required List<Color> spectrumGradientColors,
+    required List<double> spectrumGradientStops,
+    required IconData tipIcon,
+    required String tipText,
     required bool isDark,
-    required List<Color> gradientColors,
-    required List<double> gradientStops,
+    required List<Color> topGlowGradientColors,
   }) {
     final baseBg = isDark
         ? const Color(0xFF1E293B)
@@ -949,182 +1183,259 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
 
     return _PressableCard(
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
-            decoration: BoxDecoration(
-              color: baseBg,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: borderColor, width: 1.2),
-              boxShadow: [
-                BoxShadow(
-                  color: accentColor.withValues(alpha: isDark ? 0.14 : 0.08),
-                  blurRadius: 14,
-                  offset: const Offset(0, 4),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: baseBg,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: borderColor, width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: accentColor.withValues(alpha: isDark ? 0.14 : 0.08),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 3.5,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: topGlowGradientColors,
+                  ),
                 ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Tầng 1: Icon + Label
-                Row(
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 11, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(5.5),
-                      decoration: BoxDecoration(
-                        color: iconBgColor,
-                        borderRadius: BorderRadius.circular(9),
-                      ),
-                      child: Icon(icon, size: 15, color: accentColor),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white70 : const Color(0xFF475569),
-                          letterSpacing: -0.2,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: iconBgColor,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: accentColor.withValues(alpha: 0.25),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Icon(icon, size: 16, color: accentColor),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-
-                // Tầng 2: Số liệu chính & Subhead Chip
-                Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        value,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
-                          letterSpacing: -0.8,
-                          height: 1.0,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                label,
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                subLabel,
+                                style: TextStyle(
+                                  fontSize: 9.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                  letterSpacing: 0.5,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 5),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
+                          color: statusBgColor,
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: statusTextColor.withValues(alpha: 0.35),
+                            width: 0.8,
+                          ),
                         ),
                         child: Text(
-                          statusSubtitle,
-                          textAlign: TextAlign.center,
+                          statusText,
                           style: TextStyle(
-                            fontSize: 10.5,
+                            fontSize: 10.0,
                             fontWeight: FontWeight.w700,
-                            color: accentColor,
-                            height: 1.1,
+                            color: statusTextColor,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Tầng 3: Progress bar gradient (Uncompressed Full-Width Spectrum Clipping)
-                SizedBox(
-                  height: 5,
-                  width: double.infinity,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final totalWidth = constraints.maxWidth;
-                      final filledWidth = totalWidth * progressValue.clamp(0.0, 1.0);
-
-                      return Stack(
-                        alignment: Alignment.centerLeft,
-                        children: [
-                          Container(
-                            height: 5,
-                            width: totalWidth,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(3),
-                              gradient: LinearGradient(
-                                colors: gradientColors.map((c) => c.withValues(alpha: 0.20)).toList(),
-                                stops: gradientStops,
-                              ),
-                            ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          valueStr,
+                          style: TextStyle(
+                            fontSize: 28.0,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            letterSpacing: -0.8,
+                            height: 1.0,
                           ),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(3),
-                            child: SizedBox(
-                              height: 5,
-                              width: filledWidth,
-                              child: OverflowBox(
-                                alignment: Alignment.centerLeft,
-                                minWidth: totalWidth,
-                                maxWidth: totalWidth,
-                                child: Container(
-                                  height: 5,
-                                  width: totalWidth,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: gradientColors,
-                                      stops: gradientStops,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                        ),
+                        if (unitStr.isNotEmpty) ...[
+                          const SizedBox(width: 3),
+                          Text(
+                            unitStr,
+                            style: TextStyle(
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white60 : const Color(0xFF64748B),
                             ),
                           ),
                         ],
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: gaugeSteps.map((step) {
+                            return Text(
+                              step,
+                              style: TextStyle(
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 3),
+                        SizedBox(
+                          height: 12,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final totalWidth = constraints.maxWidth;
+                              final clampedProgress = progressValue.clamp(0.0, 1.0);
+                              final thumbLeft = (totalWidth - 11) * clampedProgress;
 
-                // Tầng 4: Insight text với chiều cao cố định 28px
-                SizedBox(
-                  height: 28,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Icon(
-                          Icons.tips_and_updates_rounded,
-                          size: 11,
-                          color: accentColor.withValues(alpha: 0.70),
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Text(
-                          insightText,
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                            height: 1.25,
+                              return Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Container(
+                                    height: 7,
+                                    width: totalWidth,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(3.5),
+                                      gradient: LinearGradient(
+                                        colors: spectrumGradientColors,
+                                        stops: spectrumGradientStops,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    left: thumbLeft,
+                                    child: Container(
+                                      width: 11,
+                                      height: 11,
+                                      decoration: BoxDecoration(
+                                        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: accentColor,
+                                          width: 2.2,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: accentColor.withValues(alpha: 0.4),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: isDark ? 0.12 : 0.07),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: accentColor.withValues(alpha: isDark ? 0.22 : 0.14),
+                          width: 0.8,
                         ),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1.5),
+                            child: Container(
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                color: accentColor.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                tipIcon,
+                                size: 11,
+                                color: accentColor,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              tipText,
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w500,
+                                color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+                                height: 1.35,
+                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1222,11 +1533,14 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
     }
     final totalSpan = (globalMax - globalMin).clamp(1.0, 100.0);
 
+    final currentTempObj = ref.watch(currentWeatherProvider).currentWeather.valueOrNull;
+    final currentTemp = currentTempObj?.temperature;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFE2E8F0),
           width: 1.0,
@@ -1234,141 +1548,252 @@ class _SheetBodyState extends ConsumerState<_SheetBody> {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        children: List.generate(limit, (i) {
-          final d = days[i];
-          final dayLabel = _fmtDailyLabel(i, d.date);
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                // Cột 1: Tên ngày (vd: Hôm nay, Thứ Hai...)
-                SizedBox(
-                  width: 82,
-                  child: Text(
-                    dayLabel,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Widget: '7 ngày tới' + 'Thang nhiệt chuẩn iOS (°C)'
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.calendar_month_rounded, size: 16, color: Color(0xFF0EA5E9)),
+                  const SizedBox(width: 6),
+                  Text(
+                    context.l10n.weatherDailyForecast,
                     style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
                   ),
+                ],
+              ),
+              Text(
+                'Thang nhiệt chuẩn iOS (°C)',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white.withValues(alpha: 0.50) : const Color(0xFF64748B),
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Divider(height: 1, color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
+          const SizedBox(height: 6),
 
-                // Cột 2: Icon thời tiết + % Khả năng mưa
-                SizedBox(
-                  width: 62,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      WeatherIconWidget(
-                        weatherCode: d.weatherCode,
-                        size: 20,
-                        isNight: false,
+          // 7-day forecast rows
+          ...List.generate(limit, (i) {
+            final d = days[i];
+            final dayLabel = _fmtDailyLabel(i, d.date);
+            final isToday = i == 0;
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.5),
+              child: Row(
+                children: [
+                  // Cột 1: Tên ngày (vd: Hôm nay, Thứ Hai...)
+                  SizedBox(
+                    width: 82,
+                    child: Text(
+                      dayLabel,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${d.rainProbability}%',
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF38BDF8),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
 
-                // Cột 3: Nhiệt độ thấp nhất
-                SizedBox(
-                  width: 32,
-                  child: Text(
-                    '${d.tempMin.round()}°',
-                    textAlign: TextAlign.right,
+                  // Cột 2: Icon thời tiết + % Khả năng mưa
+                  SizedBox(
+                    width: 62,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        WeatherIconWidget(
+                          weatherCode: d.weatherCode,
+                          size: 20,
+                          isNight: false,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${d.rainProbability}%',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0EA5E9),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Cột 3: Nhiệt độ thấp nhất
+                  SizedBox(
+                    width: 32,
+                    child: Text(
+                      '${d.tempMin.round()}°',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // Cột 4: Thanh Range Bar dải nhiệt độ (Continuous Multi-stop Gradient chuẩn iOS)
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final trackWidth = constraints.maxWidth;
+                        final minRatio = ((d.tempMin - globalMin) / totalSpan).clamp(0.0, 1.0);
+                        final maxRatio = ((d.tempMax - globalMin) / totalSpan).clamp(0.0, 1.0);
+
+                        final leftPos = trackWidth * minRatio;
+                        final barWidth = ((maxRatio - minRatio) * trackWidth).clamp(12.0, trackWidth);
+
+                        final gradientColors = _generateRangeGradientColors(d.tempMin, d.tempMax);
+
+                        // Con trỏ nốt tròn nhiệt độ hiện tại (temp-dot)
+                        final currentVal = (isToday && currentTemp != null) ? currentTemp : d.tempMin;
+                        final dotRatioInBar = ((currentVal - d.tempMin) / (d.tempMax - d.tempMin).clamp(1.0, 100.0)).clamp(0.0, 1.0);
+                        final dotLeftPos = leftPos + (barWidth * dotRatioInBar) - 5.5;
+
+                        return SizedBox(
+                          height: 11.0,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.centerLeft,
+                            children: [
+                              // Track nền xám nhạt (Light Grey Track)
+                              Container(
+                                width: double.infinity,
+                                height: 5.5,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.12)
+                                      : const Color(0xFFE2E8F0),
+                                  borderRadius: BorderRadius.circular(3.0),
+                                ),
+                              ),
+                              // Đoạn nhiệt độ của ngày (Active Dynamic Range Gradient Bar)
+                              Positioned(
+                                left: leftPos,
+                                width: barWidth,
+                                top: 2.75,
+                                height: 5.5,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(3.0),
+                                    gradient: LinearGradient(
+                                      colors: gradientColors,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Con trỏ temp-dot nhiệt độ hiện tại (cho Hôm nay)
+                              if (isToday)
+                                Positioned(
+                                  left: dotLeftPos.clamp(0.0, trackWidth - 11.0),
+                                  top: 0,
+                                  child: Container(
+                                    width: 11.0,
+                                    height: 11.0,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: const Color(0xFF0EA5E9),
+                                        width: 2.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.25),
+                                          blurRadius: 6,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // Cột 5: Nhiệt độ cao nhất
+                  SizedBox(
+                    width: 32,
+                    child: Text(
+                      '${d.tempMax.round()}°',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+
+          const SizedBox(height: 8),
+          Divider(height: 1, color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
+          const SizedBox(height: 10),
+
+          // Bottom Bar Info & Legend Footer
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.info_outline_rounded, size: 12, color: Color(0xFF0EA5E9)),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Dải màu phản ánh chuẩn nhiệt độ toàn tuần',
                     style: TextStyle(
-                      fontSize: 13.5,
+                      fontSize: 10.5,
                       fontWeight: FontWeight.w500,
                       color: isDark ? Colors.white60 : const Color(0xFF64748B),
                     ),
                   ),
-                ),
-
-                const SizedBox(width: 10),
-
-                // Cột 4: Thanh Range Bar dải nhiệt độ (Gradient Xanh -> Cam)
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final trackWidth = constraints.maxWidth;
-                      final minRatio = ((d.tempMin - globalMin) / totalSpan).clamp(0.0, 1.0);
-                      final maxRatio = ((d.tempMax - globalMin) / totalSpan).clamp(0.0, 1.0);
-
-                      final leftPos = trackWidth * minRatio;
-                      final barWidth = ((maxRatio - minRatio) * trackWidth).clamp(8.0, trackWidth);
-
-                      return SizedBox(
-                        height: 4.5,
-                        child: Stack(
-                          children: [
-                            // Track nền xám nhạt
-                            Container(
-                              width: double.infinity,
-                              height: 4.5,
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? Colors.white.withValues(alpha: 0.12)
-                                    : const Color(0xFFE2E8F0),
-                                borderRadius: BorderRadius.circular(2.25),
-                              ),
-                            ),
-                            // Đoạn nhiệt độ của ngày (Gradient Xanh -> Cam)
-                            Positioned(
-                              left: leftPos,
-                              width: barWidth,
-                              top: 0,
-                              bottom: 0,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(2.25),
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF3B82F6), Color(0xFFF59E0B)],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                // Cột 5: Nhiệt độ cao nhất
-                SizedBox(
-                  width: 32,
-                  child: Text(
-                    '${d.tempMax.round()}°',
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildLegendDot('Mát (<25°)', const Color(0xFF0EA5E9), isDark),
+                  const SizedBox(width: 6),
+                  _buildLegendDot('Ấm (25-28°)', const Color(0xFF10B981), isDark),
+                  const SizedBox(width: 6),
+                  _buildLegendDot('Nắng (29-32°)', const Color(0xFFF59E0B), isDark),
+                  const SizedBox(width: 6),
+                  _buildLegendDot('Nóng (>33°)', const Color(0xFFEF4444), isDark),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1468,7 +1893,7 @@ class _HourlyCardWidgetState extends State<_HourlyCardWidget> {
   Widget build(BuildContext context) {
     final h = widget.hourly;
     final isDark = widget.isDark;
-    final timeLabel = widget.isNow ? 'Now' : _fmtHHmm(h.time);
+    final timeLabel = widget.isNow ? context.l10n.weatherNow : _fmtHHmm(h.time);
 
     final isSelected = widget.isSelected;
     final isHovered = _isHovered && !isSelected;

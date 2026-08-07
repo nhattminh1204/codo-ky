@@ -7,14 +7,24 @@ import 'package:codoky/features/map/presentation/widgets/place_marker.dart';
 
 class MapToolbarWidget extends ConsumerWidget {
   final bool isAutoFollowUser;
+  final bool is3dPerspective;
   final VoidCallback onRecenterGps;
   final VoidCallback onLocateUser;
+  final VoidCallback? onFitRouteOverview;
+  final VoidCallback? onToggle3dPerspective;
+  final VoidCallback? onToggleLayers;
+  final bool isLayerPanelOpen;
 
   const MapToolbarWidget({
     super.key,
     required this.isAutoFollowUser,
+    this.is3dPerspective = true,
     required this.onRecenterGps,
     required this.onLocateUser,
+    this.onFitRouteOverview,
+    this.onToggle3dPerspective,
+    this.onToggleLayers,
+    this.isLayerPanelOpen = false,
   });
 
   @override
@@ -23,56 +33,138 @@ class MapToolbarWidget extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = context.l10n;
 
+    final bool isNavigatingActive = state.activeRoute != null;
+
+    if (isNavigatingActive) {
+      // Khi đang dẫn đường trực tiếp:
+      // 1. Nút Tái định tâm / Zoom cận cảnh vị trí xe của tôi (Recenter GPS)
+      // 2. Nút Chuyển đổi Góc nhìn 3D theo hướng xe (Heading-Up) vs 2D hướng Bắc (North-Up)
+      // 3. Nút Zoom ra xem toàn cảnh tổng thể tuyến đường (Route Overview Fit Bounds)
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 1. Nút Zoom đến vị trí bản thân / Tái định tâm GPS (Sáng xanh Cyan khi đang bám xe)
+          _buildCircularFloatingButton(
+            context: context,
+            icon: isAutoFollowUser ? Icons.gps_fixed_rounded : Icons.location_searching_rounded,
+            tooltip: l10n.recenterTooltip,
+            iconColor: isAutoFollowUser
+                ? const Color(0xFF38BDF8)
+                : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+            onPressed: onRecenterGps,
+          ),
+
+          const SizedBox(height: 12),
+
+          // 2. Nút Góc nhìn 3D theo hướng xe (Heading-Up) vs 2D hướng Bắc (North-Up)
+          _buildCircularFloatingButton(
+            context: context,
+            icon: is3dPerspective ? Icons.explore_rounded : Icons.explore_off_rounded,
+            tooltip: is3dPerspective ? l10n.perspective3dTooltip : l10n.perspective2dTooltip,
+            iconColor: is3dPerspective
+                ? const Color(0xFF818CF8) // Tím Indigo / Lavender năng động
+                : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+            onPressed: onToggle3dPerspective ?? onRecenterGps,
+          ),
+
+          const SizedBox(height: 12),
+
+          // 3. Nút Zoom ra xem toàn cảnh tuyến đường đi (Route Overview)
+          _buildCircularFloatingButton(
+            context: context,
+            icon: Icons.route_rounded,
+            tooltip: l10n.routeOverviewTooltip,
+            iconColor: const Color(0xFF10B981),
+            onPressed: onFitRouteOverview ?? onRecenterGps,
+          ),
+        ],
+      );
+    }
+
+    // Khi ở chế độ xem bản đồ tự do (Browsing mode)
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 1. Tùy chỉnh phong cách Icon
+        _buildCircularFloatingButton(
+          context: context,
+          icon: Icons.palette_outlined,
+          tooltip: l10n.mapStyleTooltip,
+          iconColor: isDark ? Colors.white70 : const Color(0xFF2563EB),
+          onPressed: () => _showIconStyleDrawer(context, ref),
+        ),
+
+        const SizedBox(height: 12),
+
+        // 2. Định vị vị trí hiện tại
+        _buildCircularFloatingButton(
+          context: context,
+          icon: Icons.my_location_rounded,
+          tooltip: l10n.myLocationTooltip,
+          iconColor: isDark ? Colors.white : const Color(0xFF1E293B),
+          onPressed: onLocateUser,
+        ),
+
+        const SizedBox(height: 12),
+
+        // 3. Lớp bản đồ POI & Di tích
+        _buildCircularFloatingButton(
+          context: context,
+          icon: isLayerPanelOpen ? Icons.layers_rounded : Icons.layers_outlined,
+          tooltip: l10n.layersTooltip,
+          iconColor: isLayerPanelOpen
+              ? const Color(0xFF38BDF8)
+              : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+          onPressed: onToggleLayers ?? () => _showIconStyleDrawer(context, ref),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCircularFloatingButton({
+    required BuildContext context,
+    required IconData icon,
+    required VoidCallback onPressed,
+    String? tooltip,
+    Color? iconColor,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final defaultColor = isDark ? Colors.white : const Color(0xFF1E222A);
+
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? const Color(0xFF1E222D) : Colors.white,
+        shape: BoxShape.circle,
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.08),
+          color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08),
           width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
+            color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.15),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 1. Theme Palette
-          _buildControlIconButton(
-            context: context,
-            icon: Icons.palette_outlined,
-            tooltip: l10n.mapStyleTooltip,
-            iconColor: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF2563EB),
-            onPressed: () => _showIconStyleDrawer(context, ref),
-          ),
-          _buildControlDivider(isDark),
-
-          // 2. Recenter GPS (Active Route & panned map)
-          if (state.activeRoute != null && !isAutoFollowUser) ...[
-            _buildControlIconButton(
-              context: context,
-              icon: Icons.gps_fixed_rounded,
-              tooltip: l10n.recenterTooltip,
-              iconColor: const Color(0xFF2563EB),
-              onPressed: onRecenterGps,
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: onPressed,
+          customBorder: const CircleBorder(),
+          child: Tooltip(
+            message: tooltip ?? '',
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Icon(
+                icon,
+                size: 20,
+                color: iconColor ?? defaultColor,
+              ),
             ),
-            _buildControlDivider(isDark),
-          ],
-
-          // 3. Locate User GPS
-          _buildControlIconButton(
-            context: context,
-            icon: Icons.my_location_rounded,
-            tooltip: l10n.myLocationTooltip,
-            iconColor: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF2563EB),
-            onPressed: onLocateUser,
           ),
-        ],
+        ),
       ),
     );
   }

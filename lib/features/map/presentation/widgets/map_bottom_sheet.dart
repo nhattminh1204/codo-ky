@@ -332,7 +332,7 @@ class _MapBottomSheetState extends ConsumerState<MapBottomSheet> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${l10n.navigatingTo} $address',
+                        l10n.navigatingTo(address),
                         style: TextStyle(
                           color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                           fontSize: 12,

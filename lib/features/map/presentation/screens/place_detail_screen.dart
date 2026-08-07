@@ -176,6 +176,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
       );
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final reviewState = ref.watch(reviewProvider);
     final placeReviews = reviewState.allReviews;
     final l10n = context.l10n;
@@ -598,7 +599,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> with Tick
                               ),
                               children: [
                                 TileLayer(
-                                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  urlTemplate: isDark
+                                      ? 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+                                      : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                   userAgentPackageName: 'com.codoky.app',
                                 ),
                                 MarkerLayer(

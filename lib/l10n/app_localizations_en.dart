@@ -1798,6 +1798,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weatherLocationHue => 'Hue City';
 
   @override
+  String get weatherAdvancedMetrics => 'Advanced Weather Parameters';
+
+  @override
+  String get weatherSwipeUpHint => 'Swipe up for advanced parameters';
+
+  @override
+  String get weatherLiveStatus => 'Live';
+
+  @override
+  String get weatherRefreshing => 'Refreshing...';
+
+  @override
   String get weatherUvLow => 'Low';
 
   @override
@@ -1811,4 +1823,205 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weatherUvExtreme => 'Extreme';
+
+  @override
+  String get travelAdvisorTitle => 'Hue Travel Tips';
+
+  @override
+  String get travelAdvisorRainAdvice => 'Showers expected in Hue. Consider bringing an umbrella and visiting indoor heritage spots like the Royal Fine Arts Museum.';
+
+  @override
+  String get travelAdvisorSunnyAdvice => 'Bright sunny weather in Hue. Ideal for early morning or late afternoon visits. Remember sun protection.';
+
+  @override
+  String get travelAdvisorIdealAdvice => 'Imperial weather is lovely! Ideal for strolling around the Citadel, Royal Tombs, or taking a Dragon Boat trip on Perfume River.';
+
+  @override
+  String get travelAdvisorCoolAdvice => 'Chilly weather. Perfect for enjoying lotus tea, Hue sweet soup, and evening walks around the Citadel.';
+
+  @override
+  String get travelAdvisorBringUmbrella => 'Bring umbrella';
+
+  @override
+  String get travelAdvisorSunProtection => 'Sun protection needed';
+
+  @override
+  String get travelAdvisorIndoorPriority => 'Indoor spots recommended';
+
+  @override
+  String get travelAdvisorOutdoorIdeal => 'Great for outdoor sightseeing';
+
+  @override
+  String get insightHumidityGood => 'Pleasant & cool, ideal for Citadel & Old Town walks';
+
+  @override
+  String get insightHumidityModerate => 'Slightly humid, might feel a bit warm while walking';
+
+  @override
+  String get insightHumidityHigh => 'Hot & humid, wear lightweight cotton clothes';
+
+  @override
+  String get insightHumidityLow => 'Dry Foehn wind, drink plenty of water';
+
+  @override
+  String get insightWindGood => 'Calm breeze, perfect for Perfume River Dragon Boat';
+
+  @override
+  String get insightWindModerate => 'Breezy & fresh around Thien Mu Pagoda';
+
+  @override
+  String get insightWindHigh => 'Strong wind, stay cautious on Trang Tien Bridge';
+
+  @override
+  String get insightUvGood => 'Safe for skin, enjoy taking outdoor photos';
+
+  @override
+  String get insightUvModerate => 'Moderate sun, wear a conical hat at Royal Tombs';
+
+  @override
+  String get insightUvHigh => 'Strong UV, wear hat & apply sunscreen';
+
+  @override
+  String get insightAqiGood => 'Fresh Imperial air, great for sightseeing';
+
+  @override
+  String get insightAqiModerate => 'Acceptable air, comfortable for outdoor activities';
+
+  @override
+  String get insightAqiUnhealthy => 'Wear a mask while traveling by motorbike';
+
+  @override
+  String get statusHumidityHigh => 'Hot & Humid';
+
+  @override
+  String get statusHumidityLow => 'Dry Foehn Wind';
+
+  @override
+  String get statusHumidityModerate => 'Slightly Humid';
+
+  @override
+  String get statusHumidityGood => 'Pleasant & Dry';
+
+  @override
+  String get statusWindHigh => 'Strong Wind / Storm';
+
+  @override
+  String get statusWindModerate => 'Moderate Wind';
+
+  @override
+  String get statusWindGood => 'Light Breeze';
+
+  @override
+  String get statusUvHigh => 'Very High UV';
+
+  @override
+  String get statusUvModerate => 'Moderate UV';
+
+  @override
+  String get statusUvGood => 'Low UV';
+
+  @override
+  String get statusAqiUnhealthy => 'Unhealthy Air';
+
+  @override
+  String get statusAqiModerate => 'Moderate Air';
+
+  @override
+  String get statusAqiGood => 'Good Air';
+
+  @override
+  String get weatherHumiditySub => 'HUMIDITY';
+
+  @override
+  String get weatherWindSub => 'WIND SPEED';
+
+  @override
+  String get weatherUvSub => 'UV INDEX';
+
+  @override
+  String get weatherAirQualitySub => 'AIR QUALITY';
+
+  @override
+  String get gaugeHumidityStep1 => '0%';
+
+  @override
+  String get gaugeHumidityStep2 => 'Dry';
+
+  @override
+  String get gaugeHumidityStep3 => 'Ideal';
+
+  @override
+  String get gaugeHumidityStep4 => 'Humid';
+
+  @override
+  String get gaugeHumidityStep5 => '100%';
+
+  @override
+  String get gaugeWindStep1 => '0';
+
+  @override
+  String get gaugeWindStep2 => 'Calm';
+
+  @override
+  String get gaugeWindStep3 => 'Light';
+
+  @override
+  String get gaugeWindStep4 => 'Moderate';
+
+  @override
+  String get gaugeWindStep5 => 'Strong (50+)';
+
+  @override
+  String get gaugeUvStep1 => '0 (Low)';
+
+  @override
+  String get gaugeUvStep2 => 'Moderate';
+
+  @override
+  String get gaugeUvStep3 => 'High';
+
+  @override
+  String get gaugeUvStep4 => '11+ (Extreme)';
+
+  @override
+  String get gaugeAqiStep1 => '0 (Good)';
+
+  @override
+  String get gaugeAqiStep2 => 'Moderate';
+
+  @override
+  String get gaugeAqiStep3 => 'Unhealthy';
+
+  @override
+  String get gaugeAqiStep4 => '300+ (Hazardous)';
+
+  @override
+  String get weatherSimulateTitle => 'Weather Data Simulation';
+
+  @override
+  String get weatherSimulateSubtitle => 'Drag the sliders below to test UI responsiveness, status badges & corresponding travel tips:';
+
+  @override
+  String get weatherSimulateReset => 'Reset Default';
+
+  @override
+  String get weatherSimulateClose => 'Done';
+
+  @override
+  String get weatherSimulateToggle => 'Simulate';
+
+  @override
+  String get statusUvExtreme => 'Extreme UV';
+
+  @override
+  String get statusAqiHazardous => 'Hazardous Air';
+
+  @override
+  String get insightUvExtreme => 'Extreme UV, avoid outdoor exposure between 11 AM - 2 PM';
+
+  @override
+  String get insightAqiHazardous => 'Very poor air quality, wearing a protective mask is advised';
+
+  @override
+  String get insightUvNight => 'Nighttime, UV is 0. Completely safe to enjoy Hue night streets';
 }

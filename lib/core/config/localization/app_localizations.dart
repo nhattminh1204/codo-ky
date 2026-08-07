@@ -476,6 +476,7 @@ class AppLocalizations {
   String get mapStyleTooltip => _t('Đổi phong cách bản đồ', 'Change map style');
   String get recenterTooltip => _t('Theo dõi lại vị trí', 'Re-center to my location');
   String get myLocationTooltip => _t('Vị trí của tôi', 'My location');
+  String get layersTooltip => _t('Lớp bản đồ', 'Map Layers');
   String get iconStyleTitle => _t('Tùy Chỉnh Phong Cách Icon', 'Customize Icon Style');
   String get iconStyleSubtitle => _t('Chọn phong cách biểu tượng hiện đại & trẻ trung', 'Choose a modern & youthful icon style');
   String get styleGlowTitle => _t('Gradient Vibrant Glow', 'Gradient Vibrant Glow');
@@ -484,6 +485,16 @@ class AppLocalizations {
   String get styleDuotoneSubtitle => _t('Trong suốt 2 tông màu tinh tế, sang trọng', 'Subtle, elegant two-tone transparency');
   String get style3dTitle => _t('3D Playful Pop', '3D Playful Pop');
   String get style3dSubtitle => _t('Khối 3D bo tròn đầy năng lượng tuổi trẻ', 'Rounded 3D blocks full of youthful energy');
+
+  String get territoryLayersTooltip => _t('Lớp ranh giới lãnh thổ', 'Territory boundary layers');
+  String get territoryLayersTitle => _t('Quản Lý Lớp Lãnh Thổ', 'Manage Territory Layers');
+  String get territoryLayersSubtitle => _t('Bật/tắt các ranh giới lãnh thổ & chủ quyền biển đảo', 'Toggle territory boundaries & maritime sovereignty layers');
+  String get eezLayerTitle => _t('Vùng EEZ (200 Hải Lý)', 'EEZ Zone (200 NM)');
+  String get eezLayerSubtitle => _t('Ranh giới vùng đặc quyền kinh tế trên Biển Đông', 'Exclusive Economic Zone boundary in the East Sea');
+  String get territorialSeaTitle => _t('Lãnh Hải (12 Hải Lý)', 'Territorial Sea (12 NM)');
+  String get territorialSeaSubtitle => _t('Đường ranh giới lãnh hải quốc gia ven bờ', 'National coastal territorial sea boundary line');
+  String get worldMaskTitle => _t('Phủ Mờ Quốc Gia Khác', 'Dim Non-Vietnam Areas');
+  String get worldMaskSubtitle => _t('Tập trung làm nổi bật bản đồ Việt Nam', 'Focus & highlight Vietnam territorial map');
 
   String get savedCategory => _t('Địa điểm đã lưu', 'Saved Places');
   String get attractionCategory => _t('Địa điểm & Di tích', 'Attractions & Monuments');
@@ -612,6 +623,21 @@ class AppLocalizations {
   String get catTemple => _t('Chùa chiền', 'Temple');
   String get catTomb => _t('Lăng tẩm', 'Tomb');
   String get catSightseeing => _t('Tham quan', 'Sightseeing');
+
+  String get searchAlongRoute => _t('Tìm dọc tuyến đường...', 'Search along route...');
+  String get bestRouteBadge => _t('Đường tốt nhất', 'Best route');
+  String get distanceHeader => _t('Khoảng cách', 'Distance');
+  String get durationHeader => _t('Thời gian', 'Duration');
+  String get etaHeader => _t('Đến lúc', 'Arrive by');
+  String get speedLimit50 => _t('50\nkm/h', '50\nkm/h');
+  String get speedLimitSignTooltip => _t('Tốc độ tối đa cho phép: 50 km/h', 'Speed limit: 50 km/h');
+  String get currentSpeedTooltip => _t('Tốc độ GPS thực tế của xe', 'Current live GPS speed');
+  String get compassTooltip => _t('La bàn hướng đi', 'Navigation compass');
+  String get routeOverviewTooltip => _t('Xem toàn cảnh lộ trình', 'Route overview');
+  String get gasStations => _t('Cây xăng dọc đường', 'Gas stations along route');
+  String get parkingLots => _t('Bãi đỗ xe', 'Parking lots');
+  String get coffeeSpots => _t('Quán cafe & Trà Huế', 'Hue Coffee & Tea spots');
+  String get turnByTurnSteps => _t('Chi tiết các ngã rẽ', 'Turn-by-turn steps');
 
   String get reviewsWritten => _t('Đánh giá đã viết', 'Reviews Written');
   String get likesReceived => _t('Lượt thích nhận được', 'Likes Received');
@@ -880,6 +906,61 @@ class AppLocalizations {
   String get statusAqiUnhealthy => _t('Kém / Khói bụi', 'Unhealthy Air');
   String get statusAqiModerate => _t('Trung bình', 'Moderate Air');
   String get statusAqiGood => _t('Tốt', 'Good Air');
+  String get weatherNow => _t('Bây giờ', 'Now');
+
+  String get weatherHumiditySub => _t('HUMIDITY', 'HUMIDITY');
+  String get weatherWindSub => _t('WIND SPEED', 'WIND SPEED');
+  String get weatherUvSub => _t('UV INDEX', 'UV INDEX');
+  String get weatherAirQualitySub => _t('AIR QUALITY', 'AIR QUALITY');
+
+  String get gaugeHumidityStep1 => _t('0%', '0%');
+  String get gaugeHumidityStep2 => _t('Khô', 'Dry');
+  String get gaugeHumidityStep3 => _t('Lý tưởng', 'Ideal');
+  String get gaugeHumidityStep4 => _t('Ẩm ướt', 'Humid');
+  String get gaugeHumidityStep5 => _t('100%', '100%');
+
+  String get gaugeWindStep1 => _t('0', '0');
+  String get gaugeWindStep2 => _t('Êm', 'Calm');
+  String get gaugeWindStep3 => _t('Nhẹ', 'Light');
+  String get gaugeWindStep4 => _t('Vừa', 'Moderate');
+  String get gaugeWindStep5 => _t('Mạnh (50+)', 'Strong (50+)');
+
+  String get gaugeUvStep1 => _t('0 (Thấp)', '0 (Low)');
+  String get gaugeUvStep2 => _t('Trung bình', 'Moderate');
+  String get gaugeUvStep3 => _t('Cao', 'High');
+  String get gaugeUvStep4 => _t('11+ (Gắt)', '11+ (Extreme)');
+
+  String get gaugeAqiStep1 => _t('0 (Tốt)', '0 (Good)');
+  String get gaugeAqiStep2 => _t('T.Bình', 'Moderate');
+  String get gaugeAqiStep3 => _t('Kém', 'Unhealthy');
+  String get gaugeAqiStep4 => _t('300+ (Xấu)', '300+ (Hazardous)');
+
+  String get weatherSimulateTitle => _t('Mô phỏng dữ liệu thời tiết', 'Weather Data Simulation');
+  String get weatherSimulateSubtitle => _t(
+        'Kéo các thanh trượt bên dưới để thử nghiệm phản hồi giao diện, badge trạng thái & lời khuyên du lịch tương ứng:',
+        'Drag the sliders below to test UI responsiveness, status badges & corresponding travel tips:',
+      );
+  String get weatherSimulateReset => _t('Đặt lại mặc định', 'Reset Default');
+  String get weatherSimulateClose => _t('Hoàn tất', 'Done');
+  String get weatherSimulateToggle => _t('Mô phỏng', 'Simulate');
+
+  String get statusUvExtreme => _t('UV Rất Gay Gắt', 'Extreme UV');
+  String get statusAqiHazardous => _t('Xấu / Nguy hại', 'Hazardous Air');
+
+  String get insightUvExtreme => _t(
+        'UV cực kỳ gay gắt, khuyến cáo hạn chế ra ngoài từ 11h-14h',
+        'Extreme UV, avoid outdoor exposure between 11 AM - 2 PM',
+      );
+  String get insightAqiHazardous => _t(
+        'Chất lượng không khí rất xấu, khuyên đeo khẩu trang chống bụi mịn',
+        'Very poor air quality, wearing a protective mask is advised',
+      );
+  String get insightUvNight => _t(
+        'Trời tối, chỉ số UV bằng 0. Hoàn toàn an toàn dạo phố đêm Huế',
+        'Nighttime, UV is 0. Completely safe to enjoy Hue night streets',
+      );
+  String get perspective3dTooltip => _t('Góc nhìn 3D theo hướng xe (Heading-Up)', '3D Heading-Up Perspective');
+  String get perspective2dTooltip => _t('Góc nhìn 2D hướng Bắc (North-Up)', '2D North-Up Perspective');
 }
 
 extension AppLocalizationsContextX on BuildContext {

@@ -58,7 +58,10 @@ class MapState {
     this.markerStyle = MapMarkerStyle.gradientVibrantGlow,
     this.mapTileStyle = MapTileStyle.osmStandard,
     this.isNavigating = false,
+    this.currentSpeedKmh = 0.0,
   });
+
+  final double currentSpeedKmh;
 
   MapState copyWith({
     List<dynamic>? allPlaces,
@@ -87,6 +90,7 @@ class MapState {
     MapMarkerStyle? markerStyle,
     MapTileStyle? mapTileStyle,
     bool? isNavigating,
+    double? currentSpeedKmh,
   }) {
     return MapState(
       allPlaces: allPlaces ?? this.allPlaces,
@@ -110,6 +114,7 @@ class MapState {
       markerStyle: markerStyle ?? this.markerStyle,
       mapTileStyle: mapTileStyle ?? this.mapTileStyle,
       isNavigating: isNavigating ?? this.isNavigating,
+      currentSpeedKmh: currentSpeedKmh ?? this.currentSpeedKmh,
     );
   }
 
@@ -223,6 +228,10 @@ class MapNotifier extends StateNotifier<MapState> {
     final cat = category ?? 'all';
     state = state.copyWith(selectedCategory: cat, selectedCategories: {}, clearCategory: false);
     _applyFilters();
+  }
+
+  void setCurrentSpeed(double speedKmh) {
+    state = state.copyWith(currentSpeedKmh: speedKmh);
   }
 
   void filterByCategories(Set<String> categories) {

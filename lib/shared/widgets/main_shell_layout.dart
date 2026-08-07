@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:codoky/features/map/presentation/providers/map_provider.dart';
 import 'package:codoky/core/config/localization/app_localizations.dart';
 
 class _NavItemData {
@@ -24,16 +26,16 @@ class _NavItemData {
   });
 }
 
-class MainShellLayout extends StatefulWidget {
+class MainShellLayout extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainShellLayout({super.key, required this.navigationShell});
 
   @override
-  State<MainShellLayout> createState() => _MainShellLayoutState();
+  ConsumerState<MainShellLayout> createState() => _MainShellLayoutState();
 }
 
-class _MainShellLayoutState extends State<MainShellLayout> {
+class _MainShellLayoutState extends ConsumerState<MainShellLayout> {
   void _onItemTapped(int index, BuildContext context) {
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
@@ -64,6 +66,7 @@ class _MainShellLayoutState extends State<MainShellLayout> {
     final selectedIndex = widget.navigationShell.currentIndex;
     final activeColumn = _getActiveTabColumn(selectedIndex);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isLiveNavigating = (ref.watch(mapProvider).isNavigating || ref.watch(mapProvider).activeRoute != null) && selectedIndex == 0;
 
     final navTabs = [
       _NavItemData(icon: Icons.map_outlined, selectedIcon: Icons.map_rounded, label: context.l10n.navMap, route: '/map', branchIndex: 0),
@@ -79,10 +82,12 @@ class _MainShellLayoutState extends State<MainShellLayout> {
       extendBody: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: widget.navigationShell,
-      bottomNavigationBar: SafeArea(
-        bottom: true,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 24.0, left: 14.0, right: 14.0),
+      bottomNavigationBar: isLiveNavigating
+          ? const SizedBox.shrink()
+          : SafeArea(
+              bottom: true,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24.0, left: 14.0, right: 14.0),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(9999),
