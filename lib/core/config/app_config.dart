@@ -11,7 +11,7 @@ class AppConfig {
   static String get environment => _getString('ENVIRONMENT', _activeEnvironment);
   static String get apiBaseUrl => _getString('API_BASE_URL');
   static String get osrmBaseUrl {
-    final url = _getString('OSRM_BASE_URL', 'http://localhost:5000');
+    final url = _getString('OSRM_BASE_URL', 'https://router.project-osrm.org');
     final env = environment.toLowerCase();
     final isProdOrStaging = env == 'production' || env == 'prod' || env == 'staging';
     final isLocalhost = url.contains('localhost') || url.contains('127.0.0.1') || url.contains('10.0.2.2');

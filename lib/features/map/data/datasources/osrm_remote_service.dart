@@ -39,10 +39,6 @@ class OsrmRemoteService {
     String profile = 'driving',
     bool alternatives = true,
   }) async {
-    // Map internal profile names to OSRM public server profiles:
-    // 'motorbike' → 'bike'  (OSRM public only supports driving/bike/foot)
-    // 'walking'   → 'foot'
-    // 'driving'   → 'driving'
     final osrmProfile = switch (profile) {
       'motorbike' => 'bike',
       'walking' || 'foot' => 'foot',
@@ -73,15 +69,50 @@ class OsrmRemoteService {
       } else {
         throw const FormatException('Định dạng dữ liệu từ OSRM server không hợp lệ');
       }
-    } on NetworkExceptions {
-      rethrow;
     } catch (e) {
+      if (_baseUrl != 'https://router.project-osrm.org') {
+        AppLogger.w('⚠️ OSRM server ($_baseUrl) unreachable ($e). Falling back to public OSRM server (https://router.project-osrm.org)');
+        return _fetchFromPublicOsrm(start: start, end: end, profile: profile, alternatives: alternatives);
+      }
       AppLogger.e('❌ OSRM route request error: $e');
       if (e is DioException) {
         throw NetworkExceptions.getDioException(e);
       }
       throw NetworkExceptions.custom('Lỗi kết nối khi lấy tuyến đường OSRM: $e');
     }
+  }
+
+  Future<List<OsrmRoute>> _fetchFromPublicOsrm({
+    required LatLng start,
+    required LatLng end,
+    required String profile,
+    required bool alternatives,
+  }) async {
+    final osrmProfile = switch (profile) {
+      'motorbike' => 'bike',
+      'walking' || 'foot' => 'foot',
+      _ => 'driving',
+    };
+    final formattedCoords =
+        '${start.longitude},${start.latitude};${end.longitude},${end.latitude}';
+    final altParam = alternatives ? '&alternatives=true' : '';
+    final fallbackUri =
+        'https://router.project-osrm.org/route/v1/$osrmProfile/$formattedCoords?overview=full&geometries=geojson&steps=true$altParam';
+
+    AppLogger.i('🌐 Fallback fetching from public OSRM server: $fallbackUri');
+
+    final responseData = await apiClient.get(fallbackUri);
+    if (responseData is Map<String, dynamic>) {
+      final code = responseData['code'] as String?;
+      if (code != 'Ok') {
+        final message = responseData['message'] as String? ?? 'OSRM error code: $code';
+        throw NetworkExceptions.custom('Không thể tìm tuyến đường OSRM: $message');
+      }
+      final routes = OsrmRoute.fromMultiRouteJson(responseData);
+      AppLogger.i('✅ OSRM fallback ${routes.length} route(s) fetched successfully');
+      return routes;
+    }
+    throw const FormatException('Định dạng dữ liệu từ OSRM public server không hợp lệ');
   }
 
   Future<OsrmRoute> getDrivingRoute({
@@ -134,9 +165,19 @@ class OsrmRemoteService {
       } else {
         throw const FormatException('Định dạng dữ liệu OSRM không hợp lệ');
       }
-    } on NetworkExceptions {
-      rethrow;
     } catch (e) {
+      if (_baseUrl != 'https://router.project-osrm.org') {
+        AppLogger.w('⚠️ OSRM multi-waypoint server ($_baseUrl) unreachable ($e). Falling back to public OSRM server');
+        final fallbackUri =
+            'https://router.project-osrm.org/route/v1/$osrmProfile/$formattedCoords?overview=full&geometries=geojson&steps=true';
+        final responseData = await apiClient.get(fallbackUri);
+        if (responseData is Map<String, dynamic>) {
+          final code = responseData['code'] as String?;
+          if (code == 'Ok') {
+            return OsrmRoute.fromJson(responseData);
+          }
+        }
+      }
       AppLogger.e('❌ OSRM multi-waypoint route error: $e');
       if (e is DioException) {
         throw NetworkExceptions.getDioException(e);
